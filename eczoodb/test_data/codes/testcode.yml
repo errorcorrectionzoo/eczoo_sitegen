@@ -1,0 +1,202 @@
+#######################################################
+## This is a code entry in the error correction zoo. ##
+##       https://github.com/errorcorrectionzoo       ##
+#######################################################
+
+code_id: testcode
+physical: qubits
+logical: qubits
+
+name: 'My Test \(x:y\)-Code'
+introduced: '\cite{arXiv:1911.00099}'
+
+description: |
+  Here is the code's description.  It can span multiple, hard-wrapped lines.
+  It can include citations~\cite{arXiv:1911.00099}.
+  You can have math like \(a+b\) or \(\int_0^\infty f(x)\,dx\).  You can also
+  write \(\ket\psi = \sum_k \braket{e_k|\phi}\ket{e_k}\).
+  
+  The description field can contain multiple paragraphs, like this.  Each
+  \textbf{paragraph} can contain \emph{formatted text}, including
+  \href{https://phfaist.com/}{hyperlinks} and direct URLs:
+  \url{https://arxiv.org/}.  The stabilizers are given in \eqref{eq:stabilizers}.
+
+  Have fun\textbf{!!}
+
+  Check this citation that doesn't resolve with crossref
+  \cite{doi:10.7907/059V-MG69}.
+
+protection: |
+  Detects errors on \(d-1\) qubits, corrects errors on \(\left\lfloor (d-1)/2
+  \right\rfloor\) qubits.
+
+  \begin{figure}
+    \includegraphics{testfigure}
+    \caption{Here's a \textbf{test} figure.}
+    \label{figure:test1}
+  \end{figure}
+
+  We'll try out some tables with fictitious “Exponents”, too.
+
+  \begin{table}
+    \includegraphics{testtable}
+    \caption{A shiny table.}
+    \label{table:mytabletest}
+  \end{table}
+
+  \begin{figure}
+    \includegraphics{./testfigure2.png}
+    \caption{Another \emph{test} for a figure.  Let's see what happens when 
+      we have a really long caption that can span multiple lines like this,
+      without it being necessarily informative.  After all, this article is
+      really only a dummy example meant to test different features of the
+      generator of our pretty site \url{https://errorcorrectionzoo.org/}.}
+    \label{figure:test2}
+  \end{figure}
+
+  And another figure, this time in jpeg format!
+  \begin{figure}
+    \includegraphics{./scenery}
+    \caption{Isn't southern Italy simply stunning?}
+    \label{figure:scenery}
+  \end{figure}
+
+  Another flashy figure:
+  \begin{figure}
+    \includegraphics{flashyfigure}
+    \caption{Pretty flashy.}
+    \label{figure:flashy}
+  \end{figure}
+
+  We can use definition environments, too:
+
+  \begin{defterm}{Knill-Laflamme conditions}
+    In a finite-dimensional Hilbert space, there are necessary and sufficient
+    conditions for a code to successfully
+    correct a set of errors.  These are called the \emph{Knill-Laflamme
+    conditions}~\cite{arXiv:quant-ph/9604034,preset:PreskillNotes}\cite[Thm. 10.1]{doi:10.1017/CBO9780511976667}.
+    A code defined by a partial isometry \(U\) with code space projector \(\Pi = U U^\dagger\)
+    can correct a set of errors \(\{ E_j \}\) if and only if
+    \begin{align}
+      \Pi E_i^\dagger E_j \Pi = c_{ij}\, \Pi\qquad\text{for all \(i,j\),}
+    \end{align}
+    where \(c_{ij}\) can be arbitrary numbers.
+  \end{defterm}
+
+
+
+# An error should be reported for ref{invalid-references} (ok), as well as for
+# \eqref{invalid-eqn-keys} (doesn't work yet).
+
+notes:
+  - |
+      A first note goes here, which includes a \textbf{\emph{cross}-reference} to
+      the \hyperref[code:css]{CSS code}.
+      
+      Multiple paragraphs here.\footnote{Do these paragraph breaks work?  Here's
+      a \textit{footnote}, by the way.}  Here's also a reference to
+      \ref{figure:test1} and \ref{figure:test-n-only}.
+
+  - |
+      Another thing we should try out is what happens when we have really,
+      really, really long equations.
+      \begin{align}
+        F\bigl(\psi, -i[H,\psi]\bigr)
+        \geq
+        F\bigl(\mathcal{N}(\psi), \mathcal{N}(-i[H,\psi])\bigr)
+        \geq
+        F\bigl(\psi, -i[H,\psi]\bigr)
+        - 8\epsilon \bigl\Vert{-i[H,\psi]}\bigr\Vert_1\bigl\Vert{-i[H,\psi]}\bigr\Vert_\infty\ .
+      \end{align}
+
+  - |
+      Test citation to book \cite{doi:10.1017/CBO9780511976667}.  Test citation
+      to arXiv entry with incomplete DOI (issue \#43) \cite{arXiv:1604.04062}.
+      Test citing a preset: \cite{preset:PreskillNotes}.
+      Test citing a preset with citation note:
+      \cite[Chap.~6]{preset:PreskillNotes}.
+
+  - |
+      By the way, you can |\begin{verbatimtext}\input %verbatim$ text&*~like
+      this.\end{booh} using the \begin{vertatimtext} ... \end {verbatimtext}
+      environment\end{verbatimtext}|!
+
+      A bug can occur if a paper on the arXiv has a ‘\%’ sign in its
+      title:\cite{arXiv:1907.02554}
+
+      Also let's make sure that pure arXiv citations
+      work:~\cite{arXiv:quant-ph/0004088} (which also tests citations to
+      old-style arxiv ID's).
+
+  - |
+      Here's a reference to the \ref{topic:CSS-to-homology-correspondence}, by
+      the way.
+
+  - |
+      A second note goes here.  This one contains a display equation:
+      \begin{align}
+        S_1 &= I\,Z\,X\,X\,Z\ ;  \nonumber\\
+        S_2, \ldots, S_4 &= \text{cyclical permutations of \(S_1\)}\ .
+        \label{eq:stabilizers}
+      \end{align}
+      Note that the last cyclical permutation of \(S_1\) is not included, as it is
+      given by \(S_1S_2S_3S_4\).
+
+      Yeah!
+
+      Use of the \textit{gather} environment:
+      \begin{gather}
+         A = B + C\\
+         x = y + z
+      \end{gather}
+
+      Use of the \textit{split} environment inside align:
+      \begin{align}
+        \begin{split}
+          A &= B + C\\
+          x &= y + z
+        \end{split}
+      \end{align}
+
+      Test a manual citation \cite{manual:{A. Smith et al., \emph{Textbook of
+      fancy stuff}, Taylor \& Francis, 1999}}.
+
+  - |
+      Figures don't need to have numbers & captions (but then you can't
+      reference them):
+
+      \begin{figure}
+        \includegraphics{testfigure}
+      \end{figure}
+
+      Or you can simply have the figure number:
+
+      \begin{figure}
+        \includegraphics{testfigure}
+        \label{figure:test-n-only}
+      \end{figure}
+
+      Or only a caption on its own:
+
+      \begin{figure}
+        \includegraphics{testfigure}
+        \caption{This figure has no number, and I can't refer to it with
+          a ref command.}
+      \end{figure}
+
+
+
+# An error: \alpha.
+
+relations:
+  parents:
+    - code_id: stabilizer
+      detail: 'Description of how this code relates to stabilizer codes.\cite{arXiv:1111.0011}'
+  
+_meta:
+  changelog:
+    - user_id: PhF
+      date: '2022-03-05'
+      notes: 'These logs are completely fictitious'
+    - user_id: VVA
+      date: '2021-01-01'

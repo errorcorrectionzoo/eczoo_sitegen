@@ -1,0 +1,55 @@
+
+//
+// "tiles" display for the about/acknowledgments page
+//
+
+$tile-margin: 8px;
+$tile-image-size: 50px;
+$tile-image-gap: 10px;
+
+$rounded-border-radius: 8px;
+
+$tile-background-color: rgba(245,245,252,1.0);
+
+
+.tiles-collection {
+
+    margin-bottom: 2rem;
+
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(1, 1fr); // only a single column
+
+    &.two-columns {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    grid-row-gap: $tile-margin;
+    grid-column-gap: $tile-margin;
+    
+    .tile {
+        padding: $tile-margin $tile-margin $tile-margin;
+        padding-left: ($tile-image-size + $tile-margin + $tile-image-gap);
+        min-height: $tile-image-size;
+
+        //border: solid 1px rgba($text-dim-color,0.15);
+        background-color: $tile-background-color;
+
+        box-shadow: rgba(0,0,0,0.08) 4px 4px 8px;
+
+        // rounded tiles
+        border-radius: $rounded-border-radius;
+
+        background-position: $tile-margin 50%;
+        background-repeat: no-repeat;
+
+        background-size: $tile-image-size;
+
+        display: grid;
+
+        >.tile-content {
+            grid-row: 2;
+        }
+    }
+
+}

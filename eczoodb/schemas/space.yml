@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/space"
+
+#
+# Possible values of the `physical:` and `logical:` properties.
+#
+
+_zoo_primarykey: 'space_id'
+
+type: object
+additionalProperties: false
+required: ['space_id']
+properties:
+  space_id:
+    type: string
+    _single_line_string: True
+    pattern: '^[a-z0-9_.-]+$'
+
+  name:
+    type: string
+    _single_line_string: True
+    _llm: standalone
+
+  description:
+    type: string
+    _llm: full

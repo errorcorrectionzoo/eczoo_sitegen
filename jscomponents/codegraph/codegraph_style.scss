@@ -1,0 +1,250 @@
+
+// import our global variables
+//@import '~/stylesheets/variables.scss';
+
+// FIXME: How can we get access to the site's variables.scss ???
+$base-font-family: "Source Sans Pro", sans-serif;
+$base-font-size: 16px;
+$page-link-color: rgba(50,50,200,1.0);
+
+
+
+
+.EczCodeGraphComponent {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+
+    // CSS variable
+    --side-panel-width: 260px;
+
+    display: grid;
+    grid-template-columns: calc(100% - var(--side-panel-width) - 3px)  var(--side-panel-width);
+    grid-template-rows: 100%;
+    gap: 3px;
+
+    overflow: hidden;
+}
+
+@media screen and (max-width: 500px) {
+    .EczCodeGraphComponent {
+        grid-template-columns: 100%;
+        grid-template-rows: 80% 20%;
+
+        .EczCodeGraphComponent_SidePanel {
+            > div {
+                min-height: 200px;
+                overflow: hidden;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .EczCodeGraphComponent {
+        --side-panel-width: 320px;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    .EczCodeGraphComponent {
+        --side-panel-width: 390px;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    .EczCodeGraphComponent {
+        --side-panel-width: 450px;
+    }
+}
+
+
+.EczCodeGraphComponent_CyPanel {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0px;
+    padding: 0px;
+
+    // WORKAROUND for bug? in Firefox; without this, resizing to a smaller
+    // window causes many delayed updates and the panel only moves slowly back
+    // to its correct location.
+    overflow: auto;
+}
+.EczCodeGraphComponent_Cy {
+    // position: relative;
+    // top: 0px;
+    // left: 0px;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+
+    //width: auto;
+    //height: 100%;
+    //display: grid;
+}
+
+.EczCodeGraphComponent_SidePanel {
+    //width: 330px;
+    height: 100%;
+
+    margin: 0px;
+    padding: 0px;
+
+    background-color: white;
+    z-index: 100;
+
+    display: grid;
+    grid-template-rows: 0fr 1fr;
+    gap: 10px;
+
+    // force ignoring current element size in parent element calculations
+    overflow: auto;
+}
+
+// .CodeInformationSimpleComponent {
+//     height: 170px;
+//     overflow: auto;
+// }
+.EczCodeGraphControlsComponent {
+    font-size: 0.9rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+#code-graph-tooltip
+{
+    position: absolute;
+    min-width: 200px;
+    //min-height: 100px;
+    max-width: 500px;
+    background-color: white;
+    padding: 8px;
+}
+
+
+*/
+
+
+
+
+
+
+/*
+#code-graph-tooltip, .CodeInformationSimpleComponent
+{
+
+    font-family: $base-font-family;
+    font-size: $base-font-size;
+
+    box-shadow: 10px 7px 10px rgba(0,0,0,0.3);
+
+    .code-name, .domain-name, .kingdom-name {
+        display: inline-block;
+        padding: 3px;
+        margin-right: 1em;
+        font-weight: 500;
+    }
+
+    .code-description, .domain-description {
+        display: inline;
+        padding-bottom: 3px;
+        font-style: italic;
+        font-size: 0.9em;
+        color: rgba(0,0,0,0.8);
+    }
+
+    .spacer {
+        display: inline-block;
+        width: 1em;
+    }
+    .code-link, .domain-link, .kingdom-link {
+        display: inline-block;
+        margin-top: 5px;
+        font-style: italic;
+        font-size: 0.95em;
+    }
+
+    .kingdom-info {
+        display: block;
+    }
+
+    a.link-button {
+        display: block;
+        margin: 10px 0px 0px;
+        padding: 3px;
+        text-align: center;
+        background-color: mix($page-link-color, white, 5%);
+    }
+    a.link-button:hover {
+        background-color: mix($page-link-color, white, 10%);
+        //text-shadow: mix($page-link-color, white, 20%) 2px 1px 5px;
+    }
+}
+
+
+#code-graph-tooltip {
+
+    .tooltip-arrow::before {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        //background: inherit;
+    }
+
+    .tooltip-arrow {
+        visibility: hidden;
+    }
+
+    .tooltip-arrow::before {
+        visibility: visible;
+        //content: '•';
+        //content: '▴';
+        content: '';
+        background-image: url(prebaseurl('static/icons/tooltip-pointer.svg'));
+        //background-color: red;
+        //transform: rotate(45deg);
+        //transform-origin: 50% 50%;
+    }
+
+}
+
+#code-graph-tooltip[data-popper-placement^='top'] {
+    >.tooltip-arrow {
+        bottom: 0px;
+    }
+    >.tooltip-arrow::before {
+        transform: rotate(180deg);
+    }
+}
+
+#code-graph-tooltip[data-popper-placement^='bottom'] {
+    > .tooltip-arrow {
+        top: -8px;
+    }
+}
+
+// #code-graph-tooltip[data-popper-placement^='left'] > .tooltip-arrow {
+//   right: -4px;
+// }
+
+// #code-graph-tooltip[data-popper-placement^='right'] > .tooltip-arrow {
+//   left: -4px;
+// }
+
+*/

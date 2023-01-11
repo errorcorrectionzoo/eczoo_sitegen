@@ -1,0 +1,100 @@
+% Here is an example of a table that you can export
+% as vector graphics.
+%
+% COMPILATION INSTRUCTIONS:
+%
+%  lualatex testtable.tex
+% dvisvgm --pdf testtable.pdf
+%
+% (If you're on Mac OS, you might have to do "brew install ghostscript" and add
+% the option "--libgs=/usr/local/opt/ghostscript/lib/libgs.dylib" to the dvisvgm
+% call)
+%
+%
+% SCROLL DOWN TO EDIT THE TABLE (search for "TABLE STARTS HERE")
+%
+\documentclass[10pt]{article}
+\usepackage[table]{xcolor}
+
+% please compile with lualatex
+\usepackage{fontspec}
+
+\setsansfont{Source Sans Pro}
+\renewcommand{\familydefault}{\sfdefault}
+
+%
+% --- begin custom preamble ---
+%
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{phfparen}
+\usepackage{phfqit}
+
+%
+% --- end custom preamble ---
+%
+%
+% --- begin set up {preview} ---
+%
+\usepackage[active,delayed,tightpage]{preview}
+
+\pagestyle{empty}
+%
+% --- end set up {preview} ---
+%
+
+\begin{document}
+%
+\textwidth=500pt\relax
+\hsize=\textwidth\relax
+\parindent=0pt\relax
+\renewcommand{\arraystretch}{1.2}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+%
+\begin{preview}%
+%
+%
+% TABLE STARTS HERE --->
+%
+%
+\begin{tabular}{lcccc}
+% If you use tabularx, try to use \textwidth if possible:
+%\begin{tabularx}{\textwidth}{XCCCC}
+\toprule
+% Header
+\emph{Column 1} &
+\multicolumn{4}{c}{\emph{Remaining Columns}}
+\\
+% Body
+\midrule
+Exponents    &
+$\alpha$  & $\beta$  & $\gamma^3$  & $\infty$
+\\ 
+$\zeta$-equivalent &
+X1 & X2 & X3 & X4
+\\
+\rowcolor{green!30!white}
+\multicolumn{1}{m{2cm}}{%
+% (use p{2cm} instead of m{2cm} for top vertical alignment)
+\raggedright\itshape
+Paragraph cell on a green row}
+& Y1 & Y2 & Y3 & Y4
+\\
+\bottomrule
+\end{tabular}%
+%
+% <--- TABLE ENDED HERE
+%
+%
+%
+\end{preview}%
+\end{document}
+
+%%% Local Variables:
+%%% mode: lualatex
+%%% TeX-master: t
+%%% End:

@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/kingdom"
+
+#
+# A kingdom in the hierarchy of domains and kingdoms, organizing the base
+# concrete codes of the error correction zoo.
+#
+_zoo_primarykey: 'kingdom_id'
+type: object
+additionalProperties: false
+required: ['kingdom_id', 'name', 'parent_domain', 'kingdom_code']
+properties:
+
+  kingdom_id:
+    type: string
+    _single_line_string: True
+    pattern: '^[a-z0-9_.-]+$'
+
+  name:
+    type: string
+    _single_line_string: True
+    _llm: standalone
+
+  description:
+    type: string
+    _llm: full
+
+  parent_domain:
+    type: object
+    additionalProperties: false
+    properties:
+      domain_id:
+        type: string
+        pattern: '^[a-z0-9_.-]+$'
+        _single_line_string: True
+
+  kingdom_code:
+    type: object
+    additionalProperties: false
+    requried: ['code_id']
+    properties:
+      code_id:
+        type: string
+        _single_line_string: True
+        pattern: '^[a-z0-9_.-]+$'
+
+      # automatically populated fields, don't specify manually
+      code:
+        _auto_populated: true
+      
+
+
+_zoo_relations:
+  - object_field: 'parent_domain'
+    to_object_type: 'domain'
+    relation_primary_key_field: 'domain_id'
+    relation_add_object_field: 'domain'
+    backreference:
+      field: 'kingdoms'
+    
+  - object_field: 'kingdom_code'
+    to_object_type: 'code'
+    relation_primary_key_field: 'code_id'
+    relation_add_object_field: 'code'
+    backreference:
+      field: 'relations.defines_kingdom'

@@ -1,0 +1,735 @@
+
+@import 'variables.scss';
+
+//
+// Import fonts here, not in variables.scss, because we might include
+// variables.scss in other SCSS files.
+//
+// import "Source Sans Pro" from google fonts ->
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Basic page grid
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'pagegrid.scss';
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// fonts and basic appearance
+//
+////////////////////////////////////////////////////////////////////////////////
+
+body, html {
+    font-family: $base-font-family;
+    font-size: $base-font-size;
+    line-height: 1.3em;
+}
+
+a, a:link, a:hover, a:active, a:visited {
+    color: $page-link-color;
+    text-decoration: none;
+}
+a:hover {
+    color: $page-link-highlight-color;
+    text-shadow: rgba($page-link-color,0.25) 2px 1px 5px;
+}
+
+h1 {
+    font-size: 30px;
+    font-weight: 350;
+    line-height: 1.6em;
+
+    // default heading margins
+    margin: 0.7em 0px 0.7em 0pxn;
+}
+h2 {
+    font-size: 20px;
+    font-weight: 550;
+    line-height: 1.6em;
+
+    // default heading margins
+    margin: 0.7em 0px 0.7em 0pxn;
+}
+
+p, ul, ol {
+    // remember, top margin of next element overlaps with bottom margin of previous one
+    margin-top: 2*$parskip-half-length;
+    margin-bottom: 2*$parskip-half-length;
+}
+p:first-child, ul:first-child, ol:first-child {
+    margin-top: 0px !important;
+}
+p:last-child, ul:last-child, ol:last-child {
+    margin-bottom: 0px !important;
+}
+
+
+
+// definition lists with "terms" (<dt>) on the left and "definitions" (<dd>) on
+// the right
+dl {
+    display: grid;
+    grid-template-columns: max-content auto;
+}
+dt {
+    grid-column-start: 1;
+    /*font-weight: bold;*/
+    font-style: italic;
+}
+dd {
+    grid-column-start: 2;
+    //margin-left: 25px;
+    margin-left: 1rem;
+}
+
+
+
+details > summary > span {
+    cursor: pointer;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// main heading style
+//
+////////////////////////////////////////////////////////////////////////////////
+
+$header-padding: 3px;
+$header-bgimage-gap: 23px;
+$header-bgimage-width: 150px;
+$header-bgimage-width-mobile: 80px;
+$header-min-height: 80px;
+$header-min-height-mobile: 100px;
+
+#header-bg-decoration {
+    background-color: $pageheader-background-color;
+    color: $pageheader-text-color;
+
+    min-height: $header-min-height;
+
+    padding: $header-padding ($page-header-bleed+$header-padding);
+
+    margin-top: 0px;
+    margin-left: -$page-header-bleed;
+    margin-right: -$page-header-bleed;
+    margin-bottom: $page-header-gap;
+
+    z-index: 70;
+    box-shadow: rgba(0,0,0,0.15) 5px 5px 10px;
+}
+// remove bleed for full-width pages
+#bodycontents.app-full-width  #header-bg-decoration {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: $header-padding;
+    padding-right: $header-padding;
+
+    box-shadow: none;
+}
+
+#logo, #header {
+    z-index: 80;
+
+    color: $pageheader-text-color;
+}
+#header {
+    display: flex;
+
+    padding: 10px 0px;
+
+    > h1 {
+        margin: auto 0px;
+    }
+}
+
+//
+// Logo (use background-image) -- includes BETA marker in icon
+//
+#logo {
+    background-image: url('~/static/icons/eczoo-main-logo.svg');
+    background-repeat: no-repeat;
+
+    background-position-x: 0%;
+    background-position-y: center;
+    background-size: $header-bgimage-width auto;
+
+    width: $header-bgimage-width;
+
+    margin-right: $header-bgimage-gap;
+}
+
+
+//
+// Collapse logo to a narrower form on narrow screens.  But only do that if
+// there is text in the header, as otherwise there is no need to save horizontal
+// space.
+//
+@media screen and (max-width: $page-collapse-layout-width) {
+#bodycontents.page-header-has-text #header-bg-decoration {
+    min-height: $header-min-height-mobile;
+}
+#bodycontents.page-header-has-text #logo {
+    background-image: url('~/static/icons/eczoo-main-logo-mobile.svg');
+    width: $header-bgimage-width-mobile;
+    background-size: $header-bgimage-width-mobile auto;
+}
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// navigation box/links styling
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'navigation.scss';
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// footer styling
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#footer {
+    font-style: italic;
+    font-size: $tiny-fine-print-font-size;
+    //color: $text-dim-color;
+    padding: 4px;
+
+    margin-bottom: 20px;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// home page stuff
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'home-page.scss';
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// code collections "card" items
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+@mixin card-item {
+    margin: 1rem 0px 1rem;
+    padding: 10px;
+    border: solid 1px $discreet-border-color;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// code list pages
+//
+////////////////////////////////////////////////////////////////////////////////
+
+.ecc-code {
+    @include card-item;
+
+    p, ul, ol {
+        margin-top: 2*$inner-parskip-half-length;
+        margin-bottom: 2*$inner-parskip-half-length;
+    }
+}
+
+
+//
+// Code list page with style=index
+//
+ul.code-index, ol.code-index {
+    &, &:first-child {
+        margin: 1.5rem 0 2rem !important;
+    }
+
+    li {
+        margin-bottom: 0.7rem;
+    }
+
+    .code-name {
+        padding-right: 1em;
+        font-weight: bold;
+    }
+    .code-description {
+    }
+}
+
+//
+// Code list page with style=table
+//
+
+table.codelistpage-table {
+    margin: 1.5rem 0rem 2rem;
+
+    border-top: solid .15rem black;
+    border-bottom: solid .15rem black;
+
+    width: 100%;
+    box-sizing: border-box;
+    border-collapse: collapse;
+
+    thead {
+        tr {
+            border-bottom: solid .1rem black;
+
+            th {
+                //font-weight: normal;
+                font-weight: bold;
+                //font-style: italic;
+                font-size: $small-font-size;
+                
+                padding: 0.25rem 0.1rem;
+            }
+        }
+    }
+
+    &.hlines {
+        thead tr {
+            // turn the thin rule below header into a thick rule
+            border-bottom: solid .15rem black;
+        }
+        tbody tr {
+            border-bottom: solid .1rem black;
+        }
+    }
+
+    td {
+        padding: 0.15rem 0.25rem 0.15rem;
+    }
+
+    &.xtra-stretch td {
+        padding: 0.25rem 0.25rem 0.25rem;
+    }
+    &.xtra-xtra-stretch td {
+        padding: 0.5rem 0.25rem 0.5rem;
+    }
+
+
+
+    td.small {
+        font-size: $small-font-size;
+    }
+    td.left {
+        text-align: left;
+    }
+    td.center {
+        text-align: center;
+    }
+    td.right {
+        text-align: right;
+    }
+    td.top {
+        vertical-align: top;
+    }
+    td.bottom {
+        vertical-align: bottom;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// main code page
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// .ecc-code.ecc-code-page {
+//     border: none 0px;
+// }
+
+//
+// Code info page article appearance
+//
+
+@import 'ecc-code-page.scss';
+
+//
+// Elements displayed on the code info page
+//
+
+a.code-link-with-icon {
+    display: inline-block;
+
+    vertical-align: middle;
+
+    min-height: 12px;
+    margin-right: 1rem;
+    padding: 5px 5px 5px 17px;
+    background-size: 12px 12px;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+}
+
+// .display-code-id {
+//     margin-top: 1.5rem;
+
+//     // font-size: $tiny-fine-print-font-size;
+//     color: $text-dim-color;
+
+// }
+
+
+// when displaying point lists in code properties
+
+.paragraph-in-list {
+    display: block;
+    margin-top: 2*$inner-parskip-half-length;
+    margin-bottom: 2*$inner-parskip-half-length;
+    margin-left: 1rem;
+}
+.paragraph-in-list:first-child {
+    margin-top: 0px;
+}
+.paragraph-in-list:last-child {
+    margin-bottom: 0px;
+}
+
+.paragraph-in-list::before {
+    content: '\25b9';  // triangle right
+    font-size: 0.65rem;
+    float: left;
+    margin-left: -0.8rem;
+    color: $text-dim-color;
+}
+
+// always show "bullet"
+//
+// .paragraph-in-list:only-child {
+//     margin-left: 0px;
+//     margin-top: 2*$inner-parskip-half-length;
+// }
+// .paragraph-in-list:only-child::before {
+//     display: none;
+// }
+
+
+// info popup frames & detail
+
+.tippy-content {
+    .code-popup-info-frame {
+        padding: 16px;
+    }
+}
+
+a.code-self-permalink {
+    background-image: url('~/static/icons/permalink-logo.svg');
+}
+a.code-show-citation {
+    background-image: url('~/static/icons/cite-icon.svg');
+}
+a.code-show-share {
+    background-image: url('~/static/icons/share-icon.svg');
+}
+a.code-show-github {
+    background-image: url('~/static/icons/github-logo.svg');
+}
+a.code-self-edit {
+    background-image: url('~/static/icons/edit-icon.svg');
+}
+
+.show-citation, .show-share-social {
+    display: block;
+    //min-width: 350px;
+
+    > dt {
+        display: block;
+    }
+    > dd {
+        display: block;
+        margin-left: 0px;
+        padding: 0px;
+        
+        margin-bottom: 0.3rem;
+            
+        resize: none;
+        
+        box-sizing: border-box;
+        max-width: 100%;
+        min-width: 100%;
+
+        &.boxedcontent {
+            
+            background-color: rgba(240,240,255,0.5);
+            padding: 5px;
+
+            border: solid 1px rgba($text-dim-color, 0.5);
+
+            user-select: contain;
+        }
+    }
+
+    > dd.bibtex {
+        font-family: monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+    }
+}
+
+.code-popup-info-frame {
+
+    h2 {
+        font-size: inherit;
+        font-weight: bold;
+        margin-bottom: 0.7rem;
+    }
+
+    .zoo-code-id {
+        margin-top: 1rem;
+        color: rgba(black, 0.8);
+
+        code {
+            font-family: monospace;
+            font-size: 13px;
+            margin-left: 1em;
+            //display: inline-block;
+        }
+    }
+}
+
+
+.code-contributors {
+    font-style: italic;
+    font-size: $small-font-size;
+    opacity: 0.8;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// visual highlight for links to anchors within page
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'visual-highlight.scss';
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// LLM latex-like markup formatting
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'llm-formatting.scss';
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// endnotes: citations and footnotes
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#endnotes {
+    // border: dotted 1px gray;
+    // padding: 3px;
+
+    font-size: $small-font-size;
+
+    margin-bottom: 20px;
+
+    dl {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    dt {
+        font-style: normal;
+        text-align: right;
+    }
+
+    dd {
+        margin-left: 5px;
+        margin-bottom: 0.4em;
+    }
+
+    dt, dd {
+        transition: background-color 0.5s;
+    }
+
+    // superscript text for footnotes, not for citations
+    #footnotes {
+        dt {
+            @include fixbaseline-superscript-text;
+        }
+    }
+
+}
+
+
+
+.page_style_cards #endnotes {
+
+    @include card-item;
+
+    >h2 {
+        display: none;
+    }
+
+    opacity: 0.8;
+
+    dt {
+        min-width: 2em;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// code info short version
+//
+////////////////////////////////////////////////////////////////////////////////
+
+.short-code-name {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+.short-code-description {
+    font-style: italic;
+    display: block;
+    margin-bottom: 10px;
+}
+.short-code-info {
+    font-style: italic;
+    display: block;
+    margin-bottom: 10px;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// defterm glossary terms page
+//
+////////////////////////////////////////////////////////////////////////////////
+
+.glossary-defterm-list {
+
+    grid-template-columns: 1fr max-content;
+
+
+    .glossary-defterm-term-name {
+        grid-column: 1;
+        font-style: normal;
+        font-weight: bold;
+        display: block;
+        margin-bottom: $parskip-half-length;
+    }
+
+    .glossary-a-view-in-context {
+        grid-column: 2;
+    }
+
+    .glossary-defterm-body {
+        grid-column: 1 / 3;
+        display: block;
+        font-style: italic;
+        //margin-left: 3em;
+        margin-bottom: 2*$parskip-half-length;
+
+        
+    }
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Our tiles list layout (for the about page)
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'tiles.scss';
+
+
+.person-list {
+    //max-width: 400px;
+}
+
+.person-list.two-columns {
+    //max-width: calc(max(400px, 90%));
+}
+@media screen and (max-width: $page-collapse-layout-width) {
+    .person-list.two-columns {
+        // fall back to single column layout
+        grid-template-columns: repeat(1, 1fr);
+        max-width: 400px;
+    }
+}
+
+
+.tile-person {
+    max-width: 20rem;
+    .tile-person-line {
+        display: block;
+
+        .person-name {
+            font-weight: bold;
+        }
+
+        line-height: 1.3em;
+    }
+    .tile-person-name-line {
+        margin-top: 0.5rem;
+    }
+    .tile-person-links-line {
+        margin-top: 0.25rem;
+        font-size: $endnote-superscript-font-size;
+
+        >span:not(:first-child)::before {
+            content: ' • ';
+        }
+    }
+
+    &.tile-person-highlight {
+        box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;
+    }
+
+    &.person-avatar-unknown {
+        background-image: url('~/static/icons/avatar-unknown.svg');
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Search page
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'search-page.scss';
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Override settings for printing
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'print.scss';

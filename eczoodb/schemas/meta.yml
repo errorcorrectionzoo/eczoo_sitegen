@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/meta"
+
+#
+# The _meta: field of any entry in the zoo.  Includes information about
+# contributors, etc.
+#
+
+_description: >-
+  The _meta field contains additional meta-information data about the error
+  correction zoo entry itself.  We store among others the list of people who
+  have contributed to this particular entry.
+
+_use_schemadata: false
+type: object
+additionalProperties: false
+properties:
+
+  #
+  # List of contributions (change log)
+  #
+  changelog:
+
+    _description: >-
+      The list of significant edits to this entry, in chronological order.
+      Edits are included only if the contribution is substantial; fixing typos
+      and formatting tweaks are not considered substantial contributions.
+
+      Make sure you add your own name here if you're editing this entry!
+
+    type: array
+
+    items:
+      #
+      # A single contributor
+      #
+      type: object
+      additionalProperties: false
+      required: ['user_id', 'date']
+      properties:
+
+        user_id:
+          type: string
+          _single_line_string: true
+
+        date:
+          type: string
+          pattern: '^[0-9]{4}-[0-9]{2}(-[0-9]{2})?$'
+          _single_line_string: true
+          _description: >-
+            (Approximate) date of the modification, in the format YYYY-MM-DD or
+            YYYY-MM
+
+        notes:
+          type: string
+          _description: >-
+            Any additional notes that are worty to store with regards to this
+            particular edit.  Usually you should leave this blank.
+
+
+  stub:
+    _description: >-
+      Set to true if this entry is a stub and is intended to be completed at a
+      later time.
+    type: boolean

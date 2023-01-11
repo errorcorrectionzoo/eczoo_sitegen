@@ -1,0 +1,74 @@
+@media print {
+
+    #header-bg-decoration {
+        display: none;
+    }
+
+    #logo {
+        display: inline-block;
+        width: $header-bgimage-width;
+        height: $header-min-height;
+        margin: 0px $header-bgimage-gap 0px 0px;
+
+        // make logo appear in print
+        -webkit-print-color-adjust: exact !important; // Chrome, Safari
+        color-adjust: exact !important;  // Firefox
+    }
+    
+    #header:empty {
+        display: none;
+    }
+    #header {
+        color: inherit;
+        > h1 {
+            color: inherit;
+            &:not(:empty) {
+                margin-bottom: 0.3em;
+            }
+        }
+    }
+
+    #navigation {
+        margin-top: 1rem;
+        //display: none;
+        border: dotted 1px rgba(120,120,120,0.5);
+        padding: 0.3rem;
+        
+        > h1, ul {
+            display: block;
+        }
+        li {
+            display: inline-block;
+            &:not(:last-child)::after {
+                content: ',';
+                margin-right: 0.5em;
+            }
+        }
+    }
+
+    #footer {
+        margin-top: 10px;
+        margin-bottom: 0px;
+    }
+
+    // -- specific-page fixes --
+
+    .info-popup-button-container {
+        display: none; // no "edit" & "cite" buttons
+    }
+
+    article.ecc-code-page {
+        display: block;
+    }
+    .ashowurl {
+        font-size: $small-font-size;
+    }
+
+
+    .tile-person {
+        // make profile pics on the "team" page appear in print too
+        -webkit-print-color-adjust: exact !important; // Chrome, Safari
+        color-adjust: exact !important;  // Firefox
+    }
+}
+

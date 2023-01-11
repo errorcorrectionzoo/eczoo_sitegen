@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/codelist"
+
+
+_zoo_primarykey: 'list_id'
+
+type: object
+additionalProperties: false
+required: ['list_id', 'title', 'codes', 'display']
+properties:
+
+  list_id:
+    type: string
+    pattern: '^[a-z0-9_.-]+$'
+
+  # No longer needed.
+  # list_id_root:
+  #   type: boolean
+
+  title:
+    type: string
+    _llm: standalone
+
+  intro:
+    type: string
+    _llm: full
+
+  display:
+    type: object
+    additionalProperties: false
+    properties:
+      style:
+        type: string
+      options:
+        type: object
+        # completely free, determined by the template (TODO)
+
+  codes:
+    type: object
+    additionalProperties: false
+    required: ['select']
+    properties:
+      select:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            property_set:
+              type: string
+            domain:
+              type: string
+            # kingdom:  # use descendant_of instead
+            #   type: string
+            descendant_of:
+              type: string
+            cousin_of:
+              type: string
+            manual_code_list:
+              type: array
+              items:
+                type: string
+
+
+  sort:
+    type: object
+    additionalProperties: false
+    properties:
+      by:
+        type: string
+
+  metainfo:
+    type: object

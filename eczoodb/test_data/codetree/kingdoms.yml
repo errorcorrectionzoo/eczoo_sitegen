@@ -1,0 +1,21 @@
+
+kingdoms_by_domain_id:
+
+  classical_domain: []
+
+  quantum_domain:
+    - kingdom_id: qubits_into_qubits
+      name: 'Qubit Kingdom'
+      kingdom_code:
+        code_id: qubits_into_qubits
+
+    # - kingdom_id: qudits_into_qudits
+    #   name: 'Qu\emph{d}it Kingdom'
+    #   kingdom_code: {'code_id': 'qudits_into_qudits'}
+    # - kingdom_id: oscillators
+    #   name: 'Oscillator Kingdom'
+    #   kingdom_code: {'code_id': 'oscillators'}
+    # - kingdom_id: group_quantum
+    #   name: 'Group Kingdom'
+    #   kingdom_code: {'code_id': 'group_quantum'}
+    

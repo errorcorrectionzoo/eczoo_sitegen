@@ -1,0 +1,2 @@
+#random-code-box{grid-template-rows:0fr 1fr;grid-template-columns:1fr 0fr 0fr;align-items:start;display:grid}#random-code-box h1{grid-area:1/1}#random-code-box .random-code-content{grid-area:2/1/auto/4;margin:0;font-style:italic}#random-code-box .random-code-quick-link{margin-left:1em;display:inline-block}#random-code-box .random-code-quick-link-go{grid-column:2}#random-code-box .random-code-quick-link-refresh{grid-column:3}
+/*# sourceMappingURL=setup.css.map */

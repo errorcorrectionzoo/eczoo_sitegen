@@ -1,0 +1,5 @@
+{
+  "name": "sitelib",
+  "type": "module",
+  "packageManager": "yarn@3.3.0"
+}

@@ -1,0 +1,32 @@
+{% extends 'layout/static_page.html' %}
+
+{% set page_title_text = 'List of topics' %}
+
+{% block div_bodycontents_class -%}
+  page_style_cards
+{%- endblock %}
+
+{% block contents %}
+
+<h1>List of topics</h1>
+
+{% set all_topics = eczllm_scanner.compile_referenceableinfo_list_by_reftype('topic') | sort(attribute='ref_label') %}
+
+<ul class="glossary-topic-list">
+{%- for topic_info in all_topics -%}
+  <li class="glossary-topic-title">
+    {#- -#}
+    <a href="{{ topic_info.ref_label | topic_href }}">
+      {{- topic_info.referenceable_info.formatted_ref_llm_text | llmcompile | llmrender -}}
+    </a>
+    {#- -#}
+  </li>
+{%- endfor -%}
+</ul>
+
+
+<!-- endnotes -->
+<RENDER_ENDNOTES/>
+
+
+{% endblock contents %}

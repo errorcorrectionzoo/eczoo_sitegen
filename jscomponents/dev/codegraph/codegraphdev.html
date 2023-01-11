@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <link rel="stylesheet" href="../../../site/stylesheets/main.scss" />
+  <script src="../../mathjax/setup.js" type="module"></script>
+  <script crossorigin src="https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.umd.js"></script>
+<script type="module">
+import refs_data from './eczoodata_allrefs_test.json';
+import full_data from './eczoodata_full_test.json';
+// import refs_data from './eczoodata_allrefs.json';
+// import full_data from './eczoodata_full.json';
+window.eczData = {
+  eczoodbData: full_data,
+  eczoodbRefsData: refs_data,
+};
+</script>
+  <script src="../../codegraph/setup.js" type="module"></script>
+  <style>
+html, body {
+    width: 100vw;
+    height: 100vh;
+}
+header {
+    width: 100vh;
+    height: 20px;
+}
+main {
+    margin: auto;
+    width: auto;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+}
+  </style>
+</head>
+<body>
+<!--<header>Code graph.</header>-->
+<main id="main"></main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "name": "@errorcorrectionzoo/eczoodb",
+  "packageManager": "yarn@3.3.0",
+  "type": "module",
+  "version": "0.1.0",
+  "main": "eczoodb.js",
+  "author": "Philippe Faist",
+  "license": "MIT",
+  "dependencies": {
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
+    "debug": "^4.3.4"
+  },
+  "peerDependencies": {
+    "@phfaist/zoodb": "*"
+  },
+  "scripts": {
+    "package-csl-json": "node scripts/packageasjson.js <eczoo-bib-style.csl >eczoo-bib-style.json",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0"
+  },
+  "alias": {
+    "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
+    "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",
+    "@phfaist/zoodb/dbdataloader/*": "../node_modules/@phfaist/zoodb/src/dbdataloader/$1.js",
+    "@phfaist/zoodb/dbprocessor/*": "../node_modules/@phfaist/zoodb/src/dbprocessor/$1.js",
+    "@phfaist/zoodb/resourcecollector": "../node_modules/@phfaist/zoodb/src/resourcecollector/index.js",
+    "@phfaist/zoodb/resourcecollector/retriever/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/retriever/$1.js",
+    "@phfaist/zoodb/resourcecollector/processor/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/processor/$1.js",
+    "@phfaist/zoodb/zoollm": "../node_modules/@phfaist/zoodb/src/zoollm/index.js",
+    "@phfaist/zoodb/zoollm/citationcompiler": "../node_modules/@phfaist/zoodb/src/zoollm/citationcompiler.js",
+    "@phfaist/zoodb/zoollm/scanner": "../node_modules/@phfaist/zoodb/src/zoollm/scanner.js",
+    "@phfaist/zoodb/util": "../node_modules/@phfaist/zoodb/src/util/index.js",
+    "@phfaist/zoodb/search/searchindex": "../node_modules/@phfaist/zoodb/src/search/searchindex.js",
+    "@phfaist/zoodb/search/searchwidget": "../node_modules/@phfaist/zoodb/src/search/searchwidget.js"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "name": "@errorcorrectionzoo/jscomponents",
+  "version": "0.0.1",
+  "type": "module",
+  "packageManager": "yarn@3.3.0",
+  "dependencies": {
+    "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb#main",
+    "@popperjs/core": "^2.11.6",
+    "cytoscape": "^3.23.0",
+    "cytoscape-cose-bilkent": "^4.1.0",
+    "cytoscape-fcose": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable",
+    "cytoscape-svg": "^0.4.0",
+    "debug": "^4.3.4",
+    "html-escaper": "^3.0.3",
+    "lodash": "^4.17.21",
+    "puppeteer": "^19.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tippy.js": "^6.3.7"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.8.2",
+    "parcel": "^2.8.2",
+    "path-browserify": "^1.0.0",
+    "process": "^0.11.10",
+    "sirv-cli": "^2.0.2"
+  },
+  "peerDependencies": {
+    "@errorcorrectionzoo/eczoodb": "*",
+    "@phfaist/zoodb": "*"
+  },
+  "targets": {
+    "mathjax": {
+      "distDir": "dist/mathjax",
+      "source": "./mathjax/setup.js"
+    },
+    "linkanchorvisualhighlight": {
+      "distDir": "dist/linkanchorvisualhighlight",
+      "source": "./linkanchorvisualhighlight/setup.js"
+    },
+    "popuptippy": {
+      "distDir": "dist/popuptippy",
+      "source": "./popuptippy/setup.js"
+    },
+    "codegraph": {
+      "distDir": "dist/codegraph",
+      "source": "./codegraph/setup.js"
+    },
+    "search": {
+      "distDir": "dist/search",
+      "source": "./search/setup.js"
+    },
+    "randomcode": {
+      "distDir": "dist/randomcode",
+      "source": "./randomcode/setup.js"
+    },
+    "dev-codegraph": {
+      "distDir": "dev-dist",
+      "source": "./dev/codegraph/codegraphdev.html"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf .parcel-cache dist dev-dist && parcel build --no-cache && yarn private-dist-add-use-strict",
+    "dev-codegraph-build": "rm -rf .parcel-cache dev-dist && parcel build --no-cache --no-scope-hoist --no-optimize --target dev-codegraph && yarn private-dist-add-use-strict",
+    "private-dist-add-use-strict": "bash -c 'for i in dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
+  },
+  "browserslist": "> 0.1%, last 3 versions, not dead",
+  "...browserslist": "> 10%, last 2 versions, not dead",
+  "externalDependencies": {
+    "base": [],
+    "jscomponents": {
+      "codegraph": [
+        "cytoscape"
+      ],
+      "popuptippy": [
+        "@popperjs/core",
+        "tippy.js"
+      ],
+      "search": [
+        "@popperjs/core",
+        "tippy.js"
+      ]
+    }
+  },
+  "alias": {
+    "cytoscape": {
+      "global": "cytoscape"
+    },
+    "@popperjs/core": {
+      "global": "Popper"
+    },
+    "tippy.js": {
+      "global": "tippy"
+    },
+    "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
+    "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",
+    "@phfaist/zoodb/dbdataloader/*": "../node_modules/@phfaist/zoodb/src/dbdataloader/$1.js",
+    "@phfaist/zoodb/dbprocessor/*": "../node_modules/@phfaist/zoodb/src/dbprocessor/$1.js",
+    "@phfaist/zoodb/resourcecollector": "../node_modules/@phfaist/zoodb/src/resourcecollector/index.js",
+    "@phfaist/zoodb/resourcecollector/retriever/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/retriever/$1.js",
+    "@phfaist/zoodb/resourcecollector/processor/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/processor/$1.js",
+    "@phfaist/zoodb/zoollm": "../node_modules/@phfaist/zoodb/src/zoollm/index.js",
+    "@phfaist/zoodb/zoollm/citationcompiler": "../node_modules/@phfaist/zoodb/src/zoollm/citationcompiler.js",
+    "@phfaist/zoodb/zoollm/scanner": "../node_modules/@phfaist/zoodb/src/zoollm/scanner.js",
+    "@phfaist/zoodb/util": "../node_modules/@phfaist/zoodb/src/util/index.js",
+    "@phfaist/zoodb/search/searchindex": "../node_modules/@phfaist/zoodb/src/search/searchindex.js",
+    "@phfaist/zoodb/search/searchwidget": "../node_modules/@phfaist/zoodb/src/search/searchwidget.js"
+  }
+}

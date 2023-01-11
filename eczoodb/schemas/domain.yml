@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/domain"
+
+#
+# A domain in the hierarchy of domains and kingdoms, organizing the base
+# concrete codes of the error correction zoo.
+#
+_zoo_primarykey: 'domain_id'
+type: object
+additionalProperties: false
+required: ['domain_id', 'name', 'description']
+properties:
+
+  domain_id:
+    type: string
+    _single_line_string: True
+    pattern: '^[a-z0-9_.-]+$'
+
+  name:
+    type: string
+    _llm: standalone
+    _single_line_string: True
+
+  description:
+    type: string
+    _llm: full
+
+  # automatically populated
+  kingdoms:
+    _auto_populated: true

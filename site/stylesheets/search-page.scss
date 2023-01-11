@@ -1,0 +1,18 @@
+
+#EczooSearchWidget {
+
+    // div with all search results
+    .search-results {
+    }
+
+
+    // a single search result
+    .search-result {
+        @include card-item;
+
+    }
+
+}
+
+
+

@@ -1,0 +1,10 @@
+
+- domain_id: classical_domain
+  name: 'Classcial Domain'
+  description: >-
+    codes for good ol' computers
+
+- domain_id: quantum_domain
+  name: 'Quantum Domain'
+  description: 'codes for quantum systems'
+

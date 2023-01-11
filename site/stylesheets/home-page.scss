@@ -1,0 +1,89 @@
+@mixin home-box-panel-style {
+
+    //border: dotted 1px gray; /*rgba(127,0,0,0.25);*/
+    border: none 0px;
+
+
+    // background-color: $home-box-panel-background-color;
+    // box-shadow: rgba(0,0,0,0.08) 3px 3px 6px;
+
+
+    padding: 5px;
+}
+
+
+#bodycontents.page-index > main
+{
+    
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    
+    .page-index-box {
+        grid-column: span 1;
+
+        @include home-box-panel-style;
+
+        padding: 8px;
+
+        h1:first-child {
+            margin-top: 0px;
+        }
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        ul.page-index-box-links {
+            display: inline;
+
+            list-style: none;
+            padding: 0px 0px 0px 1px;
+            margin: 0px;
+
+            .page-index-box-links-head {
+                display: inline-block; // no line break within the 'head' item
+                font-weight: 550;
+            }
+            span.page-index-box-links-head {
+                // additional styling for when this "head" is not a link
+            }
+
+            > li {
+                display: inline;
+                padding: 2px 0px;
+            }
+
+            .spacer {
+                display: inline-block;
+                padding-right: 8px;
+            }
+
+            .page-index-box-links-thin-separator {
+                display: block;
+                padding-top:2px;
+            }
+        }
+
+        .stat-number {
+            font-weight: bold;
+        }
+
+    }
+
+    .page-index-box-span-2 {
+        grid-column: span 2;
+    }
+}
+
+
+
+@media (max-width: 600px) {
+    #bodycontents.page-index > main {
+        grid-template-columns: 1fr;
+
+        .page-index-box-span-2 {
+            grid-column: span 1;
+        }
+
+    }
+}

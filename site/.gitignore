@@ -1,0 +1,6 @@
+
+_site/
+
+.11ty-parcel-temp/
+.parcel-cache
+dist/

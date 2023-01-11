@@ -1,0 +1,71 @@
+
+
+// not sure if there is a clever way to recover the value set in variables.scss
+// of the main site (...?)
+
+
+$popup-info-button-accent-color: #3232c8;
+
+
+
+.info-popup-button-container > div {
+    display: inline-block;
+}
+
+$popup-info-button-icon-size: 22px;
+$popup-info-button-v-padding: 4px;
+$popup-info-button-h-padding: 4px;
+$popup-info-button-icon-text-gap: 8px;
+
+a.popup-info-button {
+    display: inline-block;
+
+    color: $popup-info-button-accent-color;
+
+    border: solid 1px $popup-info-button-accent-color;
+    border-radius: 2px;
+
+    //opacity: 0.2;
+    opacity: 0.8;
+
+    margin-left: 4px;
+
+    min-height: $popup-info-button-icon-size;
+
+    margin-top: (- $popup-info-button-v-padding - 1px);
+
+    padding-top: $popup-info-button-v-padding;
+    padding-right: $popup-info-button-h-padding;
+    padding-bottom: $popup-info-button-v-padding;
+    padding-left: ($popup-info-button-h-padding + $popup-info-button-icon-size + $popup-info-button-icon-text-gap);
+
+    //vertical-align: middle;
+
+    background-size: $popup-info-button-icon-size; //100% 100%;
+    background-repeat: no-repeat;
+    background-position: $popup-info-button-h-padding 50%;
+
+    > span {
+        display: inline-block;
+        line-height: $popup-info-button-icon-size;
+        height: $popup-info-button-icon-size;
+        padding: 0px;
+    }
+}
+
+a.code-link-with-icon {
+    min-height: 12px;
+    margin-right: 1rem;
+    padding: 5px 5px 5px 17px;
+    background-size: 12px 12px;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+}
+
+
+a.popup-info-button:hover {
+    //opacity: 0.9;
+    opacity: 1.0;
+    background-color: rgba($popup-info-button-accent-color, 0.1);
+    box-shadow: rgba($popup-info-button-accent-color, 0.1) 3px 3px 5px;
+}

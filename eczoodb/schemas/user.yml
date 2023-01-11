@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/user"
+
+#
+# A User (e.g., Contributor) to the EC Zoo.
+#
+type: object
+additionalProperties: {}
+required: ['user_id', 'name']
+
+_zoo_primarykey: 'user_id'
+
+properties:
+
+  # every code must have a code_id.
+  user_id:
+    type: string
+    pattern: '^[a-zA-Z0-9]+$'
+    _single_line_string: true
+    _description: >-
+      A unique, internal identifier for the user.
+    _zoo_search:
+      include_in_index: false
+
+  # every user must have a name.
+  name:
+    type: string
+    #_llm: standalone # NO LLM!
+    _single_line_string: true
+    _description: >-
+      The user's full name, as it should be displayed.
+    _zoo_search:
+      include_in_index: true
+
+  zooteam:
+    type: string
+    _single_line_string: true
+    _description: >-
+      Zoo team indicates membership to a particular "team" (Core, Veterinarians,
+      Code Contributors).  Leave blank for code contributors.
+    _zoo_search:
+      include_in_index: false
+
+  zoorole:
+    type: string
+    _single_line_string: true
+    _description: >-
+      Zoo role is applicable to core team members, otherwise omit field.
+    _zoo_search:
+      include_in_index: false
+
+  githubusername:
+    type: string
+    _single_line_string: true
+    _description: >-
+      The user's username on github.com
+    #_zoo_search:
+    #  field_name: 'github'
+
+  gscholaruser:
+    type: string
+    _single_line_string: true
+    _description: >-
+      The user's Google scholar profile ID
+    _zoo_search:
+      include_in_index: false
+
+  pageurl:
+    type: string
+    _single_line_string: true
+    _description: >-
+      The user's web page URL
+    _zoo_search:
+      include_in_index: false
+
+  avatarurl:
+    type: string
+    _single_line_string: true
+    _description: >-
+      A link to a profile picture (image) for this user
+    _zoo_search:
+      include_in_index: false
+
+
+  # auto-populated
+  zoo_contributions:
+    type: object
+
+    _auto_populated: true
+    _zoo_search:
+      include_in_index: false
+
+    properties:
+      code:
+        type: array
+        items: {}

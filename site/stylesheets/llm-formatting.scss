@@ -1,0 +1,188 @@
+
+.emph, .textit {
+    font-style: italic;
+}
+.textbf {
+    font-weight: bold;
+}
+
+
+.heading-level-3 {
+    // \section{...}
+    font-weight: bold;
+    margin: 1.25em 0 1em;
+    font-size: 1rem;
+}
+
+.heading-level-4 {
+    // \paragraph{...}
+    font-style: italic;
+    display: inline;
+    //margin-right: 1em;
+
+    &::after {
+        display: inline-block;
+        margin: 0px .12em;
+        content: '—';
+    }
+}
+
+
+table.cells {
+  margin: 1em auto 1em auto;
+  border-collapse: collapse;
+  border-top: solid 1pt;
+  border-bottom: solid 1pt;
+
+  box-sizing: border-box;
+  max-width: 100%;
+  max-width: calc(100% - 3em);
+
+  td {
+      padding: 0.3em 0.5em;
+  }
+
+  th {
+      padding: 0.3em 0.5em;
+  }
+  th.cellstyle-H {
+      border-bottom: solid .5pt;
+  }
+  th.cellstyle-rH {
+  }
+
+  .cellstyle-l {
+      text-align: left;
+  }
+  .cellstyle-c {
+      text-align: center;
+  }
+  .cellstyle-r {
+      text-align: right;
+  }
+  .cellstyle-green {
+      background-color: rgb(200,255,215);
+  }
+  .cellstyle-blue {
+      background-color: rgb(200,220,255);
+  }
+  .cellstyle-yellow {
+      background-color: rgb(255,255,200);
+  }
+  .cellstyle-red {
+      background-color: rgb(255,200,200);
+  }
+  .cellstyle-lvert {
+      border-left: solid .5pt;
+  }
+  .cellstyle-rvert {
+      border-right: solid .5pt;
+  }
+}
+
+
+
+figure.float {
+    /*min-width: 200pt;*/
+    box-sizing: border-box;
+    width: 100%;
+    //text-align: center;
+
+    border-width: 1px 0px 1px 0px;
+    border-style: solid none solid none;
+    border-color: $discreet-border-color;
+    // background-color: rgba($home-box-panel-background-color, 0.5);
+
+    margin: 0.5rem 0px;
+    padding: 0.5rem 0px;
+
+    &.float-table {
+        // suppress borders for tables
+        border-style: none none none none;
+        // and separate the table a bit more from its surroundings
+        margin: 1rem 0px 1rem;
+    }
+
+    .float-contents {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+
+        img {
+            display: block;
+            margin: 0pt;
+            padding: 0pt;
+            border: 0pt;
+            margin: 0px auto;
+        }
+
+        table.cells {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+    }
+
+    figcaption {
+        display: block;
+        margin-top: 0.5em;
+        margin: 0.75em 2em 0px;
+
+        text-align: center;
+
+        > span {
+            display: inline-block;
+
+            font-style: italic;
+
+            text-align: left;
+        }
+    }
+}
+
+
+
+
+.defterm {
+    font-style: italic;
+
+    .defterm-term {
+        font-style: italic;
+        font-weight: bold;
+    }
+}
+
+
+
+.display-math {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+
+    display: block;
+    overflow-x: auto;
+}
+
+
+
+@mixin fixbaseline-superscript-text {
+    font-size: $endnote-superscript-font-size;
+
+    // "vertical-align: super" shifts the entire baseline downwards, not nice
+    // vertical-align: top;
+
+    display: inline-block;
+    
+    // shift upwards to make superscript, without shifting the baseline
+    // downwards.
+    vertical-align: 0.3em;
+    margin-top: -0.3em;
+}
+
+.citation {
+    @include fixbaseline-superscript-text;
+}
+.footnote {
+    @include fixbaseline-superscript-text;
+}
+

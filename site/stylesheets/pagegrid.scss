@@ -1,0 +1,188 @@
+//
+// Basic page layout
+//
+
+//
+// CAREFUL IF YOU EDIT THIS FILE.  EDITS CAN BREAK PAGE LAYOUTS UNEXPECTEDLY.
+//
+
+
+@media screen {
+
+    html, 
+    body {
+        width: 100%;
+        height: 100%;
+        font-size: 100%;
+        padding: 0px;
+        margin: 0px;
+    }
+    #bodycontents {
+        max-width: $page-max-width;
+        padding: 0px $page-main-margins;
+        margin: auto;
+    }
+
+    #bodycontents {
+
+        display: grid;
+
+        // 3 grid columns are needed for header.
+        //
+        //   - The first column is the logo.
+        //
+        //   - The second is the space where either the large title gets placed
+        //     (e.g., home page), or the navigation links get compressed to on large
+        //     enough screens.
+        //
+        //   - The third column is used only when we show a "navigation shortcut"
+        //     link to scroll down the page to where the navigation links are.
+        //
+        grid-template-columns: 0fr 1fr 0fr;
+
+        grid-template-rows: 0fr 1fr 0fr 0fr;
+
+        gap: 0px;
+    }
+
+    #header-bg-decoration {
+        grid-column-start: 1;
+        grid-column-end: 4;
+        grid-row-start: 1;
+        grid-row-end: 2;
+    }
+    #logo {
+        grid-column-start: 1;
+        grid-column-end: 2;
+        grid-row-start: 1;
+        grid-row-end: 2;
+
+        z-index: 10;
+    }
+    #header {
+        grid-column-start: 2;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 2;
+
+        z-index: 10;
+    }
+
+
+    //
+    // navigation links are by default at the bottom of the page.  On desktop sites
+    // they'll get squeezed into the header bar.
+    //
+
+    #navigation {
+        grid-column-start: 1;
+        grid-column-end: 4;
+        grid-row-start: 3;
+        grid-row-end: 4;
+
+        z-index: 10;
+    }
+    #navigation-shortcuts {
+        grid-column-start: 3;
+        grid-column-end: 4;
+        grid-row-start: 1;
+        grid-row-end: 2;
+
+        z-index: 10;
+    }
+
+
+    main {
+        grid-column-start: 1;
+        grid-column-end: 4;
+        grid-row-start: 2;
+        grid-row-end: 3;
+
+        margin-top: $main-content-top-space;
+    }
+
+    #bodycontents:not(.app-full-width):not(.page-wide-layout) {
+        main {
+            width: 100%;
+            max-width: $page-max-main-width;
+            margin: $main-content-top-space auto 0px;
+            padding: 0px;
+        }
+        footer {
+            width: 100%;
+            max-width: $page-max-main-width;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0px;
+        }
+    }
+
+    footer {
+        margin-top: $page-footer-gap;
+
+        grid-column-start: 1;
+        grid-column-end: 4;
+        grid-row: 4;
+    }
+
+} // @media screen
+
+
+
+// On large enough screens (desktops), squeeze the navigation links into the
+// header bar.
+@media screen and (min-width: $page-collapse-layout-width) {
+    // cf https://stackoverflow.com/a/5771004/1694896
+
+    #navigation {
+        grid-column-start: 2;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 2;
+    }
+    #navigation-shortcuts {
+        display: none;
+    }
+}
+
+
+//
+// rules to collapse layout for narrow screens
+//
+// force <main> to viewport width
+@media screen and (max-width: $page-collapse-layout-width) {
+    #bodycontents:not(.app-full-width) main {
+        width: calc(100vw - #{2*$page-main-margins});
+    }
+}
+
+//
+// Version of the page for space-sensitive apps (e.g., code graph)
+//
+#bodycontents.app-full-width
+{
+    @media screen {
+        max-width: 100vw;
+        width: 100vw;
+        height: 100vh;
+
+        padding: 0px;
+        margin: 0px;
+
+        main {
+            grid-row-start: 2;
+            grid-row-end: 5;
+
+            margin-top: 0px;
+            margin: 0px;
+        }
+    }
+
+    // collapse layout on narrow screens; adjust main view height
+    @media screen and (max-width: $page-collapse-layout-width) {
+        main {
+            height: 80vh;
+            grid-row-end: 3;
+        }
+    }
+}
