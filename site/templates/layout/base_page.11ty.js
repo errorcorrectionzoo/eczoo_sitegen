@@ -68,6 +68,8 @@ const get_page_header_navigation_links_default = async (data) => {
 
 const render = async function (data) {
 
+    const eleventy = this;
+
     const { sqzhtml } = await import('@errorcorrectionzoo/eczoodb/render_utils.js');
 
     let s = '';
@@ -76,10 +78,10 @@ const render = async function (data) {
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
 `;
 
-    // FIXME: USE FAVICONS
+    // favicon
+    s += await eleventy.favicon('eczoo_icon.svg');
 
     let page_layout_info = data.page_layout_info ?? {};
     

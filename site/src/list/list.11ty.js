@@ -21,7 +21,7 @@ const data = async () => {
         },
         eleventyComputed: {
             permalink: (data) =>
-                data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id),
+                data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id) + '.html',
             title: (data) => zoollm.render_text_standalone(data.codelist.title),
         },
     };
