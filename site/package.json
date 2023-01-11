@@ -33,6 +33,7 @@
   "scripts": {
     "bundles": "rm -rf _site/jsbundle _site/cssbundle && parcel build",
     "build": "rm -rf _site && yarn bundles && DEBUG=\"*Error*,*zoo*\" eleventy",
+    "build-simple": "rm -rf _site && yarn bundles && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*\" eleventy",
     "build-test": "rm -rf _site && yarn bundles && ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy",
     "dev": "rm -rf _site && yarn bundles && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*\" eleventy --serve",
     "dev-test": "rm -rf _site && yarn bundles && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy --serve",
