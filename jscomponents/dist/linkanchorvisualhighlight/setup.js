@@ -1,2 +1,3 @@
+"use strict";
 !function(){function t(t){var n=function(t,n){for(n=n.toUpperCase();t;){if(1==t.nodeType&&t.nodeName==n)return t;t=t.parentNode}return null}(t.target,"a");if(null!==n){var e=n.getAttribute("href");if(e){if(!e.startsWith("#"))return;var i=decodeURIComponent(e.substring(1)),o=window.document.getElementById(i);console.log(o),o.classList.add("visual-highlight"),setTimeout((function(){return o.classList.remove("visual-highlight")}),1e3)}}}function n(n){var e=window.document.getElementById(n);e&&e.addEventListener("click",t)}window.addEventListener("load",(function(){n("main"),n("nav-shortcut-to-navigation-links")}))}();
 //# sourceMappingURL=setup.js.map

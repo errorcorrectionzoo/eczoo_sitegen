@@ -93,9 +93,6 @@
     "tippy.js": {
       "global": "tippy"
     },
-    "lodash": {
-      "global": "_"
-    },
     "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
     "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",
     "@phfaist/zoodb/dbdataloader/*": "../node_modules/@phfaist/zoodb/src/dbdataloader/$1.js",
