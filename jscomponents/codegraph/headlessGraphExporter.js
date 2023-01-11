@@ -32,7 +32,7 @@ export async function exportCodeGraphToSvg(eczCodeGraph, { cyStyleJsonOptions }=
     ];
     for (const scriptUrl of scriptUrls) {
         await page.addScriptTag({
-            url: scriptUrl
+            url: scriptUrl,
         });
     }
 

@@ -22,17 +22,34 @@ import { createRoot } from 'react-dom/client';
 
 function getDisplayOptionsFromUrlFragment(hrefFragment)
 {
-    const nodeRxMatch = /^#code_(.*)$/.exec(hrefFragment);
-    if (nodeRxMatch == null) {
-        return {};
+    let nodeId = null;
+
+    // matches a code?
+    const nodeRxMatchCode = /^#code_(.*)$/.exec(hrefFragment);
+    if (nodeRxMatchCode != null) {
+        // highlight a given code
+        const codeId = nodeRxMatchCode[1];
+        debug(`Gonna highlight code ${codeId}`);
+        nodeId = EczCodeGraph.getNodeIdCode(codeId);
     }
-    // highlight a given code
-    const codeId = nodeRxMatch[1];
-    debug(`Gonna highlight code ${codeId}`);
+    // matches a domain?
+    const nodeRxMatchDomain = /^#domain_(.*)$/.exec(hrefFragment);
+    if (nodeRxMatchDomain != null) {
+        // highlight a given code
+        const domainId = nodeRxMatchDomain[1];
+        debug(`Gonna highlight domain ${domainId}`);
+        nodeId = EczCodeGraph.getNodeIdDomain(domainId);
+    }
+
+    if (nodeId == null) {
+        // don't highlight anything specific via fragment
+        return;
+    }
+    
     return {
         displayMode: 'isolate-nodes',
         modeIsolateNodesOptions: {
-            nodeIds: [ EczCodeGraph.getNodeIdCode(codeId) ],
+            nodeIds: [ nodeId ],
             redoLayout: true,
             range: {
                 parents: {
