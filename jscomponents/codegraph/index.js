@@ -967,6 +967,9 @@ export class EczCodeGraph
             // Fix desired nodes to predefined positions
             // [{nodeId: 'n1', position: {x: 100, y: 200}}, {...}]
             fixedNodeConstraint,
+
+            // alignmentConstraint: {vertical: [], horizontal: []},
+            // relativePlacementConstraint: [],
         };
 
         let p = new Promise( (resolve) => {

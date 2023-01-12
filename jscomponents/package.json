@@ -15,8 +15,6 @@
     "html-escaper": "^3.0.3",
     "lodash": "^4.17.21",
     "puppeteer": "^19.4.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "tippy.js": "^6.3.7"
   },
   "devDependencies": {
@@ -71,7 +69,13 @@
     "base": [],
     "jscomponents": {
       "codegraph": [
-        "cytoscape"
+        "lodash",
+        "cytoscape",
+        "layout-base",
+        "cose-base",
+        "cytoscape-fcose",
+        "react",
+        "react-dom"
       ],
       "popuptippy": [
         "@popperjs/core",
@@ -81,17 +85,74 @@
         "@popperjs/core",
         "tippy.js"
       ]
-    }
+    },
+    "src": [
+        {
+            "name": "lodash",
+            "cdn": "unpkg"
+        },
+        {
+            "name": "@popperjs/core",
+            "cdn": "unpkg"
+        },
+        {
+            "name": "tippy.js",
+            "cdn": "unpkg"
+        },
+        {
+            "name": "cytoscape",
+            "cdn": "unpkg"
+        },
+        {
+            "name": "layout-base",
+            "cdn": "unpkg",
+            "version": "2.0.1"
+        },
+        {
+            "name": "cose-base",
+            "cdn": "unpkg",
+            "version": "2.1.0"
+        },
+        {
+            "name": "cytoscape-fcose",
+            "cdn": "unpkg",
+            "version": "2.1.0"
+        },
+        {
+            "name": "react",
+            "cdn": "unpkg",
+            "version": "18",
+            "path": "/umd/react.production.min.js"
+        },
+        {
+            "name": "react-dom",
+            "cdn": "unpkg",
+            "version": "18",
+            "path": "/umd/react-dom.production.min.js"
+        }
+    ]
   },
   "alias": {
     "cytoscape": {
       "global": "cytoscape"
+    },
+    "cytoscape-fcose": {
+      "global": "cytoscapeFcose"
     },
     "@popperjs/core": {
       "global": "Popper"
     },
     "tippy.js": {
       "global": "tippy"
+    },
+    "lodash": {
+      "global": "_"
+    },
+    "react": {
+      "global": "React"
+    },
+    "react-dom/client": {
+      "global": "ReactDOM"
     },
     "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
     "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",

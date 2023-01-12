@@ -16,7 +16,6 @@ const data = {
 };
 
 
-
 const get_page_header_navigation_links_default = async (data) => {
 
     const { eczoodb } = data;
@@ -66,9 +65,47 @@ const get_page_header_navigation_links_default = async (data) => {
 
 
 
+
+const _getExternalDependenciesData = async () => {
+    let deps = [];
+
+    for (const depSrcInfo of jscomponentsPackageJson.externalDependencies.src) {
+        const depName = depSrcInfo.name;
+
+        let cdnUrl = null;
+        if (depSrcInfo.cdn === 'unpkg') {
+            let unpkgVersion = depSrcInfo.version;
+            if (unpkgVersion == null) {
+                // find currently installed package version in node_modules.
+                const pkgjson = (
+                    await import(path.join(node_modules, `${depName}/package.json`),
+                                 { assert: {type: 'json'} })
+                ).default;
+                unpkgVersion = pkgjson.version;
+            }
+            const unpkgSrcPath = depSrcInfo.path ?? '';
+            cdnUrl =
+                `https://unpkg.com/${depName}@${unpkgVersion}${unpkgSrcPath}`;
+        } else {
+            throw new Error(`Invalid/unknown CDN: ‘${depSrcInfo.cdn}’`);
+        }
+
+        deps.push({
+            name: depName,
+            cdnUrl,
+        });
+    }
+    return deps;
+};
+const jscomponentsExternalDependenciesDataPromise = _getExternalDependenciesData();
+
+
 const render = async function (data) {
 
     const eleventy = this;
+
+    let jscomponentsExternalDependenciesData =
+        await jscomponentsExternalDependenciesDataPromise;
 
     const { sqzhtml } = await import('@errorcorrectionzoo/eczoodb/render_utils.js');
 
@@ -168,24 +205,17 @@ const render = async function (data) {
         }
     }
 
-    // add external dependencies via unpkg.  URL is
-    // "https://unpkg.com/<PACKAGE>@<VERSION>"
-    for (const external_dependency of external_dependencies) {
-        // NO!! THIS WILL RUN "yarn info" FOR EACH GENERATED PAGE!!
-        // const yarn_info = JSON.parse(
-        //   child_process.execSync(
-        //     `(cd node_modules/eczjscomponents && yarn info ${external_dependency} --json )`
-        //   )
-        // );
-        // const version = yarn_info.children.Version;
-        const package_json = (
-            await import(path.join(node_modules, `${external_dependency}/package.json`),
-                         { assert: {type: 'json'} })
-        ).default;
-        const { version } = package_json;
+    // Add external dependencies via CDNs.  Do this by iterating over the list
+    // of all possible dependencies *in order* (so that they are loaded in the
+    // correct order), including only those that are needed.
+
+    for (const depData of jscomponentsExternalDependenciesData) {
+        if (!external_dependencies.includes(depData.name)) {
+            // external dependency not needed
+            continue;
+        }
         s += sqzhtml`
-  <script type="text/javascript" defer
-          src="https://unpkg.com/${external_dependency}@${version}"></script>`;
+  <script type="text/javascript" crossorigin defer src="${depData.cdnUrl}"></script>`;
     }
 
     s += s_jscomponents_jsmod;
