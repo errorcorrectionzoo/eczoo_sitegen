@@ -1,0 +1,56 @@
+# This workflow will do a clean installation of node dependencies, cache/restore
+# them, build the source code and run tests across different versions of node
+# For more information see:
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: 'Node.js Test CI (eczoodb)'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  eczoodb-ci-test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ['18', 'latest']
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v3
+      
+        
+      - name: 'Install Node.JS (${{ matrix.node-version }})'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '${{ matrix.node-version }}'
+
+      - name: 'Enable Yarn'
+        run: 'corepack enable'
+      
+      - name: 'Inspect Yarn version'
+        run: 'yarn --version'
+      
+      # Cache Yarn Modules
+      - name: 'Get yarn cache directory path'
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+        shell: bash
+  
+      - name: 'Restore yarn cache'
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: yarn-cache-folder-${{ hashFiles('**/yarn.lock', '.yarnrc.yml') }}
+          restore-keys: |
+            yarn-cache-folder-
+  
+      - run: 'yarn'
+  
+      - run: 'yarn test'
+        working-directory: ./eczoodb/

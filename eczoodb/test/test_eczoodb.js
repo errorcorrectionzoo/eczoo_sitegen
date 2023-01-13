@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 
-import { EcZooDb } from '../eczoodbjs.js';
+import { EcZooDb } from '../eczoodb.js';
 import { load_eczoo_cached } from '../load_yamldb.js';
 
 
