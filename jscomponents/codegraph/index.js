@@ -177,7 +177,7 @@ export class EczCodeGraph
 
         for (const [domainId, domain] of Object.entries(this.eczoodb.objects.domain)) {
 
-            debug(`Adding domain =`, domain);
+            //debug(`Adding domain =`, domain);
 
             const thisDomainNodeId = this.getNodeIdDomain(domainId);
             let label = domain.name;
@@ -204,7 +204,7 @@ export class EczCodeGraph
 
         for (const [codeId, code] of Object.entries(this.eczoodb.objects.code)) {
 
-            debug(`adding code =`, code);
+            //debug(`adding code =`, code);
 
             const codeShortName = this.eczoodb.code_short_name(code);
 
@@ -236,7 +236,7 @@ export class EczCodeGraph
 
             let definesKingdomRelation = code.relations.defines_kingdom;
 
-            debug({ code, thisCodeNodeId, definesKingdomRelation });
+            //debug({ code, thisCodeNodeId, definesKingdomRelation });
 
             if (definesKingdomRelation && definesKingdomRelation.length) {
 
@@ -280,7 +280,7 @@ export class EczCodeGraph
                         && primaryParentRootCode.relations?.parents?.length > 0 ) {
                     primaryParentRootCode = primaryParentRootCode.relations.parents[0].code;
                 }
-                debug(`Code ‘${codeId}’'s primary-parent-root is`, primaryParentRootCode);
+                //debug(`Code ‘${codeId}’'s primary-parent-root is`, primaryParentRootCode);
                 if (primaryParentRootCode.relations?.defines_kingdom != null
                     && primaryParentRootCode.relations?.defines_kingdom.length > 0) {
                     const parentKingdom =
@@ -304,7 +304,7 @@ export class EczCodeGraph
             // add an edge for every parent or cousin relation.
             for (const relationType of ['parent', 'cousin']) {
                 let relationInstances = code.relations[relationType + 's'];
-                debug(`code's ${relationType} relations is: `, relationInstances);
+                //debug(`code's ${relationType} relations is: `, relationInstances);
                 if (relationInstances == null) {
                     // null or undefined
                     continue;
@@ -406,7 +406,7 @@ export class EczCodeGraph
         }
         // these are abstract property codes:
         let rootCodeNodeIds = this.getOverallRootNodeIds({ includeDomains: false });
-        debug(`rootCodeNodeIds = `, rootCodeNodeIds);
+        //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
         for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
             graphRootNodesPrelayoutHints[codeNodeId] = {
                 position: {x: (j - (rootCodeNodeIds.length-1)/2) * domainNodesXSpacing,
@@ -417,7 +417,7 @@ export class EczCodeGraph
             };
         }
 
-        debug(`graphRootNodesPrelayoutHints = `, graphRootNodesPrelayoutHints);
+        //debug(`graphRootNodesPrelayoutHints = `, graphRootNodesPrelayoutHints);
 
         this.graphOptions.graphRootNodesPrelayoutHints = graphRootNodesPrelayoutHints;
 
@@ -594,9 +594,9 @@ export class EczCodeGraph
                 } else if (displayMode === 'isolate-nodes') {
                     if (_.isEqual(modeIsolateNodesOptions,
                                   this.displayOptions.modeIsolateNodesOptions)) {
-                        debug('setDisplayMode(): (nothing to update). ',
-                              { 'this.displayOptions': this.displayOptions,
-                                modeIsolateNodesOptions });
+                        // debug('setDisplayMode(): (nothing to update). ',
+                        //       { 'this.displayOptions': this.displayOptions,
+                        //         modeIsolateNodesOptions });
                         return;
                     }
                 } else {
@@ -664,7 +664,7 @@ export class EczCodeGraph
                     relationEdgesGetters[whichTree][whichRelationStrength] = fn;
                 }
             }
-            debug({ relationEdgesGetters });
+            //debug({ relationEdgesGetters });
 
             let elxroot = this.cy.collection();
             nodeIds.forEach( (nodeId) => elxroot.merge(this.cy.getElementById(nodeId)) );
@@ -674,7 +674,7 @@ export class EczCodeGraph
 
             // select children
             for (let j = 0; j < range.children.primary; ++j) {
-                debug(`computing isolation mode elements, elx1 = `, elx1);
+                //debug(`computing isolation mode elements, elx1 = `, elx1);
                 // range only includes parent relations
                 let edges = relationEdgesGetters.children.primary(elx1);
                 elx1 = elx1.union(edges).union(edges.connectedNodes());
@@ -687,7 +687,7 @@ export class EczCodeGraph
 
             // select parents
             for (let j = 0; j < range.parents.primary; ++j) {
-                debug(`computing isolation mode elements, elx2 = `, elx2);
+                //debug(`computing isolation mode elements, elx2 = `, elx2);
                 // range only includes parent relations
                 let edges = relationEdgesGetters.parents.primary(elx2);
                 elx2 = elx2.union(edges).union(edges.connectedNodes());
@@ -704,8 +704,8 @@ export class EczCodeGraph
             let elxall = elxlasted.union(elxlasted.connectedNodes()).union(elx);
             let elxlast = elxall.not(elx);
 
-            debug(`elxall = `, elxall);
-            debug(`elxlast = `, elxlast);
+            //debug(`elxall = `, elxall);
+            //debug(`elxlast = `, elxlast);
 
             elxroot.addClass('isolationRoot');
             elx.addClass('isolationSelected');
