@@ -6,5 +6,8 @@
     "eczoodb",
     "jscomponents",
     "site"
-  ]
+  ],
+  "scripts": {
+    "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)"
+  }
 }

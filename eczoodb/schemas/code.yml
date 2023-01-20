@@ -12,17 +12,15 @@ required: ['code_id', 'name', 'description', '_meta']
 _zoo_primarykey: 'code_id'
 
 _zoo_relations:
-  # - object_field: 'physical'
-  #   to_object_type: 'space'
-  #   relation_primary_key_field: 'space_id'
-  #   relation_add_object_field: 'space'
-  #   check_only: true
+  - object_field: 'physical'
+    to_object_type: 'space'
+    relation_primary_key_field: true # true === value of 'physical' is directly the space ID/PK
+    allow_null: true
 
-  # - object_field: 'logical'
-  #   to_object_type: 'space'
-  #   relation_primary_key_field: 'space_id'
-  #   relation_add_object_field: 'space'
-  #   check_only: true
+  - object_field: 'logical'
+    to_object_type: 'space'
+    relation_primary_key_field: true # true === value of 'logical' is directly the space ID/PK
+    allow_null: true
 
   - object_field: 'relations.parents'
     to_object_type: 'code'

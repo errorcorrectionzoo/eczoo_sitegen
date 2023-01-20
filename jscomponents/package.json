@@ -87,49 +87,50 @@
       ]
     },
     "src": [
-        {
-            "name": "lodash",
-            "cdn": "unpkg"
-        },
-        {
-            "name": "@popperjs/core",
-            "cdn": "unpkg"
-        },
-        {
-            "name": "tippy.js",
-            "cdn": "unpkg"
-        },
-        {
-            "name": "cytoscape",
-            "cdn": "unpkg"
-        },
-        {
-            "name": "layout-base",
-            "cdn": "unpkg",
-            "version": "2.0.1"
-        },
-        {
-            "name": "cose-base",
-            "cdn": "unpkg",
-            "version": "2.1.0"
-        },
-        {
-            "name": "cytoscape-fcose",
-            "cdn": "unpkg",
-            "version": "2.1.0"
-        },
-        {
-            "name": "react",
-            "cdn": "unpkg",
-            "version": "18",
-            "path": "/umd/react.production.min.js"
-        },
-        {
-            "name": "react-dom",
-            "cdn": "unpkg",
-            "version": "18",
-            "path": "/umd/react-dom.production.min.js"
-        }
+      {
+        "name": "lodash",
+        "cdn": "unpkg"
+      },
+      {
+        "name": "@popperjs/core",
+        "cdn": "unpkg"
+      },
+      {
+        "name": "tippy.js",
+        "cdn": "unpkg",
+        "path": "/dist/tippy.umd.min.js"
+      },
+      {
+        "name": "cytoscape",
+        "cdn": "unpkg"
+      },
+      {
+        "name": "layout-base",
+        "cdn": "unpkg",
+        "version": "2.0.1"
+      },
+      {
+        "name": "cose-base",
+        "cdn": "unpkg",
+        "version": "2.1.0"
+      },
+      {
+        "name": "cytoscape-fcose",
+        "cdn": "unpkg",
+        "version": "2.1.0"
+      },
+      {
+        "name": "react",
+        "cdn": "unpkg",
+        "version": "18",
+        "path": "/umd/react.production.min.js"
+      },
+      {
+        "name": "react-dom",
+        "cdn": "unpkg",
+        "version": "18",
+        "path": "/umd/react-dom.production.min.js"
+      }
     ]
   },
   "alias": {
@@ -145,6 +146,8 @@
     "tippy.js": {
       "global": "tippy"
     },
+    "tippy.js/dist/*.css": "../node_modules/tippy.js/dist/$1.css",
+    "tippy.js/themes/*.css": "../node_modules/tippy.js/themes/$1.css",
     "lodash": {
       "global": "_"
     },

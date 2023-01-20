@@ -47,19 +47,16 @@ const render = async (data) => {
         let s = '';
 
         s += sqzhtml`
-<h1>${ rdr(kingdom.name) }</h1>
-
-<p>Welcome to the ${ rdr(kingdom.name) }</p>`;
+<h1>${ rdr(kingdom.name) }</h1>`;
+        //<p>Welcome to the ${ rdr(kingdom.name) }</p>`;
 
         s += sqzhtml`
 <p>The ${ rdr(kingdom.name) } is defined by the code:
    ${ ref('code', kingdom.kingdom_code.code_id) }.</p>
 
-<div style="margin-top: 2rem; overflow: auto;">
-  <a style="margin: auto; display: inline-block;"
-     href="/code_graph#code_${kingdom.kingdom_code.code_id}">
-    <img src="/kingdom/kgraph_${kingdom.kingdom_id}.svg"
-         style="max-width: 100%">
+<div class="code-graph-excerpt">
+  <a href="/code_graph#code_${kingdom.kingdom_code.code_id}">
+    <img src="/kingdom/kgraph_${kingdom.kingdom_id}.svg">
   </a>
 </div>
 

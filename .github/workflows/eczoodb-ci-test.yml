@@ -52,5 +52,6 @@ jobs:
   
       - run: 'yarn'
   
-      - run: 'yarn test'
+      - name: 'eczoodb: Yarn test'
+        run: 'yarn test'
         working-directory: ./eczoodb/

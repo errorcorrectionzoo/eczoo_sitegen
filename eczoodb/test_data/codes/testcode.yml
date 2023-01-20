@@ -4,8 +4,10 @@
 #######################################################
 
 code_id: testcode
-physical: qubits
-logical: qubits
+
+# make it an abstract code
+#physical: qubits
+#logical: qubits
 
 name: 'My Test \(x:y\)-Code'
 introduced: '\cite{arXiv:1911.00099}'

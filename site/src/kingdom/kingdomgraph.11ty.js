@@ -22,11 +22,8 @@ const render = async (data) => {
 
     if (data.eczoo_config.run_options.development_mode) {
         // Skip full rendering in devel mode & render placeholder
-        return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="400px" height="400px" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<rect fill="#777" stroke="#777" x="0" y="0" width="400" height="400"/>
-</svg>`
+        const { placeholdersSvg } = await import('../../sitelib/generatePlaceholderSvg.js');
+        return placeholdersSvg.notBuiltInDevelMode;
     }
 
 

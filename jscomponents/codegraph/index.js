@@ -1687,9 +1687,9 @@ const cyBaseStyleJson = [
     {
         selector: '.prelayoutOutOfLayoutTree',
         style: {
-            color: 'rgb(255,0,255)',
-            'background-color': 'rgb(255,0,255)',
-            opacity: 1,
+            color: 'rgb(120,0,50)',
+            'background-color': 'rgb(120,0,50)',
+            //opacity: 1,
         }
     },
 
