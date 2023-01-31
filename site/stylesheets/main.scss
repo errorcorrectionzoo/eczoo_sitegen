@@ -508,10 +508,14 @@ a.code-self-edit {
 }
 
 
-.code-contributors {
+.page-change-log {
     font-style: italic;
     font-size: $small-font-size;
     opacity: 0.8;
+    
+    > summary {
+        margin-top: 1.3em;
+    }
 }
 
 

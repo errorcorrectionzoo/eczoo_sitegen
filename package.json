@@ -8,6 +8,7 @@
     "site"
   ],
   "scripts": {
-    "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)"
+    "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)",
+    "serve": "(cd site && yarn serve)"
   }
 }

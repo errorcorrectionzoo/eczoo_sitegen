@@ -131,7 +131,7 @@ export function render_meta_changelog(changelog, {ne,rdr,ref})
     let html = '';
 
     html += `
-<details class="sectioncontent code-contributors">
+<details class="sectioncontent page-change-log">
 <summary><span>Page edit log</span></summary>
 <ul>`;
     let most_recent = true;

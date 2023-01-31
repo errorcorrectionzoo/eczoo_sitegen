@@ -29,15 +29,26 @@ article.ecc-code-page {
         margin-top: 0.5rem;
         margin-bottom: .8rem;
     }
-    >.sectioncontent {
+    > .sectioncontent {
         padding: 0px;
         margin-top: 0px;
         margin-bottom: .8rem;
     }
 
     // always hide label "Name:", even on wide screens
-    >h2.code-name {
+    > h2.code-name {
         display: none;
+    }
+
+    > .code-defines-kingdom-name {
+        font-size: 1rem;
+
+        .kingdom-name-label {
+            font-weight: normal;
+        }
+
+        font-weight: bold;
+        background-color: rgba(200,255,230);
     }
 
     @media screen {

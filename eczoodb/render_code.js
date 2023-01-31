@@ -6,7 +6,9 @@ import { getfield } from '@phfaist/zoodb/util';
 import * as zoollm from '@phfaist/zoodb/zoollm';
 const { $$kw, repr } = zoollm;
 
-import { mkrenderutils, render_meta_changelog, render_document } from './render_utils.js';
+import {
+    mkrenderutils, render_meta_changelog, render_document, sqzhtml
+} from './render_utils.js';
     
 
 // ------
@@ -26,18 +28,32 @@ export function render_code_page(code, {zoo_llm_environment, doc_metadata})
 
         let html = '';
 
-        html += `
+        html += sqzhtml`
 <div class="sectioncontent code-name">
   <span class="code-name-cell">
     <h1 class="code-name">
-      ${rdr(code.name)} ` .trim();
+      ${rdr(code.name)}`;
         if (ne(code.introduced)) {
-            html += `<span class="code-introduced">${rdr(code.introduced)}</span>`;
+            html += sqzhtml`
+      <span class="code-introduced">${rdr(code.introduced)}</span>
+`;
         }
-        html += `
+        html += sqzhtml`
     </h1>
   </span>
 </div>`;
+
+        const kingdom = code.relations?.defines_kingdom?.[0]?.kingdom ?? null;
+        if (kingdom != null) {
+            html += sqzhtml`
+<div class="sectioncontent code-defines-kingdom-name">
+    <span class="kingdom-name-label">
+      This code defines the
+    </span> <!-- space -->${
+   ref('kingdom', kingdom.kingdom_id)
+}</div>
+<div class="kingdom-description">${ rdr(kingdom.description) }</div>`;
+        }
 
         const display_field = (fieldname, title) => {
             const value = getfield(code, fieldname);
