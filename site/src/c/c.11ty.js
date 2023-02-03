@@ -201,7 +201,7 @@ const render = async (data) => {
         + `/tree/main/${code._zoodb.source_file_path}`
     );
     const code_edit_onsite_url = (
-        `/edit_code#D=${encodeURIComponent(JSON.stringify({
+        `/edit_code#${encodeURIComponent(JSON.stringify({
               code_id: code.code_id,
               code_yml_filename: code._zoodb.source_file_path}))}`
     );

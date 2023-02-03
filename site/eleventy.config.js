@@ -108,12 +108,12 @@ module.exports = (eleventyConfig) => {
     });
 
 
-    // copy in the Old JS Edit Code Web App
-    eleventyConfig.addPassthroughCopy(
-        {
-            "old_edit_code_app/dist/": "",
-        },
-    );
+    // // copy in the Old JS Edit Code Web App --- hmmm nope, seems too complicated to patch
+    // eleventyConfig.addPassthroughCopy(
+    //     {
+    //         "old_edit_code_app_pkg/dist/*": ".",
+    //     },
+    // );
 
     // copy in the JS components needed in our site
     let jscomponentsDistDir = "./jscomponents_dist";

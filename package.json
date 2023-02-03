@@ -10,5 +10,8 @@
   "scripts": {
     "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)",
     "serve": "(cd site && yarn serve)"
+  },
+  "devDependencies": {
+    "@parcel/transformer-inline-string": "2.8.2"
   }
 }

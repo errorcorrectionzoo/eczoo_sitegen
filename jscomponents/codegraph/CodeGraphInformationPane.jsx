@@ -13,12 +13,10 @@ import {
 
 import {
     render_text_standalone, is_llm_fragment, $$kw, ZooHtmlFragmentRenderer, RefInstance,
+    make_and_render_document, make_render_shorthands,
 } from '@phfaist/zoodb/zoollm';
 
-import {
-    render_document, sqzhtml, mkrenderutils,
-} from '@errorcorrectionzoo/eczoodb/render_utils.js';
-
+import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
 import './CodeGraphInformationPane_style.scss';
@@ -55,10 +53,10 @@ function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
     return {
         zoo_llm_environment,
         llm_simple_content,
-        render: (render_doc) => {
-            const html = render_document({
+        render: (render_doc_fn) => {
+            const html = make_and_render_document({
                 zoo_llm_environment,
-                render_doc,
+                render_doc_fn,
                 render_endnotes: {
                     target_id: null,
                     include_headings_at_level: false,
@@ -149,9 +147,9 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
         );
     }
 
-    const render_doc = (render_context) => {
+    const render_doc_fn = (render_context) => {
         
-        const { ne, rdr, ref } = mkrenderutils({render_context});
+        const { ne, rdr, ref } = make_render_shorthands({render_context});
 
         let s = '';
 
@@ -207,7 +205,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
         return s;
     };
 
-    return render(render_doc);
+    return render(render_doc_fn);
 }
 
 
@@ -243,7 +241,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
     const domain_ref_link = eczoodb.zoo_object_permalink('domain', domain.domain_id);
 
-    let render_doc = (render_context) => {
+    let render_doc_fn = (render_context) => {
 
         const { ne, rdr, ref } = mkrenderutils({render_context});
 
@@ -267,7 +265,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
         return s;
     };
 
-    return render(render_doc);
+    return render(render_doc_fn);
 }
 
 
@@ -282,7 +280,7 @@ function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
 
     debug(`Rendering empty pane information ...`);
 
-    let render_doc = (render_context) => {
+    let render_doc_fn = (render_context) => {
 
         const { ne, rdr, ref } = mkrenderutils({render_context});
 
@@ -309,7 +307,7 @@ function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
         return s;
     }
 
-    return render(render_doc);
+    return render(render_doc_fn);
 }
 
 

@@ -1,0 +1,206 @@
+
+@import '../../site/stylesheets/variables.scss';
+
+
+//@import 'codemirror/theme/base16-light.css';
+
+
+
+#main {
+    display: grid;
+    grid-template-columns: 1fr min-contents;
+    gap: 0px;
+}
+
+.EczEditCodeApp_main_pane {
+    grid-row: 1;
+    grid-column: 1;
+
+    padding-left: 3rem;
+    margin-left: 0px;
+
+    padding-right: 2rem;
+    margin-right: 0px;
+
+    overflow: auto;
+}
+
+
+.EczEditCodeAppSidebar {
+    grid-row: 1;
+    grid-column: 2;
+
+    width: calc( max(400px, min(550px,45vw)) );
+    &.collapsed {
+        width: 25px;
+        .sidebar-contents { display: none; }
+    }
+
+    background-color: rgba(red, 0.2);
+
+    overflow: auto;
+
+    .help_text {
+        font-size: $small-font-size;
+
+        padding: 0rem 1rem 1rem;
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        h2 {
+            font-size: 1.0rem;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 2rem;
+        }
+        code {
+            background-color: rgba(0,0,0,0.1);
+            padding: 1px 3px;
+            display: inline-block;
+        }
+        pre {
+            >code {
+                display: block;
+                padding: 5px;
+                overflow-x: auto;
+            }
+        }
+        li {
+            margin-top: 2*$parskip-half-length;
+            margin-bottom: 2*$parskip-half-length;
+        }
+    }
+}
+
+
+.EczEditCodeApp_bottombar {
+    grid-row: 2;
+    grid-column-start: 1;
+    grid-column-end: 3;
+
+    background-color: darkgreen;
+    color: white;
+    a, a:link, a:visited { color: rgb(200,220,255); }
+    a:hover, a:active { color: white; }
+
+    padding: 8px;
+
+    display: flex;
+
+    .spacer {
+        flex: auto;
+    }
+
+    button {
+        min-height: 30px;
+        font-size: 1.1rem;
+        margin-right: 1rem;
+    }
+
+    .no-display {
+        display: none;
+    }
+}
+
+
+.EczEditSchemaField {
+    margin: 1rem 0px 1rem 0px;
+
+    .EczEditSchemaField_fieldname {
+        font-weight: bold;
+    }
+
+    .EczEditSchemaField_field_description {
+        font-size: $small-font-size;
+        font-style: italic;
+    }
+    .EczEditSchemaField_field_expected {
+        font-size: $small-font-size;
+        font-style: italic;
+        color: rgba(darkgreen,0.8);
+    }
+
+
+    .array_item {
+        > button {
+            float: left;
+            //margin-left: -3em;
+        }
+
+        > .EczEditSchemaField {
+            margin-left: 4rem;
+        }
+    }
+
+
+
+    >div.input, >input, >textarea, >select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+    }
+    input, textarea, select {
+        padding: 5px;
+        font-size: 1.05rem;
+    }
+    >div.input > input[type=number] {
+        width: 50%;
+        min-width: 50%;
+        box-sizing: border-box;
+    }
+
+
+    .checkbox-input {
+        padding: 5px;
+        display: inline-block;
+        margin-right: 2em;
+        >input {
+            display: inline-block;
+            margin-left: 0.8em;
+            transform: scale(1.25);
+        }
+    }
+    .hasvalue-n {
+        opacity: 0.6;
+    }
+    button.clear-to-undefined {
+        display: inline-block;
+    }
+
+    .cm-content {
+        font-size: 14px;
+        font-family: "Menlo", "DejaVu Sans Mono", "Droid Mono", monospace;
+    }
+}
+
+
+
+//
+// styling of the root level of properties of the object
+//
+.EczEditCodeApp_main_pane {
+    > .EczEditSchemaField {
+        margin-left: 0px;
+
+        > .EczEditSchemaField {
+            margin-left: 0px;
+
+            > .EczEditSchemaField_field_name {
+                margin-top: 3rem;
+                border-bottom: solid 1px rgba(0,0,0,0.25);
+                margin-bottom: 1rem;
+            }
+            > .EczEditSchemaField_field_description {
+                margin-bottom: 1rem;
+            }
+            > .EczEditSchemaField_field_expected {
+                margin-bottom: 1rem;
+            }
+        }
+    }
+}
