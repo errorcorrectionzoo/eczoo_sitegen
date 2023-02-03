@@ -7,7 +7,6 @@
   "author": "Philippe Faist",
   "license": "MIT",
   "dependencies": {
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "debug": "^4.3.4"
   },
   "peerDependencies": {
@@ -18,6 +17,7 @@
     "test": "mocha"
   },
   "devDependencies": {
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "mocha": "^10.2.0"
   },
   "alias": {
@@ -32,6 +32,7 @@
     "@phfaist/zoodb/zoollm/citationcompiler": "../node_modules/@phfaist/zoodb/src/zoollm/citationcompiler.js",
     "@phfaist/zoodb/zoollm/scanner": "../node_modules/@phfaist/zoodb/src/zoollm/scanner.js",
     "@phfaist/zoodb/util": "../node_modules/@phfaist/zoodb/src/util/index.js",
+    "@phfaist/zoodb/util/*": "../node_modules/@phfaist/zoodb/src/util/$1.js",
     "@phfaist/zoodb/search/searchindex": "../node_modules/@phfaist/zoodb/src/search/searchindex.js",
     "@phfaist/zoodb/search/searchwidget": "../node_modules/@phfaist/zoodb/src/search/searchwidget.js"
   }

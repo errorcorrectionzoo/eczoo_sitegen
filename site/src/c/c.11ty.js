@@ -167,13 +167,13 @@ const render = async (data) => {
 
     const zoollm = await import('@phfaist/zoodb/zoollm');
     const { $$kw } = zoollm;
+    const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
     let html_fragment_renderer = new zoollm.ZooHtmlFragmentRenderer();
     let text_fragment_renderer = new zoollm.ZooTextFragmentRenderer();
     let llmrender = (value) => value && value.render_standalone(html_fragment_renderer);
     let llmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
 
-    const { sqzhtml } = await import('@errorcorrectionzoo/eczoodb/render_utils.js');
     const rendercodepage = await import('@errorcorrectionzoo/eczoodb/render_code.js');
 
     const doc_metadata = {};

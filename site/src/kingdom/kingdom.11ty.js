@@ -33,16 +33,17 @@ const data = async () => {
 
 const render = async (data) => {
     const {
-        sqzhtml, mkrenderutils, render_document
-    } = await import('@errorcorrectionzoo/eczoodb/render_utils.js');
+        make_render_shorthands, make_and_render_document
+    } = await import('@phfaist/zoodb/zoollm');
+    const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
     const { eczoodb, kingdom } = data;
 
     const zoo_llm_environment = eczoodb.zoo_llm_environment;
 
-    const render_doc = (render_context) => {
+    const render_doc_fn = (render_context) => {
 
-        const { ne, rdr, ref } = mkrenderutils({render_context});
+        const { ne, rdr, ref } = make_render_shorthands({render_context});
 
         let s = '';
 
@@ -66,9 +67,9 @@ const render = async (data) => {
     };
 
     
-    return render_document({
+    return make_and_render_document({
         zoo_llm_environment,
-        render_doc,
+        render_doc_fn,
         //doc_metadata,
         render_endnotes: {
             // annotations: ['sectioncontent'],

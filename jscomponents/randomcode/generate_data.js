@@ -5,8 +5,6 @@
 import * as zoollm from '@phfaist/zoodb/zoollm';
 const { $$kw, repr } = zoollm;
 
-import { mkrenderutils, render_document } from '@errorcorrectionzoo/eczoodb/render_utils.js';
-
 
 const truncate_description_at_length = 360;
 
@@ -32,9 +30,9 @@ export function generate_random_code_data({eczoodb})
             truncate_description_at_length
         );
 
-        let description_html = render_document({
+        let description_html = zoollm.make_and_render_document({
             zoo_llm_environment: eczoodb.zoo_llm_environment,
-            render_doc: description_truncated.render,
+            render_doc_fn: description_truncated.render,
             //doc_metadata,
             feature_document_options: {
                 // citations: {

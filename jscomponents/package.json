@@ -5,7 +5,7 @@
   "packageManager": "yarn@3.3.0",
   "dependencies": {
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb#main",
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "@popperjs/core": "^2.11.6",
     "cytoscape": "^3.23.0",
     "cytoscape-cose-bilkent": "^4.1.0",
@@ -168,6 +168,7 @@
     "@phfaist/zoodb/zoollm/citationcompiler": "../node_modules/@phfaist/zoodb/src/zoollm/citationcompiler.js",
     "@phfaist/zoodb/zoollm/scanner": "../node_modules/@phfaist/zoodb/src/zoollm/scanner.js",
     "@phfaist/zoodb/util": "../node_modules/@phfaist/zoodb/src/util/index.js",
+    "@phfaist/zoodb/util/*": "../node_modules/@phfaist/zoodb/src/util/$1.js",
     "@phfaist/zoodb/search/searchindex": "../node_modules/@phfaist/zoodb/src/search/searchindex.js",
     "@phfaist/zoodb/search/searchwidget": "../node_modules/@phfaist/zoodb/src/search/searchwidget.js"
   }

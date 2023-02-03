@@ -6,7 +6,7 @@ import { getfield } from '@phfaist/zoodb/util';
 import * as zoollm from '@phfaist/zoodb/zoollm';
 const { $$kw, repr } = zoollm;
 
-import { mkrenderutils, render_meta_changelog, render_document } from './render_utils.js';
+import { render_meta_changelog } from './render_utils.js';
 
 
 const get_code_relationship_to = (code, reference_code_id) => {
@@ -270,9 +270,9 @@ export function render_codelist_page(codelist, {eczoodb, doc_metadata})
     const styles_render_fn = styles[codelist.display?.style ?? 'index']
     const list_data = get_list_data({codelist, eczoodb});
     
-    const render_doc = (render_context) => {
+    const render_doc_fn = (render_context) => {
 
-        const R = mkrenderutils({render_context});
+        const R = zoollm.make_render_shorthands({render_context});
         const { ne, rdr, ref } = R;
 
         let html = '';
@@ -308,9 +308,9 @@ export function render_codelist_page(codelist, {eczoodb, doc_metadata})
         return html;
     };
 
-    return render_document({
+    return zoollm.make_and_render_document({
         zoo_llm_environment,
-        render_doc,
+        render_doc_fn,
         doc_metadata,
         render_endnotes: true
     });

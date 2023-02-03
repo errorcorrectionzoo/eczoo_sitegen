@@ -176,7 +176,7 @@ __metadata:
   dependencies:
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@parcel/transformer-sass": 2.8.2
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb#main"
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main"
     "@popperjs/core": ^2.11.6
     cytoscape: ^3.23.0
     cytoscape-cose-bilkent: ^4.1.0
@@ -1133,9 +1133,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@phfaist/zoodb@https://github.com/phfaist/zoodb#main, @phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
+"@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.0
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=73ec2673c58aee7466dc18295d5e191e0d9d9c49"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=cf40ff3aba8590f740cb3af207e44ac05df0f8e0"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^9.0.9
     base32-encode: ^2.0.0
@@ -1154,7 +1154,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 002fee6d89e6a808b4adb1acabc7016fcbdc8832950690e26cf7df47394b6c4c41712e693c2ad6f9a91ee81da41547aac6a3c0e51a4ed388218da5d60857f267
+  checksum: ca5a7eb5c0b547b72dc4c9397fe999ba896c246abdb74bff9eed2d7774676ee78d764c74428fbb4332fd57949c449e06c168ce9f8b425da980d38ce22f62a11e
   languageName: node
   linkType: hard
 

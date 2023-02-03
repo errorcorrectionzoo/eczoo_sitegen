@@ -107,7 +107,7 @@ const render = async function (data) {
     let jscomponentsExternalDependenciesData =
         await jscomponentsExternalDependenciesDataPromise;
 
-    const { sqzhtml } = await import('@errorcorrectionzoo/eczoodb/render_utils.js');
+    const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
     let s = '';
     s += sqzhtml`<!DOCTYPE html>
