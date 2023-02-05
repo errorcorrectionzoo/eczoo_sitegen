@@ -23,3 +23,14 @@ export function zoo_object_permalink(object_type, object_id)
 
     throw new Error(`Unknown object type ‘${object_type}’`);
 }
+
+export function zoo_graphics_resource_permalink(graphics_resource)
+{
+    return `/fig/${graphics_resource.src_url}`;
+}
+
+
+export const zoo_permalinks = {
+    object: zoo_object_permalink,
+    graphics_resource: zoo_graphics_resource_permalink,
+};

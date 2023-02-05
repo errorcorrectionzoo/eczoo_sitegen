@@ -3,15 +3,18 @@ const debug = debug_mod("eczoodbjs.load_yamldb");
 
 import path from 'path';
 
+import loMerge from 'lodash/merge.js';
+
 import { YamlDbZooDataLoader } from '@phfaist/zoodb/dbdataloader/yamldb';
 
 import { EcZooDb } from './eczoodb.js';
 
+import { stdzoo_options_bibstyle } from './citationsoptions.js';
 
-import { use_relations_populator } from './use_relations_populator.js';
-import { use_llm_environment } from './use_llm_environment.js';
-import { use_llm_processor } from './use_llm_processor.js';
-import { use_searchable_text_processor } from './use_searchable_text_processor.js';
+import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
+import { use_llm_environment } from '@phfaist/zoodb/std/use_llm_environment';
+import { use_llm_processor } from '@phfaist/zoodb/std/use_llm_processor';
+import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
 
 
 // support __filename & __dirname here
@@ -194,22 +197,29 @@ export async function load_eczoo_cached({data_dir, fs})
 
 export async function load_eczoo({data_dir, fs, eczoodb_options, _set_cache})
 {
-    let opts = Object.assign(
+    let opts = loMerge(
         {},
         {
             use_relations_populator,
             use_llm_environment,
             use_llm_processor,
             use_searchable_text_processor,
-            fs,
-            llm_processor_graphics_resources_fs_data_dir: data_dir,    
-            llm_processor_citations_override_arxiv_dois_file:
-            path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
-            llm_processor_citations_preset_bibliography_files: [
-                path.join(data_dir, 'code_extra', 'bib_preset.yml'),
-            ],
+            llm_processor_options: {
+                fs,
+                citations: {
+                    override_arxiv_dois_file:
+                        path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
+                    preset_bibliography_files: [
+                        path.join(data_dir, 'code_extra', 'bib_preset.yml'),
+                    ],
+                },
+                resource_collector: {
+                    graphics_resources_fs_data_dir: data_dir,    
+                },
+            },
         },
-        eczoodb_options
+        stdzoo_options_bibstyle,
+        eczoodb_options,
     );
 
     let eczoodb = new EcZooDb(opts);

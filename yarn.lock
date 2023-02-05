@@ -277,6 +277,7 @@ __metadata:
   dependencies:
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main"
     debug: ^4.3.4
+    lodash: ^4.17.21
     mocha: ^10.2.0
   peerDependencies:
     "@phfaist/zoodb": "*"
@@ -1292,7 +1293,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.0
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=cf40ff3aba8590f740cb3af207e44ac05df0f8e0"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=690f2e9f5b064803076619b8d2765cb663f8a2a1"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^9.0.9
     base32-encode: ^2.0.0
@@ -1304,6 +1305,7 @@ __metadata:
     hash.js: ^1.1.7
     js-yaml: ^4.1.0
     jsonschema: ^1.4.1
+    lodash: ^4.17.21
     lunr: ^2.3.9
     node-fetch: ^3.2.10
     parse-full-name: ^1.2.6
@@ -1311,7 +1313,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: ca5a7eb5c0b547b72dc4c9397fe999ba896c246abdb74bff9eed2d7774676ee78d764c74428fbb4332fd57949c449e06c168ce9f8b425da980d38ce22f62a11e
+  checksum: 02f0822af028e8fdebb8a429bd84e89731779943990f5f849f8b1b22c648872d8bbb61b9e4d5f7516d538d582a4449b385b86b9c8d3464d7db964790710a9e00
   languageName: node
   linkType: hard
 
