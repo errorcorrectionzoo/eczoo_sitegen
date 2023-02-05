@@ -1,16 +1,28 @@
+
+let cached_eczoodb = null;
+
 module.exports = async (configData) => {
 
     const eczoo_config = configData.eczoo_config;
 
-    const fs = await import('fs');
-    const { load_eczoo_cached } = await import('@errorcorrectionzoo/eczoodb/load_yamldb.js');
+    if (cached_eczoodb == null) {
+        const fs = await import('fs');
 
-    let config = Object.assign(
-        {
+        const { EcZooDb } = await import('@errorcorrectionzoo/eczoodb/eczoodb.js');
+        const { eczoo_full_options } = await import('@errorcorrectionzoo/eczoodb/fullopts.js');
+
+        const { EcZooDbYamlDataLoader } =
+              await import('@errorcorrectionzoo/eczoodb/load_yamldb.js');
+
+        cached_eczoodb = new EcZooDb({
             fs,
-        },
-        eczoo_config
-    );
+            fs_data_dir: eczoo_config.data_dir,
+            ... eczoo_full_options
+        });
+        cached_eczoodb.install_zoo_loader(new EcZooDbYamlDataLoader({ }));
+    }
 
-    return await load_eczoo_cached(config);
+    await cached_eczoodb.load();
+
+    return cached_eczoodb;
 };

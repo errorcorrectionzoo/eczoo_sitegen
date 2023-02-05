@@ -9,7 +9,7 @@ import * as zoollm from '@phfaist/zoodb/zoollm';
 const { $$kw, repr } = zoollm;
 
 
-import { load_eczoo_cached } from '../load_yamldb.js';
+import { load_eczoo_cached } from './_loadeczoodb.js';
 
 //import { mkutils } from '../render_utils.js';
 

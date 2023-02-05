@@ -23,9 +23,8 @@ const default_config = {
     llm_allow_unresolved_citations: false,
 
     use_llm_processor: null,
-    llm_processor_options: {
 
-        fs: null,
+    llm_options: {
 
         refs:  {
             code: {
@@ -39,14 +38,14 @@ const default_config = {
         citations: {
             csl_style: null, // CSL style (XML data)
             override_arxiv_dois_file:
-                'code_extras/override_arxiv_dois.yml',
+                'code_extra/override_arxiv_dois.yml',
             preset_bibliography_files: [
-                'code_extras/bib_preset.yml',
+                'code_extra/bib_preset.yml',
             ],
             default_user_agent: null,
         },
         
-        resource_collector: {
+        resources: {
             rename_figure_template: null,
             figure_filename_extensions: null,
             graphics_resources_fs_data_dir: null,
@@ -62,7 +61,6 @@ const default_config = {
 
     zoo_permalinks,
 
-    resource_file_extensions: null,
 };
 
 
@@ -70,7 +68,7 @@ export class EcZooDb extends StandardZooDb
 {
     constructor(config)
     {
-        super(loMerge(default_config, config));
+        super(loMerge({}, default_config, config));
     }
 
     //

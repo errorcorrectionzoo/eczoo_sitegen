@@ -1,70 +1,32 @@
-import debug_mod from 'debug';
-const debug = debug_mod("eczoodbjs.load_yamldb");
+import debugm from 'debug';
+const debug = debugm('eczoodb.load_yamldb');
 
-import path from 'path';
-
-import loMerge from 'lodash/merge.js';
-
-import { YamlDbZooDataLoader } from '@phfaist/zoodb/dbdataloader/yamldb';
-
-import { EcZooDb } from './eczoodb.js';
-
-import { stdzoo_options_bibstyle } from './citationsoptions.js';
-
-import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
-import { use_llm_environment } from '@phfaist/zoodb/std/use_llm_environment';
-import { use_llm_processor } from '@phfaist/zoodb/std/use_llm_processor';
-import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
-
+import { StandardZooDbYamlDataLoader } from '@phfaist/zoodb/std/load_yamldb';
 
 // support __filename & __dirname here
+import path from 'path';
 import url from 'url';
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-//
-// Load & reload zoo from our YAML files database
-//
-
-
-// -----------------------------------------------------------------------------
-
-class EcZooDbYamlDataLoader
+export class EcZooDbYamlDataLoader extends StandardZooDbYamlDataLoader
 {
-    constructor({ eczoodb })
+    constructor({ schema_root }={})
     {
-        this.eczoodb = eczoodb;
-        this._currently_loading = null;
+        schema_root ??= `file://${__dirname}/`;
 
-        // easy access method on the eczoodb object itself. -- HHMMM ZooDb
-        // should support some ZooLoader() type interface!!
-        //
-        // this.eczoodb.reload_yamldb = async () => await this.reload_yamldb();
-    }
+        debug('schema_root is ', { schema_root });
 
-    async load({data_dir, schema_root})
-    {
-        debug(`Loading YAML data from ‘${data_dir}’`);
-
-        this._currently_loading = true;
-
-        if (schema_root == null) { // null or undefined
-            schema_root = `file:///${__dirname}/`;
-        }
-
-        this.yamldb_loader = new YamlDbZooDataLoader({
-            resource_file_extensions: this.eczoodb.config.resource_file_extensions,
+        super({
+            //
+            // specify objects & where to find them
+            //
             objects: {
                 code: {
                     schema_name: 'code',
                     data_src_path: 'codes/',
                     load_objects: (codefiledata) => {
-                        // map 'physical', 'logical' string field values
-                        // directly to space: space_id: object relationships
-                        // TODO: HANDLE THIS IN ZOODB RELATIONS PROCESSOR!!
-                        // codefiledata.physical = { space_id: codefiledata.physical };
-                        // codefiledata.logical = { space_id: codefiledata.logical };
                         return [ codefiledata ];
                     },
                 },
@@ -108,126 +70,17 @@ class EcZooDbYamlDataLoader
                     load_objects: (lst) => lst,
                 },
             },
-            object_defaults: { },
-            root_data_dir: data_dir,
+            
+            //
+            // specify where to find schemas
+            //
             schemas: {
                 schema_root: schema_root,
                 schema_rel_path: 'schemas/',
                 schema_add_extension: '.yml',
             },
+
         });
-
-        //
-        // Load the zoo from the data files
-        //
-        // Load the Zoo's data!
-        await this.eczoodb.load_data( await this.yamldb_loader.load() );
-
-        debug("Zoo is now loaded!");
-        this._currently_loading = false;
+        this.schema_root = schema_root;
     }
-
-    async reload()
-    {
-        if (this._currently_loading) {
-            console.error("The zoo is already currently being loaded! Will not "
-                          + "reload again at this time.");
-            return;
-        }
-        this._currently_loading = true;
-
-        try {
-            debug("Reloading Zoo!");
-            const { dbdata, reload_info } = await this.yamldb_loader.reload(this.eczoodb.db);
-            await this.eczoodb.update_objects(reload_info.reloaded_objects);
-            debug("Finished reloading Zoo.");
-            return true;
-        } catch (err) {
-            console.error('ERROR RELOADING DATA: ', err);
-        } finally {
-            this._currently_loading = false;
-        }
-    }
-
 };
-
-
-// -----------------------------------------------------------------------------
-
-
-// thanks https://stackoverflow.com/a/35820220/1694896 !
-function promiseState(p) {
-  const t = {};
-  return Promise.race([p, t])
-    .then((v) => (v === t) ? "pending" : "fulfilled", () => "rejected");
-}
-
-
-let _cached = null;
-let _cached_loading_promise = null;
-let _cached_reloading_promise = null;
-
-export async function load_eczoo_cached({data_dir, fs})
-{
-    if (_cached != null) {
-        await _cached_loading_promise;
-        if ( (await promiseState(_cached_reloading_promise)) === 'pending') {
-            // It's already reloading. Simply wait for current reload to finish;
-            // don't start a new reload.
-            await _cached_reloading_promise;
-        } else {
-            // It's not currently reloading. Start reloading!
-            _cached_reloading_promise = _cached.eczoodb_loader.reload();
-            await _cached_reloading_promise;
-        }
-        return _cached.eczoodb;
-    }
-    _cached = {};
-
-    // don't use "await" so that we get the promise instance instead
-    _cached_loading_promise = load_eczoo({
-        data_dir,
-        fs,
-        eczoodb_options: {},
-        _set_cache(d) { Object.assign(_cached, d) },
-    });
-    const { eczoodb, eczoodb_loader } = await _cached_loading_promise;
-    return eczoodb;
-}
-
-export async function load_eczoo({data_dir, fs, eczoodb_options, _set_cache})
-{
-    let opts = loMerge(
-        {},
-        {
-            use_relations_populator,
-            use_llm_environment,
-            use_llm_processor,
-            use_searchable_text_processor,
-            llm_processor_options: {
-                fs,
-                citations: {
-                    override_arxiv_dois_file:
-                        path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
-                    preset_bibliography_files: [
-                        path.join(data_dir, 'code_extra', 'bib_preset.yml'),
-                    ],
-                },
-                resource_collector: {
-                    graphics_resources_fs_data_dir: data_dir,    
-                },
-            },
-        },
-        stdzoo_options_bibstyle,
-        eczoodb_options,
-    );
-
-    let eczoodb = new EcZooDb(opts);
-    let eczoodb_loader = new EcZooDbYamlDataLoader({ eczoodb, });
-
-    _set_cache?.({ eczoodb, eczoodb_loader, });
-
-    await eczoodb_loader.load({data_dir, });
-
-    return { eczoodb, eczoodb_loader };
-}

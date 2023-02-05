@@ -1,21 +1,13 @@
 import * as assert from 'assert';
 
+import { load_eczoo_cached } from './_loadeczoodb.js';
 
 import fs from 'fs';
 import path from 'path';
 
-import { EcZooDb } from '../eczoodb.js';
-import { load_eczoo_cached } from '../load_yamldb.js';
 
 
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const data_dir = path.join(__dirname, '..', 'test_data');
-
-
-
-const eczoodb = await load_eczoo_cached({data_dir, fs});
+const eczoodb = await load_eczoo_cached();
 
 
 describe('EcZooDb', function () {

@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 //import { EcZooDb } from '../eczoodbjs.js';
-import { load_eczoo } from '../load_yamldb.js';
+//import { load_eczoo } from '../load_yamldb.js';
 
 
 import {fileURLToPath} from 'url';
@@ -19,9 +19,9 @@ describe('load_yamldb', function () {
 
         this.timeout(0);
 
-        it('should successfully load test data for the EC Zoo', async function () {
+        it.skip('should successfully load test data for the EC Zoo', async function () {
 
-            const eczoodb = await load_eczoo({data_dir, fs});
+            //const eczoodb = await load_eczoo({data_dir, fs});
 
         });
     });
