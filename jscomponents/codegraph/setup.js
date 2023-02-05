@@ -4,8 +4,9 @@ const debug = debug_module('eczoo_site.jscomponents.codegraph.setup');
 import { EczCodeGraph } from './index.js';
 import { EczCodeGraphComponent } from './ui.jsx';
 
-import { use_relations_populator } from '@errorcorrectionzoo/eczoodb/use_relations_populator.js';
-import { use_llm_environment } from '@errorcorrectionzoo/eczoodb/use_llm_environment.js';
+import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
+import { use_llm_environment } from '@phfaist/zoodb/std/use_llm_environment';
+
 import { EcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
 // ---
@@ -114,7 +115,9 @@ window.addEventListener('load', async () => {
         // allow unresolved refs because e.g. a code description might contain a
         // reference to an equation/figure somewhere else on the code page
         // itself (and hence not listed in the global refs database)
-        llm_allow_unresolved_references: true,
+        llm_options: {
+            allow_unresolved_references: true,
+        },
 
         use_searchable_text_processor: false,
 
@@ -125,6 +128,8 @@ window.addEventListener('load', async () => {
         // llm_processor_citations_preset_bibliography_files: [
         //     path.join(data_dir, 'code_extra', 'bib_preset.yml'),
         // ],
+
+        continue_with_errors: true,
     };
 
     let eczoodb = new EcZooDb(eczoodbOpts);
