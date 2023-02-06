@@ -243,7 +243,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
     let render_doc_fn = (render_context) => {
 
-        const { ne, rdr, ref } = mkrenderutils({render_context});
+        const { ne, rdr, ref } = make_render_shorthands({render_context});
 
         let s = '';
         s += sqzhtml`
@@ -282,7 +282,7 @@ function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
 
     let render_doc_fn = (render_context) => {
 
-        const { ne, rdr, ref } = mkrenderutils({render_context});
+        const { ne, rdr, ref } = make_render_shorthands({render_context});
 
         let s = '';
         s += sqzhtml`
@@ -379,7 +379,7 @@ export function CodeGraphInformationPane(props)
                         displayInformationOptions,
                         captureLinksToObjectTypes,
                     });
-debug('Gonna update panel html contents...');
+                    //debug('Gonna update panel html contents...');
                     setCompiledHtmlContent({ html, what, });
                 }
             } else {
@@ -394,13 +394,17 @@ debug('Gonna update panel html contents...');
                         let href = aNode.getAttribute("href");
                         let m = /^jsCallbackRef:([^\/]+)\/(.*)$/.exec(href);
                         if (m != null) {
-                            let objectType = m[1];
-                            let objectId = m[2];
-                            aNode.addEventListener('click', () => {
-                                onLinkToObjectActivated(objectType, objectId);
-                            });
-                            aNode.removeAttribute("href", "");
-                            aNode.style.cursor = 'pointer';
+                            (function() { // make closure for objectType & objectId.
+                                let objectType = m[1];
+                                let objectId = m[2];
+                                debug('Setting up captured callback for',
+                                      { objectType, objectId, });
+                                aNode.addEventListener('click', () => {
+                                    onLinkToObjectActivated(objectType, objectId);
+                                });
+                                aNode.removeAttribute("href", "");
+                                aNode.style.cursor = 'pointer';
+                            })();
                         }
                     }
                 }

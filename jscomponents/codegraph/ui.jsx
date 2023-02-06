@@ -548,6 +548,7 @@ export function EczCodeGraphComponent(props)
                     currentDomainSelected={currentDomainSelected}
                     captureLinksToObjectTypes={['code', 'domain', 'kingdom']}
                     onLinkToObjectActivated={ (objectType, objectId) => {
+                        debug('Link to object clicked: ', { objectType, objectId, });
                         if (objectType === 'code') {
                             doUserSelection({codeId: objectId});
                         } else if (objectType === 'kingdom') {
