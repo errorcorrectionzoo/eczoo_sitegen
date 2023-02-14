@@ -182,19 +182,32 @@ export class EcZooDb extends StandardZooDb
         return result;
     }
 
-    code_is_cousin_of(code, parent_code_id)
+    code_is_cousin_of(code, cousin_code_id)
     {
-        let result = false;
-        this.code_visit_relations(code, {
-            relation_properties: ['cousins', 'cousin_of'],
-            callback: (code) => {
-                if (code.code_id === parent_code_id) {
-                    result = true;
-                    return true;
+        if (code.relations) {
+            for (const rel_type of ['cousins', 'cousin_of']) {
+                for (const rel_info of code.relations[rel_type] || []) {
+                    if (rel_info.code_id === cousin_code_id) {
+                        return true;
+                    }
                 }
-            },
-        });
-        return result;
+            }
+        }
+        return false;
+        // ### Nope, don't explore cousin relationships recursively!! Single
+        // ### level only.
+        //
+        // let result = false;
+        // this.code_visit_relations(code, {
+        //     relation_properties: ['cousins', 'cousin_of'],
+        //     callback: (code) => {
+        //         if (code.code_id === cousin_code_id) {
+        //             result = true;
+        //             return true;
+        //         }
+        //     },
+        // });
+        // return result;
     }
 
     code_parent_domains(code, {find_domain_id} = {})

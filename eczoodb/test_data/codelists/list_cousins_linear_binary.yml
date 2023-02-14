@@ -1,0 +1,39 @@
+
+list_id: 'cousins_linear_binary'
+
+title: |
+  Cousins of linear binary code
+
+intro: |
+  Here is a list of all known cousins of the
+  \hyperref[code:binary_linear]{binary linear code}.
+
+display:
+  style: table
+  options:
+    cssclass: xtra-stretch
+    columns:
+      - property: name
+        title: Code
+        link_to_code: true
+        cssclass: 'top left'
+
+      - property: description
+        title: Description
+        cssclass: 'textit'
+        first_paragraph_only: true
+
+      # will find the 'binary_linear' code in relationships (parent or cousin),
+      # and get the associated 'detail'.
+      - relationship_property: 'binary_linear'
+        property: 'detail'
+        title: 'Binary Linear Rel. Detail'
+        cssclass: 'textit'
+        first_paragraph_only: true
+
+sort:
+  by: name
+
+codes:
+  select:
+    - cousin_of: binary_linear
