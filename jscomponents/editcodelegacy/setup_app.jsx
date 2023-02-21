@@ -1,8 +1,11 @@
+import debugm from 'debug';
+const debug = debugm('eczoo.jscomponents.editcodelegacy.setup_app');
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-//import YAML from 'yaml'; // yaml fails to parse multi-line strings !?
-import jsyaml from 'js-yaml';
+import { parse as YAML_parse } from 'yaml'; // yaml fails to parse multi-line strings !?
+//import jsyaml from 'js-yaml';
 
 import EczSchemaRefResolver from './eczschemarefresolver.js';
 
@@ -46,7 +49,8 @@ class EczEditCodeAppInstaller {
                 async (response) => {
                     const response_data = await response.text();
                     try {
-                        _this.code_data = jsyaml.load( response_data );
+                        _this.code_data = YAML_parse( response_data );
+                        // = jsyaml.load( response_data );
                     } catch (e) {
                         console.log("Error in YAML source file.", response_data);
                         console.log(e);
@@ -89,13 +93,15 @@ class EczEditCodeAppInstaller {
         //
         // Render the app
         //
+        debug('installing app into', this.root_element,
+              'component object is', EczEditCodeApp);
         const root = createRoot( this.root_element );
         root.render(
-            <EczEditCodeApp
-                code_id={this.code_id}
-                code_yml_basename={(this.code_yml_filename||'').split('/').pop()}
-                code_schema={this.code_schema}
-                code_data={this.code_data} />
+            (<EczEditCodeApp
+                    code_id={this.code_id}
+                    code_yml_basename={(this.code_yml_filename||'').split('/').pop()}
+                    code_schema={this.code_schema}
+                    code_data={this.code_data} />)
         );
     }
 

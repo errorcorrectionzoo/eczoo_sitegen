@@ -5,7 +5,7 @@ import React from 'react';
 // e.g., it doesn't seem it can parse multi-line strings.
 import YAML from 'yaml';
 
-import jsyaml from 'js-yaml';
+//import jsyaml from 'js-yaml';
 
 
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';

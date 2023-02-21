@@ -82,14 +82,7 @@
   "externalDependencies": {
     "base": [],
     "jscomponents": {
-      "codegraph": [
-        "lodash",
-        "cytoscape",
-        "layout-base",
-        "cose-base",
-        "cytoscape-fcose"
-      ],
-      ".......COMMENTED-codegraph": [
+      ".....codegraph": [
         "react",
         "react-dom"
       ],
@@ -101,7 +94,7 @@
         "@popperjs/core",
         "tippy.js"
       ],
-      ".........COMMENTED-editcodelegacy": [
+      ".....editcodelegacy": [
         "react",
         "react-dom"
       ]
@@ -171,10 +164,13 @@
     "lodash": {
       "global": "_"
     },
-    "......react": {
+    ".....react": {
       "global": "React"
     },
-    "......react-dom/client": {
+    ".....react/jsx-runtime": {
+      "global": false
+    },
+    ".....react-dom/client": {
       "global": "ReactDOM"
     },
     "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
