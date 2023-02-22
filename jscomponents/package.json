@@ -82,7 +82,14 @@
   "externalDependencies": {
     "base": [],
     "jscomponents": {
-      ".....codegraph": [
+      "codegraph": [
+        "lodash",
+        "cytoscape",
+        "layout-base",
+        "cose-base",
+        "cytoscape-fcose"
+      ],
+      ".....ADD......codegraph": [
         "react",
         "react-dom"
       ],
