@@ -16,20 +16,20 @@ const data = {
 
 const render = async (data) => {
 
-    const { kingdom, eczoodb } = data;
+    const eczoo_code_graph_svg_exporter = data.get_eczoo_code_graph_svg_exporter.getInstance();
 
-    debug(`Rendering kingdom graph for kingdom ‘${kingdom.kingdom_id}’`);
-
-    if (data.eczoo_config.run_options.development_mode) {
+    if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder
         const { placeholdersSvg } = await import('../../sitelib/generatePlaceholderSvg.js');
         return placeholdersSvg.notBuiltInDevelMode;
     }
 
+    const { kingdom, eczoodb } = data;
 
-    const { EczCodeGraph } = await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
-    const { exportCodeGraphToSvg } =
-          await import('@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js');
+    debug(`Rendering kingdom graph for kingdom ‘${kingdom.kingdom_id}’`);
+
+    const { EczCodeGraph } =
+          await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
 
     const displayOptions = {
         displayMode: 'isolate-nodes',
@@ -41,11 +41,11 @@ const render = async (data) => {
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 1,
+                    secondary: 0, //1,
                 },
                 children: {
                     primary: 2,
-                    secondary: 1,
+                    secondary: 0, //1,
                 },
             },
         },
@@ -62,12 +62,15 @@ const render = async (data) => {
 
     // now, export to SVG:
 
-    const svgData = await exportCodeGraphToSvg(eczCodeGraph, {
-        cyStyleJsonOptions: {
-            fontFamily: 'Source Sans Pro',
-            fontSize: '18px',
-        },
-    });
+    const svgData = await eczoo_code_graph_svg_exporter.compile(
+        eczCodeGraph,
+        {
+            // cyStyleJsonOptions: {
+            //     fontFamily: 'Source Sans Pro',
+            //     fontSize: '18px',
+            // },
+        }
+    );
 
     return svgData;
 };

@@ -16,7 +16,9 @@ const data = {
 
 const render = async (data) => {
 
-    if (data.eczoo_config.run_options.development_mode) {
+    const eczoo_code_graph_svg_exporter = data.get_eczoo_code_graph_svg_exporter.getInstance();
+
+    if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder
         const { placeholdersSvg } = await import('../../sitelib/generatePlaceholderSvg.js');
         return placeholdersSvg.notBuiltInDevelMode;
@@ -26,11 +28,8 @@ const render = async (data) => {
 
     debug(`Rendering domain graph for domain ‘${domain.domain_id}’`);
 
-
-    const { EczCodeGraph } = await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
-    const { exportCodeGraphToSvg } =
-          await import('@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js');
-
+    const { EczCodeGraph } =
+          await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
     const displayOptions = {
         displayMode: 'isolate-nodes',
         modeIsolateNodesOptions: {
@@ -41,11 +40,11 @@ const render = async (data) => {
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 1,
+                    secondary: 0, //1,
                 },
                 children: {
                     primary: 2,
-                    secondary: 1,
+                    secondary: 0, //1,
                 },
             },
         },
@@ -62,12 +61,15 @@ const render = async (data) => {
 
     // now, export to SVG:
 
-    const svgData = await exportCodeGraphToSvg(eczCodeGraph, {
-        cyStyleJsonOptions: {
-            fontFamily: 'Source Sans Pro',
-            fontSize: '18px',
-        },
-    });
+    const svgData = await eczoo_code_graph_svg_exporter.compile(
+        eczCodeGraph,
+        {
+            // cyStyleJsonOptions: {
+            //     fontFamily: 'Source Sans Pro',
+            //     fontSize: '18px',
+            // },
+        }
+    );
 
     return svgData;
 };

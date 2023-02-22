@@ -65,6 +65,10 @@ function touchDirsTree(dirs, { predicate }={})
 
 
 
+let _eczoo_code_graph_svg_exporter_instance = null;
+
+
+
 module.exports = (eleventyConfig) => {
 
     const eczoo_run_options = {
@@ -87,6 +91,9 @@ module.exports = (eleventyConfig) => {
             path.resolve(__dirname, '../eczoodb/test_data/');
     }
 
+    eczoo_config.generate_code_graph_svg_exports
+        = ! eczoo_config.run_options.development_mode;
+
     eleventyConfig.addGlobalData("eczoo_config", eczoo_config);
 
     // Watch .yml files!
@@ -106,6 +113,40 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addPlugin(faviconPlugin, {
         destination: packageJson.config.output,
     });
+
+
+    //
+    // Prepare a code graph SVG generator instance (use single instance across
+    // all generated graphs because an instance spins up a Chrome puppeteer
+    // instance!)
+    //
+    if ( eczoo_config.generate_code_graph_svg_exports ) {
+        debug('Setting up the code graph SVG exporter instance');
+        eleventyConfig.on('eleventy.before', async () => {
+            const { CodeGraphSvgExporter } = await import(
+                '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
+            );
+            if (_eczoo_code_graph_svg_exporter_instance != null) {
+                throw new Error(
+                    `There is already an instance set in `
+                    + `_eczoo_code_graph_svg_exporter_instance!!`
+                );
+            }
+            _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter();
+            await _eczoo_code_graph_svg_exporter_instance.setup();
+        });
+        eleventyConfig.on('eleventy.after', async () => {
+            await _eczoo_code_graph_svg_exporter_instance.done();
+            _eczoo_code_graph_svg_exporter_instance = null;
+        });
+    }
+    eleventyConfig.addGlobalData(
+        "get_eczoo_code_graph_svg_exporter", {
+            getInstance() {
+                return _eczoo_code_graph_svg_exporter_instance;
+            }
+        }
+    );
 
 
     // // copy in the Old JS Edit Code Web App --- hmmm nope, seems too complicated to patch
