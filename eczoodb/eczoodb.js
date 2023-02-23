@@ -28,6 +28,11 @@ const default_config = {
 
         refs:  {
             code: {
+                // Keep 'code.name.llm_text' until we fix the issue in
+                // zoodb/src/zoollm/_environment.js dealing with JSON
+                // serialization of RefInstance's with LLMFragment instances.
+                // Otherwise it's better to keep the fragment instance here
+                // ('code.name') so that it doesn't have to be recompiled.
                 formatted_ref_llm_text_fn: (codeid, code) => code.name.llm_text,
             },
             user: {
