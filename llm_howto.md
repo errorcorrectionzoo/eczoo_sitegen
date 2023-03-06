@@ -211,10 +211,12 @@ The size at which you place elements in your SVG file is important.
 The stated physical dimensions that are present in the SVG file are
 used to place the image at the correct size and resolution to match
 the surrounding article.  General text should be typeset preferably
-using the ‘Source Sans Pro’ at 10 point size, to match the typography
+using the
+[‘Source Sans Pro’ font](https://fonts.google.com/specimen/Source+Sans+Pro)
+at 10 point size, to match the typography
 of the surrounding article.  (You can place smaller or bigger text for
 axis markers, or use a different font if it's necessary, or etc.; use
-your good judgment and common sense.  We'll come back at you in case
+your good judgment and common sense.  We'll come back to you in case
 we'd prefer some changes.)
     
 Be sure also to **set the page dimensions of your SVG document
@@ -222,7 +224,7 @@ correctly** to match the size of your graphic, with the correct scale
 for rendering on our web page.  If you use Inkscape, you can select
 “File” → “Document Properties” → “Resize page to drawing or selection”
 and make sure you have reasonable figure dimensions.  Please keep your
-figure width to *at most 12cm (5.5in)* to ensure a good page layout
+figure width to *at most 12cm (4.7in)* to ensure a good page layout
 without the user having to scroll the figure horizontally.
 
 If you set the SVG image's dimensions in units of pixels ("px"), we'll
@@ -231,14 +233,15 @@ using Affinity Designer, set the document resolution to 96 dpi, and
 uncheck ‘Set viewBox’ in the SVG export options.]
     
 You can also use PNG or JPG/JPEG files.  **Please make sure you set
-the physical resolution (DPI) correctly**, as this information is
+the physical resolution (DPI) of the image correctly**,
+as this information is
 honored to determine the figure size.  Most graphics software will
 allow you to adjust this setting (look for "physical dimensions",
 "dots-per-inch", "pixels-per-inch", or "DPI").  In
 [GIMP](https://www.gimp.org/), you can set the resolution with "Image"
 -> "Resize" and providing any two of physical dimensions (e.g.,
 mm,cm,in,pt), pixel dimensions, and DPI.  Please keep your figure
-width to *at most 12cm (5.5in)* to obtain a good page layout without
+width to *at most 12cm (4.7in)* to obtain a good page layout without
 the user having to scroll the figure horizontally.
 
 
