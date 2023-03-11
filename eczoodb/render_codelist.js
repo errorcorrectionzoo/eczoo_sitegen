@@ -181,6 +181,12 @@ export function get_list_data({codelist, eczoodb})
                 return false;
             }
         }
+        if (predinfo.property != null) {
+            const { name, value } = predinfo.property;
+            if ( getfield(code, name) !== value ) {
+                return false;
+            }
+        }
         if (predinfo.domain != null) {
             const domains = eczoodb.code_parent_domains(
                 code, { find_domain_id: predinfo.domain }

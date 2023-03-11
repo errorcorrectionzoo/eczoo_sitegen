@@ -1,0 +1,32 @@
+
+list_id: 'test_stuff'
+
+title: |
+  Testing predicate conditions for lists.
+
+intro: |
+  Here's a test.
+
+
+display:
+  style: table
+  options:
+    cssclass: xtra-stretch
+    columns:
+      - property: name
+        title: Code
+        link_to_code: true
+        cssclass: 'top left'
+
+      - property: description
+        title: Description
+        cssclass: 'textit'
+        first_paragraph_only: true
+
+
+codes:
+  select:
+    - property:
+        name: physical
+        value: qubits
+    - descendant_of: stabilizer

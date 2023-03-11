@@ -48,6 +48,14 @@ properties:
           properties:
             property_set:
               type: string
+            property:
+              type: object
+              required: ['name', 'value']
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
             domain:
               type: string
             # kingdom:  # use descendant_of instead
