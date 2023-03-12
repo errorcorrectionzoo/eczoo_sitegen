@@ -153,7 +153,7 @@ $header-min-height-mobile: 100px;
 // Logo (use background-image) -- includes BETA marker in icon
 //
 #logo {
-    background-image: url('~/static/icons/eczoo-main-logo.svg');
+    background-image: url('~/site/static/icons/eczoo-main-logo.svg');
     background-repeat: no-repeat;
 
     background-position-x: 0%;
@@ -176,7 +176,7 @@ $header-min-height-mobile: 100px;
     min-height: $header-min-height-mobile;
 }
 #bodycontents.page-header-has-text #logo {
-    background-image: url('~/static/icons/eczoo-main-logo-mobile.svg');
+    background-image: url('~/site/static/icons/eczoo-main-logo-mobile.svg');
     width: $header-bgimage-width-mobile;
     background-size: $header-bgimage-width-mobile auto;
 }
@@ -433,19 +433,19 @@ a.code-link-with-icon {
 }
 
 a.code-self-permalink {
-    background-image: url('~/static/icons/permalink-logo.svg');
+    background-image: url('~/site/static/icons/permalink-logo.svg');
 }
 a.code-show-citation {
-    background-image: url('~/static/icons/cite-icon.svg');
+    background-image: url('~/site/static/icons/cite-icon.svg');
 }
 a.code-show-share {
-    background-image: url('~/static/icons/share-icon.svg');
+    background-image: url('~/site/static/icons/share-icon.svg');
 }
 a.code-show-github {
-    background-image: url('~/static/icons/github-logo.svg');
+    background-image: url('~/site/static/icons/github-logo.svg');
 }
 a.code-self-edit {
-    background-image: url('~/static/icons/edit-icon.svg');
+    background-image: url('~/site/static/icons/edit-icon.svg');
 }
 
 .show-citation, .show-share-social {
@@ -738,7 +738,7 @@ a.code-self-edit {
     }
 
     &.person-avatar-unknown {
-        background-image: url('~/static/icons/avatar-unknown.svg');
+        background-image: url('~/site/static/icons/avatar-unknown.svg');
     }
 }
 
