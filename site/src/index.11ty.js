@@ -2,6 +2,7 @@ const debug = require('debug')('eczoo_sitegen.src.index');
 
 const data = {
     title: 'Home',
+    tags: ['sitePage'],
     page_layout_info: {
         header_large_text: 'Welcome to the error correction zoo!',
         wide_layout: true,
@@ -9,7 +10,19 @@ const data = {
         jscomponents: {
             randomcode: true,
         },
-    }
+    },
+    eleventyComputed: {
+        // ---
+        // injection hack to get correct page date property!
+        // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
+        date: (data) => {
+            data.page.date = new Date(
+                data.eczoodb.zoo_gitlastmodified_processor.get_latest_modification_date()
+            );
+            return data.page.date;
+        }
+        // ---
+    },
 };
 
 

@@ -19,10 +19,25 @@ const data = async () => {
             addAllPagesToCollections: true,
             alias: 'codelist',
         },
+        tags: ['sitePage'],
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id) + '.html',
             title: (data) => zoollm.render_text_standalone(data.codelist.title),
+            // ---
+            // injection hack to get correct page date property!
+            // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
+            date: (data) => {
+                // don't get the date associated with the codelist object, get
+                // the latest zoo modification date! we want to pick up
+                // modification of the list contents, not only the list
+                // specification.
+                data.page.date = new Date(
+                    data.eczoodb.zoo_gitlastmodified_processor.get_latest_modification_date()
+                );
+                return data.page.date;
+            }
+            // ---
         },
     };
 

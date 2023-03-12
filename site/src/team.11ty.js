@@ -1,5 +1,6 @@
 const data = {
     title: 'Team',
+    tags: ['sitePage'],
 };
 
 // Display a person

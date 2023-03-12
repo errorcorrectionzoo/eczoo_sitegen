@@ -12,28 +12,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@11ty/eleventy-dev-server@npm:^1.0.0-canary.14":
-  version: 1.0.0-canary.14
-  resolution: "@11ty/eleventy-dev-server@npm:1.0.0-canary.14"
+"@11ty/eleventy-dev-server@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@11ty/eleventy-dev-server@npm:1.0.3"
   dependencies:
-    "@11ty/eleventy-utils": ^1.0.0
+    "@11ty/eleventy-utils": ^1.0.1
     chokidar: ^3.5.3
-    debug: ^4.3.3
+    debug: ^4.3.4
     dev-ip: ^1.0.1
-    finalhandler: ^1.1.2
+    finalhandler: ^1.2.0
     mime: ^3.0.0
-    minimist: ^1.2.6
+    minimist: ^1.2.7
     morphdom: ^2.6.1
     please-upgrade-node: ^3.2.0
     ssri: ^8.0.1
-    ws: ^8.5.0
+    ws: ^8.12.0
   bin:
     eleventy-dev-server: cmd.js
-  checksum: 78c83b5b0f14b48f0978e1ee0c7a468f67722115495433787645c69e9ca2659393eed65de231f625f734991ad3401dc6532ecf99fe64204d2a7db5426e37b6f6
+  checksum: c7070e0a41da7091a4b7e941365e22f600de1f5e81130d46bc732155f858c3cc7b2070f04b8d0806c16c43e3ddf2032c413485c8d6e914ae945778b2809c8ba1
   languageName: node
   linkType: hard
 
-"@11ty/eleventy-utils@npm:^1.0.0, @11ty/eleventy-utils@npm:^1.0.1":
+"@11ty/eleventy-utils@npm:^1.0.1":
   version: 1.0.1
   resolution: "@11ty/eleventy-utils@npm:1.0.1"
   dependencies:
@@ -42,12 +42,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@11ty/eleventy@npm:canary":
-  version: 2.0.0-canary.29
-  resolution: "@11ty/eleventy@npm:2.0.0-canary.29"
+"@11ty/eleventy@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@11ty/eleventy@npm:2.0.0"
   dependencies:
     "@11ty/dependency-tree": ^2.0.1
-    "@11ty/eleventy-dev-server": ^1.0.0-canary.14
+    "@11ty/eleventy-dev-server": ^1.0.3
     "@11ty/eleventy-utils": ^1.0.1
     "@iarna/toml": ^2.2.5
     "@sindresorhus/slugify": ^1.1.2
@@ -88,7 +88,7 @@ __metadata:
     slugify: ^1.6.5
   bin:
     eleventy: cmd.js
-  checksum: b9930de75c9765e5a3f20f5e17755a9652b00dd61830e04b3cbc3201c3f3b1401a4e002a9e140c1ccd775204b742c111782887f937d4924e577e27a9eb88024f
+  checksum: 3a1fabbda86c2e3ca60e2e04104af51446e94b8f22f611cd094b33faa8e9082e1dcccf44e983e76397177484b41c9ab1d4ad04a44d0099a136a8c194b4325998
   languageName: node
   linkType: hard
 
@@ -325,7 +325,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@errorcorrectionzoo/site@workspace:site"
   dependencies:
-    "@11ty/eleventy": canary
+    "@11ty/eleventy": ^2.0.0
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@errorcorrectionzoo/jscomponents": ">=0.0.1"
     "@parcel/transformer-sass": 2.8.2
@@ -1293,7 +1293,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.0
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=cb93c294752d7f3112670a4b336d744de87c462a"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=e29cf5d9cecf56b02da1ac81c26d3fc163d056e0"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^9.0.9
     base32-encode: ^2.0.0
@@ -1313,7 +1313,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: edb94aae5bc72c7f70fa62024702828ad97561de19dec9f68350583ed845a291712dcc0d620e94ed06f1a92e544d8cde2e7d9fa20a9201f816c4d677443f50fd
+  checksum: fe1928443ed4a4c9f1ae56860b8fff312ee2668707f5b7c50cbad2faa2225d1fc1e9460114523b506a95fb393724b389db0baa2238932319c951ed3bab755cb1
   languageName: node
   linkType: hard
 
@@ -3102,7 +3102,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"finalhandler@npm:^1.1.2":
+"finalhandler@npm:^1.2.0":
   version: 1.2.0
   resolution: "finalhandler@npm:1.2.0"
   dependencies:
@@ -7793,9 +7793,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.5.0":
-  version: 8.12.0
-  resolution: "ws@npm:8.12.0"
+"ws@npm:^8.12.0":
+  version: 8.13.0
+  resolution: "ws@npm:8.13.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -7804,7 +7804,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 818ff3f8749c172a95a114cceb8b89cedd27e43a82d65c7ad0f7882b1e96a2ee6709e3746a903c3fa88beec0c8bae9a9fcd75f20858b32a166dfb7519316a5d7
+  checksum: 53e991bbf928faf5dc6efac9b8eb9ab6497c69feeb94f963d648b7a3530a720b19ec2e0ec037344257e05a4f35bd9ad04d9de6f289615ffb133282031b18c61c
   languageName: node
   linkType: hard
 

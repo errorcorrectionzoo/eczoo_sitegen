@@ -19,10 +19,19 @@ const data = async () => {
             addAllPagesToCollections: true,
             alias: 'kingdom',
         },
+        tags: ['sitePage'],
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('kingdom', data.kingdom.kingdom_id) + '.html',
             title: (data) => zoollm.render_text_standalone(data.kingdom.name),
+            // ---
+            // injection hack to get correct page date property!
+            // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
+            date: (data) => {
+                data.page.date = new Date(data.kingdom._zoodb.git_last_modified_date);
+                return data.page.date;
+            },
+            // ---
         },
     };
 

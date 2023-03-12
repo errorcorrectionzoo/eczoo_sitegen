@@ -17,6 +17,8 @@ const default_config = {
 
     use_relations_populator: null,
 
+    use_gitlastmodified_processor: null,
+
     use_llm_environment: null,
     zoo_llm_environment_options: null,
     llm_allow_unresolved_references: false,

@@ -1,6 +1,19 @@
 
 const data = {
     title: 'List of code lists',
+    tags: ['sitePage'],
+    eleventyComputed: {
+        // ---
+        // injection hack to get correct page date property!
+        // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
+        date: (data) => {
+            data.page.date = new Date(
+                data.eczoodb.zoo_gitlastmodified_processor.get_latest_modification_date()
+            );
+            return data.page.date;
+        }
+        // ---
+    },
 };
 
 

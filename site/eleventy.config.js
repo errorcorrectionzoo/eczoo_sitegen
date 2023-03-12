@@ -84,6 +84,7 @@ module.exports = (eleventyConfig) => {
     const eczoo_config = {
         data_dir: path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
+        site_base_url_host_name: 'https://errorcorrectionzoo.org/',
         //development_mode_skip_jscomponents: ['randomcode', 'linkanchorvisualhighlight'],
     };
     if (eczoo_run_options.use_test_data) {
@@ -161,6 +162,7 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addPassthroughCopy(
         {
             [jscomponentsDistDir]: "jsbundle",
+            './static_copy': '.',
         },
         {
             expand: true, // expand symbolic links

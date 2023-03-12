@@ -12,7 +12,7 @@
   },
   "private": true,
   "dependencies": {
-    "@11ty/eleventy": "canary",
+    "@11ty/eleventy": "^2.0.0",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@errorcorrectionzoo/jscomponents": ">=0.0.1",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
