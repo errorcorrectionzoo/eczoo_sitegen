@@ -137,9 +137,10 @@ const data = async () => {
             },
             // ---
             page_layout_info: (data) => ({
-                jscomponents: {
-                    popuptippy: true,
-                },
+                jscomponents_profile: 'code_page',
+                // jscomponents: {
+                //     popuptippy: true,
+                // },
                 header_navigation_links: generate_navigation_links({
                     code: data.code, eczoodb: data.eczoodb, llmrender
                 }),

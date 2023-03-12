@@ -7,9 +7,10 @@ const data = {
         header_large_text: 'Welcome to the error correction zoo!',
         wide_layout: true,
         div_bodycontents_classes: ['page-index'],
-        jscomponents: {
-            randomcode: true,
-        },
+        // jscomponents: {
+        //     randomcode: true,
+        // },
+        jscomponents_profile: 'home',
     },
     eleventyComputed: {
         // ---

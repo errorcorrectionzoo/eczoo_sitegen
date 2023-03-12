@@ -174,65 +174,72 @@ const render = async function (data) {
   <script type="module" async src="${ extra_jsmod }"></script>`;
     }
 
-    const jscomponents = Object.assign(
-        {
-            mathjax: true,
-            linkanchorvisualhighlight: true,
-        },
-        page_layout_info.jscomponents
-    );
+//     const jscomponents = Object.assign(
+//         {
+//             mathjax: true,
+//             linkanchorvisualhighlight: true,
+//         },
+//         page_layout_info.jscomponents
+//     );
 
-    let skip_jscomponents = null;
-    if (data.eczoo_config.run_options.development_mode
-        && data.eczoo_config.development_mode_skip_jscomponents) {
-        skip_jscomponents = data.eczoo_config.development_mode_skip_jscomponents;
-    }
+//     let skip_jscomponents = null;
+//     if (data.eczoo_config.run_options.development_mode
+//         && data.eczoo_config.development_mode_skip_jscomponents) {
+//         skip_jscomponents = data.eczoo_config.development_mode_skip_jscomponents;
+//     }
 
-    // external/global component dependencies
-    let external_dependencies = [...jscomponentsPackageJson.externalDependencies.base];
+//     // external/global component dependencies
+//     let external_dependencies = [...jscomponentsPackageJson.externalDependencies.base];
 
-    let s_jscomponents_jsmod_script = '';
-    let s_jscomponents_jsmod_imports = '';
+//     let s_jscomponents_jsmod_script = '';
+//     let s_jscomponents_jsmod_imports = '';
 
-    for (const [jscomponent, jscomponent_is_enabled] of Object.entries(jscomponents)) {
-        if (skip_jscomponents && skip_jscomponents.includes(jscomponent)) {
-            continue;
-        }
-        if (jscomponent_is_enabled) {
-            external_dependencies.push(
-                ... jscomponentsPackageJson.externalDependencies.jscomponents[jscomponent] ?? []
-            );
-            if (jscomponentsPackageJson.jscomponentsUseInlineImports.includes(jscomponent)) {
-                s_jscomponents_jsmod_imports +=
-                    `import '~/jscomponents/${ jscomponent }/setup.js';\n`;
-            } else {
-                s_jscomponents_jsmod_script += sqzhtml`
-  <script type="module" defer src="~/jscomponents/${ jscomponent }/setup.js"></script>`;
-            }
-  //           s_jscomponents_jsmod += sqzhtml`
-  // <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
-  // <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
-        }
-    }
+//     for (const [jscomponent, jscomponent_is_enabled] of Object.entries(jscomponents)) {
+//         if (skip_jscomponents && skip_jscomponents.includes(jscomponent)) {
+//             continue;
+//         }
+//         if (jscomponent_is_enabled) {
+//             external_dependencies.push(
+//                 ... jscomponentsPackageJson.externalDependencies.jscomponents[jscomponent] ?? []
+//             );
+//             if (jscomponentsPackageJson.jscomponentsUseInlineImports.includes(jscomponent)) {
+//                 s_jscomponents_jsmod_imports +=
+//                     `import '~/jscomponents/${ jscomponent }/setup.js';\n`;
+//             } else {
+//                 s_jscomponents_jsmod_script += sqzhtml`
+//   <script type="module" defer src="~/jscomponents/${ jscomponent }/setup.js"></script>`;
+//             }
+//   //           s_jscomponents_jsmod += sqzhtml`
+//   // <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
+//   // <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
+//         }
+//     }
 
-    // Add external dependencies via CDNs.  Do this by iterating over the list
-    // of all possible dependencies *in order* (so that they are loaded in the
-    // correct order), including only those that are needed.
+//     // Add external dependencies via CDNs.  Do this by iterating over the list
+//     // of all possible dependencies *in order* (so that they are loaded in the
+//     // correct order), including only those that are needed.
 
-    for (const depData of jscomponentsExternalDependenciesData) {
-        if (!external_dependencies.includes(depData.name)) {
-            // external dependency not needed
-            continue;
-        }
+//     for (const depData of jscomponentsExternalDependenciesData) {
+//         if (!external_dependencies.includes(depData.name)) {
+//             // external dependency not needed
+//             continue;
+//         }
+//         s += sqzhtml`
+//   <script type="text/javascript" crossorigin defer src="${depData.cdnUrl}"></script>`;
+//     }
+
+//     s += s_jscomponents_jsmod_script;
+//     s += sqzhtml`
+//   <script type="module">
+// ${ s_jscomponents_jsmod_imports }
+//   </script>`;
+
+    const jscomponents_profile = page_layout_info.jscomponents_profile ?? 'default';
+
+    if (jscomponents_profile != null) {
         s += sqzhtml`
-  <script type="text/javascript" crossorigin defer src="${depData.cdnUrl}"></script>`;
+  <script type="module" defer src="~/site/jsc_profiles/${ jscomponents_profile }.js"></script>`;
     }
-
-    s += s_jscomponents_jsmod_script;
-    s += sqzhtml`
-  <script type="module">
-${ s_jscomponents_jsmod_imports }
-  </script>`;
 
 
     if (page_layout_info.extra_head_content) {
