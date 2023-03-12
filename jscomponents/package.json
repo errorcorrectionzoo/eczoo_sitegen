@@ -79,10 +79,15 @@
   },
   "browserslist": "> 0.1%, last 3 versions, not dead",
   "...browserslist": "> 10%, last 2 versions, not dead",
+  "jscomponentsUseInlineImports": [
+    "randomcode",
+    "mathjax",
+    "linkanchorvisualhighlight"
+  ],
   "externalDependencies": {
     "base": [],
     "jscomponents": {
-      "codegraph": [
+      "........codegraph": [
         "lodash",
         "cytoscape",
         "layout-base",
@@ -93,11 +98,11 @@
         "react",
         "react-dom"
       ],
-      "popuptippy": [
+      ".....popuptippy": [
         "@popperjs/core",
         "tippy.js"
       ],
-      "search": [
+      ".....search": [
         "@popperjs/core",
         "tippy.js"
       ],
@@ -154,21 +159,21 @@
     ]
   },
   "alias": {
-    "cytoscape": {
+    ".....cytoscape": {
       "global": "cytoscape"
     },
-    "cytoscape-fcose": {
+    ".....cytoscape-fcose": {
       "global": "cytoscapeFcose"
     },
-    "@popperjs/core": {
+    ".....@popperjs/core": {
       "global": "Popper"
     },
-    "tippy.js": {
+    ".....tippy.js": {
       "global": "tippy"
     },
-    "tippy.js/dist/*.css": "../node_modules/tippy.js/dist/$1.css",
-    "tippy.js/themes/*.css": "../node_modules/tippy.js/themes/$1.css",
-    "lodash": {
+    ".....tippy.js/dist/*.css": "../node_modules/tippy.js/dist/$1.css",
+    ".....tippy.js/themes/*.css": "../node_modules/tippy.js/themes/$1.css",
+    ".....lodash": {
       "global": "_"
     },
     ".....react": {

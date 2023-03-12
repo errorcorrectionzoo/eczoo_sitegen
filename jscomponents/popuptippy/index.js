@@ -43,8 +43,8 @@ export class PopupInfoTool
                 interactive: true,
                 interactiveBorder: 30,
                 maxWidth: '450px',
-                boundary: 'viewport',
-                flip: false,
+                //boundary: 'viewport',
+                //flip: false,
                 placement: 'bottom',
                 // popperOptions: {
                 //     placement: 'bottom',

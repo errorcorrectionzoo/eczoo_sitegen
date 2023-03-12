@@ -191,7 +191,8 @@ const render = async function (data) {
     // external/global component dependencies
     let external_dependencies = [...jscomponentsPackageJson.externalDependencies.base];
 
-    let s_jscomponents_jsmod = ''
+    let s_jscomponents_jsmod_script = '';
+    let s_jscomponents_jsmod_imports = '';
 
     for (const [jscomponent, jscomponent_is_enabled] of Object.entries(jscomponents)) {
         if (skip_jscomponents && skip_jscomponents.includes(jscomponent)) {
@@ -201,8 +202,13 @@ const render = async function (data) {
             external_dependencies.push(
                 ... jscomponentsPackageJson.externalDependencies.jscomponents[jscomponent] ?? []
             );
-            s_jscomponents_jsmod += sqzhtml`
+            if (jscomponentsPackageJson.jscomponentsUseInlineImports.includes(jscomponent)) {
+                s_jscomponents_jsmod_imports +=
+                    `import '~/jscomponents/${ jscomponent }/setup.js';\n`;
+            } else {
+                s_jscomponents_jsmod_script += sqzhtml`
   <script type="module" defer src="~/jscomponents/${ jscomponent }/setup.js"></script>`;
+            }
   //           s_jscomponents_jsmod += sqzhtml`
   // <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
   // <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
@@ -222,7 +228,11 @@ const render = async function (data) {
   <script type="text/javascript" crossorigin defer src="${depData.cdnUrl}"></script>`;
     }
 
-    s += s_jscomponents_jsmod;
+    s += s_jscomponents_jsmod_script;
+    s += sqzhtml`
+  <script type="module">
+${ s_jscomponents_jsmod_imports }
+  </script>`;
 
 
     if (page_layout_info.extra_head_content) {

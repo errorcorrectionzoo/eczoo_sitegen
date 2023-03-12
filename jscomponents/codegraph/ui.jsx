@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
+import cytoscape from 'cytoscape';
 import cySvg from 'cytoscape-svg';
 cytoscape.use( cySvg );
 
@@ -212,20 +213,20 @@ export function EczCodeGraphControlsComponent(props)
                        checked={domainColoring}
                        onChange={ (ev) => onChangeDomainColoring(!! ev.target.checked) }
                 />
-                <label for="input_domainColoring">domain colors</label>
+                <label htmlFor="input_domainColoring">domain colors</label>
                 <input type="checkbox"
                        id="input_cousinEdgesShown"
                        checked={cousinEdgesShown}
                        onChange={ (ev) => onChangeCousinEdgesShown(!! ev.target.checked) }
                 />
-                <label for="input_cousinEdgesShown">cousins</label>
+                <label htmlFor="input_cousinEdgesShown">cousins</label>
                 <input type="checkbox"
                        id="input_secondaryParentEdgesShown"
                        checked={secondaryParentEdgesShown}
                        onChange={ (ev) =>
                            onChangeSecondaryParentEdgesShown(!! ev.target.checked) }
                 />
-                <label for="input_secondaryParentEdgesShown">secondary parents</label>
+                <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
             </div>
             <div>
                 <div>
@@ -236,7 +237,7 @@ export function EczCodeGraphControlsComponent(props)
                         disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
                         onClick={doModeIsolateRelayout}>relayout</button>
                     <span> </span>
-                    <label for="input_modeIsolateNodesDisplayRange">tree:</label>
+                    <label htmlFor="input_modeIsolateNodesDisplayRange">tree:</label>
                     <input type="range"
                            id="input_modeIsolateNodesDisplayRange"
                            disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
@@ -257,7 +258,7 @@ export function EczCodeGraphControlsComponent(props)
                            onChange={ (ev) =>
                                setModeIsolateNodesAddSecondary(!! ev.target.checked) }
                     />
-                    <label for="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
+                    <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
                 </div>
             </div>
             <div>
@@ -279,13 +280,13 @@ export function EczCodeGraphControlsComponent(props)
                    id="showCousins"
                    checked={showCousins}
                    onChange={(ev) => doShowCousins(!!ev.target.checked)} />
-            <label for="showCousins">show cousins</label>
+            <label htmlFor="showCousins">show cousins</label>
             <div>
                 <input type="checkbox"
                        id="dim"
                        checked={!!dimDegreeOptions.enabled}
                        onChange={(ev) => doDim(!!ev.target.checked)} />
-                <label for="dim">dim by degree:</label>
+                <label htmlFor="dim">dim by degree:</label>
                 <input type="range"
                        disabled={!dimDegreeOptions.enabled}
                        id="dimDegree"
@@ -299,7 +300,7 @@ export function EczCodeGraphControlsComponent(props)
                        disabled={!dimDegreeOptions.enabled}
                        checked={!dimDegreeOptions.dimLeaf}
                        onChange={(ev) => dimLeaf(!ev.target.checked)} />
-                <label for="keepdimLeaf">keep leaf nodes</label>
+                <label htmlFor="keepdimLeaf">keep leaf nodes</label>
             </div>
         </div>
     ); */

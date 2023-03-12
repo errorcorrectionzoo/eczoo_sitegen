@@ -254,7 +254,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
     <p>Kingdoms:</p>
     <ul>`;
 
-        for (const kingdom_relation of domain.kingdoms) {
+        for (const kingdom_relation of domain.kingdoms ?? []) {
             const { kingdom_id } = kingdom_relation;
             s += sqzhtml`
       <li>${ ref('kingdom', kingdom_id) }</li>`;

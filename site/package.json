@@ -28,15 +28,16 @@
     "@parcel/transformer-sass": "2.8.3"
   },
   "scripts": {
-    "build": "rm -rf _site && DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy",
-    "build-simple": "rm -rf _site && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy",
-    "build-test": "rm -rf _site && ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy",
-    "dev": "rm -rf _site && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy --serve",
-    "dev-test": "rm -rf _site && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy --serve",
+    "build": "rm -rf _site ../.parcel-cache && DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy",
+    "build-simple": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy",
+    "build-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy",
+    "dev": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy --serve",
+    "dev-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy --serve",
     "serve": "sirv _site/"
   },
   "@mischnic/parcel-resolver-root": {
     "/": "./_site",
     "~": ".."
-  }
+  },
+  "browserslist": "> 0.1%, last 3 versions, Firefox ESR, not dead"
 }
