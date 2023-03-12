@@ -28,8 +28,8 @@
     "yaml": "^2.0.0-10"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.8.2",
-    "parcel": "^2.8.2",
+    "@parcel/transformer-sass": "2.8.3",
+    "parcel": "^2.8.3",
     "path-browserify": "^1.0.0",
     "process": "^0.11.10",
     "sirv-cli": "^2.0.2"

@@ -12,6 +12,7 @@
     "serve": "(cd site && yarn serve)"
   },
   "devDependencies": {
-    "@parcel/transformer-inline-string": "2.8.2"
+    "@parcel/packager-xml": "2.8.3",
+    "@parcel/transformer-sass": "2.8.3"
   }
 }

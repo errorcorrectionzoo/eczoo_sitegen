@@ -9,9 +9,7 @@ const fs = require('fs');
 
 const faviconPlugin = require("eleventy-favicon");
 
-/*
 const eleventyParcelPlugin = require("@kitschpatrol/eleventy-plugin-parcel");
-*/
 
 const packageJson = require('./package.json');
 
@@ -19,7 +17,6 @@ const packageJson = require('./package.json');
 Error.stackTraceLimit = 999;
 
 
-/*
 //
 // Helper to force Parcel refresh because of sync issues when 11ty outputs its
 // files & parcel refreshes
@@ -61,7 +58,7 @@ function touchDirsTree(dirs, { predicate }={})
         _touchDirTreeInner(dir);
     }
 };
-*/
+
 
 
 
@@ -73,10 +70,9 @@ module.exports = (eleventyConfig) => {
 
     const eczoo_run_options = {
         // Use "!=" such that the string "0" also counts as false
-        /*
-          run_11ty_parcel: ((process.env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0),
-          run_11ty_parcel_lazy: ((process.env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0),
-        */
+        run_11ty_parcel: ((process.env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0),
+        run_11ty_parcel_lazy: ((process.env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0),
+
         use_test_data: ((process.env.ECZOO_USE_TEST_DATA ?? 0) != 0),
         development_mode: ((process.env.ECZOO_DEVELOPMENT_MODE ?? 0) != 0),
     };
@@ -157,11 +153,13 @@ module.exports = (eleventyConfig) => {
     //     },
     // );
 
-    // copy in the JS components needed in our site
-    let jscomponentsDistDir = "./jscomponents_dist";
+    // Copy in any needed static files (robots.txt, etc.)
+
+    // // copy in the JS components needed in our site
+    // let jscomponentsDistDir = "./jscomponents_dist";
     eleventyConfig.addPassthroughCopy(
         {
-            [jscomponentsDistDir]: "jsbundle",
+            // [jscomponentsDistDir]: "jsbundle",
             './static_copy': '.',
         },
         {
@@ -169,7 +167,7 @@ module.exports = (eleventyConfig) => {
         }
     );
 
-    /*
+
     if (eczoo_run_options.run_11ty_parcel) {
 
         const eleventy_out_dir = '_site/';
@@ -250,7 +248,7 @@ module.exports = (eleventyConfig) => {
             },
         );
 
-    }*/
+    }
 
     return {
         htmlTemplateEngine: "njk",

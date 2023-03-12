@@ -156,8 +156,10 @@ const render = async function (data) {
     // <meta name="theme-color" content="#ffffff">
     // <!-- end favicon code -->
     
+  //   s += sqzhtml`
+  // <link type="text/css" rel="stylesheet" href="/cssbundle/main.css" />`;
     s += sqzhtml`
-  <link type="text/css" rel="stylesheet" href="/cssbundle/main.css" />`;
+  <link type="text/css" rel="stylesheet" href="~/site/stylesheets/main.scss" />`;
 
     for (const extra_css of page_layout_info.extra_css ?? []) {
         s += sqzhtml`
@@ -200,8 +202,10 @@ const render = async function (data) {
                 ... jscomponentsPackageJson.externalDependencies.jscomponents[jscomponent] ?? []
             );
             s_jscomponents_jsmod += sqzhtml`
-  <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
-  <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
+  <script type="module" defer src="~/jscomponents/${ jscomponent }/setup.js"></script>`;
+  //           s_jscomponents_jsmod += sqzhtml`
+  // <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
+  // <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
         }
     }
 

@@ -1,5 +1,4 @@
-import { RandomCodeShower } from './index.js'; //'eczjscomponents/randomcode';
-
+import { RandomCodeShower } from './index.js';
 
 window.addEventListener('load', function () {
 
