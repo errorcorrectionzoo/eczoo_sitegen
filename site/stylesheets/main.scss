@@ -6,7 +6,9 @@
 // variables.scss in other SCSS files.
 //
 // import "Source Sans Pro" from google fonts ->
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+//@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+// ### CHANGED (2023/03/13): import this in our base page layout to reduce
+// ### request chain lengths.  See base_page.11ty.js
 
 
 

@@ -10,21 +10,25 @@ import { zoo_object_permalink } from '@errorcorrectionzoo/eczoodb/permalinks.js'
 
 export class RandomCodeShower
 {
-    constructor({container, random_codes_data_url})
+    constructor({container, random_codes_data, random_codes_data_url})
     {
         this.element_container = container;
 
         this.random_codes_data = null;
 
-        fetch(random_codes_data_url).then(
-            (response) => response.json()
-        ).then(
-            (data) => {
-                this.random_codes_data = data;
-                this.pick_and_show_random_code();
-            }
-        )
-
+        if (random_codes_data != null) {
+            this.random_codes_data = random_codes_data;
+            this.pick_and_show_random_code();
+        } else {
+            fetch(random_codes_data_url).then(
+                (response) => response.json()
+            ).then(
+                (data) => {
+                    this.random_codes_data = data;
+                    this.pick_and_show_random_code();
+                }
+            )
+        }
     }
 
     pick_and_show_random_code()

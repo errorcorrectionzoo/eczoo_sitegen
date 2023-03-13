@@ -10,7 +10,9 @@ const data = {
         // jscomponents: {
         //     randomcode: true,
         // },
-        jscomponents_profile: 'home',
+        jscomponents_profile: {
+            dynamic: 'home',
+        },
     },
     eleventyComputed: {
         // ---

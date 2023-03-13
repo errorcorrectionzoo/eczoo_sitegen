@@ -1,0 +1,45 @@
+
+const data = {
+    layout: false,
+    permalink: '/jsc_dynamic_profiles/home.js',
+};
+
+
+const render = async function (data)
+{
+    const { generate_random_code_data } =
+          await import('@errorcorrectionzoo/jscomponents/randomcode/generate_data.js');
+
+    const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
+
+    const randomCodeDataStr = JSON.stringify(random_code_data); //, undefined, 4);
+
+
+    return `
+import '~/site/jsc_profiles/default.js';
+
+import { RandomCodeShower } from '@errorcorrectionzoo/jscomponents/randomcode/index.js';
+
+const randomCodeData = ${randomCodeDataStr};
+
+//console.log('randomCodeData =', randomCodeData);
+
+window.addEventListener('load', function () {
+
+    let random_code_element = document.getElementById('random-code-box');
+    if (random_code_element) {
+        random_code_element._ecz_random_code_shower =
+            new RandomCodeShower({
+                container: random_code_element,
+                random_codes_data: randomCodeData,
+                // random_codes_data_url: '/dat/randomcodedata.json'
+            });
+        console.log("RandomCodeShower attached to element = ", random_code_element);
+    }
+
+});
+`;
+};
+
+
+module.exports = {data, render};
