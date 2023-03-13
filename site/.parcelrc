@@ -16,4 +16,7 @@
         "*.html": ["parcel-optimizer-nohtmlsuffix", "..."]
     },
 
+    // "namers": [ "parcel-namer-rewrite" ],
+    // "namers": [ "parcel-namer-functional", "..." ]
+
 }
