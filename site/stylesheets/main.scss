@@ -531,11 +531,11 @@ a.code-self-edit {
 
     text-align: center;
 
-    > a {
+    >a {
         margin: auto;
         display: inline-block;
 
-        > img {
+        >img {
             max-width: 100%;
             max-height: 80vh; // keep the graph excerpt not too tall
         }

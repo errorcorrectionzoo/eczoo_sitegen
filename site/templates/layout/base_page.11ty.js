@@ -66,46 +66,46 @@ const get_page_header_navigation_links_default = async (data) => {
 
 
 
-const _getExternalDependenciesData = async () => {
-    let deps = [];
-
-    for (const depSrcInfo of jscomponentsPackageJson.externalDependencies.src) {
-        const depName = depSrcInfo.name;
-
-        let cdnUrl = null;
-        if (depSrcInfo.cdn === 'unpkg') {
-            let unpkgVersion = depSrcInfo.version;
-            if (unpkgVersion == null) {
-                // find currently installed package version in node_modules.
-                const pkgjson = (
-                    await import(path.join(node_modules, `${depName}/package.json`),
-                                 { assert: {type: 'json'} })
-                ).default;
-                unpkgVersion = pkgjson.version;
-            }
-            const unpkgSrcPath = depSrcInfo.path ?? '';
-            cdnUrl =
-                `https://unpkg.com/${depName}@${unpkgVersion}${unpkgSrcPath}`;
-        } else {
-            throw new Error(`Invalid/unknown CDN: ‘${depSrcInfo.cdn}’`);
-        }
-
-        deps.push({
-            name: depName,
-            cdnUrl,
-        });
-    }
-    return deps;
-};
-const jscomponentsExternalDependenciesDataPromise = _getExternalDependenciesData();
+// const _getExternalDependenciesData = async () => {
+//     let deps = [];
+//
+//     for (const depSrcInfo of jscomponentsPackageJson.externalDependencies.src) {
+//         const depName = depSrcInfo.name;
+//
+//         let cdnUrl = null;
+//         if (depSrcInfo.cdn === 'unpkg') {
+//             let unpkgVersion = depSrcInfo.version;
+//             if (unpkgVersion == null) {
+//                 // find currently installed package version in node_modules.
+//                 const pkgjson = (
+//                     await import(path.join(node_modules, `${depName}/package.json`),
+//                                  { assert: {type: 'json'} })
+//                 ).default;
+//                 unpkgVersion = pkgjson.version;
+//             }
+//             const unpkgSrcPath = depSrcInfo.path ?? '';
+//             cdnUrl =
+//                 `https://unpkg.com/${depName}@${unpkgVersion}${unpkgSrcPath}`;
+//         } else {
+//             throw new Error(`Invalid/unknown CDN: ‘${depSrcInfo.cdn}’`);
+//         }
+//
+//         deps.push({
+//             name: depName,
+//             cdnUrl,
+//         });
+//     }
+//     return deps;
+// };
+//const jscomponentsExternalDependenciesDataPromise = _getExternalDependenciesData();
 
 
 const render = async function (data) {
 
     const eleventy = this;
 
-    let jscomponentsExternalDependenciesData =
-        await jscomponentsExternalDependenciesDataPromise;
+    // let jscomponentsExternalDependenciesData =
+    //     await jscomponentsExternalDependenciesDataPromise;
 
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 

@@ -74,119 +74,14 @@
     }
   },
   "scripts": {
-    "build": "rm -rf .parcel-cache dist dev-dist && parcel build --no-cache && yarn private-dist-add-use-strict",
     "dev-codegraph-build": "rm -rf .parcel-cache dev-dist && parcel build --no-cache --no-scope-hoist --no-optimize --target dev-codegraph && yarn private-dist-add-use-strict",
     "private-dist-add-use-strict": "bash -c 'for i in dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
   },
   "browserslist": "> 0.1%, last 3 versions, not dead",
   "...browserslist": "> 10%, last 2 versions, not dead",
-  "jscomponentsUseInlineImports": [
-    "randomcode",
-    "mathjax",
-    "linkanchorvisualhighlight"
-  ],
-  "externalDependencies": {
-    "base": [],
-    "jscomponents": {
-      "........codegraph": [
-        "lodash",
-        "cytoscape",
-        "layout-base",
-        "cose-base",
-        "cytoscape-fcose"
-      ],
-      ".....ADD......codegraph": [
-        "react",
-        "react-dom"
-      ],
-      ".....popuptippy": [
-        "@popperjs/core",
-        "tippy.js"
-      ],
-      ".....search": [
-        "@popperjs/core",
-        "tippy.js"
-      ],
-      ".....editcodelegacy": [
-        "react",
-        "react-dom"
-      ]
-    },
-    "src": [
-      {
-        "name": "lodash",
-        "cdn": "unpkg"
-      },
-      {
-        "name": "@popperjs/core",
-        "cdn": "unpkg"
-      },
-      {
-        "name": "tippy.js",
-        "cdn": "unpkg",
-        "path": "/dist/tippy.umd.min.js"
-      },
-      {
-        "name": "cytoscape",
-        "cdn": "unpkg"
-      },
-      {
-        "name": "layout-base",
-        "cdn": "unpkg",
-        "version": "2.0.1"
-      },
-      {
-        "name": "cose-base",
-        "cdn": "unpkg",
-        "version": "2.1.0"
-      },
-      {
-        "name": "cytoscape-fcose",
-        "cdn": "unpkg",
-        "version": "2.1.0"
-      },
-      {
-        "name": "react",
-        "cdn": "unpkg",
-        "version": "18",
-        "path": "/umd/react.production.min.js"
-      },
-      {
-        "name": "react-dom",
-        "cdn": "unpkg",
-        "version": "18",
-        "path": "/umd/react-dom.production.min.js"
-      }
-    ]
-  },
   "alias": {
     "yaml": "../node_modules/yaml/browser/dist/index.js",
-    ".....cytoscape": {
-      "global": "cytoscape"
-    },
-    ".....cytoscape-fcose": {
-      "global": "cytoscapeFcose"
-    },
-    ".....@popperjs/core": {
-      "global": "Popper"
-    },
-    ".....tippy.js": {
-      "global": "tippy"
-    },
-    ".....tippy.js/dist/*.css": "../node_modules/tippy.js/dist/$1.css",
-    ".....tippy.js/themes/*.css": "../node_modules/tippy.js/themes/$1.css",
-    ".....lodash": {
-      "global": "_"
-    },
-    ".....react": {
-      "global": "React"
-    },
-    ".....react/jsx-runtime": {
-      "global": false
-    },
-    ".....react-dom/client": {
-      "global": "ReactDOM"
-    },
+
     "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
     "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",
     "@phfaist/zoodb/dbdataloader/*": "../node_modules/@phfaist/zoodb/src/dbdataloader/$1.js",

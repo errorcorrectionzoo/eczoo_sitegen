@@ -7,6 +7,10 @@ import { getCyStyleJson } from './index.js';
 import loMerge from 'lodash/merge.js';
 
 
+const importSourceSerifProFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
+
+
+
 export class CodeGraphSvgExporter
 {
     constructor()
@@ -27,7 +31,7 @@ export class CodeGraphSvgExporter
         await this.page.setContent(`<!DOCTYPE HTML>
 <html>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
+${ importSourceSerifProFontsCss }
 </style>
 <body id="body">
 </body>
@@ -51,8 +55,14 @@ export class CodeGraphSvgExporter
         await this.browser.close();
     }
 
-    async compile(eczCodeGraph, { cyStyleJsonOptions }={})
+    async compile(eczCodeGraph, options={})
     {
+        const {
+            cyStyleJsonOptions,
+            fitWidth,
+            embedSourceSansProFonts,
+        } = options ;
+
         // first, get the SVG data for this graph
         const cyJsonData = eczCodeGraph.cy.json();
 
@@ -92,7 +102,32 @@ export class CodeGraphSvgExporter
         //debug('Generating SVG, using jsCode =', jsCode);
 
         // Evaluate JavaScript
-        const svgData = await this.page.evaluate(jsCode);
+        let svgData = await this.page.evaluate(jsCode);
+
+        if (fitWidth ?? false) {
+            svgData = svgData.replace(
+                /(<svg [^>]*)width="([^"]+)"[ \t]+height="([^"]+)"/,
+                (match, starttag, width, height) => {
+                    if (width < fitWidth) {
+                        return match;
+                    }
+                    return (
+                        `${starttag}viewBox="0 0 ${width} ${height}" `
+                        + `width="${fitWidth}" preserveAspectRatio="xMidYMid meet"`
+                    );
+                }
+            );
+        }
+
+        if (embedSourceSansProFonts ?? true) {
+            // insert imports immediately after the end of the first tag
+            svgData = svgData.replace(
+                /(<svg [^>]*>)/,
+                (match) => {
+                    return match + `<style>${ importSourceSerifProFontsCss }</style>`;
+                }
+            );
+        }
 
         return svgData;
     }

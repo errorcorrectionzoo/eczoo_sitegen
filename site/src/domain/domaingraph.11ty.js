@@ -61,9 +61,10 @@ const render = async (data) => {
 
     // now, export to SVG:
 
-    const svgData = await eczoo_code_graph_svg_exporter.compile(
+    let svgData = await eczoo_code_graph_svg_exporter.compile(
         eczCodeGraph,
         {
+            fitWidth: 620,
             // cyStyleJsonOptions: {
             //     fontFamily: 'Source Sans Pro',
             //     fontSize: '18px',

@@ -86,11 +86,10 @@ const render = async (data) => {
 </ul>
 
 
-<div style="margin-top: 2rem; overflow: auto;">
+<div class="code-graph-excerpt">
   <a style="margin: auto; display: inline-block;"
      href="/code_graph#domain_${domain.domain_id}">
-    <img src="/domain/kgraph_${domain.domain_id}.svg"
-         style="max-width: 100%">
+    <img src="/domain/kgraph_${domain.domain_id}.svg">
   </a>
 </div>
 
