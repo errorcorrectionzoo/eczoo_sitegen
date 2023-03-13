@@ -5,7 +5,8 @@
   "workspaces": [
     "eczoodb",
     "jscomponents",
-    "site"
+    "site",
+    "helpers/parcel-namer-own-folder-hashes"
   ],
   "scripts": {
     "buildall": "(cd site && yarn build)",

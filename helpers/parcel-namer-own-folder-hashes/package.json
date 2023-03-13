@@ -1,0 +1,14 @@
+{
+  "name": "@errorcorrectionzoo/parcel-namer-own-folder-hashes",
+  "packageManager": "yarn@3.3.0",
+  "version": "0.0.1",
+  "main": "namerPlugin.js",
+  "author": "Philippe Faist",
+  "license": "MIT",
+  "engines": {
+    "parcel": "2.x"
+  },
+  "peerDependencies": {
+    "@parcel/plugin": "^2.8.3"
+  }
+}

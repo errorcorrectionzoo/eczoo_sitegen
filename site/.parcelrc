@@ -17,6 +17,7 @@
     },
 
     // "namers": [ "parcel-namer-rewrite" ],
-    // "namers": [ "parcel-namer-functional", "..." ]
+    // "namers": [ "parcel-namer-functional", "..." ],
+    "namers": [ "@errorcorrectionzoo/parcel-namer-own-folder-hashes", "..." ],
 
 }

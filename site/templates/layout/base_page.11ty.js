@@ -3,13 +3,13 @@ const debug = require('debug')('eczoo_sitegen.templates.layout.base_page');
 
 const fs = require('fs');
 const path = require('path');
-const child_process = require('child_process');
+//const child_process = require('child_process');
 
 const escape = require('escape-html');
 
-const sitePackageJson = require('../../package.json');
-const node_modules = '../../../node_modules';
-const jscomponentsPackageJson = require('../../../jscomponents/package.json');
+//const sitePackageJson = require('../../package.json');
+//const node_modules = '../../../node_modules';
+//const jscomponentsPackageJson = require('../../../jscomponents/package.json');
 
 
 const data = {
@@ -146,18 +146,6 @@ const render = async function (data) {
     ${ data.title } — Error Correction Zoo
   </title>`;
 
-    // <!-- favicon generated with https://realfavicongenerator.net/ -->
-    // <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    // <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    // <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    // <!--<link rel="manifest" href="/site.webmanifest">-->
-    // <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#00007f">
-    // <meta name="msapplication-TileColor" content="#da532c">
-    // <meta name="theme-color" content="#ffffff">
-    // <!-- end favicon code -->
-    
-  //   s += sqzhtml`
-  // <link type="text/css" rel="stylesheet" href="/cssbundle/main.css" />`;
     s += sqzhtml`
   <link type="text/css" rel="stylesheet" href="~/site/stylesheets/main.scss" />`;
 
