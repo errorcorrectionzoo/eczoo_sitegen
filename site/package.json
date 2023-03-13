@@ -6,7 +6,7 @@
     "siteLandingPaths": [
       "index.html",
       "**/*.html",
-      "schema/*.json",
+      "schemas/*.json",
       "dat/*.json"
     ]
   },
@@ -19,9 +19,11 @@
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "debug": "^4.3.4",
     "eleventy-favicon": "^1.1.3",
+    "js-yaml": "^4.1.0",
     "parcel": "^2.8.3",
     "parcel-optimizer-nohtmlsuffix": "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix",
-    "sirv-cli": "^2.0.2"
+    "sirv-cli": "^2.0.2",
+    "yaml": "^2.2.1"
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "2.8.3",

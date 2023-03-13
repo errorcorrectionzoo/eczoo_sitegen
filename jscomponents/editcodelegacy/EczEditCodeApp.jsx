@@ -3,7 +3,7 @@ import React from 'react';
 // use yaml library for exporting cause I figured out how to tweak the options
 // in the way we like them.  But its parser seems to fail on some of our codes,
 // e.g., it doesn't seem it can parse multi-line strings.
-import YAML from 'yaml';
+import * as YAML from 'yaml';
 
 //import jsyaml from 'js-yaml';
 
