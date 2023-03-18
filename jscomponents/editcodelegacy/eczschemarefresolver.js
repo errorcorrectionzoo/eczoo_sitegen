@@ -1,4 +1,8 @@
 
+
+const window_fetch = window.fetch;
+
+
 export default class EczSchemaRefResolver
 {
     constructor() {
@@ -46,7 +50,7 @@ export default class EczSchemaRefResolver
         filejson = filejson.replace(/ecc\.json$/, 'code.json');
         // -----
         //
-        let fetch_promise = fetch(filejson).then(
+        let fetch_promise = window_fetch(filejson).then(
             async (response) => {
                 const result = await response.json();
                 console.log("schema resolver; do_fetch_file. Result = ", result);

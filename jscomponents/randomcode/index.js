@@ -8,6 +8,9 @@ import './randomcode.scss';
 import { zoo_object_permalink } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
 
+const window_fetch = window.fetch;
+
+
 export class RandomCodeShower
 {
     constructor({container, random_codes_data, random_codes_data_url})
@@ -20,7 +23,7 @@ export class RandomCodeShower
             this.random_codes_data = random_codes_data;
             this.pick_and_show_random_code();
         } else {
-            fetch(random_codes_data_url).then(
+            window_fetch(random_codes_data_url).then(
                 (response) => response.json()
             ).then(
                 (data) => {

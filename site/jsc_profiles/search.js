@@ -3,8 +3,8 @@ import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/lin
 import * as search from '@errorcorrectionzoo/jscomponents/search/setup.js';
 
 
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
     mathjax.load();
     linkanchorvisualhighlight.load();
-    search.load();
+    await search.load();
 });

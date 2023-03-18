@@ -5,7 +5,7 @@ import { SearchWidget } from '@phfaist/zoodb/search/searchwidget';
 import { zoo_object_permalink } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
 
-export function load()
+export async function load()
 {
 
     const dom_container = window.document.getElementById('EczooSearchWidget');
@@ -14,7 +14,7 @@ export function load()
 
     // download the search data
     console.log("Downloading the search data...");
-    const response = await fetch(search_index_url);
+    const response = await window.fetch(search_index_url);
     const search_index_data = await response.json();
     const search_index = SearchIndex.load(search_index_data);
 
