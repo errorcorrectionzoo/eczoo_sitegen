@@ -112,6 +112,7 @@ const data = async () => {
     
     const zoollm = await import('@phfaist/zoodb/zoollm');
 
+    let text_fragment_renderer = zoollm.ZooTextFragmentRenderer();
     let html_fragment_renderer = zoollm.ZooHtmlFragmentRenderer();
     let llmrender = (value) => value && value.render_standalone(html_fragment_renderer);
 
@@ -145,6 +146,24 @@ const data = async () => {
                     code: data.code, eczoodb: data.eczoodb, llmrender
                 }),
             }),
+
+            page_description_text: (data) => {
+                const fragment = data.code.description?.get_first_paragraph();
+                const render_doc_fn = (render_context) => {
+                    if (fragment == null) {
+                        return '';
+                    }
+                    return fragment.render(render_context);
+                };
+                return zoollm.make_and_render_document({
+                    zoo_llm_environment: data.eczoodb.zoo_llm_environment,
+                    render_doc_fn,
+                    doc_metadata: {},
+                    fragment_renderer: text_fragment_renderer,
+                    render_endnotes: false,
+                });
+            },
+
             meta_citation_info: (data) => {
                 const code_name = zoollm.render_text_standalone(data.code.name);
                 const cite_year = get_code_citation_year(data.code);

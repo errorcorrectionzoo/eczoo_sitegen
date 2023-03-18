@@ -100,6 +100,10 @@ const get_page_header_navigation_links_default = async (data) => {
 //const jscomponentsExternalDependenciesDataPromise = _getExternalDependenciesData();
 
 
+const default_page_description_text =
+      `The Error Correction Zoo collects and organizes error-correcting codes.`;
+
+
 const render = async function (data) {
 
     const eleventy = this;
@@ -111,7 +115,7 @@ const render = async function (data) {
 
     let s = '';
     s += sqzhtml`<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -138,8 +142,14 @@ const render = async function (data) {
     ];
     for (const [meta_name, meta_content] of meta_citation_info) {
         s += sqzhtml`
-<meta name="${escape(meta_name)}" content="${escape(meta_content)}" />`;
+  <meta name="${escape(meta_name)}" content="${escape(meta_content)}" />`;
     }
+
+    let page_description_text =
+        data.page_description_text ?? default_page_description_text;
+    page_description_text = page_description_text.replace(/[\n\r\t ]+/g, ' ');
+    s += sqzhtml`
+  <meta name="description" content="${ escape(page_description_text) }" />`;
 
     s += sqzhtml`
   <title>
@@ -148,6 +158,8 @@ const render = async function (data) {
 
     // fonts
     s += sqzhtml`
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" />`;
 
     s += sqzhtml`
@@ -276,7 +288,7 @@ const render = async function (data) {
 
     // the logo with home page link
     s += sqzhtml`
-  <a id="logo" href="/"></a>`;
+  <a id="logo" href="/" aria-label="Home page"></a>`;
 
     // header element with the logo and possible large text, but not the navigation links
     s += sqzhtml`

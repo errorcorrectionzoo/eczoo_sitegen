@@ -73,6 +73,7 @@ export class RandomCodeShower
         a_new_random.classList.add('random-code-quick-link-refresh');
         a_new_random.textContent = 'refresh';
         a_new_random.href = 'javascript:void(0);'
+        a_new_random.setAttribute('rel', 'nofollow');
         a_new_random.addEventListener('click', () => this.pick_and_show_random_code());
 
         const p_desc = document.createElement('p');
