@@ -1,2 +1,10 @@
-import './default.js';
-import '@errorcorrectionzoo/jscomponents/search/setup.js';
+import * as mathjax from '@errorcorrectionzoo/jscomponents/mathjax/setup.js';
+import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/linkanchorvisualhighlight/setup.js';
+import * as search from '@errorcorrectionzoo/jscomponents/search/setup.js';
+
+
+window.addEventListener('load', function() {
+    mathjax.load();
+    linkanchorvisualhighlight.load();
+    search.load();
+});

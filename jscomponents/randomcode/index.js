@@ -81,7 +81,7 @@ export class RandomCodeShower
         this.element_container.appendChild(a_new_random);
         this.element_container.appendChild(p_desc);
         
-        if (window?.MathJax !== undefined) {
+        if (window?.MathJax?.typesetPromise != null) {
             window.MathJax.typesetPromise([this.element_container]);
         }
     }

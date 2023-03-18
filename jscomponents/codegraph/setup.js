@@ -73,7 +73,9 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 // Set up code graph code
 //
 
-window.addEventListener('load', async () => {
+
+export async function load()
+{
 
     debug('setup code graph!')
 
@@ -201,5 +203,5 @@ window.addEventListener('load', async () => {
     await pFirstRenderLayoutPromise;
 
     debug('Layout done.');
-});
+}
 

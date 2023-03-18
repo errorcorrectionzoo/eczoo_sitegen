@@ -1,6 +1,7 @@
 import { RandomCodeShower } from './index.js';
 
-window.addEventListener('load', function () {
+export function load()
+{
 
     let random_code_element = document.getElementById('random-code-box');
     if (random_code_element) {
@@ -10,4 +11,4 @@ window.addEventListener('load', function () {
         console.log("RandomCodeShower attached to element = ", random_code_element);
     }
 
-});
+}

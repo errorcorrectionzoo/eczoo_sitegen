@@ -16,7 +16,8 @@ const render = async function (data)
 
 
     return `
-import '~/site/jsc_profiles/default.js';
+import * as mathjax from '@errorcorrectionzoo/jscomponents/mathjax/setup.js';
+import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/linkanchorvisualhighlight/setup.js';
 
 import { RandomCodeShower } from '@errorcorrectionzoo/jscomponents/randomcode/index.js';
 
@@ -25,6 +26,11 @@ const randomCodeData = ${randomCodeDataStr};
 //console.log('randomCodeData =', randomCodeData);
 
 window.addEventListener('load', function () {
+
+    mathjax.load();
+    linkanchorvisualhighlight.load();
+
+    // load -- random code
 
     let random_code_element = document.getElementById('random-code-box');
     if (random_code_element) {

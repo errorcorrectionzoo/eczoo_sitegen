@@ -5,7 +5,8 @@ import { SearchWidget } from '@phfaist/zoodb/search/searchwidget';
 import { zoo_object_permalink } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
 
-window.addEventListener('load', async () => {
+export function load()
+{
 
     const dom_container = window.document.getElementById('EczooSearchWidget');
 
@@ -33,4 +34,4 @@ window.addEventListener('load', async () => {
         getMathJax: () => window.MathJax,
     });
     
-});
+}

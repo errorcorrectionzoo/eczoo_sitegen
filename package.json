@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@parcel/packager-xml": "2.8.3",
-    "@parcel/transformer-sass": "2.8.3"
+    "@parcel/transformer-sass": "2.8.3",
+    "s3-deploy": "1.4.0"
   }
 }

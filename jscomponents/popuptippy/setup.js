@@ -2,7 +2,8 @@ import { PopupInfoTool } from './index.js';
 
 // fire up on load
 
-window.addEventListener('load', () => {
+export function load()
+{
 
     document.querySelectorAll('.info-popup-button-zone').forEach(
         (popupZoneElement) => {
@@ -43,4 +44,4 @@ window.addEventListener('load', () => {
             element.style.display = 'none';
         }
     );
-});
+}

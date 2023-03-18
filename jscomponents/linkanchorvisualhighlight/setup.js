@@ -7,11 +7,12 @@ import './mystyle.css';
 // within EC Zoo pages
 //
 
-window.addEventListener("load", () => {
+export function load()
+{
 
     setupVisualHighlightLinkEventListener('main');
     // also do this for our navigation shortcut "hamburger" button
     setupVisualHighlightLinkEventListener('nav-shortcut-to-navigation-links');
 
-});
+}
 
