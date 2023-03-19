@@ -157,15 +157,15 @@ module.exports = (eleventyConfig) => {
 
     // // copy in the JS components needed in our site
     // let jscomponentsDistDir = "./jscomponents_dist";
-    eleventyConfig.addPassthroughCopy(
-        {
-            // [jscomponentsDistDir]: "jsbundle",
-            './static_copy': '.',
-        },
-        {
-            expand: true, // expand symbolic links
-        }
-    );
+    // eleventyConfig.addPassthroughCopy(
+    //     {
+    //         // [jscomponentsDistDir]: "jsbundle",
+    //         './static_copy': '.',
+    //     },
+    //     {
+    //         expand: true, // expand symbolic links
+    //     }
+    // );
 
 
     if (eczoo_run_options.run_11ty_parcel) {

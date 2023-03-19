@@ -347,6 +347,7 @@ __metadata:
     js-yaml: ^4.1.0
     parcel: ^2.8.3
     parcel-optimizer-nohtmlsuffix: "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix"
+    parcel-reporter-static-files-copy: ^1.5.0
     sirv-cli: ^2.0.2
     yaml: ^2.2.1
   languageName: unknown
@@ -1016,7 +1017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/plugin@npm:2.8.3, @parcel/plugin@npm:^2.0.0, @parcel/plugin@npm:^2.7.0":
+"@parcel/plugin@npm:2.8.3, @parcel/plugin@npm:^2.0.0, @parcel/plugin@npm:^2.0.0-beta.1, @parcel/plugin@npm:^2.7.0":
   version: 2.8.3
   resolution: "@parcel/plugin@npm:2.8.3"
   dependencies:
@@ -6151,6 +6152,15 @@ __metadata:
     posthtml: ^0.14
     posthtml-urls: ^1
   checksum: b344f0837a2ffd36783f91c488f1108a271f510bf301ccb961038ef83efc80ed8ce8b57756a520673819c8d25ba265941fab59a7817e3323d5e46e5e1a2d23c9
+  languageName: node
+  linkType: hard
+
+"parcel-reporter-static-files-copy@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "parcel-reporter-static-files-copy@npm:1.5.0"
+  dependencies:
+    "@parcel/plugin": ^2.0.0-beta.1
+  checksum: fc55e492af7c197331f8d0a4a108e0487def8d1b80c64702d56f5d2669930230900039eab7a8cd714f4bbd186b27df75135092e94d1758cffca44d4640d920cf
   languageName: node
   linkType: hard
 
