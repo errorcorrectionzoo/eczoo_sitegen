@@ -30,9 +30,11 @@
 
 table.cells {
   margin: 1em auto 1em auto;
-  border-collapse: collapse;
-  border-top: solid 1pt;
-  border-bottom: solid 1pt;
+  // border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0px;
+  // border-top: solid 1pt;
+  // border-bottom: solid 1pt;
 
   box-sizing: border-box;
   max-width: 100%;
@@ -40,17 +42,17 @@ table.cells {
 
   td {
       padding: 0.3em 0.5em;
+      border: none 0px;
   }
-
   th {
       padding: 0.3em 0.5em;
+      border: none 0px;
   }
-  th.cellstyle-H {
+  .cellstyle-H {
       border-bottom: solid .5pt;
   }
-  th.cellstyle-rH {
+  .cellstyle-rH {
   }
-
   .cellstyle-l {
       text-align: left;
   }
@@ -78,7 +80,35 @@ table.cells {
   .cellstyle-rvert {
       border-right: solid .5pt;
   }
+
+  .celltbledge-top {
+      border-top: solid 1pt;
+  }
+  .celltbledge-bottom {
+      border-bottom: solid 1pt;
+  }
+
 }
+
+
+.verbatimcode {
+  font-family: monospace;
+  font-size: 0.9em;
+  background-color: rgba(127,127,127,0.25);
+  border-radius: 2px;
+  padding: 1px 2px;
+  display: inline-block;
+  white-space: pre-wrap;
+}
+.verbatima {
+  font-style: italic;
+}
+.verbatimcode-environment {
+  display: block;
+  margin: 0.75em 0px 1em;
+  white-space: pre;
+}
+
 
 
 
@@ -179,10 +209,15 @@ figure.float {
     margin-top: -0.3em;
 }
 
-.citation {
+// .citation {
+//     @include fixbaseline-superscript-text;
+// }
+// .footnote {
+//     @include fixbaseline-superscript-text;
+// }
+
+.endnotes, .citations {
     @include fixbaseline-superscript-text;
 }
-.footnote {
-    @include fixbaseline-superscript-text;
-}
+
 
