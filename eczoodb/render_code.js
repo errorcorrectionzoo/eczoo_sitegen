@@ -15,7 +15,7 @@ import {
 // ------
 
 
-export function render_code_page(code, {zoo_llm_environment, doc_metadata})
+export function render_code_page(code, {zoo_llm_environment, doc_metadata, extra_html_after_title})
 {
     //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
     
@@ -38,6 +38,9 @@ export function render_code_page(code, {zoo_llm_environment, doc_metadata})
             html += sqzhtml`
       <span class="code-introduced">${rdr(code.introduced)}</span>
 `;
+        }
+        if (extra_html_after_title != null) {
+            html += extra_html_after_title;
         }
         html += sqzhtml`
     </h1>

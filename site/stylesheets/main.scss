@@ -450,6 +450,20 @@ a.code-self-edit {
     background-image: url('~/site/static/icons/edit-icon.svg');
 }
 
+
+a.linkcodegraph {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url('~/site/static/icons/linkcodegraph.svg');
+    background-size: contain;
+    margin-left: 1em;
+    vertical-align: 0px;
+}
+a.linkcodegraph:hover {
+    filter: drop-shadow(2px 2px 5px rgba(0,0,128,0.3));
+}
+
 .show-citation, .show-share-social {
     display: block;
     //min-width: 350px;

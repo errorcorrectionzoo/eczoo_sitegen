@@ -210,9 +210,15 @@ const render = async (data) => {
 
     debug(`Rendering code page for ‘${code.code_id}’ ...`);
 
+    // link to code page
+    const extra_html_after_title = sqzhtml`
+    <a href="/code_graph#code_${code.code_id}" class="linkcodegraph">&nbsp;</a>
+`;
+
     // RENDER THE BULK OF THE CODE PAGE
     const code_page_html =
-          rendercodepage.render_code_page(code, {zoo_llm_environment, doc_metadata});
+          rendercodepage.render_code_page(code, {zoo_llm_environment, doc_metadata,
+                                                 extra_html_after_title});
 
     // additional info for popups, etc.
 
