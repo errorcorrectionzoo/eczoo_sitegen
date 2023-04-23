@@ -1,0 +1,29 @@
+
+list_id: 'test_stuff2'
+
+title: |
+  Testing domain predicate
+
+intro: |
+  Here's a test.
+
+
+display:
+  style: table
+  options:
+    cssclass: xtra-stretch
+    columns:
+      - property: name
+        title: Code
+        link_to_code: true
+        cssclass: 'top left'
+
+      - property: description
+        title: Description
+        cssclass: 'textit'
+        first_paragraph_only: true
+
+
+codes:
+  select:
+    - domain: classical_domain

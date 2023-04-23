@@ -1,7 +1,11 @@
 
 kingdoms_by_domain_id:
 
-  classical_domain: []
+  classical_domain:
+    - kingdom_id: bits_into_bits
+      name: 'Bits Kingdom (binary linear)'
+      kingdom_code:
+        code_id: binary_linear
 
   quantum_domain:
     - kingdom_id: qubits_into_qubits
