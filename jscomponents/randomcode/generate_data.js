@@ -39,13 +39,18 @@ export function generate_random_code_data({eczoodb})
                 //     use_endnotes: false,
                 // },
             },
+            feature_render_options: {
+                endnotes: {
+                    inhibit_render_endnote_marks: true,
+                }
+            },
             render_endnotes: false
         });
 
-        // Remove all the citations altogether. Define the regex HERE! It needs
-        // the global, stateful flag to capture all matches.
-        let rx_cite_foot = /<a[ ][^>]*href="#citation-[^"]*"[^>]*>[^<]+<\/a>/g;
-        description_html = description_html.replace(rx_cite_foot, '');
+        // // Remove all the citations altogether. Define the regex HERE! It needs
+        // // the global, stateful flag to capture all matches.
+        // let rx_cite_foot = /<span[ ][^>]*class="citations"[^>]*>[^<]+<\/a>/g;
+        // description_html = description_html.replace(rx_cite_foot, '');
 
         codes[code_id] = {
             name_html,
