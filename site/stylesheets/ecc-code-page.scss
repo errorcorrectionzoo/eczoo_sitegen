@@ -40,6 +40,13 @@ article.ecc-code-page {
         display: none;
     }
 
+    .code-alternative-names {
+        font-style: italic;
+        .code-alternative-name {
+            font-style: normal;
+        }
+    }
+
     > .code-defines-kingdom-name {
         font-size: 1rem;
 

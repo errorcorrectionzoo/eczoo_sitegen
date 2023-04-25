@@ -12,6 +12,12 @@ code_id: testcode
 name: 'My Test \(x:y\)-Code'
 introduced: '\cite{arXiv:1911.00099}'
 
+alternative_names:
+  - 'Funny Code'
+  - 'Bunny Code'
+  - 'Sunny Puny Tanny Dumby Rambly Code'
+
+
 description: |
   Here is the code's description.  It can span multiple, hard-wrapped lines.
   It can include citations~\cite{arXiv:1911.00099}.

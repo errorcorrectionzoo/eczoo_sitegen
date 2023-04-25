@@ -47,6 +47,18 @@ export function render_code_page(code, {zoo_flm_environment, doc_metadata, extra
   </span>
 </div>`;
 
+        if (code.alternative_names && code.alternative_names.length) {
+            const alt_names_joined =
+                code.alternative_names
+                .map( (n) => `<span class="code-alternative-name">${ rdr(n) }</span>` )
+                .join(', ');
+            html += sqzhtml`
+<div class="sectioncontent code-alternative-names">
+  Also known as ${alt_names_joined}.
+</div>
+`
+        }
+
         const kingdom = code.relations?.defines_kingdom?.[0]?.kingdom ?? null;
         if (kingdom != null) {
             html += sqzhtml`

@@ -80,6 +80,16 @@ properties:
       in the header bar.  If no 'short_name' is provided, the 'name' field is
       used in those places instead.
 
+  # codes may have aliases.
+  alternative_names:
+    type: array
+    _description: >-
+      Alternative name(s) under which this code is known.
+    items:
+      type: string
+      _flm: standalone
+      _single_line_string: True
+
   # every code must have a description.
   description:
     type: string
