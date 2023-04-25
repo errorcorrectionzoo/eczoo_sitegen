@@ -12,11 +12,11 @@ import cyFcose from 'cytoscape-fcose';
 
 import { RelationsPopulator } from '@phfaist/zoodb/dbprocessor/relations';
 
-import { LLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/llmsimplecontent';
+import { FLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import {
-    render_text_standalone, is_llm_fragment, $$kw
-} from '@phfaist/zoodb/zoollm';
+    render_text_standalone, is_flm_fragment, $$kw
+} from '@phfaist/zoodb/zooflm';
 
 
 
@@ -181,7 +181,7 @@ export class EczCodeGraph
 
             const thisDomainNodeId = this.getNodeIdDomain(domainId);
             let label = domain.name;
-            if (is_llm_fragment(label)) {
+            if (is_flm_fragment(label)) {
                 label = render_text_standalone(domain.name);
             }
             nodes.push({
@@ -210,7 +210,7 @@ export class EczCodeGraph
 
             let label = codeShortName;
 
-            if (is_llm_fragment(codeShortName)) {
+            if (is_flm_fragment(codeShortName)) {
                 label = render_text_standalone(codeShortName);
             }
             // remove math "\(" & "\)" since we need to produce text here
@@ -249,7 +249,7 @@ export class EczCodeGraph
                 const thisDomainNodeId = this.getNodeIdDomain(domainId);
 
                 let kingdomName = kingdom.name;
-                if (is_llm_fragment(kingdomName)) {
+                if (is_flm_fragment(kingdomName)) {
                     kingdomName = render_text_standalone(kingdomName);
                 }
 

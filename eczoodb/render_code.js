@@ -3,8 +3,8 @@ const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zoollm from '@phfaist/zoodb/zoollm';
-const { $$kw, repr } = zoollm;
+import * as zooflm from '@phfaist/zoodb/zooflm';
+const { $$kw, repr } = zooflm;
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -15,16 +15,16 @@ import {
 // ------
 
 
-export function render_code_page(code, {zoo_llm_environment, doc_metadata, extra_html_after_title})
+export function render_code_page(code, {zoo_flm_environment, doc_metadata, extra_html_after_title})
 {
     //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
     
     const render_doc_fn = (render_context) => {
 
         // debug(`Rendering code information. render_context =`, render_context,
-        //       `; zoo_llm_environment =`, zoo_llm_environment);
+        //       `; zoo_flm_environment =`, zoo_flm_environment);
 
-        const R = zoollm.make_render_shorthands({render_context});
+        const R = zooflm.make_render_shorthands({render_context});
         const { ne, rdr, ref } = R;
 
         let html = '';
@@ -173,8 +173,8 @@ export function render_code_page(code, {zoo_llm_environment, doc_metadata, extra
         return html;
     };
 
-    return zoollm.make_and_render_document({
-        zoo_llm_environment,
+    return zooflm.make_and_render_document({
+        zoo_flm_environment,
         render_doc_fn,
         doc_metadata,
         render_endnotes: {

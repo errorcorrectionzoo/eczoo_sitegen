@@ -5,8 +5,8 @@ import fs from 'fs';
 import path from 'path';
 
 
-import * as zoollm from '@phfaist/zoodb/zoollm';
-const { $$kw, repr } = zoollm;
+import * as zooflm from '@phfaist/zoodb/zooflm';
+const { $$kw, repr } = zooflm;
 
 
 import { load_eczoo_cached } from './_loadeczoodb.js';
@@ -28,12 +28,12 @@ const eczoodb = await load_eczoo_cached({
     data_dir,
     fs,
     eczoodb_options: {
-        llm_allow_unresolved_citations: true,
-        llm_allow_unresolved_references: true,
+        flm_allow_unresolved_citations: true,
+        flm_allow_unresolved_references: true,
     }
 });
 
-const zoo_llm_environment = eczoodb.zoo_llm_environment;
+const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
 
 describe('render_code', function () {
@@ -43,7 +43,7 @@ describe('render_code', function () {
         const result_css_html = render_code_page(
             eczoodb.objects.code.css,
             {
-                zoo_llm_environment,
+                zoo_flm_environment,
                 doc_metadata: {},
             }
         );

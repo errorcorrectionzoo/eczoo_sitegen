@@ -21,19 +21,19 @@ const render = async (data) => {
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
     const {
         make_render_shorthands, make_and_render_document
-    } = await import('@phfaist/zoodb/zoollm');
+    } = await import('@phfaist/zoodb/zooflm');
 
     debug(`concepts.11ty.js -- render()`);
 
     const { eczoodb } = data;
 
-    const zoo_llm_environment = eczoodb.zoo_llm_environment;
+    const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
     const all_referenceables =
-          eczoodb.zoo_llm_processor.scanner.get_encountered('referenceables');
+          eczoodb.zoo_flm_processor.scanner.get_encountered('referenceables');
 
     const all_defterms = all_referenceables.filter( (encountered_referenceable) =>
-              (encountered_referenceable.defterm_body_llm != null)
+              (encountered_referenceable.defterm_body_flm != null)
           );
 
     const render_doc_fn = (render_context) => {
@@ -48,9 +48,9 @@ const render = async (data) => {
 
 <dl class="glossary-defterm-list">`;
         for (const encountered_referenceable of all_defterms) {
-            const llm_text =
-                  encountered_referenceable.referenceable_info.formatted_ref_llm_text;
-            const llm_body = encountered_referenceable.defterm_body_llm;
+            const flm_text =
+                  encountered_referenceable.referenceable_info.formatted_ref_flm_text;
+            const flm_body = encountered_referenceable.defterm_body_flm;
 
             const { object_type, object_id } =
                   encountered_referenceable.encountered_in.resource_info;
@@ -64,14 +64,14 @@ const render = async (data) => {
             s += sqzhtml`
   <dt class="glossary-defterm-term-name">
     <a href="${ href }">
-      ${ rdr(llm_text) }
+      ${ rdr(flm_text) }
     </a>
   </dt>
     <a href="${ href }"
        class="glossary-a-view-in-context"
        >view in context&nbsp;→</a>
   <dd class="glossary-defterm-body">
-    ${ rdr(llm_body) }
+    ${ rdr(flm_body) }
   </dd>`;
         }
         s += sqzhtml`
@@ -82,7 +82,7 @@ const render = async (data) => {
 
     
     return make_and_render_document({
-        zoo_llm_environment,
+        zoo_flm_environment,
         render_doc_fn,
         //doc_metadata,
         render_endnotes: {

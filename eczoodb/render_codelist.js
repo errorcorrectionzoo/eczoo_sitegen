@@ -3,8 +3,8 @@ const debug = debug_mod("eczoodbjs.render_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zoollm from '@phfaist/zoodb/zoollm';
-const { $$kw, repr } = zoollm;
+import * as zooflm from '@phfaist/zoodb/zooflm';
+const { $$kw, repr } = zooflm;
 
 import { render_meta_changelog } from './render_utils.js';
 
@@ -84,11 +84,11 @@ const styles = {
 
                     // maybe fix the display_value
                     if (ne(display_value) && column_info.first_paragraph_only) {
-                        // must be an LLMFragment for this to make sense.
+                        // must be an FLMFragment for this to make sense.
                         display_value = display_value.get_first_paragraph();
                     }
                     if (ne(display_value) && column_info.truncate_to != null) {
-                        // must be an LLMFragment for this to make sense.
+                        // must be an FLMFragment for this to make sense.
                         display_value = display_value.truncate_to(column_info.truncate_to);
                     }
 
@@ -96,7 +96,7 @@ const styles = {
                     let rendered_value;
                     if (column_info.link_to_code) {
                         rendered_value = ref( 'code', code.code_id,
-                                              {display_llm: display_value} );
+                                              {display_flm: display_value} );
                     } else {
                         rendered_value = rdr( display_value );
                     }
@@ -171,14 +171,14 @@ export function render_codelist_page(codelist, {eczoodb, doc_metadata})
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
 
-    const zoo_llm_environment = eczoodb.zoo_llm_environment;
+    const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
     const styles_render_fn = styles[codelist.display?.style ?? 'index']
     const list_data = get_list_data({codelist, eczoodb});
     
     const render_doc_fn = (render_context) => {
 
-        const R = zoollm.make_render_shorthands({render_context});
+        const R = zooflm.make_render_shorthands({render_context});
         const { ne, rdr, ref } = R;
 
         let html = '';
@@ -214,8 +214,8 @@ export function render_codelist_page(codelist, {eczoodb, doc_metadata})
         return html;
     };
 
-    return zoollm.make_and_render_document({
-        zoo_llm_environment,
+    return zooflm.make_and_render_document({
+        zoo_flm_environment,
         render_doc_fn,
         doc_metadata,
         render_endnotes: true

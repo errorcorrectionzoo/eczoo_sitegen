@@ -6,10 +6,10 @@ const debug = require('debug')('eczoo_sitegen.src.list')
 
 const data = async () => {
     
-    const zoollm = await import('@phfaist/zoodb/zoollm');
+    const zooflm = await import('@phfaist/zoodb/zooflm');
 
-    // let html_fragment_renderer = zoollm.ZooHtmlFragmentRenderer();
-    // let llmrender = (value) => value && value.render_standalone(html_fragment_renderer);
+    // let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
+    // let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
 
     return {
         pagination: {
@@ -23,7 +23,7 @@ const data = async () => {
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id) + '.html',
-            title: (data) => zoollm.render_text_standalone(data.codelist.title),
+            title: (data) => zooflm.render_text_standalone(data.codelist.title),
             // ---
             // injection hack to get correct page date property!
             // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151

@@ -20,7 +20,7 @@ items:
       _single_line_string: True
       type: string
     detail:
-      _llm: full
+      _flm: full
       type: string
 
     # automatically populated fields, don't specify manually

@@ -20,9 +20,9 @@ const get_page_header_navigation_links_default = async (data) => {
 
     const { eczoodb } = data;
 
-    let zoollm = await import('@phfaist/zoodb/zoollm');
-    let html_fragment_renderer = zoollm.ZooHtmlFragmentRenderer();
-    let llmrender = (value) => value.render_standalone(html_fragment_renderer);
+    let zooflm = await import('@phfaist/zoodb/zooflm');
+    let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
+    let flmrender = (value) => value.render_standalone(html_fragment_renderer);
 
     let page_header_navigation_links = [
         {
@@ -41,11 +41,11 @@ const get_page_header_navigation_links_default = async (data) => {
         page_header_navigation_links.push({
             heading: {
                 href: eczoodb.zoo_object_permalink('domain', domain.domain_id),
-                html: llmrender(domain.name),
+                html: flmrender(domain.name),
             },
             links: (domain.kingdoms || []).map( (kingdom_ref) => ({
                 href: eczoodb.zoo_object_permalink('kingdom', kingdom_ref.kingdom_id),
-                html: llmrender(kingdom_ref.kingdom.name),
+                html: flmrender(kingdom_ref.kingdom.name),
             }) ),
         });
     }

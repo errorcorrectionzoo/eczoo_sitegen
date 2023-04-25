@@ -18,10 +18,10 @@ async function run({data_dir})
 
     const eczoo = new EcZooDb({
         fs,
-        llm_processor_graphics_resources_fs_data_dir: data_dir,    
-        llm_processor_citations_override_arxiv_dois_file:
+        flm_processor_graphics_resources_fs_data_dir: data_dir,    
+        flm_processor_citations_override_arxiv_dois_file:
             path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
-        llm_processor_citations_preset_bibliography_files: [
+        flm_processor_citations_preset_bibliography_files: [
             path.join(data_dir, 'code_extra', 'bib_preset.yml'),
         ],
     });

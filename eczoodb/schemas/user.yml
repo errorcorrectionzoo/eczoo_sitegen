@@ -25,7 +25,7 @@ properties:
   # every user must have a name.
   name:
     type: string
-    #_llm: standalone # NO LLM!
+    #_flm: standalone # NO FLM!
     _single_line_string: true
     _description: >-
       The user's full name, as it should be displayed.

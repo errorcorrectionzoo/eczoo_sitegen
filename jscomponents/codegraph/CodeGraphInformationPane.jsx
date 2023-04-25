@@ -8,13 +8,13 @@ import * as htmlescape from 'html-escaper';
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 
 import {
-    LLMSimpleContentCompiler
-} from '@phfaist/zoodb/dbprocessor/llmsimplecontent';
+    FLMSimpleContentCompiler
+} from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import {
-    render_text_standalone, is_llm_fragment, $$kw, ZooHtmlFragmentRenderer, RefInstance,
+    render_text_standalone, is_flm_fragment, $$kw, ZooHtmlFragmentRenderer, RefInstance,
     make_and_render_document, make_render_shorthands,
-} from '@phfaist/zoodb/zoollm';
+} from '@phfaist/zoodb/zooflm';
 
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
@@ -26,17 +26,17 @@ import './CodeGraphInformationPane_style.scss';
 
 function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
 {
-    let zoo_llm_environment = eczoodb.zoo_llm_environment;
+    let zoo_flm_environment = eczoodb.zoo_flm_environment;
     let html_fragment_renderer = new ZooHtmlFragmentRenderer();
     
-    let llm_simple_content = new LLMSimpleContentCompiler({
-        llm_environment: zoo_llm_environment,
-        llm_error_policy: 'continue',
+    let flm_simple_content = new FLMSimpleContentCompiler({
+        flm_environment: zoo_flm_environment,
+        flm_error_policy: 'continue',
     });
 
     let my_ref_resolver = {
         get_ref(ref_type, ref_label, resource_info) {
-            let ref_instance = eczoodb.zoo_llm_environment.ref_resolver.get_ref(
+            let ref_instance = eczoodb.zoo_flm_environment.ref_resolver.get_ref(
                 ref_type, ref_label, resource_info
             );
             if (captureLinksToObjectTypes.includes(ref_type)) {
@@ -51,11 +51,11 @@ function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
     };
 
     return {
-        zoo_llm_environment,
-        llm_simple_content,
+        zoo_flm_environment,
+        flm_simple_content,
         render: (render_doc_fn) => {
             const html = make_and_render_document({
-                zoo_llm_environment,
+                zoo_flm_environment,
                 render_doc_fn,
                 render_endnotes: {
                     target_id: null,
@@ -68,7 +68,7 @@ function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
                         add_external_ref_resolvers: [ my_ref_resolver ],
                     },
                 },
-                llm_error_policy: 'continue',
+                flm_error_policy: 'continue',
             });
             debug("Got HTML: ", html);
             return html;
@@ -82,7 +82,7 @@ function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
 function renderHtmlCode({ eczoodb, code, displayInformationOptions,
                           captureLinksToObjectTypes, })
 {
-    const { llm_simple_content, render } = mkRenderWrapUtils({
+    const { flm_simple_content, render } = mkRenderWrapUtils({
         eczoodb,
         captureLinksToObjectTypes,
     });
@@ -99,7 +99,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
 
     const code_schema = eczoodb.schemas.code;
 
-    let code_name = llm_simple_content.compile_llm(
+    let code_name = flm_simple_content.compile_flm(
         code.name,
         { object_type: 'code',
           object_schema: code_schema,
@@ -107,7 +107,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
           fieldname: 'name' }
     );
 
-    let code_introduced = llm_simple_content.compile_llm(
+    let code_introduced = flm_simple_content.compile_flm(
         code.introduced,
         { object_type: 'code',
           object_schema: code_schema,
@@ -115,7 +115,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
           fieldname: 'introduced' }
     );
 
-    let code_description = llm_simple_content.compile_llm(
+    let code_description = flm_simple_content.compile_flm(
         code.description,
         { object_type: 'code',
           object_schema: code_schema,
@@ -131,14 +131,14 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
     if (kingdom != null) {
         debug(`code is a kingdom,`, kingdom);
         let kingdom_schema = eczoodb.schemas.kingdom;
-        kingdom_name = llm_simple_content.compile_llm(
+        kingdom_name = flm_simple_content.compile_flm(
             kingdom.name,
             { object_type: 'kingdom',
               object_schema: kingdom_schema,
               object: kingdom,
               fieldname: 'name' }
         );
-        kingdom_description = llm_simple_content.compile_llm(
+        kingdom_description = flm_simple_content.compile_flm(
             kingdom.description,
             { object_type: 'kingdom',
               object_schema: kingdom_schema,
@@ -211,7 +211,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
 
 function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 {
-    const { llm_simple_content, render } = mkRenderWrapUtils({
+    const { flm_simple_content, render } = mkRenderWrapUtils({
         eczoodb,
         captureLinksToObjectTypes,
     });
@@ -223,7 +223,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
     const domain_schema = eczoodb.schemas.domain;
 
-    let domain_name = llm_simple_content.compile_llm(
+    let domain_name = flm_simple_content.compile_flm(
         domain.name,
         { object_type: 'domain',
           object_schema: domain_schema,
@@ -231,7 +231,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
           fieldname: 'name' }
     );
 
-    let domain_description = llm_simple_content.compile_llm(
+    let domain_description = flm_simple_content.compile_flm(
         domain.description,
         { object_type: 'domain',
           object_schema: domain_schema,
@@ -271,7 +271,7 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
 function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
 {
-    const { llm_simple_content, render } = mkRenderWrapUtils({
+    const { flm_simple_content, render } = mkRenderWrapUtils({
         eczoodb,
         captureLinksToObjectTypes,
     });

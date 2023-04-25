@@ -19,8 +19,8 @@ properties:
   name:
     type: string
     _single_line_string: True
-    _llm: standalone
+    _flm: standalone
 
   description:
     type: string
-    _llm: full
+    _flm: full

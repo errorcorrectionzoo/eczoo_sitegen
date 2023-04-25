@@ -10,7 +10,7 @@ const show_max_rel_by_reltype = {
 
 
 
-const generate_navigation_links = ({code, eczoodb, llmrender}) => {
+const generate_navigation_links = ({code, eczoodb, flmrender}) => {
 
     //debug('generating navigation links for code = ', code);
 
@@ -35,7 +35,7 @@ const generate_navigation_links = ({code, eczoodb, llmrender}) => {
 
             related_codes_links.push({
                 href: eczoodb.zoo_object_permalink('code', rel.code_id),
-                html: llmrender(eczoodb.code_short_name(rel.code)),
+                html: flmrender(eczoodb.code_short_name(rel.code)),
             })
 
             // climb up the direct parent hierarchy (first parents only) a couple levels
@@ -45,14 +45,14 @@ const generate_navigation_links = ({code, eczoodb, llmrender}) => {
                 const relcode2 = rel.code.relations.parents[0];
                 related_codes_links.push({
                     href: eczoodb.zoo_object_permalink('code', relcode2.code_id),
-                    html: llmrender(eczoodb.code_short_name(relcode2.code)),
+                    html: flmrender(eczoodb.code_short_name(relcode2.code)),
                 });
                 if (relcode2.code.relations != null && relcode2.code.relations.parents != null
                     && relcode2.code.relations.parents.length) {
                     const relcode3 = relcode2.code.relations.parents[0];
                     related_codes_links.push({
                         href: eczoodb.zoo_object_permalink('code', relcode3.code_id),
-                        html: llmrender(eczoodb.code_short_name(relcode3.code)),
+                        html: flmrender(eczoodb.code_short_name(relcode3.code)),
                     });
                 }
             }
@@ -67,7 +67,7 @@ const generate_navigation_links = ({code, eczoodb, llmrender}) => {
         page_header_navigation_links.push({
             heading: {
                 href: eczoodb.zoo_object_permalink('domain', domain_id),
-                html: llmrender(domain.name)
+                html: flmrender(domain.name)
             },
             links: null,
         });
@@ -110,11 +110,11 @@ function get_code_citation_year(code)
 
 const data = async () => {
     
-    const zoollm = await import('@phfaist/zoodb/zoollm');
+    const zooflm = await import('@phfaist/zoodb/zooflm');
 
-    let text_fragment_renderer = zoollm.ZooTextFragmentRenderer();
-    let html_fragment_renderer = zoollm.ZooHtmlFragmentRenderer();
-    let llmrender = (value) => value && value.render_standalone(html_fragment_renderer);
+    let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
+    let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
+    let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
 
     return {
         pagination: {
@@ -128,7 +128,7 @@ const data = async () => {
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('code', data.code.code_id) + '.html',
-            title: (data) => zoollm.render_text_standalone(data.code.name),
+            title: (data) => zooflm.render_text_standalone(data.code.name),
             // ---
             // injection hack to get correct page date property!
             // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
@@ -143,7 +143,7 @@ const data = async () => {
                 //     popuptippy: true,
                 // },
                 header_navigation_links: generate_navigation_links({
-                    code: data.code, eczoodb: data.eczoodb, llmrender
+                    code: data.code, eczoodb: data.eczoodb, flmrender
                 }),
             }),
 
@@ -155,8 +155,8 @@ const data = async () => {
                     }
                     return fragment.render(render_context);
                 };
-                return zoollm.make_and_render_document({
-                    zoo_llm_environment: data.eczoodb.zoo_llm_environment,
+                return zooflm.make_and_render_document({
+                    zoo_flm_environment: data.eczoodb.zoo_flm_environment,
                     render_doc_fn,
                     doc_metadata: {},
                     fragment_renderer: text_fragment_renderer,
@@ -165,7 +165,7 @@ const data = async () => {
             },
 
             meta_citation_info: (data) => {
-                const code_name = zoollm.render_text_standalone(data.code.name);
+                const code_name = zooflm.render_text_standalone(data.code.name);
                 const cite_year = get_code_citation_year(data.code);
                 return [
                     ["citation_language", "en"],
@@ -194,19 +194,19 @@ const render = async (data) => {
     const code = data.code;
     const eczoodb = data.eczoodb;
 
-    const zoollm = await import('@phfaist/zoodb/zoollm');
-    const { $$kw } = zoollm;
+    const zooflm = await import('@phfaist/zoodb/zooflm');
+    const { $$kw } = zooflm;
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
-    let html_fragment_renderer = new zoollm.ZooHtmlFragmentRenderer();
-    let text_fragment_renderer = new zoollm.ZooTextFragmentRenderer();
-    let llmrender = (value) => value && value.render_standalone(html_fragment_renderer);
-    let llmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
+    let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
+    let text_fragment_renderer = new zooflm.ZooTextFragmentRenderer();
+    let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
+    let flmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
 
     const rendercodepage = await import('@errorcorrectionzoo/eczoodb/render_code.js');
 
     const doc_metadata = {};
-    const zoo_llm_environment = eczoodb.zoo_llm_environment;
+    const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
     debug(`Rendering code page for ‘${code.code_id}’ ...`);
 
@@ -217,7 +217,7 @@ const render = async (data) => {
 
     // RENDER THE BULK OF THE CODE PAGE
     const code_page_html =
-          rendercodepage.render_code_page(code, {zoo_llm_environment, doc_metadata,
+          rendercodepage.render_code_page(code, {zoo_flm_environment, doc_metadata,
                                                  extra_html_after_title});
 
     // additional info for popups, etc.
@@ -227,7 +227,7 @@ const render = async (data) => {
     const code_ref_link = code_ref_href;
     const code_citation_year = new Date(code._meta?.changelog?.[0]?.date).getFullYear();
     const code_text_citation = (
-        `“${llmrender(code.name)}”, The Error Correction Zoo `
+        `“${flmrender(code.name)}”, The Error Correction Zoo `
         + `(V. V. Albert & P. Faist, eds.), ${code_citation_year}. `
         + `https://errorcorrectionzoo.org${ code_ref_link }`
     );
@@ -241,14 +241,14 @@ const render = async (data) => {
               code_yml_filename: code._zoodb.source_file_path}))}`
     );
     const code_bibtex = `@incollection{eczoo_${code.code_id},
-title={${ code.name.llm_text }},
+title={${ code.name.flm_text }},
 booktitle={The Error Correction Zoo},
 year={${code_citation_year}},
 editor={Albert, Victor V. and Faist, Philippe},
 url={https://errorcorrectionzoo.org${code_ref_link}}
 }`;
     
-    const code_name_text = llmrendertext(code.name);
+    const code_name_text = flmrendertext(code.name);
     const code_encurl_name = encodeURIComponent(code_name_text);
     const code_encurl_name_link = encodeURIComponent(
         code_name_text + ' https://errorcorrectionzoo.org' + code_ref_link

@@ -52,14 +52,14 @@ async function render(data)
 {
     const {eczoodb, home_page_data} = data;
 
-    const zoollm = await import('@phfaist/zoodb/zoollm');
-    const llm_html_renderer = new zoollm.ZooHtmlFragmentRenderer();
+    const zooflm = await import('@phfaist/zoodb/zooflm');
+    const flm_html_renderer = new zooflm.ZooHtmlFragmentRenderer();
 
     const { zoo_generate_stats } = await import('@errorcorrectionzoo/eczoodb/stats.js');
 
-    const llmrender = (fragment) => {
-        if (zoollm.value_not_empty(fragment)) {
-            return fragment.render_standalone(llm_html_renderer);
+    const flmrender = (fragment) => {
+        if (zooflm.value_not_empty(fragment)) {
+            return fragment.render_standalone(flm_html_renderer);
         }
         return '';
     };
@@ -98,7 +98,7 @@ async function render(data)
             const code = eczoodb.objects.code[popular_code_id];
             if (code != null) {
                 const code_href = eczoodb.zoo_object_permalink('code', popular_code_id);
-                const code_name_rdr = llmrender(eczoodb.code_short_name(code));
+                const code_name_rdr = flmrender(eczoodb.code_short_name(code));
                 s_items.push(`<a href="${escape(code_href)}">${code_name_rdr}</a>`);
             };
         }
@@ -118,13 +118,13 @@ async function render(data)
         s += `
     <li><a href="${domain_href}"
            class="page-index-box-links-head">
-           ${llmrender(domain.name)}${heading_separator_html}
+           ${flmrender(domain.name)}${heading_separator_html}
         </a></li>` .trim();
         let s_items = [];
         for (const {kingdom} of (domain.kingdoms ?? [])) {
             const kingdom_href = eczoodb.zoo_object_permalink('kingdom', kingdom.kingdom_id)
             s_items.push(`
-    <a href="${kingdom_href}">${llmrender(kingdom.name)}</a>` .trim());
+    <a href="${kingdom_href}">${flmrender(kingdom.name)}</a>` .trim());
         }
         s += join_list_items(s_items);
         s += `
@@ -151,7 +151,7 @@ async function render(data)
     let codelist_entries = Object.entries(eczoodb.objects.codelist);
     const cmp = (a,b) => ( a === b ? 0 : (a < b ? -1 : +1) );
     codelist_entries.sort(
-        ([a_id, a], [b_id, b]) => cmp(a.title?.llm_text, b.title?.llm_text)
+        ([a_id, a], [b_id, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
     );
 
     {
@@ -161,7 +161,7 @@ async function render(data)
             //debug('rendering codelist box; codelist =', codelist);
             s_items.push(
                 `<a href="${eczoodb.zoo_object_permalink('codelist', codelist_id)}" `
-                + `>${llmrender(codelist.title.whitespace_stripped())}</a>`
+                + `>${flmrender(codelist.title.whitespace_stripped())}</a>`
             );
         }
         s += join_list_items(s_items);

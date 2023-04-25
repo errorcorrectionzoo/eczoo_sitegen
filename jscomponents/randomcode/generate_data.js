@@ -2,8 +2,8 @@
 // Run from 11ty / build time / server side
 //
 
-import * as zoollm from '@phfaist/zoodb/zoollm';
-const { $$kw, repr } = zoollm;
+import * as zooflm from '@phfaist/zoodb/zooflm';
+const { $$kw, repr } = zooflm;
 
 
 const truncate_description_at_length = 360;
@@ -15,12 +15,12 @@ export function generate_random_code_data({eczoodb})
 {
     let codes = {};
 
-    let html_fragment_renderer = new zoollm.ZooHtmlFragmentRenderer();
+    let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
 
     for (const [code_id, code] of Object.entries(eczoodb.objects.code)) {
 
         // make sure the code isn't a simple empty "stub"
-        if (code.description.llm_text.match(rx_stub)) {
+        if (code.description.flm_text.match(rx_stub)) {
             continue;
         }
 
@@ -30,8 +30,8 @@ export function generate_random_code_data({eczoodb})
             truncate_description_at_length
         );
 
-        let description_html = zoollm.make_and_render_document({
-            zoo_llm_environment: eczoodb.zoo_llm_environment,
+        let description_html = zooflm.make_and_render_document({
+            zoo_flm_environment: eczoodb.zoo_flm_environment,
             render_doc_fn: description_truncated.render,
             //doc_metadata,
             feature_document_options: {

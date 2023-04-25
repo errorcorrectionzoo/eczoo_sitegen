@@ -3,8 +3,8 @@ const debug = debug_mod("eczoodbjs.compile_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zoollm from '@phfaist/zoodb/zoollm';
-const { $$kw, repr } = zoollm;
+import * as zooflm from '@phfaist/zoodb/zooflm';
+const { $$kw, repr } = zooflm;
 
 
 
@@ -80,10 +80,10 @@ export function get_list_data({codelist, eczoodb})
     const sort_reverse = codelist.sort?.reverse ?? false;
     const sort_case_sensitive = codelist.sort?.case_sensitive ?? false;
 
-    const text_fragment_renderer = new zoollm.ZooTextFragmentRenderer;
+    const text_fragment_renderer = new zooflm.ZooTextFragmentRenderer;
 
     const normalize_sort_value = (value) => {
-        if ('render_standalone' in value) { // e.g., llmfragment
+        if ('render_standalone' in value) { // e.g., flmfragment
             return value.render_standalone(text_fragment_renderer)
         }
         let nvalue = ''+value;

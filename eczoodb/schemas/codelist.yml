@@ -19,11 +19,11 @@ properties:
 
   title:
     type: string
-    _llm: standalone
+    _flm: standalone
 
   intro:
     type: string
-    _llm: full
+    _flm: full
 
   display:
     type: object

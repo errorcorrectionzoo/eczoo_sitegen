@@ -253,7 +253,7 @@ class EczEditSchemaFieldScalarType extends React.Component
             );
         }
 
-        if ( ! schema._llm ) {
+        if ( ! schema._flm ) {
             if (schema._single_line_string) {
                 return (
                     <input type="string"
@@ -269,7 +269,7 @@ class EczEditSchemaFieldScalarType extends React.Component
             }
         }
 
-        // LLM features enabled -> use CodeMirror editor
+        // FLM features enabled -> use CodeMirror editor
 
         const height = (schema._single_line_string ? '2em': '18em');
 
@@ -307,12 +307,12 @@ class EczEditFieldDescription extends React.Component
         if (schema._single_line_string) {
             expected_items.push('single line text')
         }
-        if (schema._llm) {
-            if (schema._llm == 'full') {
+        if (schema._flm) {
+            if (schema._flm == 'full') {
                 expected_items.push(
                     'you can use LaTeX-like commands including citations and cross-references'
                 );
-            } else if (schema._llm == 'standalone') {
+            } else if (schema._flm == 'standalone') {
                 expected_items.push(
                     'you can use some LaTeX-like commands, but not citations and '
                     + 'cross-references (standalone mode)'

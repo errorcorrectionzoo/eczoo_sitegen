@@ -19,26 +19,26 @@ const default_config = {
 
     use_gitlastmodified_processor: null,
 
-    use_llm_environment: null,
-    zoo_llm_environment_options: null,
-    llm_allow_unresolved_references: false,
-    llm_allow_unresolved_citations: false,
+    use_flm_environment: null,
+    zoo_flm_environment_options: null,
+    flm_allow_unresolved_references: false,
+    flm_allow_unresolved_citations: false,
 
-    use_llm_processor: null,
+    use_flm_processor: null,
 
-    llm_options: {
+    flm_options: {
 
         refs:  {
             code: {
-                // Keep 'code.name.llm_text' until we fix the issue in
-                // zoodb/src/zoollm/_environment.js dealing with JSON
-                // serialization of RefInstance's with LLMFragment instances.
+                // Keep 'code.name.flm_text' until we fix the issue in
+                // zoodb/src/zooflm/_environment.js dealing with JSON
+                // serialization of RefInstance's with FLMFragment instances.
                 // Otherwise it's better to keep the fragment instance here
                 // ('code.name') so that it doesn't have to be recompiled.
-                formatted_ref_llm_text_fn: (codeid, code) => code.name.llm_text,
+                formatted_ref_flm_text_fn: (codeid, code) => code.name.flm_text,
             },
             user: {
-                formatted_ref_llm_text_fn: (userid, user) => user.name,
+                formatted_ref_flm_text_fn: (userid, user) => user.name,
             },
         },
 
@@ -104,15 +104,15 @@ export class EcZooDb extends StandardZooDb
         }
         let name = code.name;
         let short_name = null;
-        if (this.config.use_llm_processor) {
-            name = name.llm_text;
+        if (this.config.use_flm_processor) {
+            name = name.flm_text;
         }
         if (name.endsWith(" code")) {
             short_name = name.slice(0, -(" code".length));
         }
         if (short_name !== null) {
-            if (this.config.use_llm_processor) {
-                return this.zoo_llm_environment.make_fragment(
+            if (this.config.use_flm_processor) {
+                return this.zoo_flm_environment.make_fragment(
                     short_name,
                     this.$$kw({
                         what: `${code.name.what} (short)`,

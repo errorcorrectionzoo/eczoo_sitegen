@@ -7,7 +7,7 @@ const fsPromises = require('fs/promises');
 const data = async () => {
     return {
         pagination: {
-            data: 'eczoodb.zoo_llm_processor.resource_collector.collected_resources.graphics_path',
+            data: 'eczoodb.zoo_flm_processor.resource_collector.collected_resources.graphics_path',
             size: 1,
             resolve: 'values',
             addAllPagesToCollections: false,

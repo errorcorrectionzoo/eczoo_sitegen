@@ -1,7 +1,7 @@
 // import debug_module from 'debug';
 // const debug = debug_module('eczoodbjs.render_utils');
 //
-// import * as zoollm from '@phfaist/zoodb/zoollm';
+// import * as zooflm from '@phfaist/zoodb/zooflm';
 
 
 export function render_meta_changelog(changelog, {ne,rdr,ref})

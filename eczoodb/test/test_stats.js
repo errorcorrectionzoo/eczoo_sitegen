@@ -20,8 +20,8 @@ describe('stats', async function () {
     console.log('loading zoo!');
     const eczoodb = await load_eczoo_cached({
         eczoodb_options: {
-            llm_allow_unresolved_citations: true,
-            llm_allow_unresolved_references: true,
+            flm_allow_unresolved_citations: true,
+            flm_allow_unresolved_references: true,
         }
     });
 

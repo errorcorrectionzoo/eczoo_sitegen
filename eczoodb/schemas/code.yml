@@ -62,7 +62,7 @@ properties:
   # every code must have a name.
   name:
     type: string
-    _llm: standalone
+    _flm: standalone
     _single_line_string: True
     _description: >-
       The name of the code.  It is listed in multiple places, so don't make it
@@ -72,7 +72,7 @@ properties:
   # where space is precious (e.g. navigation links in the header bar)
   short_name:
     type: string
-    _llm: standalone
+    _flm: standalone
     _single_line_string: true
     _description: >-
       (Optional.) A short name in case the 'name' field is long.  The short name
@@ -83,7 +83,7 @@ properties:
   # every code must have a description.
   description:
     type: string
-    _llm: full
+    _flm: full
     _description: >-
       Describe code subspace as best as you can here.  Anything applicable to a
       larger parent set of codes (see below) should go in that entry instead of
@@ -93,7 +93,7 @@ properties:
   introduced:
     type: string
     _single_line_string: True
-    _llm: full
+    _flm: full
     _description: >-
       First reference with the code (optional).  This field should be a single
       ‘\cite{}’ command with the appropriate reference(s).  Recall that you can
@@ -120,7 +120,7 @@ properties:
     _single_line_string: True
 
   protection:
-    _llm: full
+    _flm: full
     type: string
 
 
@@ -131,13 +131,13 @@ properties:
   realizations:
     type: array
     items:
-      _llm: full
+      _flm: full
       type: string
 
   notes:
     type: array
     items:
-      _llm: full
+      _flm: full
       type: string
 
   #
@@ -161,7 +161,7 @@ properties:
           type: object
           properties:
             detail:
-              _llm: full
+              _flm: full
             # (we also have further autopopulated relation object fields
             # including 'code_id', no need to specify them here)
 
@@ -172,7 +172,7 @@ properties:
           type: object
           properties:
             detail:
-              _llm: full
+              _flm: full
             # (we also have further autopopulated relation object fields
             # including 'code_id', no need to specify them here)
         

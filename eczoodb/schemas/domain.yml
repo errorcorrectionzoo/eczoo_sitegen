@@ -18,12 +18,12 @@ properties:
 
   name:
     type: string
-    _llm: standalone
+    _flm: standalone
     _single_line_string: True
 
   description:
     type: string
-    _llm: full
+    _flm: full
 
   # automatically populated
   kingdoms:
