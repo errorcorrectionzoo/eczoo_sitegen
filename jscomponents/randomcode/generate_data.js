@@ -3,7 +3,7 @@
 //
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
+const { $$kw, repr, __class__, __get__, __super__ } = zooflm;
 
 
 const truncate_description_at_length = 360;
@@ -11,11 +11,31 @@ const truncate_description_at_length = 360;
 const rx_stub = /^[ \t\n.;_-]*stub[ \t\n.;!_-]*$/i;
 
 
+
+const CustomHtmlFragmentRenderer = __class__(
+    'CustomHtmlFragmentRenderer', // class name
+    [ zooflm.ZooHtmlFragmentRenderer ], // base classes
+    {
+        // class members
+
+        get render_float () {return __get__ (this, function
+        (self, float_instance, render_context) {
+
+            return '<!-- do not render floats in random code preview -->';
+
+        });},
+
+    }
+);    
+
+
+
 export function generate_random_code_data({eczoodb})
 {
     let codes = {};
 
-    let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
+    let html_fragment_renderer = new CustomHtmlFragmentRenderer();
+
 
     for (const [code_id, code] of Object.entries(eczoodb.objects.code)) {
 
@@ -32,6 +52,7 @@ export function generate_random_code_data({eczoodb})
 
         let description_html = zooflm.make_and_render_document({
             zoo_flm_environment: eczoodb.zoo_flm_environment,
+            fragment_renderer: html_fragment_renderer,
             render_doc_fn: description_truncated.render,
             //doc_metadata,
             feature_document_options: {
@@ -44,7 +65,7 @@ export function generate_random_code_data({eczoodb})
                     inhibit_render_endnote_marks: true,
                 }
             },
-            render_endnotes: false
+            render_endnotes: false,
         });
 
         // // Remove all the citations altogether. Define the regex HERE! It needs
