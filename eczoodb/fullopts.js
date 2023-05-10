@@ -6,6 +6,19 @@ import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
 import { use_flm_processor } from '@phfaist/zoodb/std/use_flm_processor';
 import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
 
+//
+// Note: "full options" includes options that require filesystem access and/or
+// possibility for spawning processes, so are not browser-compatible.
+//
+
+
+import path from 'path';
+
+import {fileURLToPath} from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 
 export const eczoo_full_options = {
 
@@ -18,6 +31,7 @@ export const eczoo_full_options = {
     flm_options: {
         citations: {
             csl_style: csl_style_json_data.data,
+            cache_file: path.join(__dirname, '..', 'downloaded_citationinfo_cache.json'),
         },
     },
 

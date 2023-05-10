@@ -50,6 +50,7 @@ const default_config = {
                 'code_extra/bib_preset.yml',
             ],
             default_user_agent: null,
+            // cache_file: ......, // set with "full options" in fullopts.js
         },
         
         resources: {
