@@ -7,7 +7,7 @@
   "author": "Philippe Faist",
   "license": "MIT",
   "scripts": {
-    "pdfexport": "yarn node main.js "
+    "pdfexport": "DEBUG=\"ecz*,zoo*\" yarn node main.js "
   },
   "dependencies": {
     "@errorcorrectionzoo/eczoodb": "file:../eczoodb",

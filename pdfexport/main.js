@@ -219,7 +219,7 @@ async function runmain({
 
     // copy out the PDF if requested
     if (output != null) {
-        debug(`Saving document ...`);
+        debug(`Saving document to ‘${output}’ ...`);
         fs.copyFileSync( temp_pdf_output, output );
     } else {
         debug(`Viewing document ...`);
