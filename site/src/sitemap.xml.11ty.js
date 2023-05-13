@@ -4,6 +4,9 @@ const data = {
     eleventyExcludeFromCollections: true,
 };
 
+const debug = require('debug')('eczoo_sitegen.src.sitemap_xml');
+
+
 const render = async function (data)
 {
 
@@ -11,7 +14,7 @@ const render = async function (data)
 
     let xml = sqzhtml`
 <?xml version="1.0" encoding="utf-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
     let pages = [...data.collections.sitePage];
     pages.sort( (a,b) => (a.url < b.url ? -1 : (a.url > b.url ? 1 : 0)) );
@@ -21,6 +24,7 @@ const render = async function (data)
             new URL(this.url(page.url .replace(/\.html$/, '')),
                     data.eczoo_config.site_base_url_host_name)
         ).href;
+        debug(`sitemap.xml: adding ‘${absoluteUrl}’`, {date: page.date});
         xml += sqzhtml`
     <url>
       <loc>${ absoluteUrl }</loc>
