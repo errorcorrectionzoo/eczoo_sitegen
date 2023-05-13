@@ -20,6 +20,11 @@ const __dirname = path.dirname(__filename);
 
 
 
+const citationsinfo_cache_file =
+      path.join(__dirname, '..', 'downloaded_citationinfo_cache.json');
+
+console.log('cache file name = ', citationsinfo_cache_file);
+
 export const eczoo_full_options = {
 
     use_relations_populator,
@@ -31,7 +36,7 @@ export const eczoo_full_options = {
     flm_options: {
         citations: {
             csl_style: csl_style_json_data.data,
-            cache_file: path.join(__dirname, '..', 'downloaded_citationinfo_cache.json'),
+            cache_file: citationsinfo_cache_file,
         },
     },
 
