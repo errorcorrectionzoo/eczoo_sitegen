@@ -464,6 +464,23 @@ a.linkcodegraph:hover {
     filter: drop-shadow(2px 2px 5px rgba(0,0,128,0.3));
 }
 
+.boxedcontent {
+    
+    background-color: rgba(240,240,255,0.5);
+    padding: 5px;
+
+    border: solid 1px rgba($text-dim-color, 0.5);
+
+    user-select: contain;
+
+}
+.bibtex {
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+
 .show-citation, .show-share-social {
     display: block;
     //min-width: 350px;
@@ -484,21 +501,6 @@ a.linkcodegraph:hover {
         max-width: 100%;
         min-width: 100%;
 
-        &.boxedcontent {
-            
-            background-color: rgba(240,240,255,0.5);
-            padding: 5px;
-
-            border: solid 1px rgba($text-dim-color, 0.5);
-
-            user-select: contain;
-        }
-    }
-
-    > dd.bibtex {
-        font-family: monospace;
-        font-size: 12px;
-        white-space: pre-wrap;
     }
 }
 
