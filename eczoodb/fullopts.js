@@ -20,24 +20,27 @@ const __dirname = path.dirname(__filename);
 
 
 
-const citationsinfo_cache_file =
-      path.join(__dirname, '..', 'downloaded_citationinfo_cache.json');
+export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}={}) {
 
-console.log('cache file name = ', citationsinfo_cache_file);
+    csl_style_data ??= csl_style_json_data.data;
 
-export const eczoo_full_options = {
+    citationsinfo_cache_dir ??= path.join(__dirname, '..',);
 
-    use_relations_populator,
-    use_gitlastmodified_processor,
-    use_flm_environment,
-    use_flm_processor,
-    use_searchable_text_processor,
+    // console.log('cache file dir = ', citationsinfo_cache_dir);
 
-    flm_options: {
-        citations: {
-            csl_style: csl_style_json_data.data,
-            cache_file: citationsinfo_cache_file,
+    return {
+        use_relations_populator,
+        use_gitlastmodified_processor,
+        use_flm_environment,
+        use_flm_processor,
+        use_searchable_text_processor,
+
+        flm_options: {
+            citations: {
+                csl_style: csl_style_data,
+                cache_file: path.join(citationsinfo_cache_dir,
+                                      'downloaded_citationinfo_cache.json'),
+            },
         },
-    },
-
+    };
 };

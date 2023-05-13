@@ -1,0 +1,252 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2022 by Philippe Faist <philippe.faist@bluewin.ch>
+% -------------------------------------------------------
+% 
+% This file may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in:
+%
+%    http://www.latex-project.org/lppl.txt
+%
+% and version 1.3 or later is part of all distributions of LaTeX 
+% version 2005/12/01 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{ecznote.dtx}
+%</driver>
+%<package>\NeedsTeXFormat{LaTeX2e}[2005/12/01]
+%<package>\ProvidesClass{ecznote}
+%<*package>
+    [2022/07/20 v1.0 ecznote package]
+%</package>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{xcolor}
+\usepackage[preset=xpkgdoc]{phfnote}
+\EnableCrossrefs         
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{ecznote.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1}{2022/07/20}{Initial version}
+%
+% \GetFileInfo{ecznote.dtx}
+%
+% \DoNotIndex{\newcommand,\newenvironment,\def,\gdef,\edef,\xdef,\if,\else,\fi,\ifx}
+% 
+% \title{\phfqitltxPkgTitle{ecznote}}
+% \author{Philippe Faist\quad\email{philippe.faist@bluewin.ch}}
+%
+% \maketitle
+%
+% \begin{abstract}
+%   \pkgname{ecznote}---Typeset a snippet of contents from the error correction zoo.
+% \end{abstract}
+%
+% \inlinetoc
+%
+% \section{Introduction}
+%
+% User documentation goes here.
+%
+% ............................
+%
+%
+% \StopEventually{\vskip 3cm plus 2cm minus 2cm\relax\PrintChanges
+%     \vskip 3cm plus 2cm minus 2cm\relax\PrintIndex}
+%
+% \section{Implementation}
+%
+%    \begin{macrocode}
+
+\LoadClass[11pt]{article}
+
+\PassOptionsToPackage{
+  secfmt=false,
+}{phfnote}
+\RequirePackage{phfnote}
+%\RequirePackage{phfqit} % \ket, \bra
+\RequirePackage{braket} % \ket, \bra, \braket{A|B} % Aaargh !! what's this syntax??
+
+\def\Ket{\ket}
+\def\Bra{\bra}
+
+%% We're gonna use lualatex... ---
+%
+%\usepackage[utf8]{inputenc}
+%
+%% Some additional unicode characters to support ---
+%\DeclareUnicodeCharacter{2212}{\textendash}
+%
+
+\RequirePackage{xcolor}
+
+\definecolor{eczcolor}{RGB}{0,0,127}
+
+\definecolor{shadowcolor}{RGB}{200,200,220}
+
+
+\RequirePackage{enumitem}
+
+\RequirePackage{booktabs} % better tables
+
+\newlist{eczparagraphslist}{itemize}{1}
+\setlist[eczparagraphslist]{
+  label={{\color{shadowcolor}\small\(\triangleright\)}},
+}
+
+\PassOptionsToPackage{semibold,default}{sourcesanspro}
+\RequirePackage{sourcesanspro}
+% \PassOptionsToPackage{T1}{fontenc}
+% \RequirePackage{fontenc}
+
+
+\RequirePackage{graphicx}
+
+
+%% \RequirePackage{eso-pic}
+%%
+%% \AddToShipoutPictureBG*{%
+%%   \setlength{\unitlength}{1\p@}%
+%%   \put(20,\strip@pt\dimexpr \paperheight - 20\p@ - 46\p@\relax){%
+%%     \includegraphics{eczoo-main-logo-mobile}%
+%%   }%
+%% }%
+
+
+
+
+\PassOptionsToPackage{export}{adjustbox}
+\RequirePackage{adjustbox}
+
+
+\long\def\eczcode#1#2{%
+  \newpage
+  \def\@title{#2}%
+  \def\@author{Error Correction Zoo}%
+  \def\@date{Compiled on \today}%
+  %
+  \global\@topnum\z@
+  %
+  \par
+  \noindent{\color{eczcolor!40!black}\rule{\textwidth}{.8pt}}%
+  \par
+  %
+  \par\noindent
+  %\fbox{%
+  \begin{minipage}[t]{\dimexpr\textwidth-100\p@ - 10\p@ - 4\fboxsep - 4\fboxrule\relax}%
+    \parskip=\z@\relax
+    \parindent=\z@\relax
+    \singlespace
+    \raggedright
+    \begingroup
+      \par
+      \Large\textbf{#2}%
+      \hskip .3em\relax \href{https://errorcorrectionzoo.org/c/#1}{{\tiny web~$\nearrow$}}%
+      \par
+      \notetitleaftertitleskip
+    \endgroup
+    %
+    \notetitleauthorfontparsetup{%
+      \notetitleauthorfont{Error Correction Zoo}%
+    }\par
+    %
+    \notetitledatefontparsetup{%
+      \notetitledatefont{Compiled on \today}}\par
+    %
+  \end{minipage}%}%
+  \hfill%\hspace{10\p@}%
+  %\fbox{%
+    % width = 100pt
+    \raisebox{-\baselineskip}{%
+      \includegraphics[valign=t]{eczoo-main-logo}%
+    }%
+  %}%
+  \par
+  \noindent{\color{eczcolor!40!black}\rule{\textwidth}{.8pt}}%
+  \par
+  \vspace{3ex plus 1ex}%
+  %
+}
+
+\long\def\eczshowverbatim{}
+
+\def\defterm{\itshape}
+\long\def\ecztermdef#1{\textbf{#1}}
+
+
+\renewenvironment{figure}[1][h!]{%
+  \@float{figure}[#1]%
+  \par\noindent{\color{shadowcolor}\rule{\textwidth}{.4pt}}\par
+  \vspace{1ex}\par
+}{%
+  \par\noindent{\color{shadowcolor}\rule{\textwidth}{.4pt}}\par
+  \end@float
+}
+
+\newenvironment{eczfigcaption}{%
+  \itshape
+}{%
+}
+
+
+
+
+\RequirePackage{titlesec}
+\titleformat{\section}[display]{\large}{}{\z@}{}[%
+  \vspace*{-18.5\p@}{\color{shadowcolor}\rule{\textwidth}{.4\p@}}]
+\titlespacing{\section}{\z@}{2ex plus .5ex minus .1ex}{.7ex plus .1ex}
+
+\AtBeginDocument{\raggedbottom}
+
+\setcounter{secnumdepth}{0}
+
+
+
+
+% for cells/tables
+\RequirePackage{tabularray}
+\UseTblrLibrary{booktabs}
+\definecolor{flmTabCellColorGreen}{RGB}{200,255,200}
+\definecolor{flmTabCellColorBlue}{RGB}{200,220,255}
+\definecolor{flmTabCellColorYellow}{RGB}{255,255,200}
+\definecolor{flmTabCellColorRed}{RGB}{255,200,200}
+\providecommand\flmCellsHeaderFont{\bfseries}
+
+
+
+
+
+%    \end{macrocode}
+%
+%\Finale
+\endinput

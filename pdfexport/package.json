@@ -1,0 +1,24 @@
+{
+  "name": "@errorcorrectionzoo/pdfexport",
+  "packageManager": "yarn@3.3.0",
+  "type": "module",
+  "version": "0.1.0",
+  "main": "main.js",
+  "author": "Philippe Faist",
+  "license": "MIT",
+  "scripts": {
+    "pdfexport": "yarn node main.js "
+  },
+  "dependencies": {
+    "@errorcorrectionzoo/eczoodb": "file:../eczoodb",
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
+    "debug": "^4.3.4",
+    "lodash": "^4.17.21",
+    "open": "^9.1.0",
+    "which": "^3.0.1",
+    "yargs": "^17.7.2"
+  },
+  "peerDependencies": {
+    "@phfaist/zoodb": "*"
+  }
+}
