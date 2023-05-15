@@ -31,6 +31,9 @@ description: |
 
   Have fun\textbf{!!}
 
+  %%To DEBUG error message---
+  %%Some arXiv ref that provides multiple DOIs~\cite{arXiv:1411.3334}.
+
   Check this citation that doesn't resolve with crossref
   \cite{doi:10.7907/059V-MG69}.
 

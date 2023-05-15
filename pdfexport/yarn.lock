@@ -19,13 +19,13 @@ __metadata:
 
 "@errorcorrectionzoo/eczoodb@file:../eczoodb::locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A.":
   version: 0.1.0
-  resolution: "@errorcorrectionzoo/eczoodb@file:../eczoodb#../eczoodb::hash=2ac230&locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A."
+  resolution: "@errorcorrectionzoo/eczoodb@file:../eczoodb#../eczoodb::hash=9d2fbe&locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A."
   dependencies:
     debug: ^4.3.4
     lodash: ^4.17.21
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: 917af46cc53537bd2a3901fc14382138eb4391d104caf6e24502f2a1f32b08027c3886109ab4a861a066b106b8758b2da4a2240f3ae6515370fe354c2453431f
+  checksum: d9c66bfe5780da889367e934ab2aaa6f49402013dddd2fc71fed24e01b5fa47b06c7810692e138163526bde53b52d0fc48217ff7f49c02eeadff6d04b7eb9233
   languageName: node
   linkType: hard
 
@@ -54,7 +54,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=9196ee69b1f4f560a5cd1b4eb2906fec8ab74ff2"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=e7c700948fe8d28a2e07052011a692a681901a84"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^9.0.9
     base32-encode: ^2.0.0
@@ -74,7 +74,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 57eee3e989182ad250b019781c5243063a01393fd81eb8cf56b443e5cce5146a3b82d32879a679f7d1111be429ec5c0349549c50c24aaedd2806e93bdcc4d9ab
+  checksum: 9feb5f11b8d1a781b24a4ad942c7c89a6c68fbfeee3e6696977af5339e2f9796ca66f30cdfcb56cf89c188874fe9865451d2130d4e196c33df0568fe2c0e4d8d
   languageName: node
   linkType: hard
 
