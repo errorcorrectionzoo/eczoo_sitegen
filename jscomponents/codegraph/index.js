@@ -272,15 +272,36 @@ export class EczCodeGraph
 
             } else {
 
+                debug(`Will search for ${codeId}'s primary-parent root code ...`);
+
                 // follow primary parent relationship to determine whether we're
                 // part of a kingdom.
                 let primaryParentRootCode = code;
+                // detect any cycles so we can report an error.
+                let primaryParentVisitSeenCodeIds = [ codeId ];
                 while ( (primaryParentRootCode.relations?.defines_kingdom == null
                          || primaryParentRootCode.relations?.defines_kingdom?.length == 0)
                         && primaryParentRootCode.relations?.parents?.length > 0 ) {
                     primaryParentRootCode = primaryParentRootCode.relations.parents[0].code;
+                    const primaryParentRootCodeId = primaryParentRootCode.code_id;
+                    if (primaryParentVisitSeenCodeIds.includes(primaryParentRootCodeId)) {
+                        const seenCodeChainNames = [].concat(
+                            primaryParentVisitSeenCodeIds,
+                            [ primaryParentRootCodeId ]
+                        ).map( (cId) => {
+                            let c = this.eczoodb.objects.code[cId];
+                            return `‘${c.name.flm_text ?? c.name}’ (${c.code_id})`;
+                        } );
+                        throw new Error(
+                            `Detected cycle in primary-parent relationships: `
+                            + seenCodeChainNames.join(' → ')
+                        );
+                    } else {
+                        primaryParentVisitSeenCodeIds.push( primaryParentRootCodeId );
+                    }
                 }
-                //debug(`Code ‘${codeId}’'s primary-parent-root is`, primaryParentRootCode);
+                debug(`Code ‘${codeId}’'s primary-parent-root is `
+                      + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
                 if (primaryParentRootCode.relations?.defines_kingdom != null
                     && primaryParentRootCode.relations?.defines_kingdom.length > 0) {
                     const parentKingdom =
@@ -335,6 +356,8 @@ export class EczCodeGraph
         }
 
         // === set up cytoscape ===
+
+        debug("EczCodeGraph: initGraph() setting up cytoscape object");
 
         let cytoscapeConfig = {};
 
@@ -436,6 +459,8 @@ export class EczCodeGraph
         this.setCousinEdgesShown(null);
         this.setSecondaryParentEdgesShown(null);
         this.setLowDegreeNodesDimmed(null);
+
+        debug("EczCodeGraph: initGraph() done");
     }
     
     mountInDom(cyDomNode, options={})
