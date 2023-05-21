@@ -72,13 +72,14 @@ export function get_list_data({codelist, eczoodb})
     };
 
     
-    const list_of_codes = Object.values(eczoodb.objects.code).filter(
+    let list_of_codes = Object.values(eczoodb.objects.code).filter(
         (code) => code_select_predicates(code, codelist.codes.select)
     );
 
     const sort_by = codelist.sort?.by ?? 'name';
     const sort_reverse = codelist.sort?.reverse ?? false;
     const sort_case_sensitive = codelist.sort?.case_sensitive ?? false;
+    const sort_parents_before_children = codelist.sort?.parents_before_children ?? false;
 
     const text_fragment_renderer = new zooflm.ZooTextFragmentRenderer;
 
@@ -107,6 +108,10 @@ export function get_list_data({codelist, eczoodb})
     list_of_codes.sort(
         (code_a, code_b) => cmp(sort_keys[code_a.code_id], sort_keys[code_b.code_id])
     )
+
+    if (sort_parents_before_children) {
+        list_of_codes = eczoodb.code_parent_child_sort(list_of_codes);
+    }
 
     return list_of_codes;
 }

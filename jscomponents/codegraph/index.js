@@ -272,7 +272,7 @@ export class EczCodeGraph
 
             } else {
 
-                debug(`Will search for ${codeId}'s primary-parent root code ...`);
+                // debug(`Searching for ${codeId}'s primary-parent root code`);
 
                 // follow primary parent relationship to determine whether we're
                 // part of a kingdom.
@@ -300,8 +300,8 @@ export class EczCodeGraph
                         primaryParentVisitSeenCodeIds.push( primaryParentRootCodeId );
                     }
                 }
-                debug(`Code ‘${codeId}’'s primary-parent-root is `
-                      + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
+                // debug(`Code ‘${codeId}’'s primary-parent-root is `
+                //       + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
                 if (primaryParentRootCode.relations?.defines_kingdom != null
                     && primaryParentRootCode.relations?.defines_kingdom.length > 0) {
                     const parentKingdom =

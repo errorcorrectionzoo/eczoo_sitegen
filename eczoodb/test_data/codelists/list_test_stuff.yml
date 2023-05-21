@@ -24,6 +24,11 @@ display:
         first_paragraph_only: true
 
 
+sort:
+  by: name
+  reverse: true
+  parents_before_children: true
+
 codes:
   select:
     - property:

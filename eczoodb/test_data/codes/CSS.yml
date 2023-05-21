@@ -98,6 +98,7 @@ relations:
   parents:
     - code_id: stabilizer
       detail: 'Stabilizer generators can be expressed as either only \(X\)-type or only \(Z\)-type.'
+
   cousins:
     - code_id: binary_linear
       detail: 'Construction uses two related binary linear codes.'

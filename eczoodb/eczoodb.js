@@ -128,8 +128,12 @@ export class EcZooDb extends StandardZooDb
         return code.name;
     }
 
+    //
+    // Helpers, visitors, etc.
+    //
+
     /**
-     * Do a simnple breadth-first visit of nodes starting from the given `code`
+     * Do a simple breadth-first visit of nodes starting from the given `code`
      * following the relation type specifed by `relation_properties` which must
      * be a list of one or more of ['parents', 'cousins', 'parent_of',
      * 'cousin_of'].  For 'parent_of' and 'cousin_of', the relations DB
@@ -192,12 +196,16 @@ export class EcZooDb extends StandardZooDb
 
     code_is_cousin_of(code, cousin_code_id)
     {
-        if (code.relations) {
-            for (const rel_type of ['cousins', 'cousin_of']) {
-                for (const rel_info of code.relations[rel_type] || []) {
-                    if (rel_info.code_id === cousin_code_id) {
-                        return true;
-                    }
+        if (code.relations == null) {
+            return false;
+        }
+        for (const rel_type of ['cousins', 'cousin_of']) {
+            if (code.relations[rel_type] == null) {
+                continue;
+            }
+            for (const rel_info of code.relations[rel_type]) {
+                if (rel_info.code_id === cousin_code_id) {
+                    return true;
                 }
             }
         }
@@ -242,7 +250,7 @@ export class EcZooDb extends StandardZooDb
         return domains;
     }
 
-    code_get_family_tree(root_code)
+    code_get_family_tree(root_code, { parent_child_sort } = {})
     {
         let family_tree_codes = [];
         this.code_visit_relations(root_code, {
@@ -251,7 +259,175 @@ export class EcZooDb extends StandardZooDb
                 family_tree_codes.push(code);
             },
         });
+        
+        if (parent_child_sort ?? true) {
+            // enforce the returned array to be topologically sorted, i.e., a
+            // parent always appears before any of its children in the list.
+            // Simple BFS doesn't always enforce this on its own
+            // (cf. https://stackoverflow.com/a/35458168/1694896)
+            return this.code_parent_child_sort(family_tree_codes);
+        }
+
         return family_tree_codes;
+    }
+
+
+    /**
+     * Sort the given list of objects such that parents always appear before any
+     * of their children.  Cf. https://en.wikipedia.org/wiki/Topological_sorting
+     *
+     * The argument `codes` is expected to be an array of code objects.
+     */
+    code_parent_child_sort(codes)
+    {
+        // debug(`code_parent_child_sort() `, { codes });
+
+        let sorted = [];
+
+        const orig_code_ids = codes.map( (c) => c.code_id );
+
+        // Using https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm
+
+        // Internal representation of edges.  It will change along the course of
+        // the algorithm.
+        let all_child_nodes = {};
+        let num_incoming_edges = Object.fromEntries(codes.map( (c) => [c.code_id, 0] ));
+        for (const c of codes) {
+            if (c.relations != null & c.relations.parent_of != null) {
+                // keep only those child codes that are in the original given
+                // list and also sort them to preserver order according to that
+                // list
+                let child_codes_w_orderidx = c.relations.parent_of
+                    .map( (c_rel) => [ orig_code_ids.indexOf(c_rel.code_id),  c_rel.code] )
+                    .filter( ([cidx, c]) => (cidx !== -1) ) ;
+                child_codes_w_orderidx.sort( (a, b) => a[0] - b[0] );
+                const child_codes = child_codes_w_orderidx.map( ([cidx, c]) => c );
+                all_child_nodes[c.code_id] = child_codes;
+                for (const child of child_codes) {
+                    num_incoming_edges[child.code_id] += 1;
+                }
+            }
+        };
+
+        // find "root nodes" w/o any parents
+        let root_nodes = codes.filter( (c) => (num_incoming_edges[c.code_id] === 0) );
+
+        while (root_nodes.length) {
+            const n = root_nodes.shift();
+            sorted.push(n);
+            
+            // visit children of n
+            let new_root_nodes = []
+            while ( all_child_nodes[n.code_id] != null && all_child_nodes[n.code_id].length ) {
+                const m = all_child_nodes[n.code_id].shift();
+                num_incoming_edges[m.code_id] -= 1;
+                if (num_incoming_edges[m.code_id] === 0) {
+                    // no other incoming edges
+                    new_root_nodes.push(m);
+                }
+            }
+            // prepending the new set of root codes, instead of simply appending
+            // each encountered new root code to root_nodes, yields a more
+            // friendly ordering of the resulting code list as it picks children
+            // of a code before other parent codes, which would visually mess up
+            // the different lineage trees.
+            root_nodes = new_root_nodes.concat(root_nodes);
+
+            delete all_child_nodes[n.code_id];
+        }
+
+        // Let's see if there are any nodes remaining in the graph --- there
+        // shouldn't be any as long as there was no cycle originally.
+        let cycle_node_idx = Object.values(all_child_nodes).findIndex(
+            (children) => (children != null && children.length > 0)
+        );
+        if (cycle_node_idx !== -1) {
+            //
+            // There are cycles! Report them.
+            //
+
+            const clean_all_child_nodes = () => {
+                // Remove any listed children that are not themselves listed
+                // as having children.
+                while (true) {
+                    let remove_cids = new Set();
+                    all_child_nodes = Object.fromEntries(
+                        Object.entries(all_child_nodes).map( ([c_id, children]) => {
+                            let new_children = (children ?? []).filter( (child) => {
+                                const child_id = child.code_id;
+                                if ( !all_child_nodes.hasOwnProperty(child_id)
+                                     || (all_child_nodes[child_id] == null)
+                                     || (all_child_nodes[child_id].length == 0) ) {
+                                    return false; // filter this child out
+                                }
+                                return true;
+                            } );
+                            if (new_children.length == 0) {
+                                remove_cids.add(c_id);
+                            }
+                            return [c_id, new_children];
+                        } )
+                    );
+                    if (remove_cids.size) {
+                        for (const cid of remove_cids) {
+                            delete all_child_nodes[cid];
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            };
+
+            clean_all_child_nodes();
+            
+            // Now start following & reporting cycles.
+            let cycles = [];
+            
+            while (Object.keys(all_child_nodes).length) {
+                // pick one node with children.
+                const [c_id, children] = Object.entries(all_child_nodes)[0];
+
+                let this_cycle = [];
+                let m = this.objects.code[c_id];
+                while (m != null && !this_cycle.includes(m.code_id)) {
+                    this_cycle.push(m.code_id);
+                    // Pick a child to follow the cycle relationship.  Remove
+                    // the child edge as we remove the cycle from the graph.
+                    m = all_child_nodes[m.code_id].shift();
+                }
+                this_cycle.push( c_id ); // repeat the first code ID to make cycle explicit
+                
+                cycles.push( this_cycle );
+
+                clean_all_child_nodes();
+            }
+
+            throw new Error(
+                `ERROR: Cycles detected in parent-child relationships:\n`
+                + cycles.map(
+                    (cyc) => `    ` + cyc.map( (cid) => {
+                        const c = this.objects.code[cid];
+                        return `‘${c.name.flm_text ?? c.name}’ (${cid})`;
+                    } ).join(' → ')
+                ).join('\n')
+            );
+        }
+
+        return sorted;
+    }
+
+
+    //
+    // Validate the database.  Enforces any external constraints (e.g. no cycles
+    // in the parent-child relationship).
+    //
+
+    validate()
+    {
+        // Check that there are no cycles in parent-child relationships.
+        let all_parent_child_sorted_codes = this.code_parent_child_sort(
+            Object.values(this.objects.code)
+        );
     }
 };
 

@@ -76,6 +76,12 @@ properties:
     properties:
       by:
         type: string
+      reverse:
+        type: boolean
+      case_sensitive:
+        type: boolean
+      parents_before_children:
+        type: boolean
 
   metainfo:
     type: object
