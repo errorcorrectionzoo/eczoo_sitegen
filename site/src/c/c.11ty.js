@@ -20,7 +20,7 @@ const generate_navigation_links = ({code, eczoodb, flmrender}) => {
     for (const reltype of ['parents', 'parent_of', 'cousins', 'cousin_of']) {
         const max_rel = show_max_rel_by_reltype[reltype];
 
-        const code_relations = code.relations[reltype];
+        const code_relations = code.relations?.[reltype];
         //debug('code_relations = ', code_relations);
 
         if (code_relations == null) {
