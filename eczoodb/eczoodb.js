@@ -293,7 +293,7 @@ export class EcZooDb extends StandardZooDb
         let all_child_nodes = {};
         let num_incoming_edges = Object.fromEntries(codes.map( (c) => [c.code_id, 0] ));
         for (const c of codes) {
-            if (c.relations != null & c.relations.parent_of != null) {
+            if (c.relations != null && c.relations.parent_of != null) {
                 // keep only those child codes that are in the original given
                 // list and also sort them to preserver order according to that
                 // list
