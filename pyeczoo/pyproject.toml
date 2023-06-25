@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "pyeczoo"
+version = "0.0.1"
+description = "Python bridge to access the EC Zoo JS API"
+authors = ["Philippe Faist"]
+#readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+javascript = "^1!1.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
