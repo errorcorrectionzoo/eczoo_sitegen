@@ -6,7 +6,8 @@
     "eczoodb",
     "jscomponents",
     "site",
-    "helpers/parcel-namer-own-folder-hashes"
+    "helpers/parcel-namer-own-folder-hashes",
+    "helpers/parcel-transformer-ogimage-phf"
   ],
   "scripts": {
     "buildall": "(cd site && yarn build)",

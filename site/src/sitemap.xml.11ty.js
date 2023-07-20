@@ -20,10 +20,7 @@ const render = async function (data)
     pages.sort( (a,b) => (a.url < b.url ? -1 : (a.url > b.url ? 1 : 0)) );
 
     for (const page of pages) {
-        const absoluteUrl = (
-            new URL(this.url(page.url .replace(/\.html$/, '')),
-                    data.eczoo_config.site_base_url_host_name)
-        ).href;
+        const absoluteUrl = this.getEczooAbsoluteUrl(page.url);
         debug(`sitemap.xml: adding ‘${absoluteUrl}’`, {date: page.date});
         xml += sqzhtml`
     <url>

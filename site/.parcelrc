@@ -10,10 +10,11 @@
         "*.{pdf,jpg,jpeg,png}": ["@parcel/transformer-raw"],
         "*.{json,ico}": ["@parcel/transformer-raw"],
         "*.{xml,txt}": ["@parcel/transformer-raw"],
+        "*.html": ["...", "@errorcorrectionzoo/parcel-transformer-ogimage-phf"],
     },
 
     "optimizers": {
-        "*.html": ["parcel-optimizer-nohtmlsuffix", "..."]
+        "*.html": ["parcel-optimizer-nohtmlsuffix", "..."],
     },
 
     // "namers": [ "parcel-namer-rewrite" ],

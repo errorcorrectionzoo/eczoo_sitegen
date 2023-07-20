@@ -1,0 +1,23 @@
+{
+  "name": "@errorcorrectionzoo/parcel-transformer-ogimage-phf",
+  "description": "Set absolute URL for og:image meta tags.(for parcel version >= 2.0.0)",
+  "version": "1.0.3",
+  "main": "index.js",
+  "engines": {
+    "node": ">= 8.0.0",
+    "parcel": "^2.0.0-alpha.1.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "parcel",
+    "plugin",
+    "og:image"
+  ],
+  "author": "takeokunn <bararararatty@gmail.com>; patched by Philippe Faist",
+  "license": "MIT",
+  "dependencies": {
+    "@parcel/plugin": "*"
+  }
+}

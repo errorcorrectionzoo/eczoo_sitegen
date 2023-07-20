@@ -7,7 +7,8 @@
       "index.html",
       "**/*.html",
       "schemas/*.json",
-      "dat/*.json"
+      "dat/*.json",
+      "sitemap.xml"
     ]
   },
   "private": true,
@@ -29,7 +30,8 @@
     "@errorcorrectionzoo/parcel-namer-own-folder-hashes": ">=0.0.0",
     "@parcel/transformer-inline-string": "2.8.3",
     "@parcel/transformer-sass": "2.8.3",
-    "parcel-reporter-static-files-copy": "^1.5.0"
+    "parcel-reporter-static-files-copy": "^1.5.0",
+    "parcel-transformer-meta-image": "^1.0.4"
   },
   "scripts": {
     "build": "rm -rf _site ../.parcel-cache && DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy  && yarn private_add_use_strict_to_site_js_files",

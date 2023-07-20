@@ -111,6 +111,14 @@ module.exports = (eleventyConfig) => {
         destination: packageJson.config.output,
     });
 
+    eleventyConfig.addFilter("getEczooAbsoluteUrl", function(page_url) {
+        const absoluteUrlObject = new URL(
+            this.url(page_url .replace(/\.html$/, '')),
+            eczoo_config.site_base_url_host_name
+        );
+        return absoluteUrlObject.href;
+    });
+
 
     //
     // Prepare a code graph SVG generator instance (use single instance across
@@ -154,6 +162,8 @@ module.exports = (eleventyConfig) => {
     // );
 
     // Copy in any needed static files (robots.txt, etc.)
+    // --- static files now copied via PARCEL plugin
+    // --- config in eczoo_sitegen/package.json
 
     // // copy in the JS components needed in our site
     // let jscomponentsDistDir = "./jscomponents_dist";
@@ -215,6 +225,7 @@ module.exports = (eleventyConfig) => {
             eleventyParcelPlugin,
             {
                 parcelOptions: {
+                    // parcel paths to include -- configered in ./package.json ->
                     entries: packageJson.config.siteLandingPaths,
                     defaultConfig: "@parcel/config-default",
                     shouldDisableCache: true,

@@ -107,13 +107,16 @@ const default_page_description_text =
 const render = async function (data) {
 
     const eleventy = this;
-
-    // let jscomponentsExternalDependenciesData =
-    //     await jscomponentsExternalDependenciesDataPromise;
-
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
+    //
+    // the template string content
+    //
     let s = '';
+
+    //
+    // Start the HTML document
+    //
     s += sqzhtml`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,11 +124,14 @@ const render = async function (data) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
 `;
 
+    //
     // favicon
+    //
     s += await eleventy.favicon('eczoo_icon.svg');
 
-    let page_layout_info = data.page_layout_info ?? {};
-    
+    //
+    // Citation information in meta tags
+    //
     let eczoo_cite_year = (new Date()).getFullYear();
     let meta_citation_info = data.meta_citation_info ?? [
         ['citation_language', 'en'],
@@ -145,16 +151,52 @@ const render = async function (data) {
   <meta name="${escape(meta_name)}" content="${escape(meta_content)}" />`;
     }
 
-    let page_description_text =
-        data.page_description_text ?? default_page_description_text;
-    page_description_text = page_description_text.replace(/[\n\r\t ]+/g, ' ');
-    s += sqzhtml`
-  <meta name="description" content="${ escape(page_description_text) }" />`;
-
+    //
+    // More meta tags: title & description
+    //
+    let title = data.title;
+    let title_escaped = escape(title);
     s += sqzhtml`
   <title>
-    ${ data.title } — Error Correction Zoo
+    ${ title } | Error Correction Zoo
   </title>`;
+
+    let page_description_text =
+        data.page_description_text ?? default_page_description_text;
+    // strip newlines and unnecessary space ---
+    page_description_text = page_description_text.replace(/[\n\r\t ]+/g, ' ');
+    // strip math delimiters [TODO: do this at FLM text rendering time!] ---
+    page_description_text = page_description_text.replace(/\\[()]/g, '');
+    page_description_text = page_description_text.trim();
+    const page_description_text_escaped = escape(page_description_text);
+    s += sqzhtml`
+  <meta name="description" content="${ page_description_text_escaped }" />
+`;
+
+    //
+    // Social Media Information: Twitter cards & OpenGraph meta tags.  Note that
+    // twitter:title is not necessary as Twitter picks up OpenGraph information.
+    //
+    const absolutePageUrl = this.getEczooAbsoluteUrl(data.page.url);
+    s += sqzhtml`
+  <meta property="og:url" content="${ absolutePageUrl }" />
+  <meta property="og:title" content="${ title_escaped }" />
+  <meta property="og:description" content="${ page_description_text_escaped }" />
+  <meta property="og:image" content="~/site/static/icons/eczogimage.png" />
+  <meta property="og:type" content="article" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@theeczoo" />
+  <meta name="twitter:creator" content="@victorvalbert" />
+  <meta name="twitter:image" content="~/site/static/icons/eczogimage.png" />
+`;
+
+    //
+    // Set up the page - title & layout
+    //
+
+    // get some information about the page layout
+    let page_layout_info = data.page_layout_info ?? {};
 
     // fonts
     s += sqzhtml`
@@ -177,66 +219,6 @@ const render = async function (data) {
         s += sqzhtml`
   <script type="module" async src="${ extra_jsmod }"></script>`;
     }
-
-//     const jscomponents = Object.assign(
-//         {
-//             mathjax: true,
-//             linkanchorvisualhighlight: true,
-//         },
-//         page_layout_info.jscomponents
-//     );
-
-//     let skip_jscomponents = null;
-//     if (data.eczoo_config.run_options.development_mode
-//         && data.eczoo_config.development_mode_skip_jscomponents) {
-//         skip_jscomponents = data.eczoo_config.development_mode_skip_jscomponents;
-//     }
-
-//     // external/global component dependencies
-//     let external_dependencies = [...jscomponentsPackageJson.externalDependencies.base];
-
-//     let s_jscomponents_jsmod_script = '';
-//     let s_jscomponents_jsmod_imports = '';
-
-//     for (const [jscomponent, jscomponent_is_enabled] of Object.entries(jscomponents)) {
-//         if (skip_jscomponents && skip_jscomponents.includes(jscomponent)) {
-//             continue;
-//         }
-//         if (jscomponent_is_enabled) {
-//             external_dependencies.push(
-//                 ... jscomponentsPackageJson.externalDependencies.jscomponents[jscomponent] ?? []
-//             );
-//             if (jscomponentsPackageJson.jscomponentsUseInlineImports.includes(jscomponent)) {
-//                 s_jscomponents_jsmod_imports +=
-//                     `import '~/jscomponents/${ jscomponent }/setup.js';\n`;
-//             } else {
-//                 s_jscomponents_jsmod_script += sqzhtml`
-//   <script type="module" defer src="~/jscomponents/${ jscomponent }/setup.js"></script>`;
-//             }
-//   //           s_jscomponents_jsmod += sqzhtml`
-//   // <link type="text/css" rel="stylesheet" href="/jsbundle/${ jscomponent }/setup.css" />
-//   // <script type="module" defer src="/jsbundle/${ jscomponent }/setup.js"></script>`;
-//         }
-//     }
-
-//     // Add external dependencies via CDNs.  Do this by iterating over the list
-//     // of all possible dependencies *in order* (so that they are loaded in the
-//     // correct order), including only those that are needed.
-
-//     for (const depData of jscomponentsExternalDependenciesData) {
-//         if (!external_dependencies.includes(depData.name)) {
-//             // external dependency not needed
-//             continue;
-//         }
-//         s += sqzhtml`
-//   <script type="text/javascript" crossorigin defer src="${depData.cdnUrl}"></script>`;
-//     }
-
-//     s += s_jscomponents_jsmod_script;
-//     s += sqzhtml`
-//   <script type="module">
-// ${ s_jscomponents_jsmod_imports }
-//   </script>`;
 
     const jscomponents_profile = page_layout_info.jscomponents_profile ?? 'default';
 

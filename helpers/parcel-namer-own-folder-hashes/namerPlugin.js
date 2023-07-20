@@ -9,7 +9,7 @@ function getBundleName(bundle)
     let baseFileName = (filePath != null) ? path.basename(filePath) : null;
 
     // process.stdout.write(
-    //     `Custom Namer: ‘${filePath}’ of type ‘${bundle.type}’ (ID ‘${bundle.id}’)\n`
+    //     `Custom namer: ‘${filePath}’ of type ‘${bundle.type}’ (ID ‘${bundle.id}’)\n`
     // );
     
     // special cases first
@@ -43,14 +43,20 @@ module.exports = new Namer({
 
     name({ bundle }) {
 
-        if (!bundle.needsStableName) {
+        const filePath = bundle.getMainEntry()?.filePath;
+        //process.stdout.write(`Namer: ‘${filePath}’ ... \n`);
 
+        if (
+            !bundle.needsStableName
+            // a hard-coded exception that need to be renamed by us:
+            || (filePath && filePath.endsWith('/static/icons/eczogimage.png'))
+        ) {
             const bname = getBundleName(bundle);
             // process.stdout.write(
-            //     `Namer: ${bundle.getMainEntry()?.filePath}  --> ‘${bname}’\n`
+            //     `Custom Namer: ‘${filePath}’ (type ‘${bundle.type}’ ID ‘${bundle.id}’) `
+            //     + `→ ‘${bname}’\n`
             // );
             return bname;
-
         }
 
         // Allow the next namer to handle this bundle.
