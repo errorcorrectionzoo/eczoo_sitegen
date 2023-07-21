@@ -4,15 +4,28 @@ const data = {
     title: 'Home',
     tags: ['sitePage'],
     page_layout_info: {
+
         header_large_text: 'Welcome to the error correction zoo!',
+
         wide_layout: true,
+
         div_bodycontents_classes: ['page-index'],
-        // jscomponents: {
-        //     randomcode: true,
-        // },
+
         jscomponents_profile: {
             dynamic: 'home',
         },
+
+        // These <meta> tags will enable the mobile site to be pinned to the
+        // phone's home screen and will appear without safari controls when
+        // opened.
+        extra_head_content: `
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Error Correction Zoo" />
+<meta name="theme-color" content="#00007f">
+`,
+
     },
     eleventyComputed: {
         // ---

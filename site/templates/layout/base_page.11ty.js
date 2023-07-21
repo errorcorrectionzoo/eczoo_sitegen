@@ -16,6 +16,21 @@ const data = {
 };
 
 
+const _eczpkgroot = path.join(__dirname, '..', '..', '..');
+
+
+function read_source_file_contents(fileName) // relative to ~/
+{
+    if (!fileName.startsWith('~/')) {
+        throw new Error("read_source_file_contents should start with ~/");
+    }
+    const relativeFileName = fileName.slice(2);
+    const fullFileName = path.join(_eczpkgroot, relativeFileName);
+    return fs.readFileSync(fullFileName);
+};
+
+
+
 const get_page_header_navigation_links_default = async (data) => {
 
     const { eczoodb } = data;
@@ -232,59 +247,30 @@ const render = async function (data) {
         }
     }
 
-    // support for light/dark mode
+    //
+    // Support for light/dark mode.  This is a script that executes immediately,
+    // to avoid a flash of the wrong background color while the page loads.
+    //
     s += sqzhtml`
 <script type="text/javascript">
-window.eczColorSchemeHandler = (function(){
-  var htmlElement = window.document.documentElement;
-  var matcher = window.matchMedia('(prefers-color-scheme: dark)');
-  var handler = {};
-  handler.update = function() {
-    handler.set( matcher.matches );
-  };
-  handler.set = function(setDark) {
-    if (setDark) {
-      htmlElement.classList.remove('light');
-      htmlElement.classList.add('dark');
-    } else {
-      htmlElement.classList.remove('dark');
-      htmlElement.classList.add('light');
-    }
-  };
-  handler.toggle = async function() {
-    var setIsDark = ! htmlElement.classList.contains('dark');
-    if (setIsDark === matcher.matches) {
-      window.localStorage.removeItem("eczColorSchemeHandlerColorScheme");
-    } else {
-      window.localStorage.setItem("eczColorSchemeHandlerColorScheme", setIsDark ? 'dark' : 'light');
-    }
-    handler.set( setIsDark );
-  };
-  handler.init = async function() {
-    var wantIsDark = window.localStorage.getItem("eczColorSchemeHandlerColorScheme");
-    if (wantIsDark != null) {
-      handler.set( (wantIsDark == 'dark') );
-    } else {
-      handler.update();
-    }
-  };
-  matcher.addListener(handler.update);
-  handler.init();
-  return handler;
-})();
+${read_source_file_contents('~/site/tinyjavascript/darkmode.js')}
 </script>
 `;
 
 
     if (page_layout_info.extra_head_content) {
-        s += extra_head_content;
+        s += page_layout_info.extra_head_content;
     }
     
     s += sqzhtml`
 </head>
-<body>
 `;
-    
+
+
+    //
+    // Now, render the <BODY> !
+    //
+
     let div_bodycontents_classes = [];
     if (page_layout_info.div_bodycontents_classes) {
         div_bodycontents_classes.push(... page_layout_info.div_bodycontents_classes);
@@ -302,10 +288,19 @@ window.eczColorSchemeHandler = (function(){
         div_bodycontents_classes.push('page-header-has-text');
     }
 
+    const div_bodycontents_classes_joined = div_bodycontents_classes.join(' ');
+
+    // let's repeat the bodycontent classes on the <body> element so that we can
+    // apply selective CSS on <body>, too!
+    s += sqzhtml`
+<body class="${ div_bodycontents_classes_joined }">
+`;
+   
+
     s += sqzhtml`
 <div
   id="bodycontents"
-  class="${ div_bodycontents_classes.join(' ') }"
+  class="${ div_bodycontents_classes_joined }"
   >`;
 
     s += sqzhtml`
@@ -387,7 +382,7 @@ window.eczColorSchemeHandler = (function(){
         }
 
         s += sqzhtml`
-  <nav id="navigation">
+  <nav id="navigation" class="linkanchorvisualhighlight_direct_scroll">
 ${navigation_links}
   </nav><!-- #navigation -->
 
@@ -395,6 +390,8 @@ ${navigation_links}
     <a href="#navigation" id="nav-shortcut-to-navigation-links">&#8801;</a>
   </nav>
 `;
+        // note JavaScript to be added at the bottom of the <body> tag to help
+        // trigger navigation
     }
 
     const footer_content = require('./base_page_footer.11ty.js');
@@ -405,8 +402,17 @@ ${navigation_links}
   <footer id="footer"><div class="footer-stuff">${footer_content}</div></footer>`;
     }
 
-    s += `
-</div>
+    s += sqzhtml`
+</div>`;
+
+    // Helper script for navigation links
+    s += sqzhtml`
+  <script type="text/javascript">
+  ${read_source_file_contents('~/site/tinyjavascript/expandnavlinks.js')}
+  </script>
+`;
+
+    s += sqzhtml`
 </body>
 </html>`;
 

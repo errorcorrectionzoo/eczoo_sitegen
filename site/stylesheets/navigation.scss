@@ -24,7 +24,7 @@
 
 
 
-// sidebar contents
+// navigation list contents
 
 nav h1 {
     font-size: 1rem;
@@ -73,6 +73,26 @@ input.navbar-search {
     }
 }
 
+@media screen and (max-width: #{$page-collapse-layout-width - 1}) {
+#navigation.collapsed-into-js-menu {
+    display: none;
+
+    // position into the main grid layout slot
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    margin: 0px 3px;
+    box-shadow: 3px 3px 15px $main-background-color;
+
+    // when displayed, it should not take too much space
+    overflow: auto;
+    z-index: 9999;
+}
+#navigation.collapsed-into-js-menu-shown {
+    display: block;
+}
+}
 
 //
 // Styling of navigation links when they are embedded in the main header
@@ -138,4 +158,17 @@ input.navbar-search {
         }
 
     }
+
+    // in full-page "app" mode, make the navigation element scrollable and keep
+    // the header height
+    #bodycontents.app-full-width #navigation {
+        overflow: auto;
+        max-height: var(--header-height);
+        box-sizing: border-box;
+
+        // make links smaller, for user convenience
+        font-size: 0.9rem;
+        padding: 3px 3px 3px 0px;
+    }
+
 }

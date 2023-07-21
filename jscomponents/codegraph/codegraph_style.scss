@@ -30,12 +30,12 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
 @media screen and (max-width: 500px) {
     .EczCodeGraphComponent {
         grid-template-columns: 100%;
-        grid-template-rows: 80% 20%;
+        grid-template-rows: 50% 50%;
 
         .EczCodeGraphComponent_SidePanel {
             > div {
-                min-height: 200px;
-                overflow: hidden;
+                // min-height: 200px;
+                // overflow: hidden;
             }
         }
     }

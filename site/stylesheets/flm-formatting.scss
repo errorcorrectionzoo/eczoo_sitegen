@@ -75,17 +75,17 @@ table.cells {
       background-color: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
   }
   .cellstyle-lvert {
-      border-left: solid .5pt;
+      border-left: solid var(--main-text-color) .5pt;
   }
   .cellstyle-rvert {
-      border-right: solid .5pt;
+      border-right: solid var(--main-text-color) .5pt;
   }
 
   .celltbledge-top {
-      border-top: solid 1pt;
+      border-top: solid var(--main-text-color) 1pt;
   }
   .celltbledge-bottom {
-      border-bottom: solid 1pt;
+      border-bottom: solid var(--main-text-color) 1pt;
   }
 
 }

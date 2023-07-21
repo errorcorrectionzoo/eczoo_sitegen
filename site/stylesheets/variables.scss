@@ -117,9 +117,12 @@ html {
   color-scheme: light; // dark; /* both supported */
 }
 
+// don't enable dark mode in print
+@media screen {
 html.dark {
   @include site-color-mode-dark;
   color-scheme: dark;
+}
 }
 
 

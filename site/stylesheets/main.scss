@@ -106,7 +106,7 @@ details > summary > span {
 ////////////////////////////////////////////////////////////////////////////////
 
 $header-padding: 3px;
-$header-bgimage-gap: 23px;
+$header-bgimage-horizontal-gap: 23px;
 $header-bgimage-width: 150px;
 $header-bgimage-width-mobile: 80px;
 $header-min-height: 80px;
@@ -144,7 +144,7 @@ $header-min-height-mobile: 100px;
     color: $pageheader-text-color;
 }
 #header {
-    display: flex;
+    display: flex; // ensures correct vertical centering of the h1 element
 
     padding: 10px 0px;
 
@@ -162,11 +162,11 @@ $header-min-height-mobile: 100px;
 
     background-position-x: 0%;
     background-position-y: center;
-    background-size: $header-bgimage-width auto;
+    background-size: contain; //$header-bgimage-width auto;
 
     width: $header-bgimage-width;
 
-    margin-right: $header-bgimage-gap;
+    margin-right: $header-bgimage-horizontal-gap;
 }
 
 
@@ -176,13 +176,16 @@ $header-min-height-mobile: 100px;
 // space.
 //
 @media screen and (max-width: $page-collapse-layout-width) {
-#bodycontents.page-header-has-text #header-bg-decoration {
-    min-height: $header-min-height-mobile;
-}
-#bodycontents.page-header-has-text #logo {
-    background-image: url('~/site/static/icons/eczoo-main-logo-mobile.svg');
-    width: $header-bgimage-width-mobile;
-    background-size: $header-bgimage-width-mobile auto;
+#bodycontents:not(.app-full-width).page-header-has-text {
+    #header-bg-decoration {
+        min-height: $header-min-height-mobile;
+    }
+    #logo {
+        background-image: url('~/site/static/icons/eczoo-main-logo-mobile.svg');
+        width: $header-bgimage-width-mobile;
+        // it's set to 'contain'
+        //background-size: $header-bgimage-width-mobile auto;
+    }
 }
 }
 
@@ -286,8 +289,8 @@ ul.code-index, ol.code-index {
 table.codelistpage-table {
     margin: 1.5rem 0rem 2rem;
 
-    border-top: solid .15rem black;
-    border-bottom: solid .15rem black;
+    border-top: solid .15rem var(--main-text-color);
+    border-bottom: solid .15rem var(--main-text-color);
 
     width: 100%;
     box-sizing: border-box;
@@ -295,7 +298,7 @@ table.codelistpage-table {
 
     thead {
         tr {
-            border-bottom: solid .1rem black;
+            border-bottom: solid .1rem var(--main-text-color);
 
             th {
                 //font-weight: normal;
@@ -311,10 +314,10 @@ table.codelistpage-table {
     &.hlines {
         thead tr {
             // turn the thin rule below header into a thick rule
-            border-bottom: solid .15rem black;
+            border-bottom: solid .15rem var(--main-text-color);
         }
         tbody tr {
-            border-bottom: solid .1rem black;
+            border-bottom: solid .1rem var(--main-text-color);
         }
     }
 

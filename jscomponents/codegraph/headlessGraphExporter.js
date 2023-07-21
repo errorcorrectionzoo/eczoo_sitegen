@@ -7,7 +7,10 @@ import { getCyStyleJson } from './index.js';
 import loMerge from 'lodash/merge.js';
 
 
-const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
+// Keep "Source Sans Pro" for now, not "Source Sans 3", because otherwise I get
+// issues with fonte rendering in the SVG graphic.  Tried a few things, it's
+// buggy, unsure how to best fix!!
+const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
 
 
 
@@ -71,7 +74,7 @@ ${ importSourceSansFontsCss }
         const styleData = getCyStyleJson(
             loMerge(
                 {
-                    fontFamily: 'Source Sans 3',
+                    fontFamily: "Source Sans Pro",
                     fontSize: '18px',
                 },
                 cyStyleJsonOptions

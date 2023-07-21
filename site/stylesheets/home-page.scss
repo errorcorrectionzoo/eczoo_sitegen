@@ -50,6 +50,9 @@
                 display: inline;
                 padding: 2px 0px;
             }
+            > li:last-child {
+                margin-right: 0.5em;
+            }
 
             .spacer {
                 display: inline-block;

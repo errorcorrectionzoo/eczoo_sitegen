@@ -20,6 +20,10 @@ const data = async () => {
             alias: 'codelist',
         },
         tags: ['sitePage'],
+        page_layout_info: {
+            // provide wide page layouts in code lists
+            wide_layout: true,
+        },
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id) + '.html',
