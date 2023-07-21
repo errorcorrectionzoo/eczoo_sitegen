@@ -63,16 +63,16 @@ table.cells {
       text-align: right;
   }
   .cellstyle-green {
-      background-color: rgb(200,255,215);
+      background-color: rgba(69, 255, 69, 0.31); /*rgb(200,255,215);*/
   }
   .cellstyle-blue {
-      background-color: rgb(200,220,255);
+      background-color: rgba(79, 142, 255, 0.27); /*rgb(200,220,255);*/
   }
   .cellstyle-yellow {
-      background-color: rgb(255,255,200);
+      background-color: rgba(255, 255, 49, 0.33); /*rgb(255,255,200);*/
   }
   .cellstyle-red {
-      background-color: rgb(255,200,200);
+      background-color: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
   }
   .cellstyle-lvert {
       border-left: solid .5pt;
@@ -121,7 +121,6 @@ figure.float {
     border-width: 1px 0px 1px 0px;
     border-style: solid none solid none;
     border-color: $discreet-border-color;
-    // background-color: rgba($home-box-panel-background-color, 0.5);
 
     margin: 0.5rem 0px;
     padding: 0.5rem 0px;

@@ -10,6 +10,9 @@
         height: $header-min-height;
         margin: 0px $header-bgimage-gap 0px 0px;
 
+        // Background image with better contrast
+        background-image: url('~/site/static/icons/eczoo-main-logo-contrast.svg');
+
         // make logo appear in print
         -webkit-print-color-adjust: exact !important; // Chrome, Safari
         color-adjust: exact !important;  // Firefox

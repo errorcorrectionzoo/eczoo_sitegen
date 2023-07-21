@@ -32,10 +32,10 @@
             font-weight: normal;
         }
         font-weight: bold;
-        background-color: rgba(200,255,230);
+        background-color: var(--ecc-page-defines-kingdom-background-color);
     }
     .kingdom-description {
-        background-color: rgba(200,255,230);
+        background-color: var(--ecc-page-defines-kingdom-background-color);
     }
 
     .code-description {
@@ -96,4 +96,10 @@
         }
     }
 
+}
+
+.dark .CodeGraphInformationPane {
+    .flm-html-error {
+        color: rgb(255,100,100);
+    }
 }

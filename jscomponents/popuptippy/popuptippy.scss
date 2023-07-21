@@ -1,10 +1,10 @@
 
 
 // not sure if there is a clever way to recover the value set in variables.scss
-// of the main site (...?)
+// of the main site (...?) -- YES, through CSS variables !!!
 
 
-$popup-info-button-accent-color: #3232c8;
+$popup-info-button-accent-color: var(--popup-info-button-accent-color);
 
 
 

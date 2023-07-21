@@ -9,8 +9,6 @@ $tile-image-gap: 10px;
 
 $rounded-border-radius: 8px;
 
-$tile-background-color: rgba(245,245,252,1.0);
-
 
 .tiles-collection {
 
@@ -35,7 +33,7 @@ $tile-background-color: rgba(245,245,252,1.0);
         //border: solid 1px rgba($text-dim-color,0.15);
         background-color: $tile-background-color;
 
-        box-shadow: rgba(0,0,0,0.08) 4px 4px 8px;
+        box-shadow: $tile-box-shadow-color 4px 4px 8px;
 
         // rounded tiles
         border-radius: $rounded-border-radius;

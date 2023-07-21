@@ -50,25 +50,138 @@ $inner-parskip-half-length: 0.3em;
 // Base colors
 //
 
-// page header
-$pageheader-background-color: rgb(0,0,127);
-$pageheader-text-color: rgba(255,255,255,0.9);
 
-$pageheader-navigation-text-color: rgb(255, 194, 164);
-$pageheader-navigation-links-color: rgb(255, 194, 164);
-$pageheader-navigation-links-highlight-color: lighten($pageheader-navigation-links-color, 5%);
+@mixin site-color-mode-light {
+    --pageheader-background-color: rgb(0,0,127);
+    --pageheader-text-color: rgba(255,255,255,0.9);
+    --pageheader-background-shadow-color: rgba(0,0,0, 0.15);
+    --pageheader-navigation-text-color: rgb(255, 194, 164);
+    --pageheader-navigation-links-color: rgb(255, 194, 164);
+    --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
+    --main-text-color: rgb(0,0,0);
+    --main-background-color: rgb(255,255,255);
+    --page-link-color: rgba(50,50,200,1.0);
+    --page-link-highlight-color: rgba(80,80,255,1.0);
+    --text-dim-color: rgba(120, 120, 140, 1.0);
+    --inner-heading-color: rgb(40,40,80); //lighten(desaturate($pageheader-background-color, 70%), 20%);
+    --inner-heading-color-rule: rgba(40,40,80,0.4); //lighten(desaturate($pageheader-background-color, 70%), 20%);
+    --discreet-border-color: rgba(120, 120, 140, 0.15);
+    --a-linkcodegraph-hover-shadow-color: rgba(0,0,128,0.3);
+    --boxedcontent-border-color: rgba(120, 120, 140, 0.5);
+    --boxedcontent-background-color: rgba(240,240,255,0.5);
+    --navigation-collapsed-panel-background-color: rgba(245,245,255,1.0);
+    --visual-highlight-color: rgba(255,230,70,0.8);
+    --tippy-box-shadow: 0 0 20px 4px rgba(154,161,177,.15), 0 4px 80px -8px rgba(36,40,47,.25), 0 4px 4px -2px rgba(91,94,105,.15);
+    --popup-info-button-accent-color: #3232c8;
+    --tile-background-color: rgba(245,245,252,1.0);
+    --tile-box-shadow-color: rgba(0,0,0,0.08);
+    --tile-person-highlight-box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;;
+    --ecc-page-defines-kingdom-background-color: rgb(200,255,230);
+}
+
+
+@mixin site-color-mode-dark {
+    --pageheader-background-color: rgb(0,0,70);
+    --pageheader-text-color: rgba(255,255,255,0.9);
+    --pageheader-background-shadow-color: rgba(130, 129, 129, 0.22);
+    --pageheader-navigation-text-color: rgb(255, 194, 164);
+    --pageheader-navigation-links-color: rgb(255, 194, 164);
+    --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
+    --main-text-color: rgb(255,255,255);
+    --main-background-color: #121212; //rgb(0,0,0);
+    --page-link-color: rgb(156, 156, 221);
+    --page-link-highlight-color: rgb(191, 191, 217);
+    --text-dim-color: rgba(120, 120, 140, 1.0);
+    --inner-heading-color: rgb(162, 162, 179);
+    --inner-heading-color-rule: rgba(162, 162, 179, 0.45);
+    --discreet-border-color: rgba(120, 120, 140, 0.15);
+    --a-linkcodegraph-hover-shadow-color: rgba(0,0,128,0.3);
+    --boxedcontent-border-color: rgba(120, 120, 140, 0.5);
+    --boxedcontent-background-color: rgba(125, 125, 125, 0.18); //rgba(240,240,255,0.5);
+    --navigation-collapsed-panel-background-color: rgb(36, 36, 55);
+    --visual-highlight-color: rgba(111, 96, 0, 0.44);//rgba(255,230,70,0.8);
+    --tippy-box-shadow: 0 0 20px 4px rgba(220,220,230,.35), 0 4px 80px -8px rgba(240,240,245,.25), 0 4px 4px -2px rgba(230,225,230,.15);
+    --popup-info-button-accent-color: rgb(123, 123, 221);
+    --tile-background-color: rgb(41, 41, 55);
+    --tile-box-shadow-color: rgba(134, 134, 134, 0.29);
+    --tile-person-highlight-box-shadow: rgba(128, 163, 255, 0.35) 5px 5px 25px;
+    --ecc-page-defines-kingdom-background-color: rgb(31, 68, 51);
+}
+
+html {
+  color-scheme: light dark; /* both supported */
+}
+
+html {
+  @include site-color-mode-light;
+  color-scheme: light; // dark; /* both supported */
+}
+
+html.dark {
+  @include site-color-mode-dark;
+  color-scheme: dark;
+}
+
+
+// // OS Default.
+// html:not(.light):not(.dark) {
+//   //@media (prefers-color-scheme: light) {
+//     @include site-color-mode-light;
+//   //}
+//   @media (prefers-color-scheme: dark) {
+//     @include site-color-mode-dark;
+//   }
+// }
+
+
+// html {
+//     @include site-color-mode-light;
+// }
+
+
+
+
+
+// page header
+$pageheader-background-color: var(--pageheader-background-color);
+$pageheader-text-color: var(--pageheader-text-color);
+$pageheader-background-shadow-color: var(--pageheader-background-shadow-color);
+
+$pageheader-navigation-text-color: var(--pageheader-navigation-text-color);
+$pageheader-navigation-links-color: var(--pageheader-navigation-links-color);
+$pageheader-navigation-links-highlight-color: var(--pageheader-navigation-links-highlight-color);
 
 // page contents
 
-$page-link-color: rgba(50,50,200,1.0);
-$page-link-highlight-color: rgba(80,80,255,1.0);
+$main-text-color: var(--main-text-color);
+$main-background-color: var(--main-background-color);
 
-$text-dim-color: rgba(120, 120, 140, 1.0);
+$page-link-color: var(--page-link-color);
+$page-link-highlight-color: var(--page-link-highlight-color);
 
-$inner-heading-color: rgb(40,40,80); //lighten(desaturate($pageheader-background-color, 70%), 20%);
+$text-dim-color: var(--text-dim-color);
 
-$discreet-border-color: rgba($text-dim-color,0.15);
+$inner-heading-color: var(--inner-heading-color);
+$inner-heading-color-rule: var(--inner-heading-color-rule);
 
-$home-box-panel-background-color: rgba(245,245,255,1.0);
+$discreet-border-color: var(--discreet-border-color);
 
-$visual-highlight-color: rgba(255,230,70,0.8);
+$a-linkcodegraph-hover-shadow-color: var(--a-linkcodegraph-hover-shadow-color);
+
+$boxedcontent-border-color: var(--boxedcontent-border-color);
+$boxedcontent-background-color: var(--boxedcontent-background-color);
+
+$navigation-collapsed-panel-background-color: var(--navigation-collapsed-panel-background-color);
+
+$visual-highlight-color: var(--visual-highlight-color);
+
+$tippy-box-shadow: var(--tippy-box-shadow);
+
+$popup-info-button-accent-color: var(--popup-info-button-accent-color);
+
+$tile-background-color: var(--tile-background-color);
+$tile-box-shadow-color: var(--tile-box-shadow-color);
+
+$tile-person-highlight-box-shadow: var(--tile-person-highlight-box-shadow);
+
+$ecc-page-defines-kingdom-background-color: var(--ecc-page-defines-kingdom-background-color);

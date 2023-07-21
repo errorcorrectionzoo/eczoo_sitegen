@@ -1,7 +1,9 @@
 import tippy from 'tippy.js';
 
-import 'tippy.js/dist/tippy.css'; // for styling
-import 'tippy.js/themes/light.css';
+//import 'tippy.js/dist/tippy.css'; // for styling
+
+// we'll use our custom CSS styling
+//import 'tippy.js/themes/light.css';
 
 import './popuptippy.scss';
 
@@ -49,7 +51,7 @@ export class PopupInfoTool
                 // popperOptions: {
                 //     placement: 'bottom',
                 // },
-                theme: 'light',
+                // theme: 'light', // we'll use custom CSS styling in main.scss
             }
         );
     }

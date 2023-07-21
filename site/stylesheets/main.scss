@@ -31,6 +31,8 @@ body, html {
     font-family: $base-font-family;
     font-size: $base-font-size;
     line-height: 1.3em;
+    color: $main-text-color;
+    background-color: $main-background-color;
 }
 
 a, a:link, a:hover, a:active, a:visited {
@@ -124,7 +126,7 @@ $header-min-height-mobile: 100px;
     margin-bottom: $page-header-gap;
 
     z-index: 70;
-    box-shadow: rgba(0,0,0,0.15) 5px 5px 10px;
+    box-shadow: $pageheader-background-shadow-color 5px 5px 10px;
 }
 // remove bleed for full-width pages
 #bodycontents.app-full-width  #header-bg-decoration {
@@ -428,11 +430,8 @@ a.code-link-with-icon {
 
 // info popup frames & detail
 
-.tippy-content {
-    .code-popup-info-frame {
-        padding: 16px;
-    }
-}
+@import 'tippy-style.scss';
+
 
 a.code-self-permalink {
     background-image: url('~/site/static/icons/permalink-logo.svg');
@@ -440,14 +439,26 @@ a.code-self-permalink {
 a.code-show-citation {
     background-image: url('~/site/static/icons/cite-icon.svg');
 }
+.dark a.code-show-citation {
+    background-image: url('~/site/static/icons/cite-icon-dark.svg');
+}
 a.code-show-share {
     background-image: url('~/site/static/icons/share-icon.svg');
+}
+.dark a.code-show-share {
+    background-image: url('~/site/static/icons/share-icon-dark.svg');
 }
 a.code-show-github {
     background-image: url('~/site/static/icons/github-logo.svg');
 }
+.dark a.code-show-github {
+    background-image: url('~/site/static/icons/github-logo-dark.svg');
+}
 a.code-self-edit {
     background-image: url('~/site/static/icons/edit-icon.svg');
+}
+.dark a.code-self-edit {
+    background-image: url('~/site/static/icons/edit-icon-dark.svg');
 }
 
 
@@ -461,15 +472,15 @@ a.linkcodegraph {
     vertical-align: 0px;
 }
 a.linkcodegraph:hover {
-    filter: drop-shadow(2px 2px 5px rgba(0,0,128,0.3));
+    filter: drop-shadow(2px 2px 5px $a-linkcodegraph-hover-shadow-color);
 }
 
 .boxedcontent {
     
-    background-color: rgba(240,240,255,0.5);
+    background-color: $boxedcontent-background-color;
     padding: 5px;
 
-    border: solid 1px rgba($text-dim-color, 0.5);
+    border: solid 1px $boxedcontent-border-color;
 
     user-select: contain;
 
@@ -491,7 +502,7 @@ a.linkcodegraph:hover {
     > dd {
         display: block;
         margin-left: 0px;
-        padding: 0px;
+        //padding: 0px;
         
         margin-bottom: 0.3rem;
             
@@ -514,7 +525,6 @@ a.linkcodegraph:hover {
 
     .zoo-code-id {
         margin-top: 1rem;
-        color: rgba(black, 0.8);
 
         code {
             font-family: monospace;
@@ -752,7 +762,7 @@ a.linkcodegraph:hover {
     }
 
     &.tile-person-highlight {
-        box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;
+        box-shadow: $tile-person-highlight-box-shadow;
     }
 
     &.person-avatar-unknown {

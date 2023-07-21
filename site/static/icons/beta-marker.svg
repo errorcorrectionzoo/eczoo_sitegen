@@ -2,10 +2,12 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 200 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <g transform="matrix(1,0,0,1,-2338,0)">
-        <g id="Artboard2" transform="matrix(0.132873,0,0,0.150475,2027.27,0)">
-            <rect x="2338.53" y="0" width="1505.2" height="996.845" style="fill:none;"/>
-            <g transform="matrix(0.875062,-0.265654,0.300846,0.7727,-2055.88,1299.76)">
-                <use xlink:href="#_Image1" x="4901" y="511" width="1356px" height="740px"/>
+        <g transform="matrix(0.132873,0,0,0.150475,2027.27,0)">
+            <rect id="Artboard2" x="2338.53" y="0" width="1505.2" height="996.845" style="fill:none;"/>
+            <g id="Artboard21" serif:id="Artboard2">
+                <g transform="matrix(0.875062,-0.265654,0.300846,0.7727,-20383.7,-3311.08)">
+                    <use xlink:href="#_Image1" x="21797" y="12287" width="1356px" height="740px"/>
+                </g>
             </g>
         </g>
     </g>

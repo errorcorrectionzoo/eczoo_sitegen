@@ -55,7 +55,7 @@ input.navbar-search {
 @media screen { //and (max-width: $page-collapse-layout-width) {
     #navigation {
         border: none 0px;
-        background-color: $home-box-panel-background-color;
+        background-color: $navigation-collapsed-panel-background-color;
         //box-shadow: rgba(0,0,0,0.08) 3px 3px 6px;
         margin-top: 1rem;
         padding: 5px;
@@ -64,8 +64,8 @@ input.navbar-search {
             display: block;
             padding: 5px 10px;
             margin: 2px 0px 0px 0px;
-            background-color: darken($home-box-panel-background-color, 2%);
-            //border: solid 1px darken($home-box-panel-background-color, 5%);
+            //background-color: $navigation-collapsed-panel-background-color;
+            //border: solid 1px $page-link-color;
         }
         ul, li {
             padding: 0px;

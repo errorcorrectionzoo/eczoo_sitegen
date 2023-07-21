@@ -232,6 +232,49 @@ const render = async function (data) {
         }
     }
 
+    // support for light/dark mode
+    s += sqzhtml`
+<script type="text/javascript">
+window.eczColorSchemeHandler = (function(){
+  var htmlElement = window.document.documentElement;
+  var matcher = window.matchMedia('(prefers-color-scheme: dark)');
+  var handler = {};
+  handler.update = function() {
+    handler.set( matcher.matches );
+  };
+  handler.set = function(setDark) {
+    if (setDark) {
+      htmlElement.classList.remove('light');
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+      htmlElement.classList.add('light');
+    }
+  };
+  handler.toggle = async function() {
+    var setIsDark = ! htmlElement.classList.contains('dark');
+    if (setIsDark === matcher.matches) {
+      window.localStorage.removeItem("eczColorSchemeHandlerColorScheme");
+    } else {
+      window.localStorage.setItem("eczColorSchemeHandlerColorScheme", setIsDark ? 'dark' : 'light');
+    }
+    handler.set( setIsDark );
+  };
+  handler.init = async function() {
+    var wantIsDark = window.localStorage.getItem("eczColorSchemeHandlerColorScheme");
+    if (wantIsDark != null) {
+      handler.set( (wantIsDark == 'dark') );
+    } else {
+      handler.update();
+    }
+  };
+  matcher.addListener(handler.update);
+  handler.init();
+  return handler;
+})();
+</script>
+`;
+
 
     if (page_layout_info.extra_head_content) {
         s += extra_head_content;
@@ -308,6 +351,19 @@ const render = async function (data) {
             // use the default set of navigation links
             header_navigation_links = await get_page_header_navigation_links_default(data);
         }
+
+        // add "navigation link" for dark mode toggle
+        header_navigation_links = [].concat(header_navigation_links, [
+            {
+                heading: null,
+                links: [
+                    {
+                        href: 'javascript:window.eczColorSchemeHandler.toggle();',
+                        html: '🌒',
+                    },
+                ],
+            }
+        ]);
 
         //debug('using header_navigation_links = ', header_navigation_links);
 
