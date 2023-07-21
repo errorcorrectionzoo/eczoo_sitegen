@@ -212,7 +212,7 @@ The stated physical dimensions that are present in the SVG file are
 used to place the image at the correct size and resolution to match
 the surrounding article.  General text should be typeset preferably
 using the
-[‘Source Sans Pro’ font](https://fonts.google.com/specimen/Source+Sans+Pro)
+[‘Source Sans 3’ font](https://fonts.google.com/specimen/Source+Sans+3)
 at 10 point size, to match the typography
 of the surrounding article.  (You can place smaller or bigger text for
 axis markers, or use a different font if it's necessary, or etc.; use

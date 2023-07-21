@@ -66,7 +66,7 @@ const render = async (data) => {
         {
             fitWidth: 620,
             // cyStyleJsonOptions: {
-            //     fontFamily: 'Source Sans Pro',
+            //     fontFamily: 'Source Sans 3',
             //     fontSize: '18px',
             // },
         }

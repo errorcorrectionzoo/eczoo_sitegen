@@ -7,7 +7,7 @@ import { getCyStyleJson } from './index.js';
 import loMerge from 'lodash/merge.js';
 
 
-const importSourceSerifProFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
+const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
 
 
 
@@ -31,7 +31,7 @@ export class CodeGraphSvgExporter
         await this.page.setContent(`<!DOCTYPE HTML>
 <html>
 <style>
-${ importSourceSerifProFontsCss }
+${ importSourceSansFontsCss }
 </style>
 <body id="body">
 </body>
@@ -60,7 +60,7 @@ ${ importSourceSerifProFontsCss }
         const {
             cyStyleJsonOptions,
             fitWidth,
-            embedSourceSansProFonts,
+            embedSourceSansFonts,
         } = options ;
 
         // first, get the SVG data for this graph
@@ -71,7 +71,7 @@ ${ importSourceSerifProFontsCss }
         const styleData = getCyStyleJson(
             loMerge(
                 {
-                    fontFamily: 'Source Sans Pro',
+                    fontFamily: 'Source Sans 3',
                     fontSize: '18px',
                 },
                 cyStyleJsonOptions
@@ -119,12 +119,12 @@ ${ importSourceSerifProFontsCss }
             );
         }
 
-        if (embedSourceSansProFonts ?? true) {
+        if (embedSourceSansFonts ?? true) {
             // insert imports immediately after the end of the first tag
             svgData = svgData.replace(
                 /(<svg [^>]*>)/,
                 (match) => {
-                    return match + `<style>${ importSourceSerifProFontsCss }</style>`;
+                    return match + `<style>${ importSourceSansFontsCss }</style>`;
                 }
             );
         }
