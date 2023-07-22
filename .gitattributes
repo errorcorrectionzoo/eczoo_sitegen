@@ -1,4 +1,4 @@
-downloaded_citationinfo_cache.json      binary
+_zoodb_citations_cache/*.json           binary
 jscomponents/dist/*/*.js                binary
 jscomponents/dist/*/*.js.map            binary
 jscomponents/dist/*/*.css               binary

@@ -36,6 +36,7 @@
   "scripts": {
     "build": "rm -rf _site ../.parcel-cache && DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy  && yarn private_add_use_strict_to_site_js_files",
     "build-simple": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy  && yarn private_add_use_strict_to_site_js_files",
+    "build-simple-noparcel": "rm -rf _site ../.parcel-cache && ECZOO_RUN_11TY_PARCEL=0 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy",
     "build-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy   && yarn private_add_use_strict_to_site_js_files",
     "dev": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy --serve",
     "dev-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy --serve",
