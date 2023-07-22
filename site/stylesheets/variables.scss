@@ -50,6 +50,10 @@ $inner-parskip-half-length: 0.3em;
 // Base colors
 //
 
+html {
+    --light-main-text-color: rgb(0,0,0);
+    --light-main-background-color: rgb(255,255,255);
+}
 
 @mixin site-color-mode-light {
     --pageheader-background-color: rgb(0,0,127);
@@ -58,8 +62,8 @@ $inner-parskip-half-length: 0.3em;
     --pageheader-navigation-text-color: rgb(255, 194, 164);
     --pageheader-navigation-links-color: rgb(255, 194, 164);
     --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
-    --main-text-color: rgb(0,0,0);
-    --main-background-color: rgb(255,255,255);
+    --main-text-color: var(--light-main-text-color);
+    --main-background-color: var(--light-main-background-color);
     --page-link-color: rgba(50,50,200,1.0);
     --page-link-highlight-color: rgba(80,80,255,1.0);
     --text-dim-color: rgba(120, 120, 140, 1.0);
@@ -87,7 +91,7 @@ $inner-parskip-half-length: 0.3em;
     --pageheader-navigation-text-color: rgb(255, 194, 164);
     --pageheader-navigation-links-color: rgb(255, 194, 164);
     --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
-    --main-text-color: rgb(255,255,255);
+    --main-text-color: rgb(200, 202, 215); //rgb(255,255,255);
     --main-background-color: #121212; //rgb(0,0,0);
     --page-link-color: rgb(156, 156, 221);
     --page-link-highlight-color: rgb(191, 191, 217);
@@ -105,12 +109,12 @@ $inner-parskip-half-length: 0.3em;
     --tile-background-color: rgb(41, 41, 55);
     --tile-box-shadow-color: rgba(134, 134, 134, 0.29);
     --tile-person-highlight-box-shadow: rgba(128, 163, 255, 0.35) 5px 5px 25px;
-    --ecc-page-defines-kingdom-background-color: rgb(31, 68, 51);
+    --ecc-page-defines-kingdom-background-color: rgb(22, 43, 33); //rgb(31, 68, 51);
 }
 
-html {
-  color-scheme: light dark; /* both supported */
-}
+// html {
+//   color-scheme: light dark; /* both supported */
+// }
 
 html {
   @include site-color-mode-light;
@@ -125,21 +129,8 @@ html.dark {
 }
 }
 
-
-// // OS Default.
-// html:not(.light):not(.dark) {
-//   //@media (prefers-color-scheme: light) {
-//     @include site-color-mode-light;
-//   //}
-//   @media (prefers-color-scheme: dark) {
-//     @include site-color-mode-dark;
-//   }
-// }
-
-
-// html {
-//     @include site-color-mode-light;
-// }
+// A few lines of javascript code will set the '.dark' CSS class on <html> if
+// appropriate to trigger dark mode.
 
 
 
