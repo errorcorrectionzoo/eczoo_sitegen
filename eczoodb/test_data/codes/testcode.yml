@@ -211,3 +211,6 @@ _meta:
       notes: 'These logs are completely fictitious'
     - user_id: VVA
       date: '2021-01-01'
+
+  # This page is currently a stub -- remove this line once it's ready!
+  stub: true

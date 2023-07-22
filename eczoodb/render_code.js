@@ -71,6 +71,19 @@ export function render_code_page(code, {zoo_flm_environment, doc_metadata, extra
 <div class="kingdom-description">${ rdr(kingdom.description) }</div>`;
         }
 
+
+        if (code._meta?.stub) {
+            html += sqzhtml`
+<div class="sectioncontent code-is-stub">
+  This page is a <b>stub</b>.  We hope to complete the
+  information here soon!  We would also be very grateful
+  if you were interested in helping out —
+  see our <a href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/CONTRIBUTING.md">contributing guidelines</a>.
+</div>
+`;
+        }
+
+
         const display_field = (fieldname, title) => {
             const value = getfield(code, fieldname);
             if ( ! ne(value) ) {

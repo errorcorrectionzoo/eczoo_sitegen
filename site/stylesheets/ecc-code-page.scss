@@ -121,6 +121,15 @@ article.ecc-code-page {
         margin-left: 0.3em;
     }
 
+    .code-is-stub {
+        // the given colors (incl. transparency) work both in light & dark mode
+        border: solid 0.5pt rgb(120, 120, 120);
+        border-radius: 5px;
+        background-color: rgba(120, 120, 120, 0.1);
+        padding: 15px 25px;
+        font-style: italic;
+        opacity: .7;
+    }
 }
 
 // adjustments for small screens
