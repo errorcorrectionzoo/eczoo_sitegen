@@ -38,7 +38,7 @@ nav h1 {
     margin: 0px;
 }
 input.navbar-search {
-    border: solid 1px rgba($text-dim-color,0.5);
+    border: solid 1px $text-dim-color;
     border-radius: 3px;
 
     padding: 6px 3px;
