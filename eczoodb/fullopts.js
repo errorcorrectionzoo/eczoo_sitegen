@@ -18,13 +18,21 @@ import {fileURLToPath} from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import process from 'process';
+
+export const citationsinfo_cache_dir_default =
+    path.join(
+        __dirname,
+        '..',
+        (process.env.ECZOO_CITATIONS_CACHE_DIR ?? '_zoodb_citations_cache')
+    );
 
 
 export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}={}) {
 
     csl_style_data ??= csl_style_json_data.data;
 
-    citationsinfo_cache_dir ??= path.join(__dirname, '..',);
+    citationsinfo_cache_dir ??= citationsinfo_cache_dir_default;
 
     // console.log('cache file dir = ', citationsinfo_cache_dir);
 
@@ -38,8 +46,7 @@ export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}
         flm_options: {
             citations: {
                 csl_style: csl_style_data,
-                cache_file: path.join(citationsinfo_cache_dir,
-                                      'downloaded_citationinfo_cache.json'),
+                cache_dir: citationsinfo_cache_dir,
             },
         },
     };
