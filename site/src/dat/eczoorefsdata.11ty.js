@@ -12,6 +12,8 @@ const render = async (data) => {
             data.eczoodb.zoo_flm_environment.ref_resolver.dump_database(),
         citations:
             data.eczoodb.zoo_flm_environment.citations_provider.dump_database(),
+        graphics_collection:
+            data.eczoodb.zoo_flm_environment.graphics_collection.dump_database(),
     };
 
     return JSON.stringify(refs_data);

@@ -1635,10 +1635,11 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=25086b9ed0e25ffb6f87b0b9c45680e397416e26"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=c9ca429f9ff4f177e763f894b18b07fbb8eda20f"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^9.0.9
     base32-encode: ^2.0.0
+    browser-process-hrtime: ^1.0.0
     citeproc: ^2.4.62
     debug: ^4.3.4
     exif-parser: ^0.1.12
@@ -1655,7 +1656,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 910b904269147303ca32fd09adce8ebdf5e5d439a23fffd112f899edc51c7e589b4d19cc93acf08624087824bacdc8db1015873b5d683167454193f9f7317930
+  checksum: 2de4c1a8d224bc4cc3e26012a7d4b774a4bf4f3e044b51c00fe1a6fdb4e64a1c2457f17c735986a2287f3b39389a41717adfb1b0559a4e7222d4b602b42077bd
   languageName: node
   linkType: hard
 
@@ -2357,6 +2358,13 @@ __metadata:
   dependencies:
     fill-range: ^7.0.1
   checksum: e2a8e769a863f3d4ee887b5fe21f63193a891c68b612ddb4b68d82d1b5f3ff9073af066c343e9867a393fe4c2555dcb33e89b937195feb9c1613d259edfcd459
+  languageName: node
+  linkType: hard
+
+"browser-process-hrtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "browser-process-hrtime@npm:1.0.0"
+  checksum: e30f868cdb770b1201afb714ad1575dd86366b6e861900884665fb627109b3cc757c40067d3bfee1ff2a29c835257ea30725a8018a9afd02ac1c24b408b1e45f
   languageName: node
   linkType: hard
 
