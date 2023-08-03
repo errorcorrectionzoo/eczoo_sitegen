@@ -134,7 +134,7 @@ ${ importSourceSansFontsCss }
 
         return svgData;
     }
-};
+}
 
 
 export async function exportCodeGraphToSvg(eczCodeGraph, options)

@@ -11,14 +11,19 @@
   ],
   "scripts": {
     "buildall": "(cd site && yarn build)",
+    "eslint": "eslint jscomponents/**/*.js jscomponents/**/*.jsx eczoodb/**/*.js",
     "serve": "(cd site && yarn serve)"
   },
   "devDependencies": {
-    "@parcel/packager-xml": "2.8.3",
-    "@parcel/transformer-sass": "2.8.3",
     "s3-deploy": "1.4.0"
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
   },
   "staticFiles": {
     "staticPath": "./static_copy"
+  },
+  "dependencies": {
+    "eslint": "^8.46.0"
   }
 }

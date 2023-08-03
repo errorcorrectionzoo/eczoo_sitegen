@@ -326,7 +326,7 @@ export function CodeGraphInformationPane(props)
     // React props.
     //
 
-    const {
+    let {
         eczoodb,
         currentCodeSelected,
         currentDomainSelected,

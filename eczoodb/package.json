@@ -20,23 +20,5 @@
   "devDependencies": {
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "mocha": "^10.2.0"
-  },
-  "alias": {
-    "@phfaist/zoodb/citationmanager": "../node_modules/@phfaist/zoodb/src/citationmanager/index.js",
-    "@phfaist/zoodb/citationmanager/source/*": "../node_modules/@phfaist/zoodb/src/citationmanager/source/$1.js",
-    "@phfaist/zoodb/dbdataloader/*": "../node_modules/@phfaist/zoodb/src/dbdataloader/$1.js",
-    "@phfaist/zoodb/dbprocessor/*": "../node_modules/@phfaist/zoodb/src/dbprocessor/$1.js",
-    "@phfaist/zoodb/resourcecollector": "../node_modules/@phfaist/zoodb/src/resourcecollector/index.js",
-    "@phfaist/zoodb/resourcecollector/retriever/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/retriever/$1.js",
-    "@phfaist/zoodb/resourcecollector/processor/*": "../node_modules/@phfaist/zoodb/src/resourcecollector/processor/$1.js",
-    "@phfaist/zoodb/zooflm": "../node_modules/@phfaist/zoodb/src/zooflm/index.js",
-    "@phfaist/zoodb/zooflm/citationcompiler": "../node_modules/@phfaist/zoodb/src/zooflm/citationcompiler.js",
-    "@phfaist/zoodb/zooflm/scanner": "../node_modules/@phfaist/zoodb/src/zooflm/scanner.js",
-    "@phfaist/zoodb/util": "../node_modules/@phfaist/zoodb/src/util/index.js",
-    "@phfaist/zoodb/util/*": "../node_modules/@phfaist/zoodb/src/util/$1.js",
-    "@phfaist/zoodb/search/searchindex": "../node_modules/@phfaist/zoodb/src/search/searchindex.js",
-    "@phfaist/zoodb/search/searchwidget": "../node_modules/@phfaist/zoodb/src/search/searchwidget.js",
-    "@phfaist/zoodb/std": "../node_modules/@phfaist/zoodb/src/std/index.js",
-    "@phfaist/zoodb/std/*": "../node_modules/@phfaist/zoodb/src/std/$1.js"
   }
 }

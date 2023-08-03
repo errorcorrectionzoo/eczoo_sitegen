@@ -576,7 +576,7 @@ export class EczCodeGraph
             }
             this.displayOptions.lowDegreeNodesDimmed = options;
         }
-        const {enabled, degree, dimLeaf} = this.displayOptions.lowDegreeNodesDimmed;
+        let {enabled, degree, dimLeaf} = this.displayOptions.lowDegreeNodesDimmed;
 
         this.cy.elements().removeClass('lowDegreeDimmed');
         if (!enabled) {
