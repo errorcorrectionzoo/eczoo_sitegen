@@ -8,7 +8,9 @@ const render = async (data) => {
 
     const eczoodb = data.eczoodb;
 
-    return JSON.stringify(eczoodb.raw_data_db_dump());
+    let dbdump = await eczoodb.data_dump({});
+
+    return JSON.stringify(dbdump);
 }
 
 module.exports = { data, render, };
