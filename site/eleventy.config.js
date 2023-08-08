@@ -203,7 +203,11 @@ module.exports = (eleventyConfig) => {
             // if we requested a HTML page, we should touch entire source tree
             // to force parcel to refresh
             if (finalPath === '/' || finalPath.endsWith('.html')) {
-                touchDirsTree( [eleventy_out_dir] );
+                //
+                // ### Let's see if more recent version of ParcelJS can handle
+                // ### changes better ...
+                // touchDirsTree( [eleventy_out_dir] );
+                //
                 // touchDirsTree(
                 //     [ eleventy_out_dir, 'jscomponents' ],
                 //     {
