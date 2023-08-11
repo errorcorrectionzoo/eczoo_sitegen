@@ -6,16 +6,24 @@
     "eczoodb",
     "jscomponents",
     "site",
+    "previewtool",
     "helpers/parcel-namer-own-folder-hashes",
     "helpers/parcel-transformer-ogimage-phf"
   ],
   "scripts": {
     "buildall": "(cd site && yarn build)",
-    "eslint": "eslint jscomponents/**/*.js jscomponents/**/*.jsx eczoodb/**/*.js",
-    "serve": "(cd site && yarn serve)"
+    "lint": "eslint jscomponents/**/*.js jscomponents/**/*.jsx eczoodb/**/*.js previewtool/*.js previewtool/*.jsx",
+    "serve": "(cd site && yarn serve)",
+    "preview": "(cd previewtool && yarn node runPreview.js)"
   },
   "devDependencies": {
-    "s3-deploy": "1.4.0"
+    "assert": "^2.0.0",
+    "browserify-zlib": "^0.2.0",
+    "https-browserify": "^1.0.0",
+    "querystring-es3": "^0.2.1",
+    "s3-deploy": "1.4.0",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.1.0"
   },
   "@parcel/resolver-default": {
     "packageExports": true

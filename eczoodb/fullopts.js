@@ -1,4 +1,6 @@
-import csl_style_json_data from './eczoo-bib-style.json' assert { type: 'json' };
+import path from 'path';
+
+import csl_style_json_data from './eczoo-bib-style.js';
 
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_gitlastmodified_processor } from '@phfaist/zoodb/std/use_gitlastmodified_processor';
@@ -11,21 +13,8 @@ import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable
 // possibility for spawning processes, so are not browser-compatible.
 //
 
-
-import path from 'path';
-
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-import process from 'process';
-
-export const citationsinfo_cache_dir_default =
-    path.join(
-        __dirname,
-        '..',
-        (process.env.ECZOO_CITATIONS_CACHE_DIR ?? '_zoodb_citations_cache')
-    );
+import { citationsinfo_cache_dir_default } from './dirs_defaults.js';
+export { citationsinfo_cache_dir_default };
 
 
 export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}={}) {

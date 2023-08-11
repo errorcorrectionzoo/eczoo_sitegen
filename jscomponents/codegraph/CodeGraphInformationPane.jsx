@@ -1,18 +1,20 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.CodeGraphInformationPane');
 
-import _ from 'lodash';
-
-import * as htmlescape from 'html-escaper';
-
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import React, {
+    //useEffect,
+    useState,
+    useRef,
+    useLayoutEffect
+} from 'react';
 
 import {
     FLMSimpleContentCompiler
 } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import {
-    render_text_standalone, is_flm_fragment, $$kw, ZooHtmlFragmentRenderer, RefInstance,
+    // render_text_standalone, is_flm_fragment,
+    $$kw, ZooHtmlFragmentRenderer, RefInstance,
     make_and_render_document, make_render_shorthands,
 } from '@phfaist/zoodb/zooflm';
 
@@ -27,7 +29,7 @@ import './CodeGraphInformationPane_style.scss';
 function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
 {
     let zoo_flm_environment = eczoodb.zoo_flm_environment;
-    let html_fragment_renderer = new ZooHtmlFragmentRenderer();
+    // let html_fragment_renderer = new ZooHtmlFragmentRenderer();
     
     let flm_simple_content = new FLMSimpleContentCompiler({
         flm_environment: zoo_flm_environment,
@@ -392,7 +394,7 @@ export function CodeGraphInformationPane(props)
                     // install link callbacks
                     for (const aNode of domNode.querySelectorAll('a')) {
                         let href = aNode.getAttribute("href");
-                        let m = /^jsCallbackRef:([^\/]+)\/(.*)$/.exec(href);
+                        let m = /^jsCallbackRef:([^/]+)\/(.*)$/.exec(href);
                         if (m != null) {
                             (function() { // make closure for objectType & objectId.
                                 let objectType = m[1];

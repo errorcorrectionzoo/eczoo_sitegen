@@ -1,0 +1,107 @@
+@import '~/site/stylesheets/variables.scss';
+
+#AppContainer {
+    width: 100vw;
+    height: 100vh;
+}
+
+html, body {
+    overflow: hidden;
+}
+
+
+.loading-message {
+    max-width: 800px;
+    margin: 50px auto;
+    font-size: 1.2rem;
+    line-height: 1.3em;
+    font-style: italic;
+    color: rgba(127,127,127,0.8);
+
+    text-align: center;
+
+    &.wait {
+        font-style: normal;
+    }
+}
+
+
+.ZooDbPreviewComponent {
+
+    .zoodb-preview-content {
+        width: min($page-max-width, 100%);
+        max-width: $page-max-width;
+        margin: 0px auto;
+
+        box-sizing: border-box;
+
+        // for default object renderer
+        h2.fieldname {
+            font-size: 0.85rem;
+            letter-spacing: -.3pt;
+            opacity:0.5;
+            margin-top: 1.3rem;
+            margin-bottom: 5pt;
+        }
+        div.fieldcontent {
+            margin-left: 1rem;
+        }
+    }
+
+    .CommandButtonsComponent {
+        display: flex;
+        > button {
+            min-width: 40px;
+        }
+    }
+}
+
+
+//
+// fix dark mode colors of select boxes
+//
+.dark .ZooDbPreviewComponent {
+
+    .zoodb-preview-content {
+        background-color: rgba(128, 128, 128, 0.05);
+
+        .flm-error-message, span.error {
+            display: block;
+            color: rgb(255,130,120);
+            background-color: rgba(80,0,0,0.3);
+            padding: 1em;
+        }
+    }
+
+    .zoodb-preview-react-select__control,
+    .zoodb-preview-react-select__input-container,
+    .zoodb-preview-react-select__single-value,
+    .zoodb-preview-react-select__menu,
+    .zoodb-preview-react-select__indicator
+    {
+        color: var(--main-text-color);
+    }
+
+    .zoodb-preview-react-select__control,
+    .zoodb-preview-react-select__menu,
+    .zoodb-preview-react-select__indicator
+    {
+        background-color: var(--main-background-color);
+    }
+
+    .zoodb-preview-react-select__indicator-separator {
+        background-color: var(--discreet-border-color);
+    }
+    .zoodb-preview-react-select__control {
+        border-color: var(--boxedcontent-border-color);
+    }
+    .zoodb-preview-react-select__option {
+        color: var(--main-text-color);
+        background-color: var(--main-background-color);
+    }
+    .zoodb-preview-react-select__option:hover {
+        background-color: var(--text-dim-color);
+        color: var(--main-background-color);
+    }
+}
+

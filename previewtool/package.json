@@ -1,0 +1,31 @@
+{
+  "name": "@errorcorrectionzoo/previewtool",
+  "version": "0.0.1",
+  "packageManager": "yarn@3.3.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_preview",
+    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote",
+    "debug": "^4.3.4",
+    "lodash": "^4.17.21",
+    "parcel": "^2.9.3",
+    "parcel-optimizer-nohtmlsuffix": "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix",
+    "mime-types": "^2.1.35",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "@errorcorrectionzoo/eczoodb": "*",
+    "@phfaist/zoodb": "*"
+  },
+  "@mischnic/parcel-resolver-root": {
+    "/": "./_site",
+    "~": ".."
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
+  }
+}

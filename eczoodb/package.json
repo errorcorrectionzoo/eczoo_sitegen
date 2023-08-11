@@ -20,5 +20,11 @@
   "devDependencies": {
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "mocha": "^10.2.0"
+  },
+  "alias": {
+    "./eczoo-bib-style.js": "./eczoo-bib-style.json"
+  },
+  "browser": {
+    "./dirs_defaults.js": "./dirs_defaults.browser.js"
   }
 }

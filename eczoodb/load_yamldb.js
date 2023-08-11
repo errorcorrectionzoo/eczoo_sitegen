@@ -3,18 +3,14 @@ const debug = debugm('eczoodb.load_yamldb');
 
 import { StandardZooDbYamlDataLoader } from '@phfaist/zoodb/std/load_yamldb';
 
-// support __filename & __dirname here
-import path from 'path';
-import url from 'url';
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { schema_root_dir_default } from './dirs_defaults.js';
 
 
 export class EcZooDbYamlDataLoader extends StandardZooDbYamlDataLoader
 {
     constructor({ schema_root }={})
     {
-        schema_root ??= `file://${__dirname}/`;
+        schema_root ??= `file://${schema_root_dir_default}/`;
 
         debug('schema_root is ', { schema_root });
 

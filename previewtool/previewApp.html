@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>[PREVIEW] Error Correction Zoo</title>
+
+  <link type="text/css" rel="stylesheet" href="~/site/stylesheets/main.scss" />
+  <link type="text/css" rel="stylesheet" href="./previewApp.scss" />
+
+<script type="module">
+//
+// load MathJax !
+//
+import * as ecz_mathjax_setup from "~/jscomponents/mathjax/setup.js";
+ecz_mathjax_setup.load();
+//
+// set up light/dark mode
+//
+import '~/site/tinyjavascript/darkmode.js';
+</script>
+
+<script type="module" src="./previewApp.jsx"></script>
+
+</head>
+<body>
+  <div id="AppContainer">
+    <div class="loading-message">
+      <p class="wait">⏳ ⏳ ⏳ </p>
+      <p>Please be patient while the zoo is loading.  This task could take a few minutes!</p>
+      <p>(You can open your browser's Javascript console to monitor progress if you like.)</p>
+    </div>
+  </div>
+</body>
+</html>
