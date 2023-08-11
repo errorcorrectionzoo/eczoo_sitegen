@@ -52,12 +52,14 @@ $cookie-bar-height: 50vh;
     .cookie-btn {
         color: #fff;
         background-color: rgb(0,0,128);
-        border-radius: 3px;
         cursor: pointer;
 
-        padding: 5px 10px;
         width: 120px;
+
         margin: 15px 0px;
+        border-radius: 10px;
+        padding: 10px 20px;
+
         text-align: center;
         box-shadow: 5px 5px 10px rgba(0,0,50,0.7);
     }
