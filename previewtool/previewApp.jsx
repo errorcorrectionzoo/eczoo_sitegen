@@ -211,6 +211,7 @@ window.addEventListener('load', async () => {
         let zoodb = new EcZooDb( appZooDbOptions );
         zoodb.install_zoo_loader(new EcZooDbYamlDataLoader({
             schema_root: `file://${serverData.schema_root_dir}/`,
+            throw_reload_errors: true,
         }));
 
         await zoodb.load();

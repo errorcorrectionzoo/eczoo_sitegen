@@ -8,13 +8,18 @@ import { schema_root_dir_default } from './dirs_defaults.js';
 
 export class EcZooDbYamlDataLoader extends StandardZooDbYamlDataLoader
 {
-    constructor({ schema_root }={})
+    constructor(options={})
     {
-        schema_root ??= `file://${schema_root_dir_default}/`;
+        let loader_options = Object.assign({}, options);
+
+        const schema_root = loader_options.schema_root ?? `file://${schema_root_dir_default}/`;
+        delete loader_options.schema_root;
 
         debug('schema_root is ', { schema_root });
 
         super({
+            ... loader_options,
+
             //
             // specify objects & where to find them
             //
