@@ -3,6 +3,8 @@ import path from 'path';
 
 import { PreviewAppServer } from '@phfaist/zoodbtools_previewremote/startRemotePreviewApp.js';
 
+import { citationsinfo_cache_dir_default } from '../eczoodb/dirs_defaults.js';
+
 
 const __filename = (new URL('', import.meta.url)).pathname;
 const __dirname = (new URL('.', import.meta.url)).pathname;
@@ -21,6 +23,7 @@ const settings = {
         'appData.json': {
             eczoo_data_dir: path.join(__dirname, '../../eczoo_data/'),
             schema_root_dir: path.join(__dirname, '../eczoodb/'),
+            citationsinfo_cache_dir_default,
         }
     },
 

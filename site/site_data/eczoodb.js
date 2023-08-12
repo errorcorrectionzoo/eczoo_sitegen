@@ -15,15 +15,31 @@ module.exports = async (configData) => {
         const { EcZooDbYamlDataLoader } =
               await import('@errorcorrectionzoo/eczoodb/load_yamldb.js');
 
-        cached_eczoodb = new EcZooDb({
-            fs,
-            fs_data_dir: eczoo_config.data_dir,
-            ... get_eczoo_full_options()
-        });
-        cached_eczoodb.install_zoo_loader(new EcZooDbYamlDataLoader({ }));
+        try {
+
+            cached_eczoodb = new EcZooDb({
+                fs,
+                fs_data_dir: eczoo_config.data_dir,
+                ... get_eczoo_full_options()
+            });
+            cached_eczoodb.install_zoo_loader(new EcZooDbYamlDataLoader({ }));
+
+        } catch (err) {
+            console.error(err);
+            console.err(`ERROR INITIALIZING ZOO: ${err}`);
+            throw err;
+        }
     }
 
-    await cached_eczoodb.load();
+    try {
+
+        await cached_eczoodb.load();
+
+    } catch (err) {
+        console.error(err);
+        console.err(`ERROR LOADING ZOO: ${err}`);
+        throw err;
+    }
 
     return cached_eczoodb;
 };

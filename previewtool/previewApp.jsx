@@ -152,14 +152,41 @@ window.addEventListener('load', async () => {
         const fs = fsRemoteCreateClient();
 
         //
-        // load ZooDb 
+        // Prepare the ZooDb default options
+        //
+
+        let defaultAppZooDbOptions = get_eczoo_full_options();
+
+        //
+        // load any existing citations cache to help our citations resolver
+        // because we don't have access to DOI & arXiv APIs due to their strict
+        // CORS settings
+        //
+
+        let loadedCitationsCache = {};
+        const fnameCitationsInfoCache = path.join(serverData.citationsinfo_cache_dir_default,
+                                                  'cache_compiled_citations.json');
+        try {
+            loadedCitationsCache = JSON.parse(
+                await fs.promises.readFile(fnameCitationsInfoCache)
+            );
+            debug(`Loaded citations cache file ‘${fnameCitationsInfoCache}’`,
+                  loadedCitationsCache);
+        } catch (error) {
+            console.warn(`Failed to load citations cache file ‘${fnameCitationsInfoCache}’, `
+                         + `will proceed without cached info.`, error);
+        }
+
+
+        //
+        // Finalize the ZooDb Options & load !
         //
 
         let appZooDbOptions = loMerge(
             //
             // our built-in default options/settings
             //
-            get_eczoo_full_options(),
+            defaultAppZooDbOptions,
 
             //
             // custom options & settings
@@ -180,19 +207,23 @@ window.addEventListener('load', async () => {
                             // their public APIs seem to have strict CORS settings
                             // meaning we can't call them from other web apps
                             doi: new CitationSourceApiPlaceholder({
-                                title: "DOI citation",
+                                title: (doi) => `[DOI \\verbcode{${doi}}; citation text will appear on production zoo website]`,
                                 cite_prefix: 'doi',
                                 test_url: (_, cite_key) => `https://doi.org/${cite_key}`,
+                                search_in_compiled_cache: loadedCitationsCache,
                             }),
                             arxiv: new CitationSourceApiPlaceholder({
-                                title: "arXiv [& DOI?] citation",
+                                title: (arxivid) => `[arXiv:${arxivid}; citation text will appear on production zoo website (& via DOI if published)]`,
                                 cite_prefix: 'arxiv',
                                 test_url: (_, cite_key) => `https://arxiv.org/abs/${cite_key}`,
+                                search_in_compiled_cache: loadedCitationsCache,
                             }),
                         },
-                        citation_manager_options: {
-                            skip_save_cache: true,
-                        }
+
+                        cache_dir: '_zoodb_live_preview_dummy_cache_shouldnt_be_created',
+                        cache_dir_create: false,
+
+                        skip_save_cache: true,
                     },
                     allow_unresolved_references: true,
                     allow_unresolved_citations: true,
@@ -209,6 +240,7 @@ window.addEventListener('load', async () => {
         );
 
         let zoodb = new EcZooDb( appZooDbOptions );
+
         zoodb.install_zoo_loader(new EcZooDbYamlDataLoader({
             schema_root: `file://${serverData.schema_root_dir}/`,
             throw_reload_errors: true,
