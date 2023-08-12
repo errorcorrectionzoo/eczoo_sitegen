@@ -15,7 +15,10 @@ import {
 // ------
 
 
-export function render_code_page(code, {zoo_flm_environment, doc_metadata, extra_html_after_title})
+export function render_code_page(
+    code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
+            additional_setup_render_context }
+)
 {
     //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
     
@@ -23,6 +26,10 @@ export function render_code_page(code, {zoo_flm_environment, doc_metadata, extra
 
         // debug(`Rendering code information. render_context =`, render_context,
         //       `; zoo_flm_environment =`, zoo_flm_environment);
+
+        if (additional_setup_render_context) {
+            additional_setup_render_context(render_context);
+        }
 
         const R = zooflm.make_render_shorthands({render_context});
         const { ne, rdr, ref } = R;

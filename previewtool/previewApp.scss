@@ -29,8 +29,8 @@ html, body {
 .ZooDbPreviewComponent {
 
     .zoodb-preview-content {
-        width: min($page-max-width, 100%);
-        max-width: $page-max-width;
+        width: min($page-max-main-width, 100%);
+        max-width: $page-max-main-width;
         margin: 0px auto;
 
         box-sizing: border-box;
@@ -48,30 +48,15 @@ html, body {
         }
     }
 
-    .CommandButtonsComponent {
-        display: flex;
-        > button {
-            min-width: 40px;
-        }
-    }
 }
 
 
-//
-// fix dark mode colors of select boxes
-//
-.dark .ZooDbPreviewComponent {
 
-    .zoodb-preview-content {
-        background-color: rgba(128, 128, 128, 0.05);
 
-        .flm-error-message, span.error {
-            display: block;
-            color: rgb(255,130,120);
-            background-color: rgba(80,0,0,0.3);
-            padding: 1em;
-        }
-    }
+//
+// fix dark mode colors of select boxes, using our own color scheme
+//
+.dark {
 
     .zoodb-preview-react-select__control,
     .zoodb-preview-react-select__input-container,

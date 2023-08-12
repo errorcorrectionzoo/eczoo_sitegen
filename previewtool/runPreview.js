@@ -22,8 +22,11 @@ const settings = {
             eczoo_data_dir: path.join(__dirname, '../../eczoo_data/'),
             schema_root_dir: path.join(__dirname, '../eczoodb/'),
         }
-    }
+    },
 
+    // set START_USER_BROWSER="0" to avoid launching the users' browser
+    // automatically
+    startUserBrowser: (process.env.START_USER_BROWSER !== '0')
 };
 
 // completely clean the dist/ dir to avoid files accumulating there

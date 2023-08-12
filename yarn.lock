@@ -516,6 +516,7 @@ __metadata:
     "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote"
     debug: ^4.3.4
     lodash: ^4.17.21
+    mime-types: ^2.1.35
     parcel: ^2.9.3
     parcel-optimizer-nohtmlsuffix: "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix"
     react: ^18.2.0
@@ -1919,21 +1920,22 @@ __metadata:
 
 "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_preview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_preview&commit=43040391a150df8b498e1394eeabe289edcd0bb4"
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_preview&commit=83d7ad476ec4cd1914a2c20eece7489e976392f7"
   dependencies:
     debug: ^4.3.4
+    mime-types: ^2.1.35
     react: ^18.2.0
     react-dom: ^18.2.0
     react-select: ^5.7.4
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: 94ea1c2a1994bbbb95799d9344a7283a19242476147e3895a443734a4c64fa84b94344a3aa0f8e75c13ac651055ae39b3f44cd9b052801533faed7c24cd45cc4
+  checksum: 4b2e0c5b02c5b8d3bef21f0e4aa5d62c590813b0a42843b21a138adb308edc0202b096a1fcc63a65a7dbb2f726cf6b16631e71702f6ed533022834d9a5040f8e
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_previewremote&commit=43040391a150df8b498e1394eeabe289edcd0bb4"
+  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_previewremote&commit=83d7ad476ec4cd1914a2c20eece7489e976392f7"
   dependencies:
     debug: ^4.3.4
     fs-remote: ^0.1.9
@@ -1942,7 +1944,7 @@ __metadata:
     open: ^9.1.0
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: 48a64e6e912fcc125f41984177453d384c1309536a94433a9f21c4577870686763d1484573793ffa8f95d94b2fb0de4865b698efdf7a24e86a60100ab110a895
+  checksum: 24566426ace5b749374a7a11a068288be8d8dec008398f16e5680f27e946c6cb605b4ed13fcf6fb12be7ea460fb3c2f759d9b4cf246af5d2e48a71e8290a8470
   languageName: node
   linkType: hard
 

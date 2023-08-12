@@ -167,7 +167,10 @@ const styles = {
 
 
 
-export function render_codelist_page(codelist, {eczoodb, doc_metadata})
+export function render_codelist_page(
+    codelist,
+    { eczoodb, doc_metadata, additional_setup_render_context }
+)
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
 
@@ -177,6 +180,10 @@ export function render_codelist_page(codelist, {eczoodb, doc_metadata})
     const list_data = get_list_data({codelist, eczoodb});
     
     const render_doc_fn = (render_context) => {
+
+        if (additional_setup_render_context) {
+            additional_setup_render_context(render_context);
+        }
 
         const R = zooflm.make_render_shorthands({render_context});
         const { ne, rdr, ref } = R;
