@@ -92,5 +92,18 @@ properties:
 
     properties:
       code:
+        _auto_populated: true
         type: array
-        items: {}
+        items:
+          _auto_populated: true
+          type: object
+          properties:
+            code_id:
+              _auto_populated: true
+              type: string
+            code:
+              _auto_populated: true
+              type: object
+            date:
+              _auto_populated: true
+              type: string

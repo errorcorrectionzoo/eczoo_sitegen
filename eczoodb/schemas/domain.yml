@@ -28,3 +28,16 @@ properties:
   # automatically populated
   kingdoms:
     _auto_populated: true
+
+    type: array
+    items:
+      type: object
+      _auto_populated: true
+      properties:
+        kingdom_id:
+          type: string
+          _auto_populated: true
+        kingdom:
+          type: object
+          _auto_populated: true
+          

@@ -201,10 +201,6 @@ export function render_codelist_page(
         html += styles_render_fn( {codelist, list_data, R} );
 
         html += `
-</article>`;
-
-
-        html += `
 
 <RENDER_ENDNOTES/>
 

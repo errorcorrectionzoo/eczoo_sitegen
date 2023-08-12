@@ -27,6 +27,7 @@ import { EcZooDbYamlDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.j
 import { render_code_page } from '@errorcorrectionzoo/eczoodb/render_code.js'
 import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelist.js'
 
+import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -80,13 +81,18 @@ function renderObject({ zoodb, objectType, objectId, object,
 
     if (objectType === 'code') {
         const code = zoodb.objects.code[objectId];
-        const htmlContent = render_code_page(
+        const codeHtmlContent = render_code_page(
             code,
             {
                 zoo_flm_environment: zoodb.zoo_flm_environment,
                 additional_setup_render_context,
             }
         );
+        const htmlContent = sqzhtml`
+<article class="ecc-code-page">
+${codeHtmlContent}
+</article>
+`;
         return { htmlContent };
     }
     if (objectType === 'codelist') {
