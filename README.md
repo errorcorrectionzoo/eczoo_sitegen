@@ -55,22 +55,24 @@ software dependencies.
 
 ## Live preview while editing the zoo contents
 
-To start the live preview, navigate to *eczoo_sitegen/site* and run *yarn dev*:
+To start the live preview, navigate to *eczoo_sitegen/site* and run *yarn preview*:
 ```
 > cd eczoo_sitegen/site
-> yarn dev
+> yarn preview
 ```
 
-The script will build the website. The site can be previewed in your
-browser at the address displayed in the terminal, this is usually
-http://localhost:8080/ .  The script will continuously watch for changes to all
-the YAML files in the neighboring `eczoo_data` repository, and rebuild the
-relevant parts of the site as necessary and refresh them in your browser.
+The script will build the website. The site can be previewed in your browser at
+the address displayed in the terminal, this is normally http://localhost:8087/ .
+If you make changes to your source YAML files, you can click the "RELOAD" button
+in the browser preview to pick up the modifications and update the displayed zoo
+page.
 
-Rebuilds can take some time, so please be patient.
+The initial build can take a while and might freeze your browser page for a
+couple minutes, so please be patient.  Reloads should happen much faster.
 
 If you notice bugs in how the site is rebuilt, or if the page fails to rebuild
-properly, quit the script (usually *Ctrl+C*) and run it again.
+properly, perform a full reload of your browser web page (e.g. Ctrl+Shift+R).
+
 
 ## Run a complete build of the zoo website files
 
