@@ -100,7 +100,7 @@ function renderObject({ zoodb, objectType, objectId, object,
         );
         return { htmlContent };
     }
-    const htmlContent = simpleRenderObjectWithFlm(
+    const { htmlContent } = simpleRenderObjectWithFlm(
         { zoodb, objectType, objectId, object,
           registerRenderPreviewCleanupCallback }
     );
