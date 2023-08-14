@@ -239,17 +239,18 @@ window.addEventListener('load', async () => {
     };
 
     let getMathJax = () => {
-        return Object.assign(
-            {},
-            window.MathJax,
-            {
-                typesetPromise: async (...args) => {
-                    await window.MathJax.typesetClear();
-                    await window.MathJax.texReset();
-                    await window.MathJax.typesetPromise(...args);
-                }
-            }
-        );
+        return window.MathJax;
+        // return Object.assign(
+        //     {},
+        //     window.MathJax,
+        //     {
+        //         typesetPromise: async (...args) => {
+        //             await window.MathJax.typesetClear();
+        //             await window.MathJax.texReset();
+        //             await window.MathJax.typesetPromise(...args);
+        //         }
+        //     }
+        // );
     };
 
     //

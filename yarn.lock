@@ -1896,7 +1896,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=17c33acfe17f837ca2a73869df260bcd457bce09"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=9329b56d89fbbb7baee997ea7ffefe66f7c0c81f"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -1918,13 +1918,13 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: ab24540107b39581a11fe2c8ce44cd63dcd607f7ed011d1879583ce010be6f6bec666b8465018ad9c09b8a5bf8a83804f3b46870634d65a0609825e7a3ac2109
+  checksum: 53f6a8976b5c26a27a82ea93b9bfe33b9c2a29945998f303a5223d3d9cb939e06ca06401e07fc36e377f4b72740b19d2e61268cca8b0949f6b0a01dd3947c45d
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=f3717c5d821f36aad37e2d155a4c5fa432b86fd7"
+  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
   dependencies:
     browserfs: ^1.4.3
     debug: ^4.3.4
@@ -1943,7 +1943,7 @@ __metadata:
 
 "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=f3717c5d821f36aad37e2d155a4c5fa432b86fd7"
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
   dependencies:
     debug: ^4.3.4
     escape-html: ^1.0.3
@@ -1959,7 +1959,7 @@ __metadata:
 
 "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=f3717c5d821f36aad37e2d155a4c5fa432b86fd7"
+  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
   dependencies:
     debug: ^4.3.4
     fs-remote: ^0.1.9
