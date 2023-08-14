@@ -4,6 +4,10 @@ const debug = debugm('eczoo_sitegen.previewtool.previewApp');
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
+import csl_style_json_data_str from 'bundle-text:@errorcorrectionzoo/eczoodb/eczoo-bib-style.json';
+
+import './appSetupStyle.scss';
+
 //import path from 'path';
 //import mime from 'mime-types';
 
@@ -81,9 +85,8 @@ ${codeHtmlContent}
 
 
 
-export async function installApp({ elementId }={})
+export async function installApp({ elementId })
 {
-    elementId ??= 'AppContainer';
 
     const domContainer = document.getElementById(elementId);
 
@@ -116,7 +119,12 @@ export async function installApp({ elementId }={})
         // Prepare the ZooDb default options
         //
 
-        let defaultAppZooDbOptions = get_eczoo_full_options();
+        let csl_style_json_data = JSON.parse(csl_style_json_data_str);
+        //debug(`Imported CSL data is `, csl_style_json_data);
+        let defaultAppZooDbOptions = get_eczoo_full_options({
+            csl_style_data: csl_style_json_data.data,
+        });
+        debug(`Using default app options`, defaultAppZooDbOptions);
 
         //
         // load any existing citations cache to help our citations resolver
@@ -124,7 +132,11 @@ export async function installApp({ elementId }={})
         // CORS settings
         //
 
-        let loadedCitationsCache = {};
+        // fetch our current eczoo data, including refs_data and citations database
+        let eczooData = await (await fetch('/dat/eczoodata.json')).json();
+        debug(`Fetched eczooData`, eczooData);
+        
+        let loadedCitationsCache = eczooData?.refs_data?.citations?.citations_database;
         // const fnameCitationsInfoCache = path.join(serverData.citationsinfo_cache_dir_default,
         //                                           'cache_compiled_citations.json');
         // try {
@@ -169,16 +181,22 @@ export async function installApp({ elementId }={})
                             // meaning we can't call them from other web apps
                             doi: new CitationSourceApiPlaceholder({
                                 title: (doi) => `[DOI \\verbcode{${doi}}; citation text will appear on production zoo website]`,
+                                placeholder_name: 'DOI citation API',
                                 cite_prefix: 'doi',
                                 test_url: (_, cite_key) => `https://doi.org/${cite_key}`,
                                 search_in_compiled_cache: loadedCitationsCache,
                             }),
                             arxiv: new CitationSourceApiPlaceholder({
                                 title: (arxivid) => `[arXiv:${arxivid}; citation text will appear on production zoo website (& via DOI if published)]`,
+                                placeholder_name: 'arXiv citation API',
                                 cite_prefix: 'arxiv',
                                 test_url: (_, cite_key) => `https://arxiv.org/abs/${cite_key}`,
                                 search_in_compiled_cache: loadedCitationsCache,
                             }),
+                        },
+
+                        resources: {
+                            read_file_data: true,
                         },
 
                         cache_dir: '_zoodb_live_preview_dummy_cache_shouldnt_be_created',
@@ -200,9 +218,13 @@ export async function installApp({ elementId }={})
             }
         );
 
+        debug(`about to createEcZooDb with options`, appZooDbOptions);
+
         let zoodb = await createEcZooDb( appZooDbOptions );
         const loader = await createEcZooYamlDbDataLoader(zoodb, {
-            schema_root: `https://errorcorrectionzoo.org/`, // why not?
+            //schema_root: `https://errorcorrectionzoo.org/`, // why not?
+            schema_root: (new URL(`/`, window.location.href)).href, // why not?
+            schema_add_extension: '.json',
         });
         const loader_handler = new ZooDbDataLoaderHandler(loader);
         zoodb.install_zoo_loader_handler(loader_handler);
@@ -224,6 +246,20 @@ export async function installApp({ elementId }={})
         return zoodb;
     };
 
+    let getMathJax = () => {
+        return Object.assign(
+            {},
+            window.MathJax,
+            {
+                typesetPromise: async (...args) => {
+                    await window.MathJax.typesetClear();
+                    await window.MathJax.texReset();
+                    await window.MathJax.typesetPromise(...args);
+                }
+            }
+        );
+    };
+
     //
     // Render the app
     //
@@ -237,12 +273,10 @@ export async function installApp({ elementId }={})
             loadZooDbFromFsDir={loadZooDbFromFsDir}
             initialBranchName={'main'}
             renderObject={renderObject}
-            getMathJax={() => window.MathJax}
+            getMathJax={getMathJax}
             initialObjectType={'code'}
             initialObjectId={''}
-            commandButtonsToggleDarkModeCallback={
-                () => { window.eczColorSchemeHandler?.toggle() }
-            }
+            commandButtonsToggleDarkModeCallback={false}
         />
     );
 
