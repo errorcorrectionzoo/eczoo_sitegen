@@ -61,8 +61,9 @@ To start the live preview, navigate to *eczoo_sitegen/site* and run *yarn previe
 > yarn preview
 ```
 
-The script will build the website. The site can be previewed in your browser at
-the address displayed in the terminal, this is normally http://localhost:8087/ .
+The script will build the a simple website previewer.  The site pages can be
+previewed in your browser at the address displayed by the `yarn preview` script
+in the terminal; this address is normally http://localhost:8087/ .
 If you make changes to your source YAML files, you can click the "RELOAD" button
 in the browser preview to pick up the modifications and update the displayed zoo
 page.
@@ -72,6 +73,8 @@ couple minutes, so please be patient.  Reloads should happen much faster.
 
 If you notice bugs in how the site is rebuilt, or if the page fails to rebuild
 properly, perform a full reload of your browser web page (e.g. Ctrl+Shift+R).
+If you found a bug, please let me know (create a github issue) so that I can fix
+it.
 
 
 ## Run a complete build of the zoo website files
@@ -83,7 +86,7 @@ To run a complete build of the website, navigate to *eczoo_sitegen/site* and run
 ```
 
 Once the script is done, the website files will be written to the folder
-`eczoo_sitegen/site/_site/`.  If you'd like to preview the site at this point,
+`eczoo_sitegen/site/_site/`.  If you'd like to view the site at this point,
 you may run (in the same folder as the previous commands):
 ```
 > yarn serve
