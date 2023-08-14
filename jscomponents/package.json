@@ -7,7 +7,8 @@
     "@codemirror/language": "^6.0.0",
     "@codemirror/legacy-modes": "^6.0.0",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
+    "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview",
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
     "@popperjs/core": "^2.11.6",
     "@uiw/react-codemirror": "^4.15.1",
     "cytoscape": "^3.23.0",
@@ -37,7 +38,9 @@
   },
   "peerDependencies": {
     "@errorcorrectionzoo/eczoodb": "*",
-    "@phfaist/zoodb": "*"
+    "@phfaist/zoodb": "*",
+    "@phfaist/zoodbtools_gitpreview": "*",
+    "@phfaist/zoodbtools_preview": "*"
   },
   "targets": {
     "mathjax": {
@@ -64,6 +67,10 @@
       "distDir": "dist/randomcode",
       "source": "./randomcode/setup.js"
     },
+    "gitzoopreview": {
+      "distDir": "dist/gitzoopreview",
+      "source": "./gitzoopreview/setup.js"
+    },
     "editcodelegacy": {
       "distDir": "dist/editcodelegacy",
       "source": "./editcodelegacy/setup.js"
@@ -78,7 +85,6 @@
     "private-dist-add-use-strict": "bash -c 'for i in dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
   },
   "browserslist": "> 0.1%, last 3 versions, not dead",
-  "...browserslist": "> 10%, last 2 versions, not dead",
   "alias": {
     "yaml": "../node_modules/yaml/browser/dist/index.js"
   }

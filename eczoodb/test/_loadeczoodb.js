@@ -1,8 +1,9 @@
 import fs from 'fs';
 
-import { EcZooDb } from '../eczoodb.js';
+import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
+import { createEcZooDb } from '../eczoodb.js';
 import { get_eczoo_full_options } from '../fullopts.js';
-import { EcZooDbYamlDataLoader } from '../load_yamldb.js';
+import { createEcZooYamlDbDataLoader } from '../load_yamldb.js';
 
 
 import {fileURLToPath} from 'url';
@@ -17,13 +18,16 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 export async function load_eczoo_cached({ eczoodb_options }={})
 {
-    let eczoodb = new EcZooDb({
+    let eczoodb = await createEcZooDb({
         fs,
         fs_data_dir: data_dir,
         ... get_eczoo_full_options(),
         ... (eczoodb_options ?? {}),
     });
-    eczoodb.install_zoo_loader(new EcZooDbYamlDataLoader({ }));
+    let loader = await createEcZooYamlDbDataLoader(eczoodb);
+    eczoodb.install_zoo_loader_handler(
+        new ZooDbDataLoaderHandler( loader )
+    );
 
     await eczoodb.load();
 

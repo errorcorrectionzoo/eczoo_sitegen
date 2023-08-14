@@ -5,27 +5,28 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@apidevtools/json-schema-ref-parser@npm:^9.0.9":
-  version: 9.1.2
-  resolution: "@apidevtools/json-schema-ref-parser@npm:9.1.2"
+"@apidevtools/json-schema-ref-parser@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "@apidevtools/json-schema-ref-parser@npm:10.1.0"
   dependencies:
     "@jsdevtools/ono": ^7.1.3
-    "@types/json-schema": ^7.0.6
-    call-me-maybe: ^1.0.1
+    "@types/json-schema": ^7.0.11
+    "@types/lodash.clonedeep": ^4.5.7
     js-yaml: ^4.1.0
-  checksum: 5bd6885db0fd6633879bb4638b7a3aead6b061cb6422083c6be505ee6873be54e3376380df164c73edd8901d4145a9bfe9bc0b008a568fd8b0626b1df96fae8f
+    lodash.clonedeep: ^4.5.0
+  checksum: 6220dea1ffa2f1b34da54583cf447cc97c51e25b96c10705e858f42c8290bc775b5821182282493a8f99ec6e0dae8f01ccd865d547aa29c1a6be6a38713c4571
   languageName: node
   linkType: hard
 
 "@errorcorrectionzoo/eczoodb@file:../eczoodb::locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A.":
   version: 0.1.0
-  resolution: "@errorcorrectionzoo/eczoodb@file:../eczoodb#../eczoodb::hash=7ecd5d&locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A."
+  resolution: "@errorcorrectionzoo/eczoodb@file:../eczoodb#../eczoodb::hash=5c94e5&locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A."
   dependencies:
     debug: ^4.3.4
     lodash: ^4.17.21
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: f326bf9533de8f2ffcb0d15963d9df954181c6077f956b30b7a7cab79dbdaf26e14b66131ceff160559c75b8e27d3b3616dd34eca878a0463395f3a18547a70e
+  checksum: dd81a272500bc3ec0a3201d04130e5de8adca0f7a52495827412aaf9f1d7204bb1f0532d6b40896303a6e703063196892776d05346c04b8454e05027c95c51e2
   languageName: node
   linkType: hard
 
@@ -54,12 +55,14 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=32edf4c2b7b6a6218c227ec78b158fd35d6ad40b"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=6901f377d3350a8b6e3a487740b0d063717651e5"
   dependencies:
-    "@apidevtools/json-schema-ref-parser": ^9.0.9
+    "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
+    browser-process-hrtime: ^1.0.0
     citeproc: ^2.4.62
     debug: ^4.3.4
+    escape-html: ^1.0.3
     exif-parser: ^0.1.12
     feedparser: ^2.2.10
     glob: ^8.0.3
@@ -74,7 +77,7 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 8cf592df9ff200d1f33ce21a60bc705da872ff03e78c2545643d67ed782212f818a11b4042e037365b2096abf23b59a4574ce755dcfa3e02548124eca6b6be11
+  checksum: 77bc316cd4e1659dffe4d7112332a4d829339d30a7c1cf9efef778add5c682c0b3a1ad56779cf42f5cd56d9330a4bfd404937b1e018b7265c3beade3d58b6f7f
   languageName: node
   linkType: hard
 
@@ -85,10 +88,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:^7.0.6":
-  version: 7.0.11
-  resolution: "@types/json-schema@npm:7.0.11"
-  checksum: 527bddfe62db9012fccd7627794bd4c71beb77601861055d87e3ee464f2217c85fca7a4b56ae677478367bbd248dbde13553312b7d4dbc702a2f2bbf60c4018d
+"@types/json-schema@npm:^7.0.11":
+  version: 7.0.12
+  resolution: "@types/json-schema@npm:7.0.12"
+  checksum: 00239e97234eeb5ceefb0c1875d98ade6e922bfec39dd365ec6bd360b5c2f825e612ac4f6e5f1d13601b8b30f378f15e6faa805a3a732f4a1bbe61915163d293
+  languageName: node
+  linkType: hard
+
+"@types/lodash.clonedeep@npm:^4.5.7":
+  version: 4.5.7
+  resolution: "@types/lodash.clonedeep@npm:4.5.7"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 20d6a20970b3b54b3c10cf17ace1cea49c4905d7f7cae2575a98108466e8d4c9bea3b3449d11ccaac4da1fc9bab225f477f4c2dbea8ba877cc47f629455efb69
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.14.197
+  resolution: "@types/lodash@npm:4.14.197"
+  checksum: 53d7567d1704de76cf33266c78062e0fd722d4b846e5b1417d0b6ef0ee41c0d9c451b92bc34f73d5f1fcc45c7d36511e92f6f47a9279b48157ba60a92ddaa078
   languageName: node
   linkType: hard
 
@@ -170,19 +189,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"browser-process-hrtime@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "browser-process-hrtime@npm:1.0.0"
+  checksum: e30f868cdb770b1201afb714ad1575dd86366b6e861900884665fb627109b3cc757c40067d3bfee1ff2a29c835257ea30725a8018a9afd02ac1c24b408b1e45f
+  languageName: node
+  linkType: hard
+
 "bundle-name@npm:^3.0.0":
   version: 3.0.0
   resolution: "bundle-name@npm:3.0.0"
   dependencies:
     run-applescript: ^5.0.0
   checksum: edf2b1fbe6096ed32e7566947ace2ea937ee427391744d7510a2880c4b9a5b3543d3f6c551236a29e5c87d3195f8e2912516290e638c15bcbede7b37cc375615
-  languageName: node
-  linkType: hard
-
-"call-me-maybe@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "call-me-maybe@npm:1.0.2"
-  checksum: 42ff2d0bed5b207e3f0122589162eaaa47ba618f79ad2382fe0ba14d9e49fbf901099a6227440acc5946f86a4953e8aa2d242b330b0a5de4d090bb18f8935cae
   languageName: node
   linkType: hard
 
@@ -306,6 +325,13 @@ __metadata:
   version: 3.1.1
   resolution: "escalade@npm:3.1.1"
   checksum: a3e2a99f07acb74b3ad4989c48ca0c3140f69f923e56d0cba0526240ee470b91010f9d39001f2a4a313841d237ede70a729e92125191ba5d21e74b106800b133
+  languageName: node
+  linkType: hard
+
+"escape-html@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "escape-html@npm:1.0.3"
+  checksum: 6213ca9ae00d0ab8bccb6d8d4e0a98e76237b2410302cf7df70aaa6591d509a2a37ce8998008cbecae8fc8ffaadf3fb0229535e6a145f3ce0b211d060decbb24
   languageName: node
   linkType: hard
 
@@ -558,6 +584,13 @@ __metadata:
   version: 4.2.0
   resolution: "lodash.assign@npm:4.2.0"
   checksum: 75bbc6733c9f577c448031b4051f990f068802708891f94be9d4c2faffd6a9ec67a2c49671dafc908a068d35687765464853282842b4560b662e6c903d11cc90
+  languageName: node
+  linkType: hard
+
+"lodash.clonedeep@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.clonedeep@npm:4.5.0"
+  checksum: 92c46f094b064e876a23c97f57f81fbffd5d760bf2d8a1c61d85db6d1e488c66b0384c943abee4f6af7debf5ad4e4282e74ff83177c9e63d8ff081a4837c3489
   languageName: node
   linkType: hard
 

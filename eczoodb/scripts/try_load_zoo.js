@@ -4,7 +4,7 @@ const debug = debug_mod('eczoodbjs.try_load_zoo');
 import fs from 'fs';
 import path from 'path';
 
-import { EcZooDb, load_eczoo } from '../eczoodbjs.js';
+import { createEcZooDb, load_eczoo } from '../eczoodbjs.js';
 
 
 import {fileURLToPath} from 'url';
@@ -16,7 +16,7 @@ async function run({data_dir})
 {
     debug(`run(), data_dir=${data_dir}`);
 
-    const eczoo = new EcZooDb({
+    const eczoo = await createEcZooDb({
         fs,
         flm_processor_graphics_resources_fs_data_dir: data_dir,    
         flm_processor_citations_override_arxiv_dois_file:
@@ -26,6 +26,7 @@ async function run({data_dir})
         ],
     });
 
+    ....... ### no, this is incorrect ......
     eczoo.load_yamldb({
         data_dir,
     });

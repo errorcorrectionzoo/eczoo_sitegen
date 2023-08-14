@@ -11,8 +11,9 @@ import child_process from 'child_process';
 import which from 'which';
 import open_desktop from 'open';
 
-import { EcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
-import { EcZooDbYamlDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
+import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
+import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
+import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
 
 import { zoo_permalinks } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
@@ -75,7 +76,7 @@ async function runmain({
             fs_data_dir: dataDir,
         },
         get_eczoo_full_options({
-            citationsinfo_cache_dir: path.join(__dirname, '..'),
+            citationsinfo_cache_dir: path.join(__dirname, '..', '_zoodb_citations_cache'),
         }),
         {
             flm_options: {
@@ -98,9 +99,16 @@ async function runmain({
         },
     );
 
-    let eczoodb = new EcZooDb(eczoodbopts);
+    let eczoodb = await createEcZooDb(eczoodbopts);
+    const yaml_loader = await createEcZooYamlDbDataLoader(eczoodb);
+    const loader_handler = new ZooDbDataLoaderHandler(
+        yaml_loader,
+        {
+            throw_reload_errors: false, // for when in devel mode with eleventy
+        }
+    );
+    eczoodb.install_zoo_loader_handler(loader_handler);
 
-    eczoodb.install_zoo_loader(new EcZooDbYamlDataLoader({ }));
     
     await eczoodb.load();
 

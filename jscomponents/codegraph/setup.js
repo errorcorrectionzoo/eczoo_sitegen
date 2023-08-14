@@ -7,7 +7,7 @@ import { EczCodeGraphComponent } from './ui.jsx';
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
 
-import { EcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
+import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
 // ---
 
@@ -138,7 +138,7 @@ export async function load()
         continue_with_errors: true,
     };
 
-    let eczoodb = new EcZooDb(eczoodbOpts);
+    let eczoodb = await createEcZooDb(eczoodbOpts);
 
     //
     // load refs & citations

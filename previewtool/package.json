@@ -7,8 +7,8 @@
   "dependencies": {
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
-    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_preview",
-    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote",
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
+    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote",
     "debug": "^4.3.4",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",

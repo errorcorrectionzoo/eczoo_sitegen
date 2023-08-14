@@ -5,7 +5,8 @@ import loMerge from 'lodash/merge.js';
 
 import { zoo_permalinks } from './permalinks.js';
 
-import { StandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
+import { ZooDb } from '@phfaist/zoodb';
+import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
 
 
 // -----------------------------------------------------------------------------
@@ -72,12 +73,16 @@ const default_config = {
 };
 
 
-export class EcZooDb extends StandardZooDb
+
+
+
+export class EcZooDb extends ZooDb
 {
-    constructor(config)
+    constructor(options)
     {
-        super(loMerge({}, default_config, config));
+        super(options);
     }
+
 
     //
     // Object computed properties
@@ -422,7 +427,7 @@ export class EcZooDb extends StandardZooDb
     // in the parent-child relationship).
     //
 
-    validate()
+    async validate()
     {
         // Check that there are no cycles in parent-child relationships.
         let all_parent_child_sorted_codes = this.code_parent_child_sort(
@@ -432,3 +437,17 @@ export class EcZooDb extends StandardZooDb
 };
 
 
+
+
+export async function createEcZooDb(config = {})
+{
+    config = loMerge(
+        {
+            ZooDbClass: EcZooDb,
+        },
+        default_config,
+        config,
+    );
+
+    return await makeStandardZooDb(config);
+}

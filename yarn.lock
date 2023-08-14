@@ -460,7 +460,8 @@ __metadata:
     "@codemirror/legacy-modes": ^6.0.0
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@parcel/transformer-sass": 2.9.3
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main"
+    "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview"
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview"
     "@popperjs/core": ^2.11.6
     "@uiw/react-codemirror": ^4.15.1
     cytoscape: ^3.23.0
@@ -487,6 +488,8 @@ __metadata:
   peerDependencies:
     "@errorcorrectionzoo/eczoodb": "*"
     "@phfaist/zoodb": "*"
+    "@phfaist/zoodbtools_gitpreview": "*"
+    "@phfaist/zoodbtools_preview": "*"
   languageName: unknown
   linkType: soft
 
@@ -512,8 +515,8 @@ __metadata:
   dependencies:
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main"
-    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_preview"
-    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote"
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview"
+    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote"
     debug: ^4.3.4
     lodash: ^4.17.21
     mime-types: ^2.1.35
@@ -1893,7 +1896,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=1cbbfd090565b92d6eaa4b4d53c7e9661f90e18f"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=6901f377d3350a8b6e3a487740b0d063717651e5"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -1915,13 +1918,32 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 2852ab130bbe35afd63e872c61f6420f506d9a60ec903f0dd4aa87bd07e055f7e9a799a4fc194e2afc1d0f21f773586183a9cbc602ff9ca84da8645c57976537
+  checksum: 77bc316cd4e1659dffe4d7112332a4d829339d30a7c1cf9efef778add5c682c0b3a1ad56779cf42f5cd56d9330a4bfd404937b1e018b7265c3beade3d58b6f7f
   languageName: node
   linkType: hard
 
-"@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_preview":
+"@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_preview&commit=9f2c86132a64569e4772e6603b2491c7c7359c2f"
+  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=ccc7188934034c2ddb21224ca11b9c043535d7c0"
+  dependencies:
+    browserfs: ^1.4.3
+    debug: ^4.3.4
+    escape-html: ^1.0.3
+    isomorphic-git: beta
+    mime-types: ^2.1.35
+    pify: ^6.1.0
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  peerDependencies:
+    "@phfaist/zoodb": "*"
+    "@phfaist/zoodbtools_preview": "*"
+  checksum: f4c30450c367b7f51e20ca4711a14e4f4479f4ae0f98f3acb3a041606861d943f3eaab501b4ed580cb878e153e8570eaf47328eb11e9354ef169f1660dc0ecb6
+  languageName: node
+  linkType: hard
+
+"@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview":
+  version: 0.1.0
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=ccc7188934034c2ddb21224ca11b9c043535d7c0"
   dependencies:
     debug: ^4.3.4
     escape-html: ^1.0.3
@@ -1931,13 +1953,13 @@ __metadata:
     react-select: ^5.7.4
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: 73cbd526fb7749e0576fd61b76978f6b3d968796652c4b68455514c22a5f55eb871cff53efd36a25505f0095e2140ecaae5eb7a080af1b424cac504331788a6a
+  checksum: dccf29e5c6c6124a5fbc829b590bc58b3bd9f62e776f8e2519dc959473b9a568d1f077d77c6ea8baa01900a5a204cc3776524b3e0d6cce42312efc5e5b62e6d9
   languageName: node
   linkType: hard
 
-"@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=zoodbtools_previewremote":
+"@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=zoodbtools_previewremote&commit=9f2c86132a64569e4772e6603b2491c7c7359c2f"
+  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=ccc7188934034c2ddb21224ca11b9c043535d7c0"
   dependencies:
     debug: ^4.3.4
     fs-remote: ^0.1.9
@@ -1946,7 +1968,7 @@ __metadata:
     open: ^9.1.0
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: 24566426ace5b749374a7a11a068288be8d8dec008398f16e5680f27e946c6cb605b4ed13fcf6fb12be7ea460fb3c2f759d9b4cf246af5d2e48a71e8290a8470
+  checksum: f0fc50b3c0fa895009aee468e07f174080c449ed50537d633857b894c84821a4022e64973c09c43ced4755f3b7395c07459b7d2762d035ddb4ec136df97304a2
   languageName: node
   linkType: hard
 
@@ -2684,6 +2706,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"async-lock@npm:^1.1.0":
+  version: 1.4.0
+  resolution: "async-lock@npm:1.4.0"
+  checksum: a71ef9e50dc448a8e8dd6482494210d7b6f556d4815612b1fed5662216cd756c2c8fb9c2153a9a66ea90b36ba7fb18aa568d11813aadc23feb4c5b0b188df614
+  languageName: node
+  linkType: hard
+
+"async@npm:^2.1.4":
+  version: 2.6.4
+  resolution: "async@npm:2.6.4"
+  dependencies:
+    lodash: ^4.17.14
+  checksum: a52083fb32e1ebe1d63e5c5624038bb30be68ff07a6c8d7dfe35e47c93fc144bd8652cbec869e0ac07d57dde387aa5f1386be3559cdee799cb1f789678d88e19
+  languageName: node
+  linkType: hard
+
 "async@npm:^3.2.3":
   version: 3.2.4
   resolution: "async@npm:3.2.4"
@@ -2807,6 +2845,13 @@ __metadata:
   dependencies:
     to-data-view: ^2.0.0
   checksum: 2adb7213c21670ac64f778e7fdc6e4ce77f06ebd70f9b5be4b542da011ea032982bc0d5258be684cfdfc1e34047e8538bf5ff5d02ad013f6ef0be483759d2db9
+  languageName: node
+  linkType: hard
+
+"base64-js@npm:0.0.2":
+  version: 0.0.2
+  resolution: "base64-js@npm:0.0.2"
+  checksum: 42b34eb8355b87b70ec1a06890b39c2612883bb053c2e2b3852ad7b45a5925cc91aa663ece19cf1649e34739e8bb36ebc890c2d6476961fb3751a94955d23c5f
   languageName: node
   linkType: hard
 
@@ -2947,6 +2992,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bops@npm:~0.0.6":
+  version: 0.0.7
+  resolution: "bops@npm:0.0.7"
+  dependencies:
+    base64-js: 0.0.2
+    to-utf8: 0.0.1
+  checksum: 0bf81d55430c7a3c2f3ba60965334e12fb470a51b5b4c18d83700f0bc275430199d7ffa157fc1b5090fe3eaa06cd0c5f1c3c040bb60e4c567cafc8ef1ee638f4
+  languageName: node
+  linkType: hard
+
 "bplist-parser@npm:^0.2.0":
   version: 0.2.0
   resolution: "bplist-parser@npm:0.2.0"
@@ -2995,6 +3050,18 @@ __metadata:
   version: 1.3.1
   resolution: "browser-stdout@npm:1.3.1"
   checksum: b717b19b25952dd6af483e368f9bcd6b14b87740c3d226c2977a65e84666ffd67000bddea7d911f111a9b6ddc822b234de42d52ab6507bce4119a4cc003ef7b3
+  languageName: node
+  linkType: hard
+
+"browserfs@npm:^1.4.3":
+  version: 1.4.3
+  resolution: "browserfs@npm:1.4.3"
+  dependencies:
+    async: ^2.1.4
+    pako: ^1.0.4
+  bin:
+    make_xhrfs_index: ./dist/scripts/make_xhrfs_index.js
+  checksum: cb7fc38b60f648901e615adb1da1e66e1e8db4d5d50615dc10150b6e3771216aed9cd23281eb35bcee487d4c3c04b4c244abbd3b2dfdd6a8b9b0179ec0ab13c0
   languageName: node
   linkType: hard
 
@@ -3255,6 +3322,13 @@ __metadata:
   version: 2.4.62
   resolution: "citeproc@npm:2.4.62"
   checksum: 9b92a18981643cb88ee4c4d16fdc5b43dee52577ed15b8f2a45cd7f686363216615904217275beee528154906f17082621380baecb38a823b579c8f47a0e7093
+  languageName: node
+  linkType: hard
+
+"clean-git-ref@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "clean-git-ref@npm:2.0.1"
+  checksum: b25f585ed47040ea5d699d40a2bb84d1f35afd651f3fcc05fb077224358ffd3d7509fc9edbfc4570f1fc732c987e03ac7d8ec31524ac503ac35c53cb1f5e3bf9
   languageName: node
   linkType: hard
 
@@ -3572,6 +3646,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crc-32@npm:^1.2.0":
+  version: 1.2.2
+  resolution: "crc-32@npm:1.2.2"
+  bin:
+    crc32: bin/crc32.njs
+  checksum: ad2d0ad0cbd465b75dcaeeff0600f8195b686816ab5f3ba4c6e052a07f728c3e70df2e3ca9fd3d4484dc4ba70586e161ca5a2334ec8bf5a41bf022a6103ff243
+  languageName: node
+  linkType: hard
+
 "crelt@npm:^1.0.5":
   version: 1.0.5
   resolution: "crelt@npm:1.0.5"
@@ -3739,6 +3822,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"decompress-response@npm:^4.2.0":
+  version: 4.2.1
+  resolution: "decompress-response@npm:4.2.1"
+  dependencies:
+    mimic-response: ^2.0.0
+  checksum: 4e783ca4dfe9417354d61349750fe05236f565a4415a6ca20983a311be2371debaedd9104c0b0e7b36e5f167aeaae04f84f1a0b3f8be4162f1d7d15598b8fdba
+  languageName: node
+  linkType: hard
+
 "decompress-response@npm:^6.0.0":
   version: 6.0.0
   resolution: "decompress-response@npm:6.0.0"
@@ -3879,6 +3971,13 @@ __metadata:
   version: 0.0.1068969
   resolution: "devtools-protocol@npm:0.0.1068969"
   checksum: 53b9c8d661e4148eaf8e990f03902fb3a2cceb06044f661013b6c92dd48ece397ef49fd18401775823c9a33069b4b535502f2559d4f99c74a6bdcb71582b6c8a
+  languageName: node
+  linkType: hard
+
+"diff3@npm:0.0.3":
+  version: 0.0.3
+  resolution: "diff3@npm:0.0.3"
+  checksum: 28d883f1057b9873dfcb38cd2750337e6b32bf184bb1c0fb3292efeb83c597f1ce9b8f508bdd0d623a58b9ca1c917b1f297b90cb7fce3a62b26b0dde496f70e6
   languageName: node
   linkType: hard
 
@@ -4155,11 +4254,13 @@ __metadata:
     assert: ^2.0.0
     browserify-zlib: ^0.2.0
     eslint: ^8.46.0
+    events: ^3.1.0
     https-browserify: ^1.0.0
     querystring-es3: ^0.2.1
     s3-deploy: 1.4.0
     stream-browserify: ^3.0.0
     stream-http: ^3.1.0
+    url: ^0.11.0
   languageName: unknown
   linkType: soft
 
@@ -4354,6 +4455,13 @@ __metadata:
   version: 1.1.1
   resolution: "events@npm:1.1.1"
   checksum: 40431eb005cc4c57861b93d44c2981a49e7feb99df84cf551baed299ceea4444edf7744733f6a6667e942af687359b1f4a87ec1ec4f21d5127dac48a782039b9
+  languageName: node
+  linkType: hard
+
+"events@npm:^3.1.0":
+  version: 3.3.0
+  resolution: "events@npm:3.3.0"
+  checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
   languageName: node
   linkType: hard
 
@@ -4911,6 +5019,16 @@ __metadata:
   dependencies:
     assert-plus: ^1.0.0
   checksum: ab18d55661db264e3eac6012c2d3daeafaab7a501c035ae0ccb193c3c23e9849c6e29b6ac762b9c2adae460266f925d55a3a2a3a3c8b94be2f222df94d70c046
+  languageName: node
+  linkType: hard
+
+"git-apply-delta@npm:0.0.7":
+  version: 0.0.7
+  resolution: "git-apply-delta@npm:0.0.7"
+  dependencies:
+    bops: ~0.0.6
+    varint: 0.0.3
+  checksum: ed6ea58580f05768ed6a82bc699ce7d65dd45d4fcb699f5b44d9da494123ebd88054692f5f0b3085f70d4f5ccd979e11df31301c4c9b7501b9b90ef3004535b5
   languageName: node
   linkType: hard
 
@@ -5513,7 +5631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ignore@npm:^5.2.0":
+"ignore@npm:^5.1.4, ignore@npm:^5.2.0":
   version: 5.2.4
   resolution: "ignore@npm:5.2.4"
   checksum: 3d4c309c6006e2621659311783eaea7ebcd41fe4ca1d78c91c473157ad6666a57a2df790fe0d07a12300d9aac2888204d7be8d59f9aaf665b1c7fcdb432517ef
@@ -5937,6 +6055,28 @@ __metadata:
   version: 2.1.15
   resolution: "iso-639-1@npm:2.1.15"
   checksum: a201530819d33e9ce077b02c786d67b35be5d823be27b5aacc18d880e580e559e39ec5055f8e2abcdc210f46618a643bf3c74e6fe6e8255fe62059682750e595
+  languageName: node
+  linkType: hard
+
+"isomorphic-git@npm:beta":
+  version: 1.0.0-beta.36
+  resolution: "isomorphic-git@npm:1.0.0-beta.36"
+  dependencies:
+    async-lock: ^1.1.0
+    clean-git-ref: ^2.0.1
+    crc-32: ^1.2.0
+    diff3: 0.0.3
+    git-apply-delta: 0.0.7
+    ignore: ^5.1.4
+    minimisted: ^2.0.0
+    pako: ^1.0.10
+    pify: ^4.0.1
+    readable-stream: ^3.4.0
+    sha.js: ^2.4.9
+    simple-get: ^3.0.2
+  bin:
+    isogit: cli.js
+  checksum: 01dbeec2778e4fdc345c7aa192aeab53476e73419cca97dc67fae4e2a1c99dbcaf7fbafdfb72bf330eaf1672884a873b364d2217f1e224b98d5d1db2f6b8f883
   languageName: node
   linkType: hard
 
@@ -6498,7 +6638,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.11, lodash@npm:^4.17.21":
+"lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -7245,6 +7385,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mimic-response@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "mimic-response@npm:2.1.0"
+  checksum: 014fad6ab936657e5f2f48bd87af62a8e928ebe84472aaf9e14fec4fcb31257a5edff77324d8ac13ddc6685ba5135cf16e381efac324e5f174fb4ddbf902bf07
+  languageName: node
+  linkType: hard
+
 "mimic-response@npm:^3.1.0":
   version: 3.1.0
   resolution: "mimic-response@npm:3.1.0"
@@ -7322,6 +7469,15 @@ __metadata:
   version: 1.2.7
   resolution: "minimist@npm:1.2.7"
   checksum: 7346574a1038ca23c32e02252f603801f09384dd1d78b69a943a4e8c2c28730b80e96193882d3d3b22a063445f460e48316b29b8a25addca2d7e5e8f75478bec
+  languageName: node
+  linkType: hard
+
+"minimisted@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "minimisted@npm:2.0.1"
+  dependencies:
+    minimist: ^1.2.5
+  checksum: 6bc3df14558481c96764cfd6bf77a59f5838dec715c38c1e338193c1e56f536ba792ccbae84ff6632d13a7dd37ac888141c091d23733229b8d100148eec930aa
   languageName: node
   linkType: hard
 
@@ -8037,7 +8193,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pako@npm:~1.0.5":
+"pako@npm:^1.0.10, pako@npm:^1.0.4, pako@npm:~1.0.5":
   version: 1.0.11
   resolution: "pako@npm:1.0.11"
   checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
@@ -8305,6 +8461,20 @@ __metadata:
   version: 2.3.0
   resolution: "pify@npm:2.3.0"
   checksum: 9503aaeaf4577acc58642ad1d25c45c6d90288596238fb68f82811c08104c800e5a7870398e9f015d82b44ecbcbef3dc3d4251a1cbb582f6e5959fe09884b2ba
+  languageName: node
+  linkType: hard
+
+"pify@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "pify@npm:4.0.1"
+  checksum: 9c4e34278cb09987685fa5ef81499c82546c033713518f6441778fbec623fc708777fe8ac633097c72d88470d5963094076c7305cafc7ad340aae27cfacd856b
+  languageName: node
+  linkType: hard
+
+"pify@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "pify@npm:6.1.0"
+  checksum: cb21ee8794e9e14955669fbc06b964d0dd3d4e6fa3c2ea3cf22f6794de61ec1ea5c1fac02dadfd4aa16c9cf589f6733406e826e64366f70e09f5e95917a0b8ac
   languageName: node
   linkType: hard
 
@@ -9516,6 +9686,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sha.js@npm:^2.4.9":
+  version: 2.4.11
+  resolution: "sha.js@npm:2.4.11"
+  dependencies:
+    inherits: ^2.0.1
+    safe-buffer: ^5.0.1
+  bin:
+    sha.js: ./bin.js
+  checksum: ebd3f59d4b799000699097dadb831c8e3da3eb579144fd7eb7a19484cbcbb7aca3c68ba2bb362242eb09e33217de3b4ea56e4678184c334323eca24a58e3ad07
+  languageName: node
+  linkType: hard
+
 "sharp@npm:^0.30.4":
   version: 0.30.7
   resolution: "sharp@npm:0.30.7"
@@ -9578,6 +9760,17 @@ __metadata:
   version: 1.0.1
   resolution: "simple-concat@npm:1.0.1"
   checksum: 4d211042cc3d73a718c21ac6c4e7d7a0363e184be6a5ad25c8a1502e49df6d0a0253979e3d50dbdd3f60ef6c6c58d756b5d66ac1e05cda9cacd2e9fc59e3876a
+  languageName: node
+  linkType: hard
+
+"simple-get@npm:^3.0.2":
+  version: 3.1.1
+  resolution: "simple-get@npm:3.1.1"
+  dependencies:
+    decompress-response: ^4.2.0
+    once: ^1.3.1
+    simple-concat: ^1.0.0
+  checksum: 80195e70bf171486e75c31e28e5485468195cc42f85940f8b45c4a68472160144d223eb4d07bc82ef80cb974b7c401db021a540deb2d34ac4b3b8883da2d6401
   languageName: node
   linkType: hard
 
@@ -10139,6 +10332,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"to-utf8@npm:0.0.1":
+  version: 0.0.1
+  resolution: "to-utf8@npm:0.0.1"
+  checksum: a47f526ef32a50137871181d2b4b043579445fb6edea0d435881a972c23fbc6e50b8d227a99d161494d47262345d73a24cfcaad46d7c7a021a11d24d1ad61238
+  languageName: node
+  linkType: hard
+
 "toidentifier@npm:1.0.1":
   version: 1.0.1
   resolution: "toidentifier@npm:1.0.1"
@@ -10518,6 +10718,13 @@ __metadata:
   bin:
     uvu: bin.js
   checksum: 09460a37975627de9fcad396e5078fb844d01aaf64a6399ebfcfd9e55f1c2037539b47611e8631f89be07656962af0cf48c334993db82b9ae9c3d25ce3862168
+  languageName: node
+  linkType: hard
+
+"varint@npm:0.0.3":
+  version: 0.0.3
+  resolution: "varint@npm:0.0.3"
+  checksum: aace9b1dd6273531b9747095d48da2538453e7ec871886ddcefd9a53488da6b12896bed536e5f4cf594559fbc487ecc0aee0fe7465452640dc8c7f10bce9665a
   languageName: node
   linkType: hard
 

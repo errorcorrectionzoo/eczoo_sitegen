@@ -20,51 +20,15 @@ import { fsRemoteCreateClient } from '@phfaist/zoodbtools_previewremote/useFsRem
 
 import loMerge from 'lodash/merge.js';
 
-import { EcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
+import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
+import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
-import { EcZooDbYamlDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
+import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
 
 import { render_code_page } from '@errorcorrectionzoo/eczoodb/render_code.js'
 import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelist.js'
 
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
-
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-
-// function ReloadCommandButtonsComponent(props)
-// {
-//     const { zoodb, doRefreshPreview } = props;
-
-//     const btnDomRef = useRef(null);
-
-//     const doReloadZoo = async () => {
-//         const btnText = btnDomRef.current.innerText;
-//         btnDomRef.current.innerText = '⏳';
-//         btnDomRef.current.disabled = true;
-//         try {
-//             await zoodb.load()
-//             debug(`Finished reloading the zoo.`);
-//         } finally {
-//             btnDomRef.current.disabled = false;
-//             btnDomRef.current.innerText = btnText;
-//             doRefreshPreview();
-//         }
-//     };
-
-//     const doToggleDark = () => {
-//         window.eczColorSchemeHandler.toggle();
-//     };
-
-//     return (
-//         <div className="CommandButtonsComponent">
-//             <button onClick={doReloadZoo} ref={btnDomRef}>RELOAD ZOO</button>
-//             <button onClick={doToggleDark}>🌒</button>
-//         </div>
-//     );
-// }
 
 
 
@@ -239,12 +203,13 @@ window.addEventListener('load', async () => {
             }
         );
 
-        let zoodb = new EcZooDb( appZooDbOptions );
-
-        zoodb.install_zoo_loader(new EcZooDbYamlDataLoader({
+        let zoodb = await createEcZooDb( appZooDbOptions );
+        const loader = await createEcZooYamlDbDataLoader(zoodb, {
             schema_root: `file://${serverData.schema_root_dir}/`,
-            throw_reload_errors: true,
-        }));
+        });
+        const loader_handler = new ZooDbDataLoaderHandler(loader);
+        zoodb.install_zoo_loader_handler(loader_handler);
+
 
         await zoodb.load();
 
