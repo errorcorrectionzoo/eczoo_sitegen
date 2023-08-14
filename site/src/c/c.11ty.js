@@ -108,9 +108,12 @@ function get_code_citation_year(code)
 // ---------------------------------------------------------
 
 
+
 const data = async () => {
     
     const zooflm = await import('@phfaist/zoodb/zooflm');
+    const { docrefs_placeholder_ref_resolver } =
+          await import('@errorcorrectionzoo/eczoodb/render_utils.js');
 
     let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
     let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
@@ -155,13 +158,36 @@ const data = async () => {
                     }
                     return fragment.render(render_context);
                 };
-                return zooflm.make_and_render_document({
-                    zoo_flm_environment: data.eczoodb.zoo_flm_environment,
-                    render_doc_fn,
-                    doc_metadata: {},
-                    fragment_renderer: text_fragment_renderer,
-                    render_endnotes: false,
-                });
+                try {
+                    //
+                    // Allow unresolved references in the first paragraph.  It's
+                    // normal, it's a snippet!
+                    //
+                    return zooflm.make_and_render_document({
+                        zoo_flm_environment: data.eczoodb.zoo_flm_environment,
+                        render_doc_fn,
+                        doc_metadata: {},
+                        fragment_renderer: text_fragment_renderer,
+                        render_endnotes: false,
+                        feature_render_options: {
+                            refs: {
+                                add_external_ref_resolvers: [
+                                    docrefs_placeholder_ref_resolver
+                                ],
+                            },
+                        },
+                    });
+                } catch (err) {
+                    throw new Error(
+                        `\n\nCannot render the first paragraph of the code ‘${data.code_id}’'s `
+                        + `description on its own.  We use the first paragraph of a code's `
+                        + `description in a few places, including as a snippet for web `
+                        + `crawlers (e.g. for search results).  If you don't recognize `
+                        + `the reported error (e.g. an unresolved reference for a figure `
+                        + `that does exist), it might be a bug.  Please get in touch!\n\n`
+                        + (''+err)
+                    );
+                }
             },
 
             meta_citation_info: (data) => {

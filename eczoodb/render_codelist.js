@@ -6,7 +6,10 @@ import { getfield } from '@phfaist/zoodb/util';
 import * as zooflm from '@phfaist/zoodb/zooflm';
 const { $$kw, repr } = zooflm;
 
-import { render_meta_changelog } from './render_utils.js';
+import {
+    render_meta_changelog,
+    docrefs_placeholder_ref_resolver
+} from './render_utils.js';
 
 import { get_list_data } from './compile_codelist.js';
 
@@ -166,7 +169,6 @@ const styles = {
 
 
 
-
 export function render_codelist_page(
     codelist,
     { eczoodb, doc_metadata, additional_setup_render_context }
@@ -217,11 +219,20 @@ export function render_codelist_page(
         return html;
     };
 
+    // use placeholder_ref_resolver to ignore any undefined references -- e.g. a
+    // figure reference in the first paragraph of a description text that was
+    // used as a snippet
+
     return zooflm.make_and_render_document({
         zoo_flm_environment,
         render_doc_fn,
         doc_metadata,
-        render_endnotes: true
+        render_endnotes: true,
+        feature_render_options: {
+            refs: {
+                add_external_ref_resolvers: [ docrefs_placeholder_ref_resolver ],
+            },
+        },
     });
 
 };
