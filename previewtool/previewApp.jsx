@@ -238,6 +238,19 @@ window.addEventListener('load', async () => {
         return zoodb;
     };
 
+    let getMathJax = () => {
+        return Object.assign(
+            {},
+            window.MathJax,
+            {
+                typesetPromise: async (...args) => {
+                    await window.MathJax.typesetClear();
+                    await window.MathJax.texReset();
+                    await window.MathJax.typesetPromise(...args);
+                }
+            }
+        );
+    };
 
     //
     // Render the app
@@ -248,7 +261,7 @@ window.addEventListener('load', async () => {
             loadZooDb={loadZooDb}
             reloadZooDb={reloadZooDb}
             renderObject={renderObject}
-            getMathJax={() => window.MathJax}
+            getMathJax={getMathJax}
             initialObjectType={'code'}
             initialObjectId={null}
             commandButtonsUseReload={true}
