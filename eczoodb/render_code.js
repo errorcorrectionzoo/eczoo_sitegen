@@ -17,7 +17,7 @@ import {
 
 export function render_code_page(
     code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
-            additional_setup_render_context }
+            additional_setup_render_context, render_meta_changelog_options }
 )
 {
     //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
@@ -199,7 +199,7 @@ export function render_code_page(
 
         const changelog = code._meta?.changelog;
         if (changelog != null) {
-            html += render_meta_changelog(changelog, R);
+            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
         }
 
         return html;

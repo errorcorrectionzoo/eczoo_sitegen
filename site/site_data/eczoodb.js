@@ -36,7 +36,7 @@ module.exports = async (configData) => {
 
         } catch (err) {
             console.error(err);
-            console.err(`ERROR INITIALIZING ZOO: ${err}`);
+            console.error(`ERROR INITIALIZING ZOO: ${err}`);
             throw err;
         }
     }
@@ -47,7 +47,7 @@ module.exports = async (configData) => {
 
     } catch (err) {
         console.error(err);
-        console.err(`ERROR LOADING ZOO: ${err}`);
+        console.error(`ERROR LOADING ZOO: ${err}`);
         throw err;
     }
 

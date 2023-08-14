@@ -16,7 +16,7 @@
     "cytoscape-fcose": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable",
     "cytoscape-svg": "^0.4.0",
     "debug": "^4.3.4",
-    "html-escaper": "^3.0.3",
+    "escape-html": "^1.0.3",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "puppeteer": "^19.4.1",

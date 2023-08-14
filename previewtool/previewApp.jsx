@@ -12,7 +12,7 @@ import {
     ZooDbPreviewComponent,
     CitationSourceApiPlaceholder,
     //installFlmContentStyles,
-    simpleRenderObjectWithFlm,
+    //simpleRenderObjectWithFlm,
     installZooFlmEnvironmentLinksAndGraphicsHandlers,
 } from '@phfaist/zoodbtools_preview';
 
@@ -31,53 +31,7 @@ import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelis
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
-
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function renderObject({ zoodb, objectType, objectId, object,
-                        registerRenderPreviewCleanupCallback })
-{
-    let additional_setup_render_context = (render_context) => {
-        render_context.registerRenderPreviewCleanupCallback =
-            registerRenderPreviewCleanupCallback;
-    };
-
-    if (objectType === 'code') {
-        const code = zoodb.objects.code[objectId];
-        const codeHtmlContent = render_code_page(
-            code,
-            {
-                zoo_flm_environment: zoodb.zoo_flm_environment,
-                additional_setup_render_context,
-            }
-        );
-        const htmlContent = sqzhtml`
-<article class="ecc-code-page">
-${codeHtmlContent}
-</article>
-`;
-        return { htmlContent };
-    }
-    if (objectType === 'codelist') {
-        const codelist = zoodb.objects.codelist[objectId];
-        const htmlContent = render_codelist_page(
-            codelist,
-            {
-                eczoodb: zoodb,
-                additional_setup_render_context,
-            }
-        );
-        return { htmlContent };
-    }
-    const { htmlContent } = simpleRenderObjectWithFlm(
-        { zoodb, objectType, objectId, object,
-          registerRenderPreviewCleanupCallback }
-    );
-    return { htmlContent };
-}
-
-
+import { renderObject } from '../jscomponents/gitzoopreview/renderObject.js';
 
 
 
@@ -240,17 +194,6 @@ window.addEventListener('load', async () => {
 
     let getMathJax = () => {
         return window.MathJax;
-        // return Object.assign(
-        //     {},
-        //     window.MathJax,
-        //     {
-        //         typesetPromise: async (...args) => {
-        //             await window.MathJax.typesetClear();
-        //             await window.MathJax.texReset();
-        //             await window.MathJax.typesetPromise(...args);
-        //         }
-        //     }
-        // );
     };
 
     //

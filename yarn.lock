@@ -469,7 +469,7 @@ __metadata:
     cytoscape-fcose: "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable"
     cytoscape-svg: ^0.4.0
     debug: ^4.3.4
-    html-escaper: ^3.0.3
+    escape-html: ^1.0.3
     js-yaml: ^4.1.0
     lodash: ^4.17.21
     parcel: ^2.9.3
@@ -1896,7 +1896,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=9329b56d89fbbb7baee997ea7ffefe66f7c0c81f"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=5b557e64893dfa3503f3b9994a631c70f1a83fad"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -1918,13 +1918,13 @@ __metadata:
     stream-parser: ^0.3.1
     tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 53f6a8976b5c26a27a82ea93b9bfe33b9c2a29945998f303a5223d3d9cb939e06ca06401e07fc36e377f4b72740b19d2e61268cca8b0949f6b0a01dd3947c45d
+  checksum: a611b88d412e5d29b120ff2db8ce3098d31d0306caa994ecfc246df3f3b0fa5a25ff1219eb826f8556b1a32d9e9e7a3722ede4b73125acbb612a759aa01ca975
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
+  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=2cfbe25bd55c40e8c89e59731225bfdc11d18674"
   dependencies:
     browserfs: ^1.4.3
     debug: ^4.3.4
@@ -1943,7 +1943,7 @@ __metadata:
 
 "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=2cfbe25bd55c40e8c89e59731225bfdc11d18674"
   dependencies:
     debug: ^4.3.4
     escape-html: ^1.0.3
@@ -1953,13 +1953,13 @@ __metadata:
     react-select: ^5.7.4
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: b04ede1797bb8eb9b05ad3f43200e0791bd179ea50771dfeecfb1b4766f4af8d0f185a2870a5d087cfeffb760320ac02af544297ff63d4d36935132139ec16ba
+  checksum: 66ae4341de8570100a549399bd0d517211cede1ec253a4b4c15c3d72ce7a7ce4e889298018b598e363a3caf9677c50b96c98e0ffa42cccda524a4d312d63ccff
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=f1b5c97603c7375521cfa10eced4589a869bc6a9"
+  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=2cfbe25bd55c40e8c89e59731225bfdc11d18674"
   dependencies:
     debug: ^4.3.4
     fs-remote: ^0.1.9
@@ -5403,13 +5403,6 @@ __metadata:
   dependencies:
     react-is: ^16.7.0
   checksum: b1538270429b13901ee586aa44f4cc3ecd8831c061d06cb8322e50ea17b3f5ce4d0e2e66394761e6c8e152cd8c34fb3b4b690116c6ce2bd45b18c746516cb9e8
-  languageName: node
-  linkType: hard
-
-"html-escaper@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "html-escaper@npm:3.0.3"
-  checksum: a2678be42c15d2ef6e629775dac0925a729f4615c6593db8358b9262c7565c4627134987c00f548eb4eb76cbc3b3392f78475cd02b022f8ae7aeb9a88280831b
   languageName: node
   linkType: hard
 

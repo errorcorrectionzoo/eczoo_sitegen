@@ -171,7 +171,8 @@ const styles = {
 
 export function render_codelist_page(
     codelist,
-    { eczoodb, doc_metadata, additional_setup_render_context }
+    { eczoodb, doc_metadata, additional_setup_render_context,
+      render_meta_changelog_options  }
 )
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
@@ -210,7 +211,7 @@ export function render_codelist_page(
 
         const changelog = codelist._meta?.changelog;
         if (changelog != null) {
-            html += render_meta_changelog(changelog, R);
+            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
         }
 
         html += `

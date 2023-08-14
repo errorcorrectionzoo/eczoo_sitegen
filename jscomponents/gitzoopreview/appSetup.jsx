@@ -28,57 +28,9 @@ import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
 import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
 
-import { render_code_page } from '@errorcorrectionzoo/eczoodb/render_code.js'
-import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelist.js'
 
-import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
+import { renderObject } from './renderObject.js';
 
-
-
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function renderObject({ zoodb, objectType, objectId, object,
-                        registerRenderPreviewCleanupCallback })
-{
-    let additional_setup_render_context = (render_context) => {
-        render_context.registerRenderPreviewCleanupCallback =
-            registerRenderPreviewCleanupCallback;
-    };
-
-    if (objectType === 'code') {
-        const code = zoodb.objects.code[objectId];
-        const codeHtmlContent = render_code_page(
-            code,
-            {
-                zoo_flm_environment: zoodb.zoo_flm_environment,
-                additional_setup_render_context,
-            }
-        );
-        const htmlContent = sqzhtml`
-<article class="ecc-code-page">
-${codeHtmlContent}
-</article>
-`;
-        return { htmlContent };
-    }
-    if (objectType === 'codelist') {
-        const codelist = zoodb.objects.codelist[objectId];
-        const htmlContent = render_codelist_page(
-            codelist,
-            {
-                eczoodb: zoodb,
-                additional_setup_render_context,
-            }
-        );
-        return { htmlContent };
-    }
-    const { htmlContent } = simpleRenderObjectWithFlm(
-        { zoodb, objectType, objectId, object,
-          registerRenderPreviewCleanupCallback }
-    );
-    return { htmlContent };
-}
 
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -248,17 +200,6 @@ export async function installApp({ elementId })
 
     let getMathJax = () => {
         return window.MathJax;
-        // return Object.assign(
-        //     {},
-        //     window.MathJax,
-        //     {
-        //         typesetPromise: async (...args) => {
-        //             await window.MathJax.typesetClear();
-        //             await window.MathJax.texReset();
-        //             await window.MathJax.typesetPromise(...args);
-        //         }
-        //     }
-        // );
     };
 
     //

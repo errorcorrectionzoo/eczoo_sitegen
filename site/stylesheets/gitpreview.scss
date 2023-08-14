@@ -18,6 +18,43 @@ $preview-contents-v-margin: 25px;
             padding: $preview-contents-v-margin $preview-contents-h-margin;
 
             background-color: rgba(127,127,127,0.1);
+
+            div.ecz-preview-recommendation-list {
+                grid-column-start: 1;
+                margin: 1em 0px;
+            }
+
+            div.ecz-preview-recommendation {
+                padding: 15px;
+                margin: 0px 0px 2px 0px;
+                border-radius: 8px;
+
+                font-size: 0.9rem;
+                
+                background-color: rgba(255,255,127, 0.3);
+                color: #777;
+
+                border: solid 0.4pt rgba(127,127,0,0.5);
+                font-style: italic;
+                
+                pre, code {
+                    font-size: 0.9em;
+                    font-style: normal;
+                }
+                .highlight {
+                    text-shadow: 0px 0px 1px #aaa;
+                }
+
+                &:first-child::before {
+                    content: 'recommendation(s)';
+                    display: block;
+                    margin-bottom: 5px;
+                    font-style: normal;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3pt;
+                }
+            }
         }
 
         > article.ecc-codelist-page {
@@ -38,6 +75,11 @@ $preview-contents-v-margin: 25px;
         }
     }
 
+    .GithubRepoSelector .show-gh-user,
+    .GithubRepoSelector .show-gh-repo,
+    .GithubRepoSelector .show-gh-branch {
+        font-size: 0.9em;
+    }
 }
 
 
@@ -48,6 +90,15 @@ $preview-contents-v-margin: 25px;
     .ZooDbPreviewComponent .zoodb-preview-content > article {
         // same as light bg thanks to low alpha, no need for extra rule ---
         //background-color: rgba(127,127,127,0.1);
+    }
+
+    .ZooDbPreviewComponent .zoodb-preview-content > article div.ecz-preview-recommendation {
+
+        background-color: rgba(255, 255, 127, 0.15);
+        border: .4pt solid rgba(255, 255, 200, 0.3);
+
+        color: rgb(180, 180, 180);
+
     }
 }
 

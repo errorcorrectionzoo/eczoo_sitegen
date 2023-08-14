@@ -4,12 +4,12 @@
 import { RefInstance, $$kw } from '@phfaist/zoodb/zooflm';
 
 
-export function render_meta_changelog(changelog, {ne,rdr,ref})
+export function render_meta_changelog(changelog, {ne,rdr,ref}, { details_open }={})
 {
     let html = '';
 
     html += `
-<details class="sectioncontent page-change-log">
+<details ${details_open ? 'open' : ''} class="sectioncontent page-change-log">
 <summary><span>Page edit log</span></summary>
 <ul>`;
     let most_recent = true;
