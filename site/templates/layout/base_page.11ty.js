@@ -124,6 +124,9 @@ const render = async function (data) {
     const eleventy = this;
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
+    // information about the page layout
+    let page_layout_info = data.page_layout_info ?? {};
+
     //
     // the template string content
     //
@@ -138,6 +141,11 @@ const render = async function (data) {
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
 `;
+
+    // add any additional page-specific <meta> tags
+    if (page_layout_info.extra_head_meta_content) {
+        s += page_layout_info.extra_head_meta_content;
+    }
 
     //
     // favicon
@@ -206,12 +214,11 @@ const render = async function (data) {
   <meta name="twitter:image" content="~/site/static/icons/eczogimage.png" />
 `;
 
+
     //
     // Set up the page - title & layout
     //
 
-    // get some information about the page layout
-    let page_layout_info = data.page_layout_info ?? {};
 
     // fonts
     s += sqzhtml`

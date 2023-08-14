@@ -1,6 +1,6 @@
 ---
 title: Preview
-tags: ['sitePage']
+tags: [] # NOT 'sitePage' to exclude from sitemap.xml
 date: 'Git last modified'
 page_layout_info:
   jscomponents_profile: 'gitpreview'
@@ -10,6 +10,8 @@ page_layout_info:
     links:
     - href: '/'
       html: 'Home'
+  extra_head_meta_content: |
+    <meta name="robots" content="noindex, nofollow" />
 ---
 
 <div id="AppContainer">loading...</div>
