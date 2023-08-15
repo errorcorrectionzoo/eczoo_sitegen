@@ -69,7 +69,7 @@ const get_page_header_navigation_links_default = async (data) => {
         heading: null,
         links: [
             { href: '/edit_code', html: 'Add new code' },
-            { href: '/additional_resources', html: 'Additional resources' },
+            //{ href: '/additional_resources', html: 'Additional resources' },
             { href: '/team', html: 'Team' },
             { href: '/about', html: 'About' },
         ]

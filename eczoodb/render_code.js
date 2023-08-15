@@ -82,9 +82,9 @@ export function render_code_page(
         if (code._meta?.stub) {
             html += sqzhtml`
 <div class="sectioncontent code-is-stub">
-  This page is a <b>stub</b>.  We hope to complete the
-  information here soon!  We would also be very grateful
-  if you were interested in helping out —
+  This page is a stub.  We hope to complete the
+  information here soon!  We are very grateful
+  if you are interested in helping out —
   see our <a href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/CONTRIBUTING.md">contributing guidelines</a>.
 </div>
 `;

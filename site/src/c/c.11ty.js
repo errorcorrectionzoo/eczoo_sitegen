@@ -267,11 +267,11 @@ const render = async (data) => {
               code_yml_filename: code._zoodb.source_file_path}))}`
     );
     const code_bibtex = `@incollection{eczoo_${code.code_id},
-title={${ code.name.flm_text }},
-booktitle={The Error Correction Zoo},
-year={${code_citation_year}},
-editor={Albert, Victor V. and Faist, Philippe},
-url={https://errorcorrectionzoo.org${code_ref_link}}
+  title={${ code.name.flm_text }},
+  booktitle={The Error Correction Zoo},
+  year={${code_citation_year}},
+  editor={Albert, Victor V. and Faist, Philippe},
+  url={https://errorcorrectionzoo.org${code_ref_link}}
 }`;
     
     const code_name_text = flmrendertext(code.name);
@@ -320,7 +320,7 @@ url={https://errorcorrectionzoo.org${code_ref_link}}
     <dt>Cite as:</dt>
     <dd class="boxedcontent">${ code_text_citation }</dd>
     <dt>BibTeX:</dt>
-    <dd class="boxedcontent bibtex">${ code_bibtex }</dd>
+    <dd class="boxedcontent"><pre class="bibtex">${ code_bibtex }</pre></dd>
   </dl>
   </div>
   <div class="code-popup-info-frame"
