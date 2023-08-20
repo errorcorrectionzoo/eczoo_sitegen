@@ -138,7 +138,7 @@ export async function load()
         continue_with_errors: true,
     };
 
-    let eczoodb = await createEcZooDb(eczoodbOpts);
+    let eczoodb = await createEcZooDb(eczoodbOpts, { use_schemas_loader: false });
 
     //
     // load refs & citations

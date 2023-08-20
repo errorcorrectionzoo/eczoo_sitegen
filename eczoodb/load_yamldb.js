@@ -3,16 +3,9 @@ const debug = debugm('eczoodb.load_yamldb');
 
 import { makeStandardYamlDbDataLoader } from '@phfaist/zoodb/std/stdyamldbdataloader';
 
-import { schema_root_dir_default } from './dirs_defaults.js';
 
-
-export async function createEcZooYamlDbDataLoader(zoodb, options={})
+export async function createEcZooYamlDbDataLoader(zoodb)
 {
-    const schema_root = options.schema_root ?? `file://${schema_root_dir_default}/`;
-    const schema_add_extension = options.schema_add_extension ?? null;
-
-    debug('schema_root is ', { schema_root });
-
     const config = {
 
         //
@@ -67,15 +60,6 @@ export async function createEcZooYamlDbDataLoader(zoodb, options={})
             },
         },
         
-        //
-        // specify where to find schemas
-        //
-        schemas: {
-            schema_root: schema_root,
-            schema_rel_path: 'schemas/',
-            schema_add_extension: schema_add_extension ?? '.yml',
-        },
-
     };
 
     return await makeStandardYamlDbDataLoader(zoodb, config);

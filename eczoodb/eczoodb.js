@@ -8,6 +8,8 @@ import { zoo_permalinks } from './permalinks.js';
 import { ZooDb } from '@phfaist/zoodb';
 import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
 
+import { schema_root_dir_default } from './dirs_defaults.js';
+
 
 // -----------------------------------------------------------------------------
 
@@ -439,11 +441,35 @@ export class EcZooDb extends ZooDb
 
 
 
-export async function createEcZooDb(config = {})
+export async function createEcZooDb(
+    config = {},
+    { use_schemas_loader, schema_root, schema_add_extension }={}
+)
 {
+    schema_root = schema_root ?? schema_root_dir_default;
+    schema_add_extension = schema_add_extension ?? null;
+
+    debug('schema_root is ', { schema_root });
+
+    let schemas_config = {
+        schema_root: schema_root,
+        schema_rel_path: 'schemas/',
+        schema_add_extension: schema_add_extension ?? '.yml',
+    };
+
+    if ( ! (use_schemas_loader ?? true) ) {
+        schemas_config = false;
+    }
+
     config = loMerge(
         {
             ZooDbClass: EcZooDb,
+
+            //
+            // specify where to find schemas
+            //
+            schemas: schemas_config,
+            
         },
         default_config,
         config,

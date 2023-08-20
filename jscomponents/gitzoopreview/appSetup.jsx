@@ -172,12 +172,12 @@ export async function installApp({ elementId })
 
         debug(`about to createEcZooDb with options`, appZooDbOptions);
 
-        let zoodb = await createEcZooDb( appZooDbOptions );
-        const loader = await createEcZooYamlDbDataLoader(zoodb, {
+        let zoodb = await createEcZooDb( appZooDbOptions , {
             //schema_root: `https://errorcorrectionzoo.org/`, // why not?
             schema_root: (new URL(`/`, window.location.href)).href, // why not?
             schema_add_extension: '.json',
-        });
+        } );
+        const loader = await createEcZooYamlDbDataLoader(zoodb);
         const loader_handler = new ZooDbDataLoaderHandler(loader);
         zoodb.install_zoo_loader_handler(loader_handler);
 

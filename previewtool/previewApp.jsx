@@ -157,10 +157,10 @@ window.addEventListener('load', async () => {
             }
         );
 
-        let zoodb = await createEcZooDb( appZooDbOptions );
-        const loader = await createEcZooYamlDbDataLoader(zoodb, {
-            schema_root: `file://${serverData.schema_root_dir}/`,
-        });
+        let zoodb = await createEcZooDb( appZooDbOptions , {
+            schema_root: serverData.schema_root_dir,
+        } );
+        const loader = await createEcZooYamlDbDataLoader(zoodb);
         const loader_handler = new ZooDbDataLoaderHandler(loader);
         zoodb.install_zoo_loader_handler(loader_handler);
 
