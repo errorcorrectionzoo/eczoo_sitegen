@@ -10,6 +10,7 @@ import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
 
 import { schema_root_dir_default } from './dirs_defaults.js';
 
+import { objects_config } from './objects_config.js';
 
 // -----------------------------------------------------------------------------
 
@@ -469,7 +470,14 @@ export async function createEcZooDb(
             // specify where to find schemas
             //
             schemas: schemas_config,
-            
+
+            // The SchemaLoader will automatically load all files in the
+            // folder if the schema_root is a filesystem path.  Otherwise,
+            // specify a list of schema names to load here:
+            schema_names: Object.entries(objects_config).map(
+                ([object_type, object_config]) => object_config.schema_name ?? object_type
+            ),
+
         },
         default_config,
         config,
