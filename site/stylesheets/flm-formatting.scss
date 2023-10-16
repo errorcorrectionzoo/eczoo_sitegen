@@ -7,6 +7,21 @@
 }
 
 
+.enumeration {
+    > dt {
+        font-style: normal;
+    }
+}
+.enumeration.enumerate, .enumeration.itemize {
+
+    row-gap: $parskip-half-length;
+
+    > dt {
+        margin-left: 0.8em;
+    }
+}
+
+
 .heading-level-3 {
     // \section{...}
     font-weight: bold;

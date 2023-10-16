@@ -23,6 +23,28 @@ protection: |
     G H^{\text{T}} = 0 \mod 2~.
   \end{align}
 
+  Test lists:
+
+  \begin{enumerate}
+  \item Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. Lorem ipsum. 
+  \item Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet. Dolor sit amet.
+  \end{enumerate}
+
+  \begin{enumerate}[{(I]))}]
+  \item Un
+  \item Deux
+  \item Trois
+  \item Quatre
+  \end{enumerate}
+
+  \begin{itemize}[{⇒}]
+  \item One
+  \item Two
+  \item Three
+  \end{itemize}
+
+
+
 features:
   rate: 'A family of linear codes \(C_i = [n_i,k_i,d_i]\) is \textit{asymptotically good} if the asymptotic rate \(\lim_{i\to\infty} k_i/n_i\) and asymptotic distance \(\lim_{i\to\infty} d_i/n_i\) are both positive.'
 

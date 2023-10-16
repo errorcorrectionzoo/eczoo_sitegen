@@ -61,6 +61,26 @@ Refer to equations with \eqref{eq:stabilizers}, etc. ...
     `eq:`.  You can also use `\[ ... \]` for unnumbered display
     equations.
 
+## Lists
+
+- Create numbered lists using
+  ``\begin{enumerate} \item ... \item ... \end{enumerate}``.
+
+- Create bullet-point lists with ``\begin{itemize} \item ... \end{itemize}``.
+
+- You can customize the enumeration label with an optional argument.  In
+  the optional argument value, the first occurence of ``1``, ``a``, ``A``,
+  ``i``, ``I`` will be replaced by the list item number formatted respectively
+  as an arabic numeral (``1, 2, ...``), a lowercase latin letter (``a, b,
+  ...``), an uppercase latin letter (``A, B, ...``), a lowercase roman
+  numeral (``i, ii, iii, iv, ...``), and an uppercase roman numeral
+  (``I, II, III, IV, ...``).
+  
+      \begin{enumerate}[(a)]   %% → (a), (b), ...
+      \begin{enumerate}[i)]    %% → i), ii), ...
+      \begin{enumerate}[{1]}]  %% → 1], 2], ...
+      \begin{itemize}[{⇒}]     %% → bullet character '⇒'
+
 ## Citations
 
   - Cite relevant papers by their arXiv number as
