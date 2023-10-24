@@ -187,7 +187,7 @@ properties:
             # including 'code_id', no need to specify them here)
         
 
-      defines_kingdom:
+      root_for_kingdom:
         _auto_populated: true
 
 

@@ -66,18 +66,20 @@ export function render_code_page(
 `
         }
 
-        const kingdom = code.relations?.defines_kingdom?.[0]?.kingdom ?? null;
-        if (kingdom != null) {
-            html += sqzhtml`
+        const kingdomRelList = code.relations?.root_for_kingdom;
+        if (kingdomRelList != null && kingdomRelList.length > 1) {
+            for (const { kingdom } of kingdomRelList) {
+                html += sqzhtml`
 <div class="sectioncontent code-defines-kingdom-name">
     <span class="kingdom-name-label">
-      This code defines the
+      Root code for the
     </span> <!-- space -->${
    ref('kingdom', kingdom.kingdom_id)
 }</div>
-<div class="kingdom-description">${ rdr(kingdom.description) }</div>`;
+<div class="kingdom-description">${ rdr(kingdom.description) }</div>
+`;
+            }
         }
-
 
         if (code._meta?.stub) {
             html += sqzhtml`

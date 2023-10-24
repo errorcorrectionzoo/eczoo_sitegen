@@ -236,17 +236,19 @@ export class EcZooDb extends ZooDb
 
     code_parent_domains(code, {find_domain_id} = {})
     {
-        let domains_by_kingdom_code_id = Object.fromEntries(
-            Object.entries(this.objects.kingdom).map(
-                ([kingdom_id, kingdom]) =>
-                  [kingdom.kingdom_code.code_id, kingdom.parent_domain]
-            )
-        );
+        let domains_by_kingdom_root_code_id = {};
+        for (const kingdom of Object.values(this.objects.kingdom)) {
+            for (const kingdomRootCodeRel of kingdom.root_codes) {
+                domains_by_kingdom_root_code_id[ kingdomRootCodeRel.code_id ] =
+                    kingdom.parent_domain;
+            }
+        }
+
         let domains = [];
         this.code_visit_relations(code, {
             relation_properties: ['parents'],
             callback: (code_visit) => {
-                const domain = domains_by_kingdom_code_id[code_visit.code_id];
+                const domain = domains_by_kingdom_root_code_id[code_visit.code_id];
                 if (domain !== undefined) {
                     domains.push(domain);
                     if (find_domain_id != null && domain.domain_id === find_domain_id) {

@@ -41,6 +41,14 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
         debug(`Gonna highlight domain ${domainId}`);
         nodeId = EczCodeGraph.getNodeIdDomain(domainId);
     }
+    // matches a kingdom?
+    const nodeRxMatchKingdom = /^#kingdom_(.*)$/.exec(hrefFragment);
+    if (nodeRxMatchKingdom != null) {
+        // highlight a given code
+        const kingdomId = nodeRxMatchKingdom[1];
+        debug(`Gonna highlight kingdom ${kingdomId}`);
+        nodeId = EczCodeGraph.getNodeIdKingdom(kingdomId);
+    }
 
     if (nodeId == null) {
         // don't highlight anything specific via fragment

@@ -9,13 +9,12 @@ import cytoscape from 'cytoscape';
 //import cyCoseBilkent from 'cytoscape-cose-bilkent';
 import cyFcose from 'cytoscape-fcose';
 
-
-import { RelationsPopulator } from '@phfaist/zoodb/dbprocessor/relations';
-
-import { FLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
+//import { RelationsPopulator } from '@phfaist/zoodb/dbprocessor/relations';
+//import { FLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import {
-    render_text_standalone, is_flm_fragment, $$kw
+    render_text_standalone, is_flm_fragment,
+    // $$kw,
 } from '@phfaist/zoodb/zooflm';
 
 
@@ -32,13 +31,14 @@ function mkRelationEdgesGetterWithTreeDirection(selector, treeDirection)
     if (selector.indexOf('[TREEDIRECTION]') === -1) {
         return (eles) => eles.connectedEdges(selector);
     }
-    let farNodeWhich, closeNodeWhich;
+    //let farNodeWhich;
+    let closeNodeWhich;
     if (treeDirection === 'children') {
         closeNodeWhich = 'target'; // the parent is close to the origin
-        farNodeWhich = 'source';
+        //farNodeWhich = 'source';
     } else if (treeDirection === 'parents') {
         closeNodeWhich = 'source';
-        farNodeWhich = 'target';
+        //farNodeWhich = 'target';
     } else {
         throw new Error(`treeDirection must be 'children' or 'parents'`);
     }
@@ -62,6 +62,25 @@ function mkRelationEdgesGetterWithTreeDirection(selector, treeDirection)
 }
 
 
+function contentToText(content)
+{
+    if (is_flm_fragment(content)) {
+        return render_text_standalone(content);
+    }
+    return content;
+}
+function contentToNodeLabel(content)
+{
+    let label = contentToText(content);
+
+    label = label.trim();
+    
+    // remove math "\(" & "\)" since we need to produce text here
+    // ... (FIXME, Find out how to display math in the CY graph?)
+    label = label.replace(/\\\(|\\\)/g, '');
+
+    return label;
+}
 
 
 
@@ -75,6 +94,7 @@ export class EczCodeGraph
         // expose static methods via "this.XXX()"
         this.getNodeIdCode = EczCodeGraph.getNodeIdCode;
         this.getNodeIdDomain = EczCodeGraph.getNodeIdDomain;
+        this.getNodeIdKingdom = EczCodeGraph.getNodeIdKingdom;
 
         // the eczoodb
         this.eczoodb = eczoodb;
@@ -146,19 +166,17 @@ export class EczCodeGraph
         return `c_${codeId}`;
     }
 
-    // Kingdoms don't get separate nodes, they have their defining code
-    //
-    // static getNodeIdKingdom(kingdomId)
-    // {
-    //     return `k_${kingdomId}`;
-    // }
+    static getNodeIdKingdom(kingdomId)
+    {
+        return `k_${kingdomId}`;
+    }
 
     static getNodeIdDomain(domainId)
     {
         return `d_${domainId}`;
     }
 
-    async initGraph(options)
+    async initGraph(/*options*/)
     {
         debug("EczCodeGraph: initGraph() ...");
 
@@ -170,7 +188,7 @@ export class EczCodeGraph
         let nodes = [];
         let edges = [];
 
-        // === domains ===
+        // === domains and kingdoms ===
 
         let domainColorIndexCounter = 0;
         let domainColorIndexByDomainId = {};
@@ -180,24 +198,58 @@ export class EczCodeGraph
             //debug(`Adding domain =`, domain);
 
             const thisDomainNodeId = this.getNodeIdDomain(domainId);
-            let label = domain.name;
-            if (is_flm_fragment(label)) {
-                label = render_text_standalone(domain.name);
-            }
-            nodes.push({
-                data: {
-                    id: thisDomainNodeId,
-                    label: label,
-                    _isDomain: 1,
-                    _domainId: domainId,
-                    _domainColorIndex: domainColorIndexCounter,
-                }
-            });
-            domainColorIndexByDomainId[domainId] = domainColorIndexCounter;
-
+            const thisDomainColorIndex = domainColorIndexCounter;
             domainColorIndexCounter =
                 (domainColorIndexCounter + 1) % cyStyleNumDomainColors;
 
+            domainColorIndexByDomainId[domainId] = thisDomainColorIndex;
+
+            nodes.push({
+                data: {
+                    id: thisDomainNodeId,
+                    label: contentToNodeLabel(domain.name),
+                    _isDomain: 1,
+                    _domainId: domainId,
+                    _domainColorIndex: thisDomainColorIndex,
+                }
+            });
+
+
+            // Add all the domain's kingdoms
+
+            for (const kingdomRelation of domain.kingdoms) {
+                const kingdomId = kingdomRelation.kingdom_id;
+                const kingdom = kingdomRelation.kingdom;
+
+                const kingdomName = contentToText(kingdom.name);
+                const label = contentToNodeLabel(kingdomName);
+
+                // create node & add it to our list of nodes
+
+                const thisKingdomNodeId = this.getNodeIdKingdom(kingdomId);
+                nodes.push({
+                    data: {
+                        id: thisKingdomNodeId,
+                        label: label,
+                        _isKingdom: 1,
+                        _kingdomId: kingdomId,
+                        _kingdomName: kingdomName,
+                        _parentDomainId: domainId,
+                        _domainColorIndex: thisDomainColorIndex,
+                    }
+                });
+
+                // create edge that connects the kingdom to the domain
+
+                edges.push({
+                    data: {
+                        _relType: 'parent',
+                        _primaryParent: 1,
+                        source: thisKingdomNodeId,
+                        target: thisDomainNodeId,
+                    }
+                });
+            }
         }
 
         // === codes ===
@@ -208,14 +260,7 @@ export class EczCodeGraph
 
             const codeShortName = this.eczoodb.code_short_name(code);
 
-            let label = codeShortName;
-
-            if (is_flm_fragment(codeShortName)) {
-                label = render_text_standalone(codeShortName);
-            }
-            // remove math "\(" & "\)" since we need to produce text here
-            // ... (FIXME, Find out how to display math in the CY graph?)
-            label = label.replace(/\\\(|\\\)/g, '');
+            let label = contentToNodeLabel(codeShortName);
 
             const thisCodeNodeId = this.getNodeIdCode(codeId);
 
@@ -234,92 +279,96 @@ export class EczCodeGraph
             // we can still mutate the nodeData object to add more data
             // properties to the node's data
 
-            let definesKingdomRelation = code.relations.defines_kingdom;
+            // debug(`Searching for ${codeId}'s primary-parent root code`);
 
-            //debug({ code, thisCodeNodeId, definesKingdomRelation });
+            // Primary parent relationship = first parent in the parents: list, except for kingdom
+            // root codes (in which case the kingdom node is the 'primary parent')  (?)
 
-            if (definesKingdomRelation && definesKingdomRelation.length) {
-
-                // it's a kingdom!
-                const kingdom = definesKingdomRelation[0].kingdom;
-                const kingdomId = kingdom.kingdom_id;
-
-                const domain = kingdom.parent_domain;
-                const domainId = domain.domain_id;
-                const thisDomainNodeId = this.getNodeIdDomain(domainId);
-
-                let kingdomName = kingdom.name;
-                if (is_flm_fragment(kingdomName)) {
-                    kingdomName = render_text_standalone(kingdomName);
+            // follow primary parent relationship to determine whether we're
+            // part of a kingdom.
+            let primaryParentRootCode = code;
+            // detect any cycles so we can report an error.
+            let primaryParentVisitSeenCodeIds = [ codeId ];
+            while ( (primaryParentRootCode.relations?.root_for_kingdom == null
+                        || primaryParentRootCode.relations?.root_for_kingdom?.length == 0)
+                    && primaryParentRootCode.relations?.parents?.length > 0 ) {
+                primaryParentRootCode = primaryParentRootCode.relations.parents[0].code;
+                const primaryParentRootCodeId = primaryParentRootCode.code_id;
+                if (primaryParentVisitSeenCodeIds.includes(primaryParentRootCodeId)) {
+                    const seenCodeChainNames = [].concat(
+                        primaryParentVisitSeenCodeIds,
+                        [ primaryParentRootCodeId ]
+                    ).map( (cId) => {
+                        let c = this.eczoodb.objects.code[cId];
+                        return `‘${c.name.flm_text ?? c.name}’ (${c.code_id})`;
+                    } );
+                    throw new Error(
+                        `Detected cycle in primary-parent relationships: `
+                        + seenCodeChainNames.join(' → ')
+                    );
+                } else {
+                    primaryParentVisitSeenCodeIds.push( primaryParentRootCodeId );
                 }
+            }
+
+            let isKingdomRootCode = false;
+            let parentKingdom = null;
+            if (primaryParentRootCode === code) {
+
+                isKingdomRootCode = true;
 
                 Object.assign(nodeData, {
-                    _isKingdom: 1,
-                    _kingdomId: kingdomId,
-                    _kingdomName: kingdomName,
-                    _parentDomainId: domainId,
-                    _domainColorIndex: domainColorIndexByDomainId[domainId],
-                })
+                    _isKingdomRootCode: true,
+                });
+
+            }
+
+            // debug(`Code ‘${codeId}’'s primary-parent-root is `
+            //       + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
+            if (primaryParentRootCode.relations?.root_for_kingdom != null
+                && primaryParentRootCode.relations?.root_for_kingdom.length > 0) {
+
+                if (primaryParentRootCode.relations.root_for_kingdom.length > 1) {
+                    throw new Error(
+                        `Code ${primaryParentRootCode.code_id} is listed as root code for multiple kingdoms: `
+                        + primaryParentRootCode.relations.root_for_kingdom.map( (k) => k.kingdom_id ).join(', ')
+                    );
+                }
+
+                const parentKingdomRootCodeId = primaryParentRootCode.code_id
+                parentKingdom =
+                        primaryParentRootCode.relations.root_for_kingdom[0].kingdom;
+                const parentKingdomId = parentKingdom.kingdom_id;
+                const parentDomainId = parentKingdom.parent_domain.domain_id;
+
+                Object.assign(nodeData, {
+                    _hasParentKingdom: 1,
+                    _parentKingdomRootCodeId: parentKingdomRootCodeId,
+                    _parentKingdomId: parentKingdomId,
+                    _parentDomainId: parentDomainId,
+                    _domainColorIndex: domainColorIndexByDomainId[parentDomainId],
+                });
+
+            } else {
+
+                Object.assign(nodeData, {
+                    _hasParentKingdom: 0,
+                });
+
+            }
+
+            // if this code is a kingdom root code, add an edge to the kingdom node.
+            if (isKingdomRootCode) {
 
                 edges.push({
                     data: {
                         _relType: 'parent',
                         _primaryParent: 1,
                         source: thisCodeNodeId,
-                        target: thisDomainNodeId,
+                        target: this.getNodeIdKingdom(parentKingdom.kingdom_id),
                     }
                 });
 
-            } else {
-
-                // debug(`Searching for ${codeId}'s primary-parent root code`);
-
-                // follow primary parent relationship to determine whether we're
-                // part of a kingdom.
-                let primaryParentRootCode = code;
-                // detect any cycles so we can report an error.
-                let primaryParentVisitSeenCodeIds = [ codeId ];
-                while ( (primaryParentRootCode.relations?.defines_kingdom == null
-                         || primaryParentRootCode.relations?.defines_kingdom?.length == 0)
-                        && primaryParentRootCode.relations?.parents?.length > 0 ) {
-                    primaryParentRootCode = primaryParentRootCode.relations.parents[0].code;
-                    const primaryParentRootCodeId = primaryParentRootCode.code_id;
-                    if (primaryParentVisitSeenCodeIds.includes(primaryParentRootCodeId)) {
-                        const seenCodeChainNames = [].concat(
-                            primaryParentVisitSeenCodeIds,
-                            [ primaryParentRootCodeId ]
-                        ).map( (cId) => {
-                            let c = this.eczoodb.objects.code[cId];
-                            return `‘${c.name.flm_text ?? c.name}’ (${c.code_id})`;
-                        } );
-                        throw new Error(
-                            `Detected cycle in primary-parent relationships: `
-                            + seenCodeChainNames.join(' → ')
-                        );
-                    } else {
-                        primaryParentVisitSeenCodeIds.push( primaryParentRootCodeId );
-                    }
-                }
-                // debug(`Code ‘${codeId}’'s primary-parent-root is `
-                //       + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
-                if (primaryParentRootCode.relations?.defines_kingdom != null
-                    && primaryParentRootCode.relations?.defines_kingdom.length > 0) {
-                    const parentKingdom =
-                          primaryParentRootCode.relations.defines_kingdom[0].kingdom;
-                    const parentKingdomId = parentKingdom.kingdom_id;
-                    const parentDomainId = parentKingdom.parent_domain.domain_id;
-
-                    Object.assign(nodeData, {
-                        _hasParentKingdom: 1,
-                        _parentKingdomId: parentKingdomId,
-                        _parentDomainId: parentDomainId,
-                        _domainColorIndex: domainColorIndexByDomainId[parentDomainId],
-                    });
-                } else {
-                    Object.assign(nodeData, {
-                        _hasParentKingdom: 0,
-                    });
-                }
             }
 
             // add an edge for every parent or cousin relation.
@@ -342,7 +391,7 @@ export class EczCodeGraph
                         target: this.getNodeIdCode(relationInstance.code.code_id),
                     };
                     if (relationType === 'parent') {
-                        if (j == 0 && definesKingdomRelation == null) {
+                        if (j == 0 && !isKingdomRootCode) {
                             edgeData._primaryParent = 1;
                         } else {
                             edgeData._primaryParent = 0;
@@ -377,34 +426,6 @@ export class EczCodeGraph
 
         // create the cytoscape object
         this.cy = cytoscape(cytoscapeConfig);
-
-        // === do some graph topology processing (e.g. root nodes, belonging to
-        // kingdoms, etc.) ===
-
-        // // Belonging to a kingdom? do a breadth-first search on the CY graph
-        // this.cy.nodes('[_isCode=1]').forEach( (codeNode) => {
-        //     const foundParentKingdom = this.cy.elements(
-        //         'node[_isCode=1], edge[_relationType="parent"]'
-        //     ).breadthFirstSearch({
-        //         root: codeNode,
-        //         visit(currentNode, lastEdge, previousNode, numVisits, visitDepth) {
-        //             if (currentNode.data('_isKingdom') === 1) {
-        //                 return true;
-        //             }
-        //         }
-        //     });
-        //     if (foundParentKingdom?.found != null) {
-        //         const foundNode = foundParentKingdom.found;
-        //         codeNode.data({
-        //             // update node's data fields with these ones
-        //             _hasParentKingdom: 1,
-        //             _parentKingdomNodeId: foundNode.id(),
-        //             _parentKingdomId: foundNode._kingdomId,
-        //         });
-        //     } else {
-        //         codeNode.data('_hasParentKingdom', 0);
-        //     }
-        // } );
 
         // Find out where to position the graph root nodes
 
@@ -663,7 +684,7 @@ export class EczCodeGraph
 
             const {
                 nodeIds,
-                redoLayout,
+                //redoLayout,
                 range,
             } = this.displayOptions.modeIsolateNodesOptions;
 
@@ -833,10 +854,11 @@ export class EczCodeGraph
             );
         }
         let rootNodeIdsCodes = Object.entries(this.eczoodb.objects.code).filter(
-            ([codeId, code]) => (
-                !(code.relations?.parents?.length) && !(code.relations?.defines_kingdom)
+            ([/*codeId*/, code]) => (
+                !(code.relations?.parents?.length) && !(code.relations?.root_for_kingdom)
+                && !(code.relations?.root_for_kingdom?.length)
             )
-        ).map( ([codeId, code]) => this.getNodeIdCode(codeId) );
+        ).map( ([codeId, /*code*/]) => this.getNodeIdCode(codeId) );
 
         return [].concat(rootNodeIdsDomains, rootNodeIdsCodes);
     }
@@ -956,7 +978,7 @@ export class EczCodeGraph
             nodeDimensionsIncludeLabels: true,
 
             // Node repulsion (non overlapping) multiplier
-            nodeRepulsion: (node) => 100000,
+            nodeRepulsion: (/*node*/) => 100000,
             // Ideal edge (non nested) length
             idealEdgeLength: (edge) => {
                 if (edge.data('_primaryParent') === 1) {
@@ -1028,7 +1050,7 @@ export class EczCodeGraph
         debug('done!');
     }
 
-};
+}
 
 
 
@@ -1420,7 +1442,7 @@ class _PrelayoutRadialTreeBranchSet
 
         const nodeId = node.id();
 
-        if (this.positionedNodesData.hasOwnProperty(nodeId)) {
+        if (Object.hasOwn(this.positionedNodesData, nodeId)) {
             throw new Error(`Node ${nodeId} is being positioned in two different subtrees!`);
         }
 
@@ -1591,6 +1613,16 @@ const cyBaseStyleJson = [
             'shape': 'diamond',
             width: 25,
             height: 25,
+            // 'background-color': '#5e3834',
+            // 'color': '#5e3834',
+        }
+    },
+    {
+        selector: 'node[_isKingdomRootCode=1]',
+        style: {
+            'shape': 'diamond',
+            //width: 25,
+            //height: 25,
             // 'background-color': '#5e3834',
             // 'color': '#5e3834',
         }

@@ -35,7 +35,7 @@ const render = async (data) => {
         displayMode: 'isolate-nodes',
         modeIsolateNodesOptions: {
             nodeIds: [
-                EczCodeGraph.getNodeIdCode( kingdom.kingdom_code.code_id )
+                EczCodeGraph.getNodeIdKingdom( kingdom.kingdom_id )
             ],
             redoLayout: true,
             range: {
