@@ -400,8 +400,7 @@ export function EczCodeGraphComponent(props)
             nodeId = eczCodeGraph.getNodeIdDomain(domainId);
         }
         if (kingdomId) {
-            codeId = eczoodb.objects.kingdom[kingdomId].kingdom_code.code_id;
-            // set codeId, will set nodeId in next if() block
+            nodeId = eczCodeGraph.getNodeIdKingdom(kingdomId);
         }
         if (codeId) {
             nodeId = eczCodeGraph.getNodeIdCode(codeId);
@@ -438,11 +437,8 @@ export function EczCodeGraphComponent(props)
     let doInitializeCy = () => {
         eczCodeGraph.mountInDom(cyDomNodeRef.current, { matchWebPageFonts, window });
 
-        eczCodeGraph.cy.on('tap', (event) => {
-            // target holds a reference to the originator
-            // of the event (core or element)
-            const eventTarget = event.target;
-            debug('Tap! eventTarget = ', eventTarget);
+        const tapEventHandlerFn = (eventTarget) => {
+
             if ( ! eventTarget || ! eventTarget.isNode ) {
                 // tap on an edge or on the background -- hide info pane
                 debug('Unknown or non-node tap target.');
@@ -471,6 +467,24 @@ export function EczCodeGraphComponent(props)
 
             debug('Unknown click target ??!');
             return;
+        };
+
+        eczCodeGraph.cy.on('tap', (event) => {
+
+            // target holds a reference to the originator
+            // of the event (core or element)
+
+            const eventTarget = event.target;
+            debug('Tap! eventTarget = ', eventTarget);
+
+            try {
+
+                tapEventHandlerFn(eventTarget);
+
+            } catch (err) {
+                console.error(`Error (will ignore) while handling cytoscape canvas tap: `, err);
+                return;
+            }
         });
 
         // run the initial layout.
@@ -503,12 +517,15 @@ export function EczCodeGraphComponent(props)
 
     let currentCodeSelected = null;
     let currentDomainSelected = null;
+    let currentKingdomSelected = null;
     if (uiState.displayModeWithOptions.displayMode === 'isolate-nodes') {
         const { nodeIds } = uiState.displayModeWithOptions.modeIsolateNodesOptions;
         if ( nodeIds && nodeIds.length === 1) {
             const nodeId = nodeIds[0];
-            const codeId = eczCodeGraph.cy.getElementById(nodeId).data()._codeId;
-            const domainId = eczCodeGraph.cy.getElementById(nodeId).data()._domainId;
+            const nodeElementData = eczCodeGraph.cy.getElementById(nodeId).data();
+            const codeId = nodeElementData._codeId;
+            const domainId = nodeElementData._domainId;
+            const kingdomId = nodeElementData._kingdomId;
 
             if (codeId != null) {
                 currentCodeSelected = eczoodb.objects.code[codeId];
@@ -516,10 +533,13 @@ export function EczCodeGraphComponent(props)
             if (domainId != null) {
                 currentDomainSelected = eczoodb.objects.domain[domainId];
             }
+            if (kingdomId != null) {
+                currentKingdomSelected = eczoodb.objects.kingdom[kingdomId];
+            }
         }
     }
 
-    return (
+    let  rendered = (
         <div className="EczCodeGraphComponent">
             <div ref={cyPanelDomNodeRef} className="EczCodeGraphComponent_CyPanel">
                 <div ref={cyDomNodeRef} className="EczCodeGraphComponent_Cy"></div>
@@ -547,6 +567,7 @@ export function EczCodeGraphComponent(props)
                     eczoodb={eczoodb}
                     currentCodeSelected={currentCodeSelected}
                     currentDomainSelected={currentDomainSelected}
+                    currentKingdomSelected={currentKingdomSelected}
                     captureLinksToObjectTypes={['code', 'domain', 'kingdom']}
                     onLinkToObjectActivated={ (objectType, objectId) => {
                         debug('Link to object clicked: ', { objectType, objectId, });
@@ -558,7 +579,7 @@ export function EczCodeGraphComponent(props)
                             doUserSelection({domainId: objectId});
                         } else {
                             throw new Error(
-                                `I don't know what to do with click on ${object_type}`
+                                `I don't know what to do with click on ${objectType}`
                             );
                         }
                     } }

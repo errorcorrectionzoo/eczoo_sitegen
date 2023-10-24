@@ -71,7 +71,7 @@ const render = async (data) => {
 </ul>
 
 <div class="code-graph-excerpt">
-  <a href="/code_graph#k_${kingdom.kingdom_id}">
+  <a href="/code_graph#kingdom_${kingdom.kingdom_id}">
     <img src="/kingdom/kgraph_${kingdom.kingdom_id}.svg">
   </a>
 </div>

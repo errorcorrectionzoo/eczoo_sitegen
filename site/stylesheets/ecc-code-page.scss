@@ -47,7 +47,7 @@ article.ecc-code-page {
         }
     }
 
-    > .code-defines-kingdom-name {
+    > .code-root-code-kingdom-name {
         font-size: 1rem;
 
         .kingdom-name-label {
@@ -55,7 +55,7 @@ article.ecc-code-page {
         }
 
         font-weight: bold;
-        background-color: $ecc-page-defines-kingdom-background-color;
+        background-color: $ecc-page-kingdom-background-color;
     }
 
     @media screen {

@@ -79,8 +79,9 @@ html {
     --popup-info-button-accent-color: #3232c8;
     --tile-background-color: rgba(245,245,252,1.0);
     --tile-box-shadow-color: rgba(0,0,0,0.08);
-    --tile-person-highlight-box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;;
-    --ecc-page-defines-kingdom-background-color: rgb(200,255,230);
+    --tile-person-highlight-box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;
+    --ecc-page-domain-background-color: rgb(255, 233, 200);
+    --ecc-page-kingdom-background-color: rgb(200,255,230);
 }
 
 
@@ -109,7 +110,8 @@ html {
     --tile-background-color: rgb(41, 41, 55);
     --tile-box-shadow-color: rgba(134, 134, 134, 0.29);
     --tile-person-highlight-box-shadow: rgba(128, 163, 255, 0.35) 5px 5px 25px;
-    --ecc-page-defines-kingdom-background-color: rgb(22, 43, 33); //rgb(31, 68, 51);
+    --ecc-page-domain-background-color: rgb(56, 44, 28); //rgb(31, 68, 51);
+    --ecc-page-kingdom-background-color: rgb(22, 43, 33); //rgb(31, 68, 51);
 }
 
 // html {
@@ -178,4 +180,5 @@ $tile-box-shadow-color: var(--tile-box-shadow-color);
 
 $tile-person-highlight-box-shadow: var(--tile-person-highlight-box-shadow);
 
-$ecc-page-defines-kingdom-background-color: var(--ecc-page-defines-kingdom-background-color);
+$ecc-page-domain-background-color: var(--ecc-page-domain-background-color);
+$ecc-page-kingdom-background-color: var(--ecc-page-kingdom-background-color);

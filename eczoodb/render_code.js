@@ -70,7 +70,7 @@ export function render_code_page(
         if (kingdomRelList != null && kingdomRelList.length > 1) {
             for (const { kingdom } of kingdomRelList) {
                 html += sqzhtml`
-<div class="sectioncontent code-defines-kingdom-name">
+<div class="sectioncontent code-root-code-kingdom-name">
     <span class="kingdom-name-label">
       Root code for the
     </span> <!-- space -->${
