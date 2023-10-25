@@ -95,6 +95,7 @@ export class EczCodeGraph
         this.getNodeIdCode = EczCodeGraph.getNodeIdCode;
         this.getNodeIdDomain = EczCodeGraph.getNodeIdDomain;
         this.getNodeIdKingdom = EczCodeGraph.getNodeIdKingdom;
+        this.getMergedDisplayOptions = EczCodeGraph.getMergedDisplayOptions;
 
         // the eczoodb
         this.eczoodb = eczoodb;
@@ -134,11 +135,11 @@ export class EczCodeGraph
                 range: {
                     parents: {
                         primary: 5,
-                        secondary: 1,
+                        secondary: 0,
                     },
                     children: {
                         primary: 2,
-                        secondary: 1,
+                        secondary: 0,
                     },
                 },
             },
@@ -178,6 +179,22 @@ export class EczCodeGraph
     {
         return `d_${domainId}`;
     }
+
+    static getMergedDisplayOptions(modeWithOptionsA, modeWithOptionsB)
+    {
+        let preventMergeArrays = {};
+        if (modeWithOptionsB?.modeIsolateNodesOptions?.nodeIds) {
+            // prevent merging the arrays by setting the nodeIds to null first
+            preventMergeArrays = { modeIsolateNodesOptions: { nodeIds: null } };
+        }
+        return _.merge(
+            {},
+            modeWithOptionsA,
+            preventMergeArrays,
+            modeWithOptionsB,
+        );
+    }
+
 
     async initGraph()
     {
@@ -517,11 +534,12 @@ export class EczCodeGraph
     {
         coloringOn = !! coloringOn;
         if (coloringOn === this.displayOptions.domainColoring) {
-            return; // nothing to update
+            return false; // nothing to update
         }
         this.displayOptions.domainColoring = coloringOn;
 
         this._applyDomainColoring();
+        return true;
     }
     _applyDomainColoring()
     {
@@ -543,11 +561,12 @@ export class EczCodeGraph
         show = !!show; // make sure the value is boolean
         if (show === this.displayOptions.cousinEdgesShown) {
             // no update required
-            return;
+            return false;
         }
         this.displayOptions.cousinEdgesShown = show;
 
         this._applyCousinEdgesShown();
+        return true;
     }
     _applyCousinEdgesShown()
     {
@@ -569,10 +588,11 @@ export class EczCodeGraph
         show = !!show; // make sure the value is boolean
         if (show === this.displayOptions.secondaryParentEdgesShown) {
             // no update required
-            return;
+            return false;
         }
         this.displayOptions.secondaryParentEdgesShown = show;
         this._applySecondaryParentEdgesShown();
+        return true;
     }
     _applySecondaryParentEdgesShown()
     {
@@ -594,10 +614,11 @@ export class EczCodeGraph
     {
         if (_.isEqual(this.displayOptions.lowDegreeNodesDimmed, options)) {
             // no update needed
-            return;
+            return false;
         }
         this.displayOptions.lowDegreeNodesDimmed = options;
         this._applyLowDegreeNodesDimmed();
+        return true;
     }
     _applyLowDegreeNodesDimmed()
     {
@@ -639,14 +660,14 @@ export class EczCodeGraph
 
         if (displayMode === this.displayOptions.displayMode) {
             if (displayMode === 'all') {
-                return; // no options to compare
+                return false; // no options to compare
             } else if (displayMode === 'isolate-nodes') {
                 if (_.isEqual(modeIsolateNodesOptions,
-                                this.displayOptions.modeIsolateNodesOptions)) {
+                              this.displayOptions.modeIsolateNodesOptions)) {
                     // debug('setDisplayMode(): (nothing to update). ',
                     //       { 'this.displayOptions': this.displayOptions,
                     //         modeIsolateNodesOptions });
-                    return;
+                    return false;
                 }
             } else {
                 throw new Error(`Invalid display mode: ${displayMode}`);
@@ -656,12 +677,16 @@ export class EczCodeGraph
         if (displayMode === 'all') {
             // no options to update
         } else if (displayMode === 'isolate-nodes') {
-            _.merge(this.displayOptions.modeIsolateNodesOptions, modeIsolateNodesOptions);
+            this.displayOptions = this.getMergedDisplayOptions(
+                this.displayOptions.modeIsolateNodesOptions,
+                { displayMode, modeIsolateNodesOptions, }
+            );
         } else {
             throw new Error(`Invalid display mode: ${displayMode}`);
         }
 
         this._applyDisplayMode();
+        return true;
     }
     _applyDisplayMode()
     {
@@ -1424,7 +1449,7 @@ class _PrelayoutRadialTreeBranchSet
     //
     _computeNodeWeights()
     {    
-        for (const [level, orderinginfoList] of this.nodeOrderinginfoByLevel.entries()) {
+        for (const [/*level*/, orderinginfoList] of this.nodeOrderinginfoByLevel.entries()) {
             orderinginfoList.forEach( (info) => {
                 let w = Math.max(
                     1,
@@ -1572,7 +1597,7 @@ class _PrelayoutRadialTreeBranchSet
     }
 
     // how to position a non-root node -- in the right direction etc.
-    _positionNodeChildren({node, nodePosition, nodeInfo, level, angularSpread, direction})
+    _positionNodeChildren({/*node,*/ nodePosition, nodeInfo, level, angularSpread, direction})
     {
         const options = this.options;
 

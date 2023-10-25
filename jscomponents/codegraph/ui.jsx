@@ -205,6 +205,15 @@ export function EczCodeGraphControlsComponent(props)
             },
         });
     };
+    const doModeIsolateZoomDomains = () => {
+        const domainNodeIds = cy.nodes('[_isDomain=1]').map( (n) => n.id() );
+        onChangeDisplayModeWithOptions({
+            displayMode: 'isolate-nodes',
+            modeIsolateNodesOptions: {
+                nodeIds: domainNodeIds,
+            },
+        });
+    };
 
     const doSearchGraphNodes = (searchText) => {
         setSearchGraphNodesText(searchText);
@@ -305,6 +314,10 @@ export function EczCodeGraphControlsComponent(props)
                 <button
                     disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
                     onClick={doModeIsolateExit}>home</button>
+                <span className="controls-input-sep"></span>
+                <button
+                    onClick={doModeIsolateZoomDomains}>zoom domains</button>
+                <span className="controls-input-sep"></span>
                 <button
                     disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
                     onClick={doModeIsolateRelayout}>relayout</button>
@@ -451,14 +464,16 @@ export function EczCodeGraphComponent(props)
         }
         const runSetDisplayModeAndLayout = async () => {
             debug(`Updating graph's displayMode&Options -> `, uiState.displayModeWithOptions);
-            eczCodeGraph.setDisplayMode(
+            const displaySettingChanged = eczCodeGraph.setDisplayMode(
                 uiState.displayModeWithOptions.displayMode,
                 uiState.displayModeWithOptions,
             );
-            await eczCodeGraph.layout({
-                animate: true,
-            });
-            onLayoutDone?.();
+            if (displaySettingChanged) {
+                await eczCodeGraph.layout({
+                    animate: true,
+                });
+                onLayoutDone?.();
+            }
         };
         runSetDisplayModeAndLayout();
     }, [ cyUiInitialized, uiState.displayModeWithOptions ] );
@@ -470,9 +485,12 @@ export function EczCodeGraphComponent(props)
     const doUserSelection = ({ nodeId, codeId, kingdomId, domainId, background }) => {
         if (background) {
             uiState.setDisplayModeWithOptions(
-                _.merge({}, uiState.displayModeWithOptions, {
-                    displayMode: 'all',
-                })
+                eczCodeGraph.getMergedDisplayOptions(
+                    uiState.displayModeWithOptions,
+                    {
+                        displayMode: 'all',
+                    }
+                )
             );
             return;
         }
@@ -487,14 +505,17 @@ export function EczCodeGraphComponent(props)
         }
 
         uiState.setDisplayModeWithOptions(
-            _.merge({}, uiState.displayModeWithOptions, {
-                displayMode: 'isolate-nodes',
-                modeIsolateNodesOptions: {
-                    nodeIds: [ nodeId ],
-                    redoLayout: false,
-                    // will merge remaining options with preexisting ones
-                },
-            })
+            eczCodeGraph.getMergedDisplayOptions(
+                uiState.displayModeWithOptions,
+                {
+                    displayMode: 'isolate-nodes',
+                    modeIsolateNodesOptions: {
+                        nodeIds: [ nodeId ],
+                        redoLayout: false,
+                        // will merge remaining options with preexisting ones
+                    },
+                }
+            )
         );
         
         const cy = eczCodeGraph.cy;
@@ -514,7 +535,7 @@ export function EczCodeGraphComponent(props)
 
     // cytoscape initialization & graph event callbacks (e.g. "tap")
 
-    let doInitializeCy = () => {
+    let doInitializeCy = async () => {
         eczCodeGraph.mountInDom(cyDomNodeRef.current, {
             styleOptions: { matchWebPageFonts, window, },
         });
@@ -568,6 +589,13 @@ export function EczCodeGraphComponent(props)
                 return;
             }
         });
+
+        // perform initial layout
+        await eczCodeGraph.layout({
+            animate: true,
+        });
+
+        onLayoutDone?.();
 
         setCyUiInitialized(true);
     };
@@ -624,9 +652,12 @@ export function EczCodeGraphComponent(props)
                     onChangeDisplayModeWithOptions={
                         (newModeWithOptions) => {
                             debug(`request to set display options -> `, newModeWithOptions);
-                            uiState.setDisplayModeWithOptions(_.merge(
-                                {}, uiState.displayModeWithOptions, newModeWithOptions,
-                            ));
+                            uiState.setDisplayModeWithOptions(
+                                eczCodeGraph.getMergedDisplayOptions(
+                                    uiState.displayModeWithOptions,
+                                    newModeWithOptions,
+                                )
+                            );
                         }
                     }
                     domainColoring={ uiState.domainColoring }

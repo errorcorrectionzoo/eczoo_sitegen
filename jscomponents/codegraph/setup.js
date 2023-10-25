@@ -11,7 +11,7 @@ import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
 // ---
 
-import _ from 'lodash';
+//import _ from 'lodash';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -63,11 +63,11 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 1,
+                    secondary: 0,
                 },
                 children: {
                     primary: 2,
-                    secondary: 1,
+                    secondary: 0,
                 },
             },
         },
@@ -166,7 +166,10 @@ export async function load()
     const hrefFragment = window.location.hash;
     debug({hrefFragment});
     if (hrefFragment != null) {
-        _.merge(displayOptions, getDisplayOptionsFromUrlFragment(hrefFragment));
+        displayOptions = EczCodeGraph.getMergedDisplayOptions(
+            displayOptions,
+            getDisplayOptionsFromUrlFragment(hrefFragment)
+        );
     }
 
     let eczCodeGraph = new EczCodeGraph({

@@ -365,7 +365,7 @@ export class EcZooDb extends ZooDb
                         Object.entries(all_child_nodes).map( ([c_id, children]) => {
                             let new_children = (children ?? []).filter( (child) => {
                                 const child_id = child.code_id;
-                                if ( !all_child_nodes.hasOwnProperty(child_id)
+                                if ( !Object.hasOwn(all_child_nodes, child_id)
                                      || (all_child_nodes[child_id] == null)
                                      || (all_child_nodes[child_id].length == 0) ) {
                                     return false; // filter this child out
