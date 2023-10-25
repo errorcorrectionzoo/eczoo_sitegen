@@ -15,7 +15,7 @@
         margin-bottom: 1em;
     }
 
-    .code-name {
+    .code-name, .domain-name, .kingdom-name {
         font-size: 1rem;
         font-weight: bold;
         display: inline-block;
@@ -26,30 +26,33 @@
         display: inline-block;
     }
 
+    .domain-name, .kingdom-name {
+        display: block;
+        padding: 4px;
+        border-radius: 2px;
+    }
     .domain-name {
-        font-size: 1rem;
-        font-weight: bold;
         background-color: var(--ecc-page-domain-background-color);
     }
 
     .kingdom-name {
-        font-size: 1rem;
+        background-color: var(--ecc-page-kingdom-background-color);
         .kingdom-name-label {
             font-weight: normal;
         }
-        font-weight: bold;
-        background-color: var(--ecc-page-kingdom-background-color);
     }
-    .kingdom-description {
-        background-color: var(--ecc-page-kingdom-background-color);
-    }
+    // .kingdom-description {
+    //     background-color: var(--ecc-page-kingdom-background-color);
+    // }
 
-    .code-description {
-    }
+    //.code-description {
+    //}
 
     .code-link, .domain-link, .kingdom-link {
-        display: block;
-        padding-left: auto;
+        display: inline-block;
+        //padding-left: auto;
+        margin-left: 1em;
+        margin-top: 0.2em;
     }
 
     .code-relations {

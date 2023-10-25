@@ -151,8 +151,13 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
         let s = '';
 
         s += sqzhtml`
-  <span class="code-name" title="${code_id}">${ rdr(code_name) }</span>
-  <span class="code-introduced">${ rdr(code_introduced) }</span>`;
+  <div class="code-name-introduced">
+    <span class="code-name" title="${code_id}">
+      ${ rdr(code_name) }
+    </span>
+    <span class="code-introduced">${ rdr(code_introduced) }</span>
+    <a class="code-link" href="${code_ref_link}">go to page →</a>
+    </div>`;
 
         if (kingdom != null) {
             s += sqzhtml`
@@ -164,8 +169,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
         }
 
         s += sqzhtml`
-  <div class="code-description">${ rdr(short_description) }</div>
-  <a class="code-link" href="${code_ref_link}">go to code page →</a>`;
+  <div class="code-description">${ rdr(short_description) }</div>`;
 
         if (code.relations != null) {
             for (const [singular, plural, relations]
@@ -238,9 +242,11 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
         let s = '';
         s += sqzhtml`
-  <div class="domain-name">${ rdr(domain_name) }</div>
+  <div class="domain-name">
+    ${ rdr(domain_name) }
+    <a class="domain-link" href="${domain_ref_link}">go to page →</a>
+  </div>
   <div class="domain-description">${ rdr(domain_description) }</div>
-  <a class="domain-link" href="${domain_ref_link}">go to domain page →</a>
   <div class="domain-kingdoms-list">
     <p>Kingdoms:</p>
     <ul>`;
@@ -302,10 +308,12 @@ function renderHtmlKingdom({ eczoodb, kingdom, captureLinksToObjectTypes, })
 
         let s = '';
         s += sqzhtml`
-  <div class="kingdom-name">${ rdr(kingdom_name) }</div>
+  <div class="kingdom-name">
+    ${ rdr(kingdom_name) }
+    <a class="kingdom-link" href="${kingdom_ref_link}">go to page →</a>
+  </div>
   <div class="kingdom-description">${ rdr(kingdom_description) }</div>
   <div class="kingdom-part-of-domain">Kingdom in the ${ ref('domain', kingdom.parent_domain.domain_id) }</div>
-  <a class="kingdom-link" href="${kingdom_ref_link}">go to kingdom page →</a>
   <div class="kingdom-root-code-list">
     <p>Root codes:</p>
     <ul>`;
