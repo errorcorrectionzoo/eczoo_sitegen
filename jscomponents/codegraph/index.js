@@ -218,6 +218,7 @@ export class EczCodeGraph
             // Add all the domain's kingdoms
 
             for (const kingdomRelation of domain.kingdoms) {
+                //debug(`Adding kingdom; relation object = `, kingdomRelation);
                 const kingdomId = kingdomRelation.kingdom_id;
                 const kingdom = kingdomRelation.kingdom;
 
@@ -313,15 +314,6 @@ export class EczCodeGraph
 
             let isKingdomRootCode = false;
             let parentKingdom = null;
-            if (primaryParentRootCode === code) {
-
-                isKingdomRootCode = true;
-
-                Object.assign(nodeData, {
-                    _isKingdomRootCode: true,
-                });
-
-            }
 
             // debug(`Code ‘${codeId}’'s primary-parent-root is `
             //       + `${primaryParentRootCode && primaryParentRootCode.code_id}`);
@@ -340,6 +332,13 @@ export class EczCodeGraph
                         primaryParentRootCode.relations.root_for_kingdom[0].kingdom;
                 const parentKingdomId = parentKingdom.kingdom_id;
                 const parentDomainId = parentKingdom.parent_domain.domain_id;
+
+                if (primaryParentRootCode === code) {
+                    isKingdomRootCode = true;    
+                    Object.assign(nodeData, {
+                        _isKingdomRootCode: 1,
+                    });
+                }    
 
                 Object.assign(nodeData, {
                     _hasParentKingdom: 1,
