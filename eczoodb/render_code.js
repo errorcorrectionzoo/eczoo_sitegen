@@ -67,7 +67,7 @@ export function render_code_page(
         }
 
         const kingdomRelList = code.relations?.root_for_kingdom;
-        if (kingdomRelList != null && kingdomRelList.length > 1) {
+        if (kingdomRelList != null && kingdomRelList.length >= 1) {
             for (const { kingdom } of kingdomRelList) {
                 html += sqzhtml`
 <div class="sectioncontent code-root-code-kingdom-name">

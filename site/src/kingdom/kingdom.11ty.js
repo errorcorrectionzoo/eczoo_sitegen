@@ -61,6 +61,7 @@ const render = async (data) => {
         //<p>Welcome to the ${ rdr(kingdom.name) }</p>`;
 
         s += sqzhtml`
+<p>Kingdom in the ${ ref('domain', kingdom.parent_domain.domain_id) }.</p>
 <p>Root codes of the ${ rdr(kingdom.name) }:</p>
 <ul>
     ${

@@ -94,12 +94,9 @@ export async function load()
 
     const eczoodbDataUrl =
           domContainer.dataset.eczoodbDataUrl ?? '/dat/eczoodata.json';
-    // const eczoodbRefsDataUrl =
-    //       domContainer.dataset.eczoodbRefsDataUrl ?? '/dat/eczoorefsdata.json'; //
 
     // try to get data from the global 'window' object, in case it's there.
     let eczoodbData = window.eczData?.eczoodbData;
-    //let eczoodbRefsData = window.eczData?.eczoodbRefsData;
 
     if (!eczoodbData) {
         // download the search data
@@ -107,13 +104,7 @@ export async function load()
 
         let eczoodbDataJsonPromise =
             fetch(eczoodbDataUrl).then( (response) => response.json() );
-        // let eczoodbRefsDataJsonPromise =
-        //     fetch(eczoodbRefsDataUrl).then( (response) => response.json() );
-
-        // [eczoodbData, eczoodbRefsData] = await Promise.all([
-        //     eczoodbDataJsonPromise,
-        //     eczoodbRefsDataJsonPromise,
-        // ]);
+        
         eczoodbData = await eczoodbDataJsonPromise;
     }
 
@@ -170,12 +161,6 @@ export async function load()
     //
 
     let displayOptions = {};
-
-    // // inspect dom node's own data for a highlight, if applicable
-    // if (domContainer.dataset.isolateTreeForCode) {
-    //     const codeId = domContainer.dataset.isolateTreeForCode;
-    //     _.merge(displayOptions, getDisplayOptionsFromUrlFragment(hrefFragment));
-    // }
 
     // inspect htmlFragment for display options
     const hrefFragment = window.location.hash;

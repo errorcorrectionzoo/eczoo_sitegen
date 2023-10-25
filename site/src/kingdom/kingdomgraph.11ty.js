@@ -60,16 +60,16 @@ const render = async (data) => {
 
     await eczCodeGraph.layout({ animate: false });
 
+    debug(`Node final positions are: `,
+          eczCodeGraph.cy.nodes(':visible')
+          .map( (n) => Object.assign({ nId: n.id() }, n.position()) ));
+
     // now, export to SVG:
 
     let svgData = await eczoo_code_graph_svg_exporter.compile(
         eczCodeGraph,
         {
             fitWidth: 620,
-            // cyStyleJsonOptions: {
-            //     fontFamily: 'Source Sans 3',
-            //     fontSize: '18px',
-            // },
         }
     );
 

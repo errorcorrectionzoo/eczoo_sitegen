@@ -324,7 +324,7 @@ export function EczCodeGraphComponent(props)
 
     let cyDomNodeRef = useRef(null);
     let cyPanelDomNodeRef = useRef(null);
-    let [cyInitialized, setCyInitialized] = useState(false);
+    let [cyUiInitialized, setCyUiInitialized] = useState(false);
 
     // UI state. Code selected/isolated, etc.
 
@@ -369,19 +369,6 @@ export function EczCodeGraphComponent(props)
         };
         runSetDisplayModeAndLayout();
     }, [ uiState.displayModeWithOptions ] );
-
-    
-
-    // const resizeEventHandler = (event) => {
-    //     debug(`Resize event, resizing Cy's panel to parent DOM element`);
-    //     eczCodeGraph.cy.resize( );
-    // };
-
-    // useEffect( () => {
-    //     resizeEventHandler();
-    //     window.addEventListener('resize', resizeEventHandler);
-    //     return () => { window.removeEventListener('resize', resizeEventHandler);
-    // }, [ ]); // do once -- install resize event & synchronize CY size.
 
 
     // --------------------------------
@@ -489,24 +476,23 @@ export function EczCodeGraphComponent(props)
 
         // run the initial layout.
         let layoutPromise = eczCodeGraph.layout({ animate: true });
-        layoutPromise.then( () => setCyInitialized(true) );
+        layoutPromise.then( () => setCyUiInitialized(true) );
     };
 
     useLayoutEffect( () => {
-        if (!cyInitialized) {
+        if (!cyUiInitialized) {
             doInitializeCy();
         }
     } );
 
-    // set Cy UI settings
-    useEffect( () => {
-        if (cyInitialized) {
-            const { displayMode } = uiState.displayModeWithOptions;
-            debug(`effect hook for diplayModeWithOptions`, uiState.displayModeWithOptions);
-            eczCodeGraph.setDisplayMode(uiState.displayMode, uiState.displayModeWithOptions);
-            eczCodeGraph.layout();
-        }
-    }, [ uiState.diplayModeWithOptions ] );
+    // // set Cy UI settings
+    // useEffect( () => {
+    //     if (cyUiInitialized) {
+    //         debug(`effect hook for diplayModeWithOptions`, uiState.displayModeWithOptions);
+    //         eczCodeGraph.setDisplayMode(uiState.displayMode, uiState.displayModeWithOptions);
+    //         eczCodeGraph.layout();
+    //     }
+    // }, [ uiState.diplayModeWithOptions ] );
 
 
     //
@@ -522,19 +508,23 @@ export function EczCodeGraphComponent(props)
         const { nodeIds } = uiState.displayModeWithOptions.modeIsolateNodesOptions;
         if ( nodeIds && nodeIds.length === 1) {
             const nodeId = nodeIds[0];
-            const nodeElementData = eczCodeGraph.cy.getElementById(nodeId).data();
-            const codeId = nodeElementData._codeId;
-            const domainId = nodeElementData._domainId;
-            const kingdomId = nodeElementData._kingdomId;
+            const nodeElementCyQuery = eczCodeGraph.cy.getElementById(nodeId);
+            // careful in case nodeId is invalid.
+            if (nodeElementCyQuery && nodeElementCyQuery.length) {
+                const nodeElementData = nodeElementCyQuery.data();
+                const codeId = nodeElementData._codeId;
+                const domainId = nodeElementData._domainId;
+                const kingdomId = nodeElementData._kingdomId;
 
-            if (codeId != null) {
-                currentCodeSelected = eczoodb.objects.code[codeId];
-            }
-            if (domainId != null) {
-                currentDomainSelected = eczoodb.objects.domain[domainId];
-            }
-            if (kingdomId != null) {
-                currentKingdomSelected = eczoodb.objects.kingdom[kingdomId];
+                if (codeId != null) {
+                    currentCodeSelected = eczoodb.objects.code[codeId];
+                }
+                if (domainId != null) {
+                    currentDomainSelected = eczoodb.objects.domain[domainId];
+                }
+                if (kingdomId != null) {
+                    currentKingdomSelected = eczoodb.objects.kingdom[kingdomId];
+                }
             }
         }
     }

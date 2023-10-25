@@ -69,8 +69,6 @@ ${ importSourceSansFontsCss }
         // first, get the SVG data for this graph
         const cyJsonData = eczCodeGraph.cy.json();
 
-        const page = this.page;
-
         const styleData = getCyStyleJson(
             loMerge(
                 {
@@ -89,7 +87,7 @@ ${ importSourceSansFontsCss }
 
   var domNode = window.document.createElement('div');
   window.document.body.appendChild(domNode);
-  //domNode.setAttribute('style', "width: '400px'; height: '600px';");
+  //domNode.setAttribute('style', "width: '400px'; height: '600px';"); // looks unnecessary.
 
   var cy = cytoscape({
     container: domNode
@@ -98,7 +96,11 @@ ${ importSourceSansFontsCss }
   cy.json(graphData);
   cy.style(styleData);
 
-  return cy.svg({ full: true });
+  var svgData = cy.svg({ full: true });
+
+  window.document.body.removeChild(domNode);
+
+  return svgData;
 
 })();
 `;

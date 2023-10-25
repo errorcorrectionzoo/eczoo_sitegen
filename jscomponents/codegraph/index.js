@@ -176,14 +176,9 @@ export class EczCodeGraph
         return `d_${domainId}`;
     }
 
-    async initGraph(/*options*/)
+    async initGraph()
     {
         debug("EczCodeGraph: initGraph() ...");
-
-        // ### seems to cause problems because later cy.style() is undefined?
-        //
-        //let { initStyle } = options ?? {};
-        //initStyle ??= true;
 
         let nodes = [];
         let edges = [];
@@ -419,9 +414,7 @@ export class EczCodeGraph
         };
         
         // the stylesheet for the graph
-        //if (initStyle) {
         cytoscapeConfig.style = cyBaseStyleJson;
-        //}
 
         // create the cytoscape object
         this.cy = cytoscape(cytoscapeConfig);
@@ -470,15 +463,13 @@ export class EczCodeGraph
             graphRootNode.addClass('graphRoot');
         }
 
-        // === finalize UI state etc. ===
-
-        // use 'null' arguments to apply the settings already stored in
-        // this.displayOptions
-        this.setDisplayMode(null);
-        this.setDomainColoring(null);
-        this.setCousinEdgesShown(null);
-        this.setSecondaryParentEdgesShown(null);
-        this.setLowDegreeNodesDimmed(null);
+        // Apply the current settings already stored in this.displayOptions to set
+        // all the graph classes correctly according to the display options.
+        this._applyDisplayMode();
+        this._applyDomainColoring();
+        this._applyCousinEdgesShown();
+        this._applySecondaryParentEdgesShown();
+        this._applyLowDegreeNodesDimmed();
 
         debug("EczCodeGraph: initGraph() done");
     }
@@ -501,10 +492,6 @@ export class EczCodeGraph
             .update();
     }
 
-    // toSvg(options)
-    // {
-    //     return this.cy.svg(options);
-    // }
 
     // ---------------------------
 
@@ -516,16 +503,17 @@ export class EczCodeGraph
 
     setDomainColoring(coloringOn)
     {
-        if (coloringOn != null) {
-            coloringOn = !! coloringOn;
-            if (coloringOn === this.displayOptions.domainColoring) {
-                return; // nothing to update
-            }
-            this.displayOptions.domainColoring = coloringOn;
+        coloringOn = !! coloringOn;
+        if (coloringOn === this.displayOptions.domainColoring) {
+            return; // nothing to update
         }
-        
-        // apply setting stored in this.displayOptions.domainColoring
+        this.displayOptions.domainColoring = coloringOn;
 
+        this._applyDomainColoring();
+    }
+    _applyDomainColoring()
+    {
+        // apply setting stored in this.displayOptions.domainColoring
         if (this.displayOptions.domainColoring) {
             this.cy.nodes().addClass('useDomainColors');
         } else {
@@ -540,15 +528,17 @@ export class EczCodeGraph
 
     setCousinEdgesShown(show)
     {
-        if (show != null) {
-            show = !!show; // make sure the value is boolean
-            if (show === this.displayOptions.cousinEdgesShown) {
-                // no update required
-                return;
-            }
-            this.displayOptions.cousinEdgesShown = show;
+        show = !!show; // make sure the value is boolean
+        if (show === this.displayOptions.cousinEdgesShown) {
+            // no update required
+            return;
         }
+        this.displayOptions.cousinEdgesShown = show;
 
+        this._applyCousinEdgesShown();
+    }
+    _applyCousinEdgesShown()
+    {
         let cousinEdges = this.cy.edges('[_relType="cousin"]');
         if (this.displayOptions.cousinEdgesShown) {
             cousinEdges.removeClass("hidden"); 
@@ -564,15 +554,16 @@ export class EczCodeGraph
 
     setSecondaryParentEdgesShown(show)
     {
-        if (show != null) {
-            show = !!show; // make sure the value is boolean
-            if (show === this.displayOptions.secondaryParentEdgesShown) {
-                // no update required
-                return;
-            }
-            this.displayOptions.secondaryParentEdgesShown = show;
+        show = !!show; // make sure the value is boolean
+        if (show === this.displayOptions.secondaryParentEdgesShown) {
+            // no update required
+            return;
         }
-
+        this.displayOptions.secondaryParentEdgesShown = show;
+        this._applySecondaryParentEdgesShown();
+    }
+    _applySecondaryParentEdgesShown()
+    {
         let secondaryParentEdges =
             this.cy.edges('[_primaryParent=0]');
         if (this.displayOptions.secondaryParentEdgesShown) {
@@ -589,13 +580,15 @@ export class EczCodeGraph
 
     setLowDegreeNodesDimmed(options)
     {
-        if (options != null) {
-            if (_.isEqual(this.displayOptions.lowDegreeNodesDimmed, options)) {
-                // no update needed
-                return;
-            }
-            this.displayOptions.lowDegreeNodesDimmed = options;
+        if (_.isEqual(this.displayOptions.lowDegreeNodesDimmed, options)) {
+            // no update needed
+            return;
         }
+        this.displayOptions.lowDegreeNodesDimmed = options;
+        this._applyLowDegreeNodesDimmed();
+    }
+    _applyLowDegreeNodesDimmed()
+    {
         let {enabled, degree, dimLeaf} = this.displayOptions.lowDegreeNodesDimmed;
 
         this.cy.elements().removeClass('lowDegreeDimmed');
@@ -632,31 +625,35 @@ export class EczCodeGraph
     {
         debug('setDisplayMode(): ', { displayMode, modeIsolateNodesOptions });
 
-        if (displayMode != null) {
-            if (displayMode === this.displayOptions.displayMode) {
-                if (displayMode === 'all') {
-                    return; // no options to compare
-                } else if (displayMode === 'isolate-nodes') {
-                    if (_.isEqual(modeIsolateNodesOptions,
-                                  this.displayOptions.modeIsolateNodesOptions)) {
-                        // debug('setDisplayMode(): (nothing to update). ',
-                        //       { 'this.displayOptions': this.displayOptions,
-                        //         modeIsolateNodesOptions });
-                        return;
-                    }
-                } else {
-                    throw new Error(`Invalid display mode: ${displayMode}`);
-                }
-            }
-            this.displayOptions.displayMode = displayMode;
+        if (displayMode === this.displayOptions.displayMode) {
             if (displayMode === 'all') {
-                // no options to update
+                return; // no options to compare
             } else if (displayMode === 'isolate-nodes') {
-                _.merge(this.displayOptions.modeIsolateNodesOptions, modeIsolateNodesOptions);
+                if (_.isEqual(modeIsolateNodesOptions,
+                                this.displayOptions.modeIsolateNodesOptions)) {
+                    // debug('setDisplayMode(): (nothing to update). ',
+                    //       { 'this.displayOptions': this.displayOptions,
+                    //         modeIsolateNodesOptions });
+                    return;
+                }
             } else {
                 throw new Error(`Invalid display mode: ${displayMode}`);
             }
         }
+        this.displayOptions.displayMode = displayMode;
+        if (displayMode === 'all') {
+            // no options to update
+        } else if (displayMode === 'isolate-nodes') {
+            _.merge(this.displayOptions.modeIsolateNodesOptions, modeIsolateNodesOptions);
+        } else {
+            throw new Error(`Invalid display mode: ${displayMode}`);
+        }
+
+        this._applyDisplayMode();
+    }
+    _applyDisplayMode()
+    {
+        debug(`_applyDisplayMode()`, { displayOptions: this.displayOptions });
 
         // remove any display-mode related classes, we'll recompute them
         this.cy.elements().removeClass(
@@ -674,12 +671,12 @@ export class EczCodeGraph
             
             debug(`displayMode is 'all'`);
 
-            // nothing particular to do, all nodes ar to be displayed
+            // nothing particular to do, all nodes are to be displayed
 
         } else if (this.displayOptions.displayMode === 'isolate-nodes') {
 
-            debug(`applying displayMode=${this.displayOptions.displayMode} with`,
-                  { displayOptions: this.displayOptions });
+            // debug(`applying displayMode=${this.displayOptions.displayMode} with`,
+            //       { displayOptions: this.displayOptions });
 
             const {
                 nodeIds,
@@ -870,7 +867,8 @@ export class EczCodeGraph
             this._initialLayoutInvalidated = true;
         }
 
-        debug('code graph layout()');
+        debug('code graph layout()', { forceRelayout, animate },
+              { _initialLayoutInvalidated: this._initialLayoutInvalidated } );
 
         let rootNodeIds = null;
 
@@ -891,7 +889,24 @@ export class EczCodeGraph
 
         } else if (this.displayOptions.displayMode === 'isolate-nodes') {
 
-            const { nodeIds, redoLayout } = this.displayOptions.modeIsolateNodesOptions;
+            let { nodeIds, redoLayout } = this.displayOptions.modeIsolateNodesOptions;
+
+            // check that the given node ID's actually exist!
+            nodeIds = nodeIds.filter( (nodeId) =>  {
+                let e = this.cy.getElementById(nodeId);
+                // only keep elements for which getElementById() actually returns an element.
+                if (!e || !e.length) {
+                    console.error(`Invalid graph node ID: ${nodeId}.`);
+                    return false;
+                }
+                return true;
+            } );
+
+            if (this._initialLayoutInvalidated) {
+                // can't keep current layout if we risk showing nodes that haven't been laid out
+                // properly.
+                redoLayout = true;
+            }
 
             if (redoLayout) {
                 rootNodeIds = nodeIds;
@@ -905,10 +920,10 @@ export class EczCodeGraph
                 radius: 80,
             };
             // FIXME: this is buggy, why??
-            if (nodeIds.length === 1) {
+            if (rootNodeIds.length === 1) {
                 // keep that node where it is
                 _.merge(origin, {
-                    //position: this.cy.getElementById(nodeIds[0]).position(), // BUGGY??
+                    position: this.cy.getElementById(rootNodeIds[0]).position(), // BUGGY??
                     radius: 0,
                 });
             }
@@ -923,14 +938,6 @@ export class EczCodeGraph
             if (!redoLayout) {
                 shouldApplyCoseLayout = false;
             }
-            if ( this.cy.nodes('.prelayoutPositioned').size < 20) {
-                // No need to run fcose if we have few nodes.
-
-                // FIXME: check all pairs of nodes to make sure they aren't too
-                // close to each other and that their labels don't overlap.
-
-                //shouldApplyCoseLayout = false;
-            }                
 
             if (shouldApplyPrelayout || shouldApplyCoseLayout) {
                 this._initialLayoutInvalidated = true;
@@ -1025,15 +1032,8 @@ export class EczCodeGraph
                 .elements( (el) => (
                     el.visible() //&& (el.isNode() || el.data('_primaryParent') === 1)
                 ) )
-                .layout(
-                    _.merge(
-                        {
-                            ready: () => resolve(),
-                            stop: () => resolve(),
-                        },
-                        layoutOptions,
-                    ),
-                );
+                .layout(layoutOptions);
+            layout.on('layoutstop', resolve);
             layout.run();
         } );
 
@@ -1046,7 +1046,7 @@ export class EczCodeGraph
             this._initialLayoutInvalidated = false;
         }
         
-        debug('done!');
+        debug('layout() done!');
     }
 
 }
@@ -1119,7 +1119,7 @@ class PrelayoutRadialTree
         const numJ = rootNodeIdsToBePositioned.length;
         const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
         const origin = this.options.origin;
-        debug(`Will need to auto position ${numJ} root nodes`, { origin });
+        debug(`Will need to auto position ${numJ} root nodes;`, { origin });
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
             let angleFraction = j / maxJ;
             if (maxJ === 1) { // special case if we're positioning a single node
