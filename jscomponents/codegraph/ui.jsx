@@ -153,8 +153,6 @@ export function EczCodeGraphControlsComponent(props)
         }
     }, [ eczCodeGraph ]); // run ONCE only for the given code graph!
 
-    let buttonSnapshotSettingFullRef = useRef(null);
-
     //
     // Callbacks
     //
@@ -403,6 +401,10 @@ export function EczCodeGraphComponent(props)
 
     let cyDomNodeRef = useRef(null);
     let cyPanelDomNodeRef = useRef(null);
+
+    // This flag stores whether we have performed initial initialization on the cytoscape graph to
+    // integrate the object into the DOM & set up callbacks.  Only after we did this initialization
+    // will we start setting the graph state etc. to avoid running layouts twice, etc.
     let [cyUiInitialized, setCyUiInitialized] = useState(false);
 
     // UI state. Code selected/isolated, etc.
@@ -413,28 +415,40 @@ export function EczCodeGraphComponent(props)
         eczCodeGraph.domainColoring()
     );
     useEffect( () => {
+        if (!cyUiInitialized) {
+            return;
+        }
         eczCodeGraph.setDomainColoring(uiState.domainColoring);
-    }, [ uiState.domainColoring ] );
+    }, [ cyUiInitialized, uiState.domainColoring ] );
 
     [ uiState.cousinEdgesShown, uiState.setCousinEdgesShown ] = useState(
         eczCodeGraph.cousinEdgesShown()
     );
     useEffect( () => {
+        if (!cyUiInitialized) {
+            return;
+        }
         eczCodeGraph.setCousinEdgesShown(uiState.cousinEdgesShown);
-    }, [ uiState.cousinEdgesShown ] );
+    }, [ cyUiInitialized, uiState.cousinEdgesShown ] );
 
     [ uiState.secondaryParentEdgesShown, uiState.setSecondaryParentEdgesShown ] = useState(
         eczCodeGraph.secondaryParentEdgesShown()
     );
     useEffect( () => {
+        if (!cyUiInitialized) {
+            return;
+        }
         eczCodeGraph.setSecondaryParentEdgesShown(uiState.secondaryParentEdgesShown);
-    }, [ uiState.secondaryParentEdgesShown ] );
+    }, [ cyUiInitialized, uiState.secondaryParentEdgesShown ] );
 
     [ uiState.displayModeWithOptions, uiState.setDisplayModeWithOptions ] = useState({
         displayMode: eczCodeGraph.displayMode(),
         modeIsolateNodesOptions: eczCodeGraph.modeIsolateNodesOptions(),
     });
     useEffect( () => {
+        if (!cyUiInitialized) {
+            return;
+        }
         const runSetDisplayModeAndLayout = async () => {
             debug(`Updating graph's displayMode&Options -> `, uiState.displayModeWithOptions);
             eczCodeGraph.setDisplayMode(
@@ -447,7 +461,7 @@ export function EczCodeGraphComponent(props)
             onLayoutDone?.();
         };
         runSetDisplayModeAndLayout();
-    }, [ uiState.displayModeWithOptions ] );
+    }, [ cyUiInitialized, uiState.displayModeWithOptions ] );
 
 
     // --------------------------------
@@ -555,16 +569,14 @@ export function EczCodeGraphComponent(props)
             }
         });
 
-        // run the initial layout.
-        let layoutPromise = eczCodeGraph.layout({ animate: true });
-        layoutPromise.then( () => setCyUiInitialized(true) );
+        setCyUiInitialized(true);
     };
 
     useLayoutEffect( () => {
         if (!cyUiInitialized) {
             doInitializeCy();
         }
-    } );
+    }, [ cyUiInitialized ] );
 
     //
     // Render components
@@ -600,7 +612,7 @@ export function EczCodeGraphComponent(props)
         }
     }
 
-    let  rendered = (
+    let rendered = (
         <div className="EczCodeGraphComponent">
             <div ref={cyPanelDomNodeRef} className="EczCodeGraphComponent_CyPanel">
                 <div ref={cyDomNodeRef} className="EczCodeGraphComponent_Cy"></div>

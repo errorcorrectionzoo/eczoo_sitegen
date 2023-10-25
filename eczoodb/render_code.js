@@ -1,10 +1,10 @@
-import debug_mod from 'debug';
-const debug = debug_mod("eczoodbjs.render_code");
+//import debug_mod from 'debug';
+//const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
+//const { $$kw, repr } = zooflm;
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -215,6 +215,6 @@ export function render_code_page(
             annotations: ['sectioncontent'],
         }
     });
-};
+}
 
 

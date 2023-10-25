@@ -1,5 +1,5 @@
-import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
+//import debugm from 'debug';
+//const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
 
 import puppeteer from 'puppeteer';
 import { getCyStyleJson } from './index.js';

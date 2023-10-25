@@ -1379,7 +1379,7 @@ class _PrelayoutRadialTreeBranchSet
                     for (const edge of connectedEdges) {
                         const connectedNode = otherConnectedNode(edge, nodeId);
                         const connectedNodeId = connectedNode.id();
-                        if (this.positionedNodesData.hasOwnProperty(connectedNodeId)
+                        if (Object.hasOwn(this.positionedNodesData, connectedNodeId)
                             || seenNodes.has(connectedNodeId)) {
                             continue;
                         }
