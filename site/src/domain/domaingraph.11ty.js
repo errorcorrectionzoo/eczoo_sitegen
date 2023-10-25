@@ -65,10 +65,6 @@ const render = async (data) => {
         eczCodeGraph,
         {
             fitWidth: 620,
-            // cyStyleJsonOptions: {
-            //     fontFamily: 'Source Sans 3',
-            //     fontSize: '18px',
-            // },
         }
     );
 

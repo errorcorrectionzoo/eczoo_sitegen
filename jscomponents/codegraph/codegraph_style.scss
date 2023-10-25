@@ -105,146 +105,54 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
     overflow: auto;
 }
 
-// .CodeInformationSimpleComponent {
-//     height: 170px;
-//     overflow: auto;
-// }
+
 .EczCodeGraphControlsComponent {
-    font-size: 0.9rem;
-}
 
+    font-size: 0.8rem;
 
+    // .EczCodeGraphControlsComponent is a <fieldset>
+    margin: 0px;
+    padding: 0px;
+    border: none 0px;
 
+    > fieldset {
+        border: solid .4pt rgba(120,120,120,0.5);
+        margin: 2px 0px;
+        padding: 2px;
+        border-radius: 2px;
 
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
 
+        > legend {
+            margin-right: .35em;
+            min-width: 3em;
+            float: left;
+            flex-grow: 0;
+            flex-shrink: 0.2;
 
+            font-weight: bold;
+        }
 
-
-
-
-
-
-
-
-/*
-#code-graph-tooltip
-{
-    position: absolute;
-    min-width: 200px;
-    //min-height: 100px;
-    max-width: 500px;
-    background-color: white;
-    padding: 8px;
-}
-
-
-*/
-
-
-
-
-
-
-/*
-#code-graph-tooltip, .CodeInformationSimpleComponent
-{
-
-    font-family: $base-font-family;
-    font-size: $base-font-size;
-
-    box-shadow: 10px 7px 10px rgba(0,0,0,0.3);
-
-    .code-name, .domain-name, .kingdom-name {
-        display: inline-block;
-        padding: 3px;
-        margin-right: 1em;
-        font-weight: 500;
-    }
-
-    .code-description, .domain-description {
-        display: inline;
-        padding-bottom: 3px;
-        font-style: italic;
-        font-size: 0.9em;
-        color: rgba(0,0,0,0.8);
-    }
-
-    .spacer {
-        display: inline-block;
-        width: 1em;
-    }
-    .code-link, .domain-link, .kingdom-link {
-        display: inline-block;
-        margin-top: 5px;
-        font-style: italic;
-        font-size: 0.95em;
-    }
-
-    .kingdom-info {
-        display: block;
-    }
-
-    a.link-button {
-        display: block;
-        margin: 10px 0px 0px;
-        padding: 3px;
-        text-align: center;
-        background-color: mix($page-link-color, white, 5%);
-    }
-    a.link-button:hover {
-        background-color: mix($page-link-color, white, 10%);
-        //text-shadow: mix($page-link-color, white, 20%) 2px 1px 5px;
-    }
-}
-
-
-#code-graph-tooltip {
-
-    .tooltip-arrow::before {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        //background: inherit;
-    }
-
-    .tooltip-arrow {
-        visibility: hidden;
-    }
-
-    .tooltip-arrow::before {
-        visibility: visible;
-        //content: '•';
-        //content: '▴';
-        content: '';
-        background-image: url(prebaseurl('static/icons/tooltip-pointer.svg'));
-        //background-color: red;
-        //transform: rotate(45deg);
-        //transform-origin: 50% 50%;
+        .controls-input-group {
+            display: flex;
+            align-items: center;
+            //gap: .35em;
+            margin-left: .35em;
+        }
+        .controls-input-sep {
+            display: inline-block;
+            width: .5em;
+        }
+        .controls-input-break {
+            display: block;
+            width: 100%;
+        }
     }
 
 }
 
-#code-graph-tooltip[data-popper-placement^='top'] {
-    >.tooltip-arrow {
-        bottom: 0px;
-    }
-    >.tooltip-arrow::before {
-        transform: rotate(180deg);
-    }
-}
 
-#code-graph-tooltip[data-popper-placement^='bottom'] {
-    > .tooltip-arrow {
-        top: -8px;
-    }
-}
 
-// #code-graph-tooltip[data-popper-placement^='left'] > .tooltip-arrow {
-//   right: -4px;
-// }
 
-// #code-graph-tooltip[data-popper-placement^='right'] > .tooltip-arrow {
-//   left: -4px;
-// }
-
-*/

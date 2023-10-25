@@ -14,7 +14,8 @@ import {
 
 import {
     // render_text_standalone, is_flm_fragment,
-    $$kw, ZooHtmlFragmentRenderer, RefInstance,
+    $$kw, // ZooHtmlFragmentRenderer,
+    RefInstance,
     make_and_render_document, make_render_shorthands,
 } from '@phfaist/zoodb/zooflm';
 
@@ -127,27 +128,21 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
 
     let short_description = code_description.truncate_to( truncateDescriptionLength );
 
-    let kingdom_name = null;
-    let kingdom_description = null;
-    let kingdom = code.relations?.defines_kingdom?.[0]?.kingdom ?? null;
-    if (kingdom != null) {
-        debug(`code is a kingdom,`, kingdom);
-        let kingdom_schema = eczoodb.schemas.kingdom;
-        kingdom_name = flm_simple_content.compile_flm(
-            kingdom.name,
-            { object_type: 'kingdom',
-              object_schema: kingdom_schema,
-              object: kingdom,
-              fieldname: 'name' }
-        );
-        kingdom_description = flm_simple_content.compile_flm(
-            kingdom.description,
-            { object_type: 'kingdom',
-              object_schema: kingdom_schema,
-              object: kingdom,
-              fieldname: 'description' }
-        );
-    }
+    let kingdom = code.relations?.root_for_kingdom?.[0]?.kingdom ?? null;
+    // let kingdom_name = null;
+    // if (kingdom != null) {
+    //     debug(`code is a root code for kingdom,`, kingdom.kingdom_id);
+    //     let kingdom_schema = eczoodb.schemas.kingdom;
+    //     kingdom_name = flm_simple_content.compile_flm(
+    //         kingdom.name,
+    //         {
+    //             object_type: 'kingdom',
+    //             object_schema: kingdom_schema,
+    //             object: kingdom,
+    //             fieldname: 'name',
+    //         }
+    //     );
+    // }
 
     const render_doc_fn = (render_context) => {
         
@@ -156,27 +151,25 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
         let s = '';
 
         s += sqzhtml`
-  <span class="code-name" title="${code_id}">${ rdr(code_name) }</span>
-  <span class="code-introduced">${ rdr(code_introduced) }</span>`;
+  <div class="code-name-introduced">
+    <span class="code-name" title="${code_id}">
+      ${ rdr(code_name) }
+    </span>
+    <span class="code-introduced">${ rdr(code_introduced) }</span>
+    <a class="code-link" href="${code_ref_link}">go to page →</a>
+    </div>`;
 
         if (kingdom != null) {
             s += sqzhtml`
   <div class="kingdom-name">
     <span class="kingdom-name-label">
-      This code defines the
-    </span>&nbsp;${ rdr(kingdom_name) }</div>
-  <div class="kingdom-description">${ rdr(kingdom_description) }</div>`;
+      This code is a root code for the
+    </span>&nbsp;${ ref('kingdom', kingdom.kingdom_id) }
+  </div>`;
         }
 
         s += sqzhtml`
-  <div class="code-description">${ rdr(short_description) }</div>
-  <a class="code-link" href="${code_ref_link}">go to code page →</a>`;
-        if (kingdom != null) {
-            const kingdom_ref_link =
-                  eczoodb.zoo_object_permalink('kingdom', kingdom.kingdom_id);
-            s += sqzhtml`
-  <a class="kingdom-link" href="${kingdom_ref_link}">go to kingdom page →</a>`;
-        }
+  <div class="code-description">${ rdr(short_description) }</div>`;
 
         if (code.relations != null) {
             for (const [singular, plural, relations]
@@ -249,9 +242,11 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
 
         let s = '';
         s += sqzhtml`
-  <div class="domain-name">${ rdr(domain_name) }</div>
+  <div class="domain-name">
+    ${ rdr(domain_name) }
+    <a class="domain-link" href="${domain_ref_link}">go to page →</a>
+  </div>
   <div class="domain-description">${ rdr(domain_description) }</div>
-  <a class="domain-link" href="${domain_ref_link}">go to domain page →</a>
   <div class="domain-kingdoms-list">
     <p>Kingdoms:</p>
     <ul>`;
@@ -260,6 +255,73 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
             const { kingdom_id } = kingdom_relation;
             s += sqzhtml`
       <li>${ ref('kingdom', kingdom_id) }</li>`;
+        }
+        s += `
+    </ul>
+  </div>`;
+        return s;
+    };
+
+    return render(render_doc_fn);
+}
+
+
+
+function renderHtmlKingdom({ eczoodb, kingdom, captureLinksToObjectTypes, })
+{
+    const { flm_simple_content, render } = mkRenderWrapUtils({
+        eczoodb,
+        captureLinksToObjectTypes,
+    });
+
+    // -----------------
+
+    debug(`Rendering kingdom information ...`);
+
+    const kingdom_schema = eczoodb.schemas.kingdom;
+
+    const kingdom_id = kingdom.kingdom_id;
+    const kingdom_ref_link = eczoodb.zoo_object_permalink('kingdom', kingdom_id);
+
+    const kingdom_name = flm_simple_content.compile_flm(
+        kingdom.name,
+        {
+            object_type: 'kingdom',
+            object_schema: kingdom_schema,
+            object: kingdom,
+            fieldname: 'name',
+        }
+    );
+    const kingdom_description = flm_simple_content.compile_flm(
+        kingdom.description,
+        {
+            object_type: 'kingdom',
+            object_schema: kingdom_schema,
+            object: kingdom,
+            fieldname: 'description',
+        }
+    );
+
+    let render_doc_fn = (render_context) => {
+
+        const { ne, rdr, ref } = make_render_shorthands({render_context});
+
+        let s = '';
+        s += sqzhtml`
+  <div class="kingdom-name">
+    ${ rdr(kingdom_name) }
+    <a class="kingdom-link" href="${kingdom_ref_link}">go to page →</a>
+  </div>
+  <div class="kingdom-description">${ rdr(kingdom_description) }</div>
+  <div class="kingdom-part-of-domain">Kingdom in the ${ ref('domain', kingdom.parent_domain.domain_id) }</div>
+  <div class="kingdom-root-code-list">
+    <p>Root codes:</p>
+    <ul>`;
+
+        for (const kingdom_root_code_relation of kingdom.root_codes ?? []) {
+            const { code_id } = kingdom_root_code_relation;
+            s += sqzhtml`
+      <li>${ ref('code', code_id) }</li>`;
         }
         s += `
     </ul>
@@ -332,6 +394,7 @@ export function CodeGraphInformationPane(props)
         eczoodb,
         currentCodeSelected,
         currentDomainSelected,
+        currentKingdomSelected,
         captureLinksToObjectTypes,
         onLinkToObjectActivated,
         displayInformationOptions,
@@ -347,7 +410,7 @@ export function CodeGraphInformationPane(props)
 
     let contentDomRef = useRef(null);
 
-    let what = currentCodeSelected || currentDomainSelected;
+    let what = currentCodeSelected || currentDomainSelected || currentKingdomSelected;
     let [compiledHtmlContent, setCompiledHtmlContent] = useState({
         html: null,
         what,
@@ -373,6 +436,14 @@ export function CodeGraphInformationPane(props)
                         displayInformationOptions,
                         captureLinksToObjectTypes,
                         domain: currentDomainSelected,
+                    });
+                    setCompiledHtmlContent({ html, what, });
+                } else if (currentKingdomSelected != null) {
+                    let html = renderHtmlKingdom({
+                        eczoodb,
+                        displayInformationOptions,
+                        captureLinksToObjectTypes,
+                        kingdom: currentKingdomSelected,
                     });
                     setCompiledHtmlContent({ html, what, });
                 } else {
@@ -414,7 +485,7 @@ export function CodeGraphInformationPane(props)
         };
         setupHtmlContent();
         return;
-    }, [compiledHtmlContent, currentCodeSelected, currentDomainSelected] );
+    }, [compiledHtmlContent, currentCodeSelected, currentDomainSelected, currentKingdomSelected] );
 
     return (
         <div className="CodeGraphInformationPane"

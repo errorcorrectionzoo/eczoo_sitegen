@@ -236,17 +236,19 @@ export class EcZooDb extends ZooDb
 
     code_parent_domains(code, {find_domain_id} = {})
     {
-        let domains_by_kingdom_code_id = Object.fromEntries(
-            Object.entries(this.objects.kingdom).map(
-                ([kingdom_id, kingdom]) =>
-                  [kingdom.kingdom_code.code_id, kingdom.parent_domain]
-            )
-        );
+        let domains_by_kingdom_root_code_id = {};
+        for (const kingdom of Object.values(this.objects.kingdom)) {
+            for (const kingdomRootCodeRel of kingdom.root_codes) {
+                domains_by_kingdom_root_code_id[ kingdomRootCodeRel.code_id ] =
+                    kingdom.parent_domain;
+            }
+        }
+
         let domains = [];
         this.code_visit_relations(code, {
             relation_properties: ['parents'],
             callback: (code_visit) => {
-                const domain = domains_by_kingdom_code_id[code_visit.code_id];
+                const domain = domains_by_kingdom_root_code_id[code_visit.code_id];
                 if (domain !== undefined) {
                     domains.push(domain);
                     if (find_domain_id != null && domain.domain_id === find_domain_id) {
@@ -315,7 +317,7 @@ export class EcZooDb extends ZooDb
                     num_incoming_edges[child.code_id] += 1;
                 }
             }
-        };
+        }
 
         // find "root nodes" w/o any parents
         let root_nodes = codes.filter( (c) => (num_incoming_edges[c.code_id] === 0) );
@@ -357,13 +359,13 @@ export class EcZooDb extends ZooDb
             const clean_all_child_nodes = () => {
                 // Remove any listed children that are not themselves listed
                 // as having children.
-                while (true) {
+                for (;;) {
                     let remove_cids = new Set();
                     all_child_nodes = Object.fromEntries(
                         Object.entries(all_child_nodes).map( ([c_id, children]) => {
                             let new_children = (children ?? []).filter( (child) => {
                                 const child_id = child.code_id;
-                                if ( !all_child_nodes.hasOwnProperty(child_id)
+                                if ( !Object.hasOwn(all_child_nodes, child_id)
                                      || (all_child_nodes[child_id] == null)
                                      || (all_child_nodes[child_id].length == 0) ) {
                                     return false; // filter this child out

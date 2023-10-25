@@ -35,7 +35,7 @@ const render = async (data) => {
         displayMode: 'isolate-nodes',
         modeIsolateNodesOptions: {
             nodeIds: [
-                EczCodeGraph.getNodeIdCode( kingdom.kingdom_code.code_id )
+                EczCodeGraph.getNodeIdKingdom( kingdom.kingdom_id )
             ],
             redoLayout: true,
             range: {
@@ -60,16 +60,16 @@ const render = async (data) => {
 
     await eczCodeGraph.layout({ animate: false });
 
+    // debug(`Node final positions are: `,
+    //       eczCodeGraph.cy.nodes(':visible')
+    //       .map( (n) => Object.assign({ nId: n.id() }, n.position()) ));
+
     // now, export to SVG:
 
     let svgData = await eczoo_code_graph_svg_exporter.compile(
         eczCodeGraph,
         {
             fitWidth: 620,
-            // cyStyleJsonOptions: {
-            //     fontFamily: 'Source Sans 3',
-            //     fontSize: '18px',
-            // },
         }
     );
 

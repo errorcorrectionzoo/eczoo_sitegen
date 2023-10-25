@@ -11,7 +11,7 @@ import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
 // ---
 
-import _ from 'lodash';
+//import _ from 'lodash';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -41,6 +41,14 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
         debug(`Gonna highlight domain ${domainId}`);
         nodeId = EczCodeGraph.getNodeIdDomain(domainId);
     }
+    // matches a kingdom?
+    const nodeRxMatchKingdom = /^#kingdom_(.*)$/.exec(hrefFragment);
+    if (nodeRxMatchKingdom != null) {
+        // highlight a given code
+        const kingdomId = nodeRxMatchKingdom[1];
+        debug(`Gonna highlight kingdom ${kingdomId}`);
+        nodeId = EczCodeGraph.getNodeIdKingdom(kingdomId);
+    }
 
     if (nodeId == null) {
         // don't highlight anything specific via fragment
@@ -55,11 +63,11 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 1,
+                    secondary: 0,
                 },
                 children: {
                     primary: 2,
-                    secondary: 1,
+                    secondary: 0,
                 },
             },
         },
@@ -86,12 +94,9 @@ export async function load()
 
     const eczoodbDataUrl =
           domContainer.dataset.eczoodbDataUrl ?? '/dat/eczoodata.json';
-    // const eczoodbRefsDataUrl =
-    //       domContainer.dataset.eczoodbRefsDataUrl ?? '/dat/eczoorefsdata.json'; //
 
     // try to get data from the global 'window' object, in case it's there.
     let eczoodbData = window.eczData?.eczoodbData;
-    //let eczoodbRefsData = window.eczData?.eczoodbRefsData;
 
     if (!eczoodbData) {
         // download the search data
@@ -99,13 +104,7 @@ export async function load()
 
         let eczoodbDataJsonPromise =
             fetch(eczoodbDataUrl).then( (response) => response.json() );
-        // let eczoodbRefsDataJsonPromise =
-        //     fetch(eczoodbRefsDataUrl).then( (response) => response.json() );
-
-        // [eczoodbData, eczoodbRefsData] = await Promise.all([
-        //     eczoodbDataJsonPromise,
-        //     eczoodbRefsDataJsonPromise,
-        // ]);
+        
         eczoodbData = await eczoodbDataJsonPromise;
     }
 
@@ -163,17 +162,14 @@ export async function load()
 
     let displayOptions = {};
 
-    // // inspect dom node's own data for a highlight, if applicable
-    // if (domContainer.dataset.isolateTreeForCode) {
-    //     const codeId = domContainer.dataset.isolateTreeForCode;
-    //     _.merge(displayOptions, getDisplayOptionsFromUrlFragment(hrefFragment));
-    // }
-
     // inspect htmlFragment for display options
     const hrefFragment = window.location.hash;
     debug({hrefFragment});
     if (hrefFragment != null) {
-        _.merge(displayOptions, getDisplayOptionsFromUrlFragment(hrefFragment));
+        displayOptions = EczCodeGraph.getMergedDisplayOptions(
+            displayOptions,
+            getDisplayOptionsFromUrlFragment(hrefFragment)
+        );
     }
 
     let eczCodeGraph = new EczCodeGraph({

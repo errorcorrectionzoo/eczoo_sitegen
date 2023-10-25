@@ -1,5 +1,5 @@
 
-const debug = require('debug')('eczoo_sitegen.src.kingdom')
+//const debug = require('debug')('eczoo_sitegen.src.kingdom');
 
 
 // ---------------------------------------------------------
@@ -61,11 +61,18 @@ const render = async (data) => {
         //<p>Welcome to the ${ rdr(kingdom.name) }</p>`;
 
         s += sqzhtml`
-<p>The ${ rdr(kingdom.name) } is defined by the code:
-   ${ ref('code', kingdom.kingdom_code.code_id) }.</p>
+<p>Kingdom in the ${ ref('domain', kingdom.parent_domain.domain_id) }.</p>
+<p>Root codes of the ${ rdr(kingdom.name) }:</p>
+<ul>
+    ${
+        kingdom.root_codes.map( (rootCodeRel) =>
+            `<li>${ ref('code', rootCodeRel.code_id) }</li>`
+        ).join('')
+    }
+</ul>
 
 <div class="code-graph-excerpt">
-  <a href="/code_graph#code_${kingdom.kingdom_code.code_id}">
+  <a href="/code_graph#kingdom_${kingdom.kingdom_id}">
     <img src="/kingdom/kgraph_${kingdom.kingdom_id}.svg">
   </a>
 </div>

@@ -47,15 +47,17 @@ article.ecc-code-page {
         }
     }
 
-    > .code-defines-kingdom-name {
+    > .code-root-code-kingdom-name {
         font-size: 1rem;
+        padding: 4px;
+        border-radius: 2px;
 
         .kingdom-name-label {
             font-weight: normal;
         }
 
         font-weight: bold;
-        background-color: $ecc-page-defines-kingdom-background-color;
+        background-color: $ecc-page-kingdom-background-color;
     }
 
     @media screen {

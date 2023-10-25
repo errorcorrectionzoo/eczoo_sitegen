@@ -1,10 +1,10 @@
-import debug_mod from 'debug';
-const debug = debug_mod("eczoodbjs.render_code");
+//import debug_mod from 'debug';
+//const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
+//const { $$kw, repr } = zooflm;
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -66,18 +66,20 @@ export function render_code_page(
 `
         }
 
-        const kingdom = code.relations?.defines_kingdom?.[0]?.kingdom ?? null;
-        if (kingdom != null) {
-            html += sqzhtml`
-<div class="sectioncontent code-defines-kingdom-name">
+        const kingdomRelList = code.relations?.root_for_kingdom;
+        if (kingdomRelList != null && kingdomRelList.length >= 1) {
+            for (const { kingdom } of kingdomRelList) {
+                html += sqzhtml`
+<div class="sectioncontent code-root-code-kingdom-name">
     <span class="kingdom-name-label">
-      This code defines the
+      Root code for the
     </span> <!-- space -->${
    ref('kingdom', kingdom.kingdom_id)
 }</div>
-<div class="kingdom-description">${ rdr(kingdom.description) }</div>`;
+<div class="kingdom-description">${ rdr(kingdom.description) }</div>
+`;
+            }
         }
-
 
         if (code._meta?.stub) {
             html += sqzhtml`
@@ -213,6 +215,6 @@ export function render_code_page(
             annotations: ['sectioncontent'],
         }
     });
-};
+}
 
 
