@@ -99,6 +99,9 @@ export class EczCodeGraph
         // the eczoodb
         this.eczoodb = eczoodb;
 
+        // the background color to use
+        this.bgColor = 'rgb(255, 236, 217)';
+
         // options that define properties of the graph
         this.graphOptions = _.merge(
             {
@@ -199,13 +202,18 @@ export class EczCodeGraph
 
             domainColorIndexByDomainId[domainId] = thisDomainColorIndex;
 
+            const thisDomainName = contentToText(domain.name);
+            const thisDomainLabel = contentToNodeLabel(thisDomainName);
+
             nodes.push({
                 data: {
                     id: thisDomainNodeId,
-                    label: contentToNodeLabel(domain.name),
+                    label: thisDomainLabel,
                     _isDomain: 1,
                     _domainId: domainId,
                     _domainColorIndex: thisDomainColorIndex,
+
+                    _objectName: thisDomainName,
                 }
             });
 
@@ -230,6 +238,7 @@ export class EczCodeGraph
                         _isKingdom: 1,
                         _kingdomId: kingdomId,
                         _kingdomName: kingdomName,
+                        _objectName: kingdomName,
                         _parentDomainId: domainId,
                         _domainColorIndex: thisDomainColorIndex,
                     }
@@ -254,7 +263,8 @@ export class EczCodeGraph
 
             //debug(`adding code =`, code);
 
-            const codeShortName = this.eczoodb.code_short_name(code);
+            const codeShortName = contentToText(this.eczoodb.code_short_name(code));
+            const codeName = contentToText(code.name);
 
             let label = contentToNodeLabel(codeShortName);
 
@@ -265,6 +275,7 @@ export class EczCodeGraph
                 label: label,
                 _codeId: codeId,
                 _isCode: 1,
+                _objectName: codeName,
             };
 
             nodes.push({
@@ -474,14 +485,15 @@ export class EczCodeGraph
         debug("EczCodeGraph: initGraph() done");
     }
     
-    mountInDom(cyDomNode, options={})
+    mountInDom(cyDomNode, { bgColor, styleOptions }={})
     {
         // background color
-        cyDomNode.style.backgroundColor = 'rgb(255, 236, 217)';
+        this.bgColor = bgColor ?? this.bgColor;
+        cyDomNode.style.backgroundColor = this.bgColor;
 
         this.cy.mount( cyDomNode );
 
-        let styleOptions = _.merge( {}, options );
+        styleOptions = _.merge( {}, styleOptions );
         styleOptions.matchWebPageFonts ??= true; // default to True
 
         const newCyStyleJson = getCyStyleJson( styleOptions );
@@ -1049,6 +1061,33 @@ export class EczCodeGraph
         debug('layout() done!');
     }
 
+
+    //
+    // Search tool
+    //
+
+    search({text, caseSensitive})
+    {
+        caseSensitive ??= false;
+
+        // const selFn = (n) => {
+        //     if (!n.visible()) {
+        //         return false;
+        //     }
+        //     const nData = n.data();
+        //     if (nData.label?.includes(text) || nData._objectName?.includes(text)) {
+        //         return true;
+        //     }
+        // };
+        // const eles = this.cy.nodes(selFn);
+
+        const textEsc = JSON.stringify(text);
+        const eles = this.cy.nodes(
+            `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
+        );
+
+        return eles;
+    }
 }
 
 
@@ -1215,7 +1254,7 @@ class PrelayoutRadialTree
 
     }
 
-};
+}
 
 
 //
@@ -1574,7 +1613,7 @@ class _PrelayoutRadialTreeBranchSet
         }
     }
 
-};
+}
 
 
 

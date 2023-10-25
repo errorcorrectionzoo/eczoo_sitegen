@@ -1,5 +1,5 @@
 
-const debug = require('debug')('eczoo_sitegen.src.kingdom');
+//const debug = require('debug')('eczoo_sitegen.src.kingdom');
 
 
 // ---------------------------------------------------------

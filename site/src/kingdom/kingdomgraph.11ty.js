@@ -60,9 +60,9 @@ const render = async (data) => {
 
     await eczCodeGraph.layout({ animate: false });
 
-    debug(`Node final positions are: `,
-          eczCodeGraph.cy.nodes(':visible')
-          .map( (n) => Object.assign({ nId: n.id() }, n.position()) ));
+    // debug(`Node final positions are: `,
+    //       eczCodeGraph.cy.nodes(':visible')
+    //       .map( (n) => Object.assign({ nId: n.id() }, n.position()) ));
 
     // now, export to SVG:
 

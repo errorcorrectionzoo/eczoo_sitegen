@@ -317,7 +317,7 @@ export class EcZooDb extends ZooDb
                     num_incoming_edges[child.code_id] += 1;
                 }
             }
-        };
+        }
 
         // find "root nodes" w/o any parents
         let root_nodes = codes.filter( (c) => (num_incoming_edges[c.code_id] === 0) );
@@ -359,7 +359,7 @@ export class EcZooDb extends ZooDb
             const clean_all_child_nodes = () => {
                 // Remove any listed children that are not themselves listed
                 // as having children.
-                while (true) {
+                for (;;) {
                     let remove_cids = new Set();
                     all_child_nodes = Object.fromEntries(
                         Object.entries(all_child_nodes).map( ([c_id, children]) => {

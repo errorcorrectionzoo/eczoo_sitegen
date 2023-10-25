@@ -3,7 +3,7 @@ const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
 import _ from 'lodash';
 
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect, useId } from 'react';
 
 import cytoscape from 'cytoscape';
 import cySvg from 'cytoscape-svg';
@@ -15,6 +15,38 @@ import { CodeGraphInformationPane } from './CodeGraphInformationPane.jsx';
 import './codegraph_style.scss';
 
 
+
+function DownloadSnapshotControls(props)
+{
+    const { onDownloadSnapshot, bgColor } = props;
+
+    let [isFull, setFull] = useState(true);
+    let [isBgOn, setBgOn] = useState(false);
+
+    const htmlIdFull = useId();
+    const htmlIdBgOn = useId();
+
+    const doDownload = (format) => {
+        onDownloadSnapshot({ format, full: isFull, bg: isBgOn ? bgColor : null });
+    };
+
+    return (
+        <fieldset>
+            <legend>Snapshot</legend>
+            <span className="controls-input-group">
+                <input type="checkbox" id={htmlIdFull} checked={isFull} onChange={(e) => setFull(e.target.checked)}></input>
+                <label htmlFor={htmlIdFull}>full graph</label>
+                <input type="checkbox" id={htmlIdBgOn} checked={isBgOn} onChange={(e) => setBgOn(e.target.checked)}></input>
+                <label htmlFor={htmlIdBgOn}>background</label>
+            </span>
+            <span className="controls-input-sep"></span>
+            <span className="controls-input-group">
+                <button onClick={() => doDownload('svg')}>SVG</button>
+                <button onClick={() => doDownload('png')}>PNG</button>
+            </span>
+        </fieldset>
+    );
+}
 
 
 const zoomStep = 1.2;
@@ -92,7 +124,8 @@ export function EczCodeGraphControlsComponent(props)
     useEffect( () => {
         cy.nodes().removeClass(['highlight', 'dimmed']);
         if (searchGraphNodesText !== '') {
-            const eles = cy.nodes(`[label @*= ${JSON.stringify(searchGraphNodesText)}]`);
+            //const eles = cy.nodes(`[label @*= ${JSON.stringify(searchGraphNodesText)}]`);
+            const eles = eczCodeGraph.search({text: searchGraphNodesText});
             eles.addClass('highlight');
             cy.stop();
             cy.animate({
@@ -108,7 +141,7 @@ export function EczCodeGraphControlsComponent(props)
 
     // install events originating from cy itself (e.g. mouse scroll & zoom)
     const cyUserViewportEventNames = 'viewport'; //pinchzoom scrollzoom dragpan';
-    const cyUserViewportEventHandler = (event) => {
+    const cyUserViewportEventHandler = (/*event*/) => {
         if (cy.zoom() != zoomLevel) {
             setZoomLevel(cy.zoom());
         }
@@ -119,6 +152,8 @@ export function EczCodeGraphControlsComponent(props)
             cy.removeListener(cyUserViewportEventNames, cyUserViewportEventHandler);
         }
     }, [ eczCodeGraph ]); // run ONCE only for the given code graph!
+
+    let buttonSnapshotSettingFullRef = useRef(null);
 
     //
     // Callbacks
@@ -180,18 +215,56 @@ export function EczCodeGraphControlsComponent(props)
         setSearchGraphNodesText('');
     };
 
-    const doDownloadSvg = (options) => {
-        const svgData = eczCodeGraph.cy.svg(options);
+    const doDownloadSnapshot = async ({ format, full, scale, bg, pngOptions, svgOptions}) => {
+
+        let fnameExt = '';
+
+        let dataBlob = null;
+
+        const commonOptions = {
+            full: full ?? false,
+            scale: scale ?? undefined,
+            bg: bg ?? undefined,
+        };
+
+        if (format === 'svg') {
+
+            const svgString = eczCodeGraph.cy.svg(_.merge({}, commonOptions, svgOptions));
+
+            dataBlob = new Blob([svgString], { type: 'image/svg+xml' });
+            fnameExt = '.svg';
+
+        } else if (format === 'png') {
+
+            fnameExt = '.png';
+            dataBlob = eczCodeGraph.cy.png(_.merge({
+                output: 'blob',
+            }, commonOptions, pngOptions));
+
+        } else {
+            throw new Error(`Invalid graph snapshot format: ${format}`);
+        }
+
+        // create data URL and download. Argh this is ugly.
+        // https://stackoverflow.com/a/71860718/1694896
+        function promiseBlobToDataUrl(blob) {
+            return new Promise(r => {let a = new FileReader(); a.onload=r; a.readAsDataURL(blob)}).then(e => e.target.result);
+        }
+          
+        let dataUrl = await promiseBlobToDataUrl(dataBlob);
+        //debug(`Export data: `, {dataBlob, dataUrl});
 
         let aNode = window.document.createElement("a");
-        aNode.setAttribute("href", "data:image/svg+xml;base64,"+btoa(svgData));
-        aNode.setAttribute("download", "Error_Correction_Zoo_Code_Graph.svg");
+        aNode.setAttribute("href", dataUrl);
+
+        aNode.setAttribute("download", `Error_Correction_Zoo_Code_Graph${fnameExt}`);
         aNode.click();
     };
 
     return (
-        <div className="EczCodeGraphControlsComponent">
-            <div>
+        <fieldset className="EczCodeGraphControlsComponent">
+            <fieldset>
+                <legend>View</legend>
                 <input type="range"
                        min={-2.3}
                        max={2.3}
@@ -206,8 +279,9 @@ export function EczCodeGraphControlsComponent(props)
                     onClick={doCenter}
                 >center</button>
                 <button onClick={doZoomFit}>fit</button>
-            </div>
-            <div>
+            </fieldset>
+            <fieldset>
+                <legend>Display</legend>
                 <input type="checkbox"
                        id="input_domainColoring"
                        checked={domainColoring}
@@ -227,16 +301,17 @@ export function EczCodeGraphControlsComponent(props)
                            onChangeSecondaryParentEdgesShown(!! ev.target.checked) }
                 />
                 <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
-            </div>
-            <div>
-                <div>
-                    <button
-                        disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
-                        onClick={doModeIsolateExit}>back</button>
-                    <button
-                        disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
-                        onClick={doModeIsolateRelayout}>relayout</button>
-                    <span> </span>
+            </fieldset>
+            <fieldset>
+                <legend>Isolation</legend>
+                <button
+                    disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                    onClick={doModeIsolateExit}>home</button>
+                <button
+                    disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                    onClick={doModeIsolateRelayout}>relayout</button>
+                <span className="controls-input-break"></span>
+                <span className="controls-input-group">
                     <label htmlFor="input_modeIsolateNodesDisplayRange">tree:</label>
                     <input type="range"
                            id="input_modeIsolateNodesDisplayRange"
@@ -249,8 +324,9 @@ export function EczCodeGraphControlsComponent(props)
                                setModeIsolateNodesDisplayRange(parseFloat(ev.target.value))
                            }
                     />
-                </div>
-                <div>
+                </span>
+                <span className="controls-input-sep"></span>
+                <span className="controls-input-group">
                     <input type="checkbox"
                            id="input_modeIsolateNodesAddSecondary"
                            disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
@@ -259,21 +335,24 @@ export function EczCodeGraphControlsComponent(props)
                                setModeIsolateNodesAddSecondary(!! ev.target.checked) }
                     />
                     <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
-                </div>
-            </div>
-            <div>
+                </span>
+            </fieldset>
+            <fieldset>
+                <legend>Search</legend>
                 <input type="text"
                        id="input_searchGraphNodes"
-                       placeholder="search"
+                       placeholder="type to search"
                        value={ searchGraphNodesText }
                        onChange={ (ev) =>
                            doSearchGraphNodes(ev.target.value) }
                 />
                 <button onClick={() => doClearSearchGraphNodes()}>clear</button>
-            </div>
-            <button onClick={() => doDownloadSvg({full: true})}>SVG full</button>
-            <button onClick={() => doDownloadSvg({full: false})}>SVG snapshot</button>
-        </div>
+            </fieldset>
+            <DownloadSnapshotControls
+                onDownloadSnapshot={doDownloadSnapshot}
+                bgColor={eczCodeGraph.bgColor}
+                />
+        </fieldset>
     );
             /*
             <input type="checkbox"
@@ -422,7 +501,9 @@ export function EczCodeGraphComponent(props)
     // cytoscape initialization & graph event callbacks (e.g. "tap")
 
     let doInitializeCy = () => {
-        eczCodeGraph.mountInDom(cyDomNodeRef.current, { matchWebPageFonts, window });
+        eczCodeGraph.mountInDom(cyDomNodeRef.current, {
+            styleOptions: { matchWebPageFonts, window, },
+        });
 
         const tapEventHandlerFn = (eventTarget) => {
 
@@ -484,16 +565,6 @@ export function EczCodeGraphComponent(props)
             doInitializeCy();
         }
     } );
-
-    // // set Cy UI settings
-    // useEffect( () => {
-    //     if (cyUiInitialized) {
-    //         debug(`effect hook for diplayModeWithOptions`, uiState.displayModeWithOptions);
-    //         eczCodeGraph.setDisplayMode(uiState.displayMode, uiState.displayModeWithOptions);
-    //         eczCodeGraph.layout();
-    //     }
-    // }, [ uiState.diplayModeWithOptions ] );
-
 
     //
     // Render components
