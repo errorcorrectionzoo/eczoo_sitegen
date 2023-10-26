@@ -31,7 +31,7 @@ function DownloadSnapshotControls(props)
     };
 
     return (
-        <fieldset>
+        <fieldset className="controls-input-advanced-fieldset">
             <legend>Snapshot</legend>
             <span className="controls-input-group">
                 <input type="checkbox" id={htmlIdFull} checked={isFull} onChange={(e) => setFull(e.target.checked)}></input>
@@ -153,6 +153,8 @@ export function EczCodeGraphControlsComponent(props)
         }
     }, [ eczCodeGraph ]); // run ONCE only for the given code graph!
 
+    const rootFieldsetRef = useRef(null);
+
     //
     // Callbacks
     //
@@ -268,8 +270,13 @@ export function EczCodeGraphControlsComponent(props)
         aNode.click();
     };
 
+    const toggleControls = (/*event*/) => {
+        const el = rootFieldsetRef.current;
+        el.classList.toggle('state-hide-controls');
+    };
+
     return (
-        <fieldset className="EczCodeGraphControlsComponent">
+        <fieldset ref={rootFieldsetRef} className="EczCodeGraphControlsComponent state-hide-controls">
             <fieldset>
                 <legend>View</legend>
                 <input type="range"
@@ -280,36 +287,44 @@ export function EczCodeGraphControlsComponent(props)
                        onChange={ (ev) =>
                            doSetZoomLevel(Math.exp(parseFloat(ev.target.value))) }
                 />
-                <button onClick={doZoomIn}>+</button>
-                <button onClick={doZoomOut}>-</button>
-                <button
-                    onClick={doCenter}
-                >center</button>
-                <button onClick={doZoomFit}>fit</button>
+                <span className="controls-input-group">
+                    <button onClick={doZoomIn}>+</button>
+                    <button onClick={doZoomOut}>-</button>
+                    <button onClick={doCenter}>center</button>
+                    <button onClick={doZoomFit}>fit</button>
+                </span>
+                <span className="controls-input-sep"></span>
+                <button onClick={toggleControls}>controls</button>
             </fieldset>
-            <fieldset>
+            <fieldset className="controls-input-advanced-fieldset">
                 <legend>Display</legend>
-                <input type="checkbox"
-                       id="input_domainColoring"
-                       checked={domainColoring}
-                       onChange={ (ev) => onChangeDomainColoring(!! ev.target.checked) }
-                />
-                <label htmlFor="input_domainColoring">domain colors</label>
-                <input type="checkbox"
-                       id="input_cousinEdgesShown"
-                       checked={cousinEdgesShown}
-                       onChange={ (ev) => onChangeCousinEdgesShown(!! ev.target.checked) }
-                />
-                <label htmlFor="input_cousinEdgesShown">cousins</label>
-                <input type="checkbox"
-                       id="input_secondaryParentEdgesShown"
-                       checked={secondaryParentEdgesShown}
-                       onChange={ (ev) =>
-                           onChangeSecondaryParentEdgesShown(!! ev.target.checked) }
-                />
-                <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_domainColoring"
+                        checked={domainColoring}
+                        onChange={ (ev) => onChangeDomainColoring(!! ev.target.checked) }
+                    />
+                    <label htmlFor="input_domainColoring">domain colors</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_cousinEdgesShown"
+                        checked={cousinEdgesShown}
+                        onChange={ (ev) => onChangeCousinEdgesShown(!! ev.target.checked) }
+                    />
+                    <label htmlFor="input_cousinEdgesShown">cousins</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_secondaryParentEdgesShown"
+                        checked={secondaryParentEdgesShown}
+                        onChange={ (ev) =>
+                            onChangeSecondaryParentEdgesShown(!! ev.target.checked) }
+                    />
+                    <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
+                </span>
             </fieldset>
-            <fieldset>
+            <fieldset className="controls-input-advanced-fieldset">
                 <legend>Isolation</legend>
                 <button
                     disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
@@ -348,7 +363,7 @@ export function EczCodeGraphControlsComponent(props)
                     <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
                 </span>
             </fieldset>
-            <fieldset>
+            <fieldset className="controls-input-advanced-fieldset">
                 <legend>Search</legend>
                 <input type="text"
                        id="input_searchGraphNodes"

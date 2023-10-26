@@ -27,17 +27,20 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
     overflow: hidden;
 }
 
+// collapse side panel onto bottom half of screen on small devices
 @media screen and (max-width: 500px) {
     .EczCodeGraphComponent {
         grid-template-columns: 100%;
         grid-template-rows: 50% 50%;
 
         .EczCodeGraphComponent_SidePanel {
-            > div {
-                // min-height: 200px;
-                // overflow: hidden;
+            .CodeGraphInformationPane {
+                // let the side panel container scroll with its
+                // own "overflow: auto" setting
+                overflow: visible;
             }
         }
+
     }
 }
 
@@ -88,17 +91,17 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
 }
 
 .EczCodeGraphComponent_SidePanel {
-    //width: 330px;
     height: 100%;
 
     margin: 0px;
-    padding: 0px;
+    padding: 2px 0px;
+    box-sizing: border-box;
 
-    background-color: var(--main-background-color); //white;
+    background-color: var(--main-background-color);
     z-index: 100;
 
     display: grid;
-    grid-template-rows: 0fr 1fr;
+    grid-template-rows: minmax(auto, 0fr) 2fr;
     gap: 10px;
 
     // force ignoring current element size in parent element calculations
@@ -115,9 +118,11 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
     padding: 0px;
     border: none 0px;
 
+    //overflow: auto;
+
     > fieldset {
         border: solid .4pt rgba(120,120,120,0.5);
-        margin: 2px 0px;
+        margin: 0px;
         padding: 2px;
         border-radius: 2px;
 
@@ -153,6 +158,10 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
 
 }
 
-
+.EczCodeGraphControlsComponent.state-hide-controls {
+    > fieldset.controls-input-advanced-fieldset {
+        display: none; // hide advanced controls
+    }
+}
 
 
