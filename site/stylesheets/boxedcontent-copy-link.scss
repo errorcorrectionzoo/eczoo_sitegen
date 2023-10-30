@@ -1,0 +1,48 @@
+
+.boxedcontent {
+
+    display: block flow-root;
+
+    > .boxedcontent-copy-link {
+        font-family: $base-font-family;
+        color: var(--page-link-color);
+        cursor: pointer;
+        font-size: 13px;
+        line-height: 18px;
+        float: right;
+        margin: -2px 0px -2px 1em;
+        padding: 0px 4px;
+        border-radius: 2px;
+        border: solid 1pt;
+
+        &:hover {
+            box-shadow: 2px 2px 5px rgba(127,127,127,0.3);
+        }
+    }
+
+    &.visual-highlight-copied {
+        border-color: rgba(0,255,0,1.0) !important;
+        background-color: rgba(127,255,127,0.25) !important;
+        transition: background-color 0.4s;
+
+        > .boxedcontent-copy-link {
+            //color: rgba(0,255,0,1.0) !important;
+            border-color: rgba(0,255,0,1.0) !important;
+            background-color: rgba(127,255,127,0.25) !important;
+            transition: background-color 0.4s;
+
+            &:hover {
+                box-shadow: none;
+            }
+            &::before {
+                content: '✔️';
+            }
+        }
+    }
+    &.visual-highlight-copied-done {
+        transition: background-color 0.4s;
+        > .boxedcontent-copy-link {
+            transition: background-color 0.4s;
+        }
+    }
+}

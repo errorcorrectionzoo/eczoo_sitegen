@@ -412,10 +412,11 @@ ${navigation_links}
     s += sqzhtml`
 </div>`;
 
-    // Helper script for navigation links
+    // Helper script for navigation links and copying content such as bibtex info
     s += sqzhtml`
   <script type="text/javascript">
   ${read_source_file_contents('~/site/tinyjavascript/expandnavlinks.js')}
+  ${read_source_file_contents('~/site/tinyjavascript/copyboxedcontent.js')}
   </script>
 `;
 

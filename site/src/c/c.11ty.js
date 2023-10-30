@@ -320,7 +320,7 @@ const render = async (data) => {
     <dt>Cite as:</dt>
     <dd class="boxedcontent">${ code_text_citation }</dd>
     <dt>BibTeX:</dt>
-    <dd class="boxedcontent"><pre class="bibtex">${ code_bibtex }</pre></dd>
+    <dd class="boxedcontent bibtex">${ code_bibtex }</dd>
   </dl>
   </div>
   <div class="code-popup-info-frame"

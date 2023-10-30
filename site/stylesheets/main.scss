@@ -495,12 +495,18 @@ a.linkcodegraph:hover {
 
     user-select: contain;
 }
-.bibtex {
+@mixin mixin-boxedcontent-pre {
     font-family: monospace;
     font-size: 12px;
     white-space: pre-wrap;
+    line-height: 17px;
 }
-
+.bibtex {
+    @include mixin-boxedcontent-pre;
+}
+.boxedcontent-pre {
+    @include mixin-boxedcontent-pre;
+}
 
 .show-citation, .show-share-social {
     display: block;
@@ -510,7 +516,7 @@ a.linkcodegraph:hover {
         display: block;
     }
     > dd {
-        display: block;
+        display: block flow-root;
         margin-left: 0px;
         //padding: 0px;
         
@@ -591,6 +597,15 @@ a.linkcodegraph:hover {
 ////////////////////////////////////////////////////////////////////////////////
 
 @import 'visual-highlight.scss';
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// "copy" buttons for bibtex content and citation info
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@import 'boxedcontent-copy-link.scss';
 
 
 
