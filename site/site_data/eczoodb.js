@@ -46,8 +46,8 @@ module.exports = async (configData) => {
         await cached_eczoodb.load();
 
     } catch (err) {
+        console.error(`ERROR LOADING ZOO [eczoodb.js]:`);
         console.error(err);
-        console.error(`ERROR LOADING ZOO: ${err}`);
         throw err;
     }
 
