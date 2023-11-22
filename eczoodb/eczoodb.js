@@ -435,6 +435,8 @@ export class EcZooDb extends ZooDb
     async validate()
     {
         // Check that there are no cycles in parent-child relationships.
+        
+        // eslint-disable-next-line no-unused-vars
         let all_parent_child_sorted_codes = this.code_parent_child_sort(
             Object.values(this.objects.code)
         );

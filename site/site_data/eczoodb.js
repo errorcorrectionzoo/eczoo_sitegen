@@ -1,6 +1,27 @@
 
 let cached_eczoodb = null;
 
+
+function get_error_string(err)
+{
+    let errstr = null;
+    try {
+        if (err && err.__class__ != null) {
+            if (err.args) {
+                errstr = `${err.__class__.__name__}: ${err.args}`;
+            } else {
+                errstr = `${err.__class__.__name__} (no information)`;
+            }
+        } else {
+            errstr = ''+err;
+        }
+    } catch (tostrerr) {
+        errstr = Object.toString(err);
+    }
+    return errstr;
+}
+
+
 module.exports = async (configData) => {
 
     const eczoo_config = configData.eczoo_config;
@@ -35,8 +56,8 @@ module.exports = async (configData) => {
             cached_eczoodb.install_zoo_loader_handler(loader_handler);
 
         } catch (err) {
+            console.error(`ERROR INITIALIZING ZOO: ${get_error_string(err)}`);
             console.error(err);
-            console.error(`ERROR INITIALIZING ZOO: ${err}`);
             throw err;
         }
     }
@@ -46,7 +67,7 @@ module.exports = async (configData) => {
         await cached_eczoodb.load();
 
     } catch (err) {
-        console.error(`ERROR LOADING ZOO [eczoodb.js]:`);
+        console.error(`ERROR LOADING ZOO [site/site_data/eczoodb.js]: ${get_error_string(err)}`);
         console.error(err);
         throw err;
     }
