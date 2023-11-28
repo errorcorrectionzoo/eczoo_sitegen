@@ -107,7 +107,7 @@ async function runmain({
             throw_reload_errors: false, // for when in devel mode with eleventy
         }
     );
-    eczoodb.install_zoo_loader_handler(loader_handler);
+    await eczoodb.install_zoo_loader_handler(loader_handler);
 
     
     await eczoodb.load();

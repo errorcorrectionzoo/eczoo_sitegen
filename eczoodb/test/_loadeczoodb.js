@@ -25,7 +25,7 @@ export async function load_eczoo_cached({ eczoodb_options }={})
         ... (eczoodb_options ?? {}),
     });
     let loader = await createEcZooYamlDbDataLoader(eczoodb);
-    eczoodb.install_zoo_loader_handler(
+    await eczoodb.install_zoo_loader_handler(
         new ZooDbDataLoaderHandler( loader )
     );
 

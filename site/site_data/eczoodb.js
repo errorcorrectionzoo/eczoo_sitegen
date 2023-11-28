@@ -53,7 +53,7 @@ module.exports = async (configData) => {
                     throw_reload_errors: false, // for when in devel mode with eleventy
                 }
             );
-            cached_eczoodb.install_zoo_loader_handler(loader_handler);
+            await cached_eczoodb.install_zoo_loader_handler(loader_handler);
 
         } catch (err) {
             console.error(`ERROR INITIALIZING ZOO: ${get_error_string(err)}`);

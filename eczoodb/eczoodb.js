@@ -434,6 +434,9 @@ export class EcZooDb extends ZooDb
 
     async validate()
     {
+        // any validation done by the parent zoodb object
+        super.validate();
+
         // Check that there are no cycles in parent-child relationships.
         
         // eslint-disable-next-line no-unused-vars

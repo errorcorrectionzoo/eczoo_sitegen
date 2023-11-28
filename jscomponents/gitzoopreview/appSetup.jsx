@@ -179,7 +179,7 @@ export async function installApp({ elementId })
         } );
         const loader = await createEcZooYamlDbDataLoader(zoodb);
         const loader_handler = new ZooDbDataLoaderHandler(loader);
-        zoodb.install_zoo_loader_handler(loader_handler);
+        await zoodb.install_zoo_loader_handler(loader_handler);
 
         await zoodb.load();
 
