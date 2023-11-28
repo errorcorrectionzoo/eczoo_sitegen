@@ -1,5 +1,3 @@
-import path from 'path';
-
 import csl_style_json_data from './eczoo-bib-style.js';
 
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
@@ -39,4 +37,4 @@ export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}
             },
         },
     };
-};
+}

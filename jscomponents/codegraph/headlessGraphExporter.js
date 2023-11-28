@@ -16,10 +16,15 @@ const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2
 
 export class CodeGraphSvgExporter
 {
-    constructor()
+    constructor(options)
     {
         this.browser = null;
         this.page = null;
+
+        this.options = loMerge({
+            autoCloseMs: -1,
+        }, options ?? {});
+        this.autoCloseTimeoutId = null;
     }
 
     async setup()
@@ -50,91 +55,132 @@ ${ importSourceSansFontsCss }
                 url: scriptUrl,
             });
         }
+
+        this._fireAutoCloseTimer();
+    }
+
+    _cancelAutoCloseTimer() {
+        if (this.autoCloseTimeoutId != null) {
+            clearTimeout(this.autoCloseTimeoutId);
+        }
+    }
+    _fireAutoCloseTimer() {
+        this._cancelAutoCloseTimer();
+        if (this.options.autoCloseMs && this.options.autoCloseMs > 0) {
+            this.autoCloseTimeoutId = setTimeout(
+                () => {
+                    this.autoCloseTimeoutId = null;
+                    console.log('*** timeout *** CodeGraphSvgExporter was idle for too long, shutting down.');
+                    this.done();
+                },
+                this.options.autoCloseMs
+            );
+        }
     }
 
     async done()
     {
+        // remove any existing timeout.
+        this._cancelAutoCloseTimer();
+
         // Close browser.
-        await this.browser.close();
+        if (this.browser != null) {
+            await this.browser.close();
+            this.browser = null;
+        }
     }
 
     async compile(eczCodeGraph, options={})
     {
+        this._cancelAutoCloseTimer();
+        if (this.browser == null) {
+            throw new Error(
+                'CodeGraphSvgExporter.compile(): Browser is already null! '
+                + '(either didn\'t setup(), timed out, or done() called)'
+            );
+        }
+
         const {
             cyStyleJsonOptions,
             fitWidth,
             embedSourceSansFonts,
         } = options ;
 
-        // first, get the SVG data for this graph
-        const cyJsonData = eczCodeGraph.cy.json();
+            try {
 
-        const styleData = getCyStyleJson(
-            loMerge(
-                {
-                    fontFamily: "Source Sans Pro",
-                    fontSize: '18px',
-                },
-                cyStyleJsonOptions
-            )
-        );
+            // first, get the SVG data for this graph
+            const cyJsonData = eczCodeGraph.cy.json();
 
-        const jsCode = `
-(function () {
+            const styleData = getCyStyleJson(
+                loMerge(
+                    {
+                        fontFamily: "Source Sans Pro",
+                        fontSize: '18px',
+                    },
+                    cyStyleJsonOptions
+                )
+            );
 
-  var graphData = ${JSON.stringify(cyJsonData)};
-  var styleData = ${JSON.stringify(styleData)};
+            const jsCode = `
+    (function () {
 
-  var domNode = window.document.createElement('div');
-  window.document.body.appendChild(domNode);
-  //domNode.setAttribute('style', "width: '400px'; height: '600px';"); // looks unnecessary.
+    var graphData = ${JSON.stringify(cyJsonData)};
+    var styleData = ${JSON.stringify(styleData)};
 
-  var cy = cytoscape({
-    container: domNode
-  });
+    var domNode = window.document.createElement('div');
+    window.document.body.appendChild(domNode);
+    //domNode.setAttribute('style', "width: '400px'; height: '600px';"); // looks unnecessary.
 
-  cy.json(graphData);
-  cy.style(styleData);
+    var cy = cytoscape({
+        container: domNode
+    });
 
-  var svgData = cy.svg({ full: true });
+    cy.json(graphData);
+    cy.style(styleData);
 
-  window.document.body.removeChild(domNode);
+    var svgData = cy.svg({ full: true });
 
-  return svgData;
+    window.document.body.removeChild(domNode);
 
-})();
-`;
-        //debug('Generating SVG, using jsCode =', jsCode);
+    return svgData;
 
-        // Evaluate JavaScript
-        let svgData = await this.page.evaluate(jsCode);
+    })();
+    `;
+            //debug('Generating SVG, using jsCode =', jsCode);
 
-        if (fitWidth ?? false) {
-            svgData = svgData.replace(
-                /(<svg [^>]*)width="([^"]+)"[ \t]+height="([^"]+)"/,
-                (match, starttag, width, height) => {
-                    if (width < fitWidth) {
-                        return match;
+            // Evaluate JavaScript
+            let svgData = await this.page.evaluate(jsCode);
+
+            if (fitWidth ?? false) {
+                svgData = svgData.replace(
+                    /(<svg [^>]*)width="([^"]+)"[ \t]+height="([^"]+)"/,
+                    (match, starttag, width, height) => {
+                        if (width < fitWidth) {
+                            return match;
+                        }
+                        return (
+                            `${starttag}viewBox="0 0 ${width} ${height}" `
+                            + `width="${fitWidth}" preserveAspectRatio="xMidYMid meet"`
+                        );
                     }
-                    return (
-                        `${starttag}viewBox="0 0 ${width} ${height}" `
-                        + `width="${fitWidth}" preserveAspectRatio="xMidYMid meet"`
-                    );
-                }
-            );
-        }
+                );
+            }
 
-        if (embedSourceSansFonts ?? true) {
-            // insert imports immediately after the end of the first tag
-            svgData = svgData.replace(
-                /(<svg [^>]*>)/,
-                (match) => {
-                    return match + `<style>${ importSourceSansFontsCss }</style>`;
-                }
-            );
-        }
+            if (embedSourceSansFonts ?? true) {
+                // insert imports immediately after the end of the first tag
+                svgData = svgData.replace(
+                    /(<svg [^>]*>)/,
+                    (match) => {
+                        return match + `<style>${ importSourceSansFontsCss }</style>`;
+                    }
+                );
+            }
 
-        return svgData;
+            return svgData;
+
+        } finally {
+            this._fireAutoCloseTimer();
+        }
     }
 }
 

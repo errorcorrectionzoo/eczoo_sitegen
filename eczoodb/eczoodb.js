@@ -444,7 +444,7 @@ export class EcZooDb extends ZooDb
             Object.values(this.objects.code)
         );
     }
-};
+}
 
 
 

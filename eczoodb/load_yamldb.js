@@ -18,4 +18,4 @@ export async function createEcZooYamlDbDataLoader(zoodb)
     };
 
     return await makeStandardYamlDbDataLoader(zoodb, config);
-};
+}

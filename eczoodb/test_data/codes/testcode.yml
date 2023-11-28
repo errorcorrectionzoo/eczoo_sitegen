@@ -36,6 +36,10 @@ description: |
 
   Check this citation that doesn't resolve with crossref
   \cite{doi:10.7907/059V-MG69}.
+  
+  %%Double-percent '%%' introduces a FLM comment
+  %%Example invalid citation: \cite{arXiv:1806.1032}
+
 
 protection: |
   Detects errors on \(d-1\) qubits, corrects errors on \(\left\lfloor (d-1)/2

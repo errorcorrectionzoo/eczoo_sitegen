@@ -137,7 +137,9 @@ module.exports = (eleventyConfig) => {
                     + `_eczoo_code_graph_svg_exporter_instance!!`
                 );
             }
-            _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter();
+            _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
+                autoCloseMs: 5 * 60 * 1000, // 5 minutes
+            });
             await _eczoo_code_graph_svg_exporter_instance.setup();
         });
         eleventyConfig.on('eleventy.after', async () => {
