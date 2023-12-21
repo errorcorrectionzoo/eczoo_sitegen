@@ -259,8 +259,8 @@ const render = async (data) => {
     );
     const code_edit_github_url = (
         `https://github.com/errorcorrectionzoo/eczoo_data`
-        + `/tree/main/${code._zoodb.source_file_path}`
-    );
+        + `/edit/main/${code._zoodb.source_file_path}`
+    ); // e.g. https://github.com/errorcorrectionzoo/eczoo_data/edit/main/codes/approximate_oaecc.yml
     const code_edit_onsite_url = (
         `/edit_code#${encodeURIComponent(JSON.stringify({
               code_id: code.code_id,
@@ -305,7 +305,9 @@ const render = async (data) => {
     <p><a class="code-link-with-icon code-show-github"
           target="_blank"
           title="Edit code information directly on github.com"
-          href="${ code_edit_github_url }">on github.com (edit &amp; pull request)</a></p>
+          href="${ code_edit_github_url }">on github.com (edit &amp; pull request)</a>
+          — see <a title="edit source instructions" target="_blank"
+                   href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/README.md">instructions</a></p>
     <p><a class="code-link-with-icon code-self-edit"
           target="_blank"
           title="edit code information on this site without using github"
