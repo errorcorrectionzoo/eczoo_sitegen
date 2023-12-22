@@ -5,6 +5,10 @@ import html_escape from 'escape-html';
 
 import { render_code_page } from '@errorcorrectionzoo/eczoodb/render_code.js';
 import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelist.js';
+import { render_person } from '@errorcorrectionzoo/eczoodb/render_person.js';
+import { render_kingdom } from '@errorcorrectionzoo/eczoodb/render_kingdom.js';
+import { render_domain } from '@errorcorrectionzoo/eczoodb/render_domain.js';
+
 import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
@@ -61,8 +65,8 @@ async function getCodeRecommendationsHtml({ zoodb, objectType, objectId, object,
     let recommendationsHtml = [];
 
     // 
-    // Recommend that there are no images in the first paragraph of the
-    // description, and that the description renders cleanly.
+    // Recommend that the description renders cleanly with no internal references
+    // to other parts of the code page.
     //
 
     try {
@@ -77,11 +81,6 @@ async function getCodeRecommendationsHtml({ zoodb, objectType, objectId, object,
             const { ne, rdr, ref } = R;
 
             return rdr(firstParagraphDescription);
-        };
-
-        const override_get_graphics_resource = () => {
-            throw new Error(`Use of an image in the first paragraph of `
-                            + `a code's description is discouraged.`);
         };
 
         let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
@@ -214,6 +213,55 @@ ${codeHtmlContent}
                 }
             }
         );
+
+    } else if (objectType === 'user') {
+
+        const user = zoodb.objects.user[objectId];
+        htmlContent = sqzhtml`
+            <article><div class="tiles-collection">
+                ${render_person(user)}
+            </div></article>
+        `;
+
+    } else if (objectType === 'kingdom') {
+
+        const kingdom = zoodb.objects.kingdom[objectId];
+        const kingdomHtmlRendered = render_kingdom(
+            kingdom,
+            {
+                eczoodb: zoodb,
+                zoo_flm_environment: zoodb.zoo_flm_environment,
+                additional_setup_render_context,
+                render_meta_changelog_options: {
+                    details_open: true
+                }
+            }
+        );
+        htmlContent = sqzhtml`
+            <article>
+                ${kingdomHtmlRendered}
+            </article>
+        `;
+
+    } else if (objectType === 'domain') {
+
+        const domain = zoodb.objects.domain[objectId];
+        const domainHtmlRendered = render_domain(
+            domain,
+            {
+                eczoodb: zoodb,
+                zoo_flm_environment: zoodb.zoo_flm_environment,
+                additional_setup_render_context,
+                render_meta_changelog_options: {
+                    details_open: true
+                }
+            }
+        );
+        htmlContent = sqzhtml`
+            <article>
+                ${domainHtmlRendered}
+            </article>
+        `;
 
     } else {
 

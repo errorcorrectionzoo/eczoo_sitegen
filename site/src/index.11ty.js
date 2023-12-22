@@ -68,7 +68,7 @@ async function render(data)
     const zooflm = await import('@phfaist/zoodb/zooflm');
     const flm_html_renderer = new zooflm.ZooHtmlFragmentRenderer();
 
-    const { zoo_generate_stats } = await import('@errorcorrectionzoo/eczoodb/stats.js');
+    const { get_home_page_stats } = await import('@errorcorrectionzoo/eczoodb/stats.js');
 
     const flmrender = (fragment) => {
         if (zooflm.value_not_empty(fragment)) {
@@ -82,11 +82,7 @@ async function render(data)
     // const popular_code_id_list = [ 'css' ];
     const popular_code_id_list = home_page_data.popular_code_id_list;
 
-    const zoo_stats = zoo_generate_stats( {
-        eczoodb,
-        stats: home_page_data.stats_spec
-    } );
-
+    const zoo_stats = eczoodb.ecz_stats_processor.get_home_page_stats();
 
     const heading_separator_html = '&nbsp;▸&nbsp;&nbsp;';
 
@@ -237,9 +233,9 @@ async function render(data)
 <nav class="page-index-box" id="quick-stats-box">
   Stats at a glance: `;
         let s_items = [];
-        for (const [zoo_stat_number, zoo_stat_label] of zoo_stats) {
+        for (const {value, label} of zoo_stats) {
             s_items.push(`
-   <span class="stat-number">${ zoo_stat_number }</span>&nbsp;${zoo_stat_label}` .trim());
+   <span class="stat-number">${ value }</span>&nbsp;${label}` .trim());
         }
         s += join_list_items(s_items, { and: 'and ', wrap_item: (v) => v });
     }

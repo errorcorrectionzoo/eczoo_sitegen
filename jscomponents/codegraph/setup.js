@@ -114,6 +114,8 @@ export async function load()
     let eczoodbOpts = {
         use_relations_populator,
 
+        // In the future, maybe use ecz stats processor? currently it's not needed.
+
         use_flm_environment,
         use_flm_processor: false,
 

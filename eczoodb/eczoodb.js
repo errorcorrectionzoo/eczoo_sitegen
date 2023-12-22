@@ -1,5 +1,5 @@
 import debug_mod from 'debug';
-const debug = debug_mod("eczoodbjs");
+const debug = debug_mod("eczoodb");
 
 import loMerge from 'lodash/merge.js';
 

@@ -28,22 +28,10 @@ module.exports = {
 
     max_display_box_codelists: 20, //16,
 
-
-    stats_spec: [
-        ['total_num_codes', {label: 'code entries'}],
-        ['total_num_kingdoms', {label: 'kingdoms'}],
-        ['total_num_domains', {label: 'domains'}],
-        ['code_familyhead_ids_and_codetypes', { spec_list: [
-            //[['ecc', 'classical_into_quantum'], 'classical codes'],
-            [['ecc'], 'classical codes'],
-            [['quantum_into_quantum'], 'quantum codes'],
-            [['classical_into_quantum'], 'c-q codes'],
-            [['topological'], 'topological codes'],
-            //[['css'], 'CSS codes'],
-            [['qldpc'],'quantum LDPC codes'],
-            [['dynamic_gen'], 'dynamically generated codes'],
-            [['css', 'qudit_css', 'galois_css'], 'CSS codes'],
-            [['oscillators'], 'bosonic codes'],
-        ]} ],
-    ]
+    //
+    // HOME PAGE STATISTICS SPECIFICATION HAS MOVED.
+    //
+    // Edit which stats to compute in "eczoo_sitegen/eczoodb/stats.js".
+    //
+    //
 };

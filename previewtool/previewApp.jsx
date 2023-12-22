@@ -1,12 +1,10 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.previewtool.previewApp');
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import path from 'path';
-
-import mime from 'mime-types';
 
 import {
     ZooDbPreviewComponent,
@@ -24,12 +22,6 @@ import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
 import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
 import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
-
-import { render_code_page } from '@errorcorrectionzoo/eczoodb/render_code.js'
-import { render_codelist_page } from '@errorcorrectionzoo/eczoodb/render_codelist.js'
-
-import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
-
 
 import { renderObject } from '../jscomponents/gitzoopreview/renderObject.js';
 
