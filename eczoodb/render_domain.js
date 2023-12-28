@@ -8,7 +8,8 @@ import * as zooflm from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
-    render_meta_changelog
+    render_meta_changelog,
+    render_stat_num_codes
 } from './render_utils.js';
     
 
@@ -66,7 +67,7 @@ export function render_domain(
     </a>`;
             if (stats != null) {
                 s += sqzhtml`
-    <!-- space --> <span class="num-codes-per-kingdom">(<span class="stat-number">${stats.num_codes_per_kingdom[kingdom_id].value}</span> codes)</span>
+    <!-- space --> <span class="num-codes-per-kingdom">(${render_stat_num_codes(stats.num_codes_per_kingdom[kingdom_id].value)})</span>
                 `;
             }
             s += sqzhtml`

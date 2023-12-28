@@ -9,6 +9,7 @@
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview",
     "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
+    "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_search",
     "@popperjs/core": "^2.11.6",
     "@uiw/react-codemirror": "^4.15.1",
     "cytoscape": "^3.23.0",

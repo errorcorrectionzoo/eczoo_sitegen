@@ -462,6 +462,7 @@ __metadata:
     "@parcel/transformer-sass": 2.9.3
     "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview"
     "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview"
+    "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_search"
     "@popperjs/core": ^2.11.6
     "@uiw/react-codemirror": ^4.15.1
     cytoscape: ^3.23.0
@@ -1896,7 +1897,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=b6efea2d9d1fca69b1f403c121ead25729721955"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=10457825b9f1b5a8de91ebee5358a24e08ba5005"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -1911,20 +1912,18 @@ __metadata:
     js-yaml: ^4.1.0
     jsonschema: ^1.4.1
     lodash: ^4.17.21
-    lunr: ^2.3.9
     node-fetch: ^3.2.10
     parse-full-name: ^1.2.6
     sax: ^1.2.4
     stream-parser: ^0.3.1
-    tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 97e695468654a564c7ab7c4edde738aab312f36266fb17b0a268f252439ede7dc98f311acf0f88eb6d280b0cb3de24e7ba20574f5cc9a55d4e9699eb99dcbc8d
+  checksum: 5f03848ef84656abf5e0cafa438a0678be18647fc56d4fe6e8c5c030f6e8fbdd7f4fd73b9ec7b9aeef5edcecd1ad3d99accc359b2cf3af2a3652eab50ef5c7fb
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=78e08be5df8d789e7d9f1e217c98c23dfaa64a56"
+  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=0f6a926713b3112cd0ffeb68835caab6074ade8b"
   dependencies:
     browserfs: ^1.4.3
     debug: ^4.3.4
@@ -1943,7 +1942,7 @@ __metadata:
 
 "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=78e08be5df8d789e7d9f1e217c98c23dfaa64a56"
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=0f6a926713b3112cd0ffeb68835caab6074ade8b"
   dependencies:
     debug: ^4.3.4
     escape-html: ^1.0.3
@@ -1959,7 +1958,7 @@ __metadata:
 
 "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote":
   version: 0.1.0
-  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=78e08be5df8d789e7d9f1e217c98c23dfaa64a56"
+  resolution: "@phfaist/zoodbtools_previewremote@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_previewremote&commit=0f6a926713b3112cd0ffeb68835caab6074ade8b"
   dependencies:
     debug: ^4.3.4
     fs-remote: ^0.1.9
@@ -1969,6 +1968,19 @@ __metadata:
   peerDependencies:
     "@phfaist/zoodb": "*"
   checksum: f0fc50b3c0fa895009aee468e07f174080c449ed50537d633857b894c84821a4022e64973c09c43ced4755f3b7395c07459b7d2762d035ddb4ec136df97304a2
+  languageName: node
+  linkType: hard
+
+"@phfaist/zoodbtools_search@https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_search":
+  version: 0.1.0
+  resolution: "@phfaist/zoodbtools_search@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_search&commit=0f6a926713b3112cd0ffeb68835caab6074ade8b"
+  dependencies:
+    lodash: ^4.17.21
+    lunr: ^2.3.9
+    tippy.js: ^6.3.7
+  peerDependencies:
+    "@phfaist/zoodb": "*"
+  checksum: 18c1d310a001a4770d21e3f0ba8d77e78c644e15650257fc6d03f4b686d9467b61b207523b7153e9cd53fb57e75d42448916903a5b5a920ec8f811dcd9b234db
   languageName: node
   linkType: hard
 

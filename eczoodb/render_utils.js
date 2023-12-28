@@ -30,6 +30,11 @@ export function render_meta_changelog(changelog, {ne,rdr,ref}, { details_open }=
 }
 
 
+export function render_stat_num_codes(value)
+{
+    return `<span class="stat-number">${value}</span> code${value > 1 ? 's' : ''}`;
+}
+
 
 export const docrefs_placeholder_ref_resolver = {
     get_ref(ref_type, ref_label, resource_info) {
