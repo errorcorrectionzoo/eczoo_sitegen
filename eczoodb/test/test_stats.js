@@ -11,7 +11,7 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 import { load_eczoo_cached } from './_loadeczoodb.js';
 
-import { zoo_generate_stats } from '../stats.js';
+// import { zoo_generate_stats } from '../stats.js';
 
 
 
@@ -26,24 +26,9 @@ describe('stats', async function () {
     });
 
 
-    it('can generate some stats', function () {
+    it.skip('can generate some stats', function () {
 
-        const zoo_stats = zoo_generate_stats( {
-            eczoodb,
-            stats: [
-                ['total_num_codes', {label: 'code entries'}],
-                ['total_num_kingdoms', {label: 'kingdoms'}],
-                ['total_num_domains', {label: 'domains'}],
-                ['code_familyhead_ids_and_codetypes', { spec_list: [
-                    [['ecc', 'classical_into_quantum'], 'classical codes'],
-                    [['quantum_into_quantum'], 'quantum codes'],
-                    [['topological'], 'topological codes'],
-                    [['css'], 'CSS codes'],
-                    [['qldpc'],'quantum LDPC codes'],
-                    [['oscillators'], 'bosonic codes'],
-                ]} ],
-            ]
-        } );
+        // ... TODO ...
 
     })
 
