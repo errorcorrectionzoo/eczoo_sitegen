@@ -1,0 +1,18 @@
+{
+    "name": "@errorcorrectionzoo/scripts",
+    "version": "0.0.1",
+    "packageManager": "yarn@3.3.0",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+        "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
+        "debug": "^4.3.4",
+        "lodash": "^4.17.21",
+        "yargs": "^17.7.2"
+    },
+    "peerDependencies": {
+        "@errorcorrectionzoo/eczoodb": "*",
+        "@phfaist/zoodb": "*"
+    }
+}

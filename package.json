@@ -6,6 +6,7 @@
     "eczoodb",
     "jscomponents",
     "site",
+    "scripts",
     "previewtool",
     "helpers/parcel-namer-own-folder-hashes",
     "helpers/parcel-transformer-ogimage-phf"

@@ -3,7 +3,6 @@
 
 .parcel-cache
 
-
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -20,3 +19,5 @@ node_modules
 
 previewtool/dist
 _zoodb_citations_cache
+
+scripts/output.txt
