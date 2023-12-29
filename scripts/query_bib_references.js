@@ -3,6 +3,8 @@ const debug = debugm('eczoo_sitegen.scripts.query_bib_references');
 
 import fs from 'fs';
 
+import _ from 'lodash';
+
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 

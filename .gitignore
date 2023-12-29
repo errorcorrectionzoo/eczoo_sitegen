@@ -20,4 +20,4 @@ node_modules
 previewtool/dist
 _zoodb_citations_cache
 
-scripts/output.txt
+scripts/output.*
