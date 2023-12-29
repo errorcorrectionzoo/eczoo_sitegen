@@ -40,7 +40,8 @@ async function runmain(args)
             }
             const code = eczoodb.objects.code[object_id];
             const domains = eczoodb.code_parent_domains(code, { find_domain_id: args.domain });
-            if (domains.length !== 1 || domains[0] !== args.domain) {
+            //debug(`Code ${code.code_id}'s parent domain(s) are`, domains);
+            if (domains.length !== 1 || domains[0].domain_id !== args.domain) {
                 continue;
             }
         }
