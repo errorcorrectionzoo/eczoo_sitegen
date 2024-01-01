@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
@@ -294,7 +296,7 @@ export function EczCodeGraphControlsComponent(props)
                     <button onClick={doZoomFit}>fit</button>
                 </span>
                 <span className="controls-input-sep"></span>
-                <button onClick={toggleControls}>controls</button>
+                <button onClick={toggleControls}>more…</button>
             </fieldset>
             <fieldset className="controls-input-advanced-fieldset">
                 <legend>Display</legend>

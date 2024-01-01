@@ -4,8 +4,10 @@
 import { RefInstance, $$kw } from '@phfaist/zoodb/zooflm';
 
 
-export function render_meta_changelog(changelog, {ne,rdr,ref}, { details_open }={})
+export function render_meta_changelog(changelog, R, { details_open }={})
 {
+    const {ne,rdr,ref} = R;
+
     let html = '';
 
     html += `
@@ -37,7 +39,7 @@ export function render_stat_num_codes(value)
 
 
 export const docrefs_placeholder_ref_resolver = {
-    get_ref(ref_type, ref_label, resource_info) {
+    get_ref(ref_type, ref_label, resource_info_) {
         if (ref_type === 'code'
             || ref_type === 'domain' || ref_type === 'kingdom'
             || ref_type === 'codelist' || ref_type === 'user' || ref_type === 'space'

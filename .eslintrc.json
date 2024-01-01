@@ -5,7 +5,18 @@
         "commonjs": true,
         "mocha": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended"
+    ],
+    "rules": {
+        "no-unused-vars": [ "error", {
+            "varsIgnorePattern": "^(ne|rdr|ref|.*_)$",
+            "argsIgnorePattern": "_$",
+            "destructuredArrayIgnorePattern": "_$"
+        }]
+    },
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",

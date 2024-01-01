@@ -155,7 +155,8 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
             const value = this.get_num_code_family_tree_members(
                 {
                     eczoodb,
-                    code_id_list: root_code_id_list
+                    code_id_list: root_code_id_list,
+                    only_primary_parent_relation: true,
                 }
             );
             stats.num_codes_per_kingdom[kingdom_id] = {
@@ -168,6 +169,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
                     {
                         eczoodb,
                         code_id_list: [ code_id ],
+                        only_primary_parent_relation: true,
                     }
                 );
                 stats.num_codes_per_kingdom_root_code[code_id] = {
@@ -206,8 +208,10 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
     // ---
 
-    get_num_code_family_tree_members({ eczoodb, code_id_list })
+    get_num_code_family_tree_members({ eczoodb, code_id_list, only_primary_parent_relation })
     {
+        only_primary_parent_relation ??= false;
+
         let family_head_codes = [];
         for (const code_id of code_id_list) {
             let code = eczoodb.objects.code[code_id] ?? null;
@@ -224,11 +228,17 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
         let collected_code_ids = new Set();
         for (const family_head_code of family_head_codes) {
-            let child_code_list = eczoodb.code_get_family_tree(family_head_code);
+            let child_code_list = eczoodb.code_get_family_tree(
+                family_head_code,
+                { only_primary_parent_relation, }
+            );
             for (const child_code of child_code_list) {
                 collected_code_ids.add(child_code.code_id);
             }
         }
+
+        debug(`get_num_code_family_tree_members [${code_id_list}] -> `
+              + `(${collected_code_ids.size}) ${Array.from(collected_code_ids)} `);
 
         return collected_code_ids.size - family_head_codes.length;
     }

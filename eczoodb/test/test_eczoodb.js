@@ -2,8 +2,8 @@ import * as assert from 'assert';
 
 import { load_eczoo_cached } from './_loadeczoodb.js';
 
-import fs from 'fs';
-import path from 'path';
+//import fs from 'fs';
+//import path from 'path';
 
 
 
@@ -37,6 +37,36 @@ describe('EcZooDb', function () {
             assert.deepStrictEqual(
                 css_family_tree_ids,
                 ['css', 'surface', ]
+            );
+        });
+
+        it('finds children of the binary_linear incl. as secondary parent relationship', function() {
+
+            let binary_linear_family_tree = eczoodb.code_get_family_tree(
+                eczoodb.objects.code.binary_linear,
+            );
+            let binary_linear_family_tree_ids = binary_linear_family_tree.map( (c) => c.code_id );
+            binary_linear_family_tree_ids.sort();
+
+            assert.deepStrictEqual(
+                binary_linear_family_tree_ids,
+                [ 'binary_linear', 'testcode', ]
+            );
+
+        });
+        
+        it('finds children of the binary_linear w/ only primary parent relationship', function() {
+
+            let binary_linear_family_tree = eczoodb.code_get_family_tree(
+                eczoodb.objects.code.binary_linear,
+                { only_primary_parent_relation: true }
+            );
+            let binary_linear_family_tree_ids = binary_linear_family_tree.map( (c) => c.code_id );
+            binary_linear_family_tree_ids.sort();
+
+            assert.deepStrictEqual(
+                binary_linear_family_tree_ids,
+                [ 'binary_linear', ]
             );
         });
 

@@ -149,6 +149,15 @@ export class EcZooDb extends ZooDb
      *
      * The callback `callback(code)` is invoked for each visited code; it should
      * return `true` to stop visiting.
+     * 
+     * You can specify a predicate to test whether or not to follow a specific
+     * relation.  The predicate is called as
+     * ``predicate_relation(code, code_neighbor_relation, relation_property)``
+     * with `code` = the currently visited code, `code_neighbor_relation` = the
+     * relation object (e.g. typically with 'code_id' and 'detail' properties)
+     * and `relation_property` the property name that describes the relation type
+     * (e.g. 'parent_of').  The predicate's return value, evaluated as a boolean
+     * indicates whether or not to follow that relation.
      */
     code_visit_relations(code, { relation_properties, callback, only_first_relation,
                                  predicate_relation })
@@ -173,7 +182,8 @@ export class EcZooDb extends ZooDb
                 }
                 for (const code_neighbor_relation of code_neighbor_relations) {
                     if (predicate_relation != null
-                        && predicate_relation(visit_code, code_neighbor_relation)) {
+                        && !predicate_relation(visit_code, code_neighbor_relation,
+                                               relation_property)) {
                         continue;
                     }
                     const n_code_id = code_neighbor_relation.code_id;
@@ -234,7 +244,7 @@ export class EcZooDb extends ZooDb
         // return result;
     }
 
-    code_parent_domains(code, {find_domain_id} = {})
+    code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
     {
         let domains_by_kingdom_root_code_id = {};
         for (const kingdom of Object.values(this.objects.kingdom)) {
@@ -256,18 +266,35 @@ export class EcZooDb extends ZooDb
                     }
                 }
             },
+            only_first_relation: only_primary_parent_relation,
         });
         return domains;
     }
 
-    code_get_family_tree(root_code, { parent_child_sort } = {})
+    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
     {
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) => {
+                //debug(`code_get_family_tree: predicate ${code.code_id} -> ${relation.code_id} [via ${relation_property_}] ?`);
+                const parent_code_id = code.code_id;
+                if (relation.code.relations?.parents?.[0].code_id === parent_code_id) {
+                    // ok, this parent is a primary-parent relationship with the child code
+                    //debug(`code_get_family_tree: predicate TRUE!`, relation.code.relations?.parents?.[0]);
+                    return true;
+                }
+                //debug(`predicate false :/`);
+                return false;
+            };
+        }
+
         let family_tree_codes = [];
         this.code_visit_relations(root_code, {
             relation_properties: ['parent_of'],
             callback: (code) => {
                 family_tree_codes.push(code);
             },
+            predicate_relation,
         });
         
         if (parent_child_sort ?? true) {
@@ -309,9 +336,9 @@ export class EcZooDb extends ZooDb
                 // list
                 let child_codes_w_orderidx = c.relations.parent_of
                     .map( (c_rel) => [ orig_code_ids.indexOf(c_rel.code_id),  c_rel.code] )
-                    .filter( ([cidx, c]) => (cidx !== -1) ) ;
+                    .filter( ([cidx, c_]) => (cidx !== -1) ) ;
                 child_codes_w_orderidx.sort( (a, b) => a[0] - b[0] );
-                const child_codes = child_codes_w_orderidx.map( ([cidx, c]) => c );
+                const child_codes = child_codes_w_orderidx.map( ([cidx_, c]) => c );
                 all_child_nodes[c.code_id] = child_codes;
                 for (const child of child_codes) {
                     num_incoming_edges[child.code_id] += 1;
@@ -395,7 +422,7 @@ export class EcZooDb extends ZooDb
             
             while (Object.keys(all_child_nodes).length) {
                 // pick one node with children.
-                const [c_id, children] = Object.entries(all_child_nodes)[0];
+                const [c_id, children_] = Object.entries(all_child_nodes)[0];
 
                 let this_cycle = [];
                 let m = this.objects.code[c_id];
