@@ -271,21 +271,32 @@ export class EcZooDb extends ZooDb
         return domains;
     }
 
+    code_is_primary_parent(parent_code, child_code)
+    {
+        // if child_code is a kingdom root code, then it "the kingdom itself is
+        // the primary parent" (it's the most important "parent" in the code graph,
+        // and a code can have at most one primary parent).
+        const child_relations = child_code.relations;
+        if (child_relations == null) {
+            return false;
+        }
+        if (child_relations.root_for_kingdom != null
+            && child_relations.root_for_kingdom.length >= 1) {
+            return false;
+        }
+        if (child_relations.parents?.[0]?.code_id === parent_code.code_id) {
+            return true;
+        }
+        return false;
+    }
+
     code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
     {
         let predicate_relation = null;
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) => {
-                //debug(`code_get_family_tree: predicate ${code.code_id} -> ${relation.code_id} [via ${relation_property_}] ?`);
-                const parent_code_id = code.code_id;
-                if (relation.code.relations?.parents?.[0].code_id === parent_code_id) {
-                    // ok, this parent is a primary-parent relationship with the child code
-                    //debug(`code_get_family_tree: predicate TRUE!`, relation.code.relations?.parents?.[0]);
-                    return true;
-                }
-                //debug(`predicate false :/`);
-                return false;
-            };
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(code, relation.code)
+                ;
         }
 
         let family_tree_codes = [];

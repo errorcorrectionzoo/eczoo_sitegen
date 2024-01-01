@@ -240,7 +240,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
         debug(`get_num_code_family_tree_members [${code_id_list}] -> `
               + `(${collected_code_ids.size}) ${Array.from(collected_code_ids)} `);
 
-        return collected_code_ids.size - family_head_codes.length;
+        return collected_code_ids.size - family_head_codes.length + 1; // collective family heads = 1 code
     }
 
 }
