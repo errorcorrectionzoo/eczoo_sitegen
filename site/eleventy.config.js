@@ -5,7 +5,7 @@
 const debug = require('debug')('eczoo_sitegen.eleventyConfigJs');
 
 const path = require('path');
-const fs = require('fs');
+//const fs = require('fs');
 
 const faviconPlugin = require("eleventy-favicon");
 
@@ -21,43 +21,43 @@ Error.stackTraceLimit = 999;
 // Helper to force Parcel refresh because of sync issues when 11ty outputs its
 // files & parcel refreshes
 //
-let _last_touch_dir_tree = null;
-const min_touch_dir_tree_interval_ms = 1000;
-function touchDirsTree(dirs, { predicate }={})
-{
-    console.log(`Request to touch dirs ‘${dirs}’ recursively`);
+// let _last_touch_dir_tree = null;
+// const min_touch_dir_tree_interval_ms = 1000;
+// function touchDirsTree(dirs, { predicate }={})
+// {
+//     console.log(`Request to touch dirs ‘${dirs}’ recursively`);
 
-    const now = new Date();
+//     const now = new Date();
 
-    if (_last_touch_dir_tree != null
-        && (now - _last_touch_dir_tree) < min_touch_dir_tree_interval_ms) {
-        return;
-    }
-    _last_touch_dir_tree = now;
+//     if (_last_touch_dir_tree != null
+//         && (now - _last_touch_dir_tree) < min_touch_dir_tree_interval_ms) {
+//         return;
+//     }
+//     _last_touch_dir_tree = now;
 
-    function _touchDirTreeInner(dir) {
-        fs.readdirSync(dir).forEach(file => {
-            let fullPath = path.join(dir, file);
-            if (fs.lstatSync(fullPath).isDirectory()) {
-                //console.log(fullPath);
-                _touchDirTreeInner(fullPath);
-            } else {
-                //console.log(fullPath);
-                // touch file
-                if (predicate != null && !predicate(fullPath)) {
-                    return;
-                }
-                console.log(`Touching ‘${fullPath}’`);
-                fs.utimesSync(fullPath, now, now);
-            }
-        });
-    };
+//     function _touchDirTreeInner(dir) {
+//         fs.readdirSync(dir).forEach(file => {
+//             let fullPath = path.join(dir, file);
+//             if (fs.lstatSync(fullPath).isDirectory()) {
+//                 //console.log(fullPath);
+//                 _touchDirTreeInner(fullPath);
+//             } else {
+//                 //console.log(fullPath);
+//                 // touch file
+//                 if (predicate != null && !predicate(fullPath)) {
+//                     return;
+//                 }
+//                 console.log(`Touching ‘${fullPath}’`);
+//                 fs.utimesSync(fullPath, now, now);
+//             }
+//         });
+//     };
 
-    for (const dir of dirs) {
-        console.log(`Touching tree ‘${dir}’ recursively`);
-        _touchDirTreeInner(dir);
-    }
-};
+//     for (const dir of dirs) {
+//         console.log(`Touching tree ‘${dir}’ recursively`);
+//         _touchDirTreeInner(dir);
+//     }
+// };
 
 
 
@@ -95,7 +95,7 @@ module.exports = (eleventyConfig) => {
 
     // Watch .yml files!
     eleventyConfig.addDataExtension(
-        "yml, yaml", (contents) => ({ IDidntConfigure11tyToLoadYamlFiles: true })
+        "yml, yaml", (contents_) => ({ IDidntConfigure11tyToLoadYamlFiles: true })
     );
     eleventyConfig.addWatchTarget( eczoo_config.data_dir );
 
@@ -128,23 +128,34 @@ module.exports = (eleventyConfig) => {
     if ( eczoo_config.generate_code_graph_svg_exports ) {
         debug('Setting up the code graph SVG exporter instance');
         eleventyConfig.on('eleventy.before', async () => {
-            const { CodeGraphSvgExporter } = await import(
-                '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
-            );
-            if (_eczoo_code_graph_svg_exporter_instance != null) {
-                throw new Error(
-                    `There is already an instance set in `
-                    + `_eczoo_code_graph_svg_exporter_instance!!`
+            try {
+                const { CodeGraphSvgExporter } = await import(
+                    '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
                 );
+                if (_eczoo_code_graph_svg_exporter_instance != null) {
+                    throw new Error(
+                        `There is already an instance set in `
+                        + `_eczoo_code_graph_svg_exporter_instance!!`
+                    );
+                }
+                _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
+                    autoCloseMs: 5 * 60 * 1000, // 5 minutes
+                });
+                await _eczoo_code_graph_svg_exporter_instance.setup();
+            } catch (error) {
+                console.error('Failed to initialize the SVG code graph exporter!');
+                console.error(error);
+                _eczoo_code_graph_svg_exporter_instance = null;
+                //throw new Error(`Failed to initialize the SVG code graph exporter.`);
+                console.error('process.exit now');
+                process.exit(101); // otherwise it looks like end up with pending promises ...
             }
-            _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
-                autoCloseMs: 5 * 60 * 1000, // 5 minutes
-            });
-            await _eczoo_code_graph_svg_exporter_instance.setup();
         });
         eleventyConfig.on('eleventy.after', async () => {
-            await _eczoo_code_graph_svg_exporter_instance.done();
-            _eczoo_code_graph_svg_exporter_instance = null;
+            if (_eczoo_code_graph_svg_exporter_instance) {
+                await _eczoo_code_graph_svg_exporter_instance.done();
+                _eczoo_code_graph_svg_exporter_instance = null;
+            }
         });
     }
     eleventyConfig.addGlobalData(
@@ -182,7 +193,7 @@ module.exports = (eleventyConfig) => {
 
     if (eczoo_run_options.run_11ty_parcel) {
 
-        const eleventy_out_dir = '_site/';
+        //const eleventy_out_dir = '_site/';
 
         //
         // Parcel 2.8 lazy seems to have issues with refreshing content when new
@@ -194,7 +205,7 @@ module.exports = (eleventyConfig) => {
         // figures are also refreshed).
         //
 
-        const pathRewrite = (p, req) => {
+        const pathRewrite = (p, req_) => {
             console.log(`Request ${p}`);
 
             let finalPath = p;
