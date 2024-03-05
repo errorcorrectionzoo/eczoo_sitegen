@@ -1092,7 +1092,7 @@ export class EczCodeGraph
             let layout = this.cy
                 // .elements('node, edge[_primaryParent=1]').not('[display="none"]')
                 .elements( (el) => (
-                    el.visible() //&& (el.isNode() || el.data('_primaryParent') === 1)
+                    el.visible() && (el.isNode() || el.data('_primaryParent') === 1)
                 ) )
                 .layout(layoutOptions);
             layout.on('layoutstop', resolve);
