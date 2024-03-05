@@ -117,10 +117,12 @@ export class EczCodeGraph
                 },
 
                 rootPositioning: {
-                    rootAbstractCodesXSpacing: 180,
-                    rootAbstractCodesYPosition: 100,
-                    domainNodesXSpacing: 180,
-                    domainNodesYPosition: 0,
+                    rootAbstractCodesXSpacing: 750,
+                    rootAbstractCodesYPosition: 0,
+                    rootAbstractCodesYPositionSingleOffset: 150,
+                    domainNodesXSpacing: 750,
+                    domainNodesYPosition: 250,
+                    domainNodesYPositionSingleOffset: 150,
                 },
             },
             graphOptions ?? {},
@@ -208,7 +210,9 @@ export class EczCodeGraph
         let domainColorIndexCounter = 0;
         let domainColorIndexByDomainId = {};
 
-        for (const [domainId, domain] of Object.entries(this.eczoodb.objects.domain)) {
+        let domainsListWithIds = [ ... Object.entries(this.eczoodb.objects.domain) ];
+
+        for (const [domainId, domain] of domainsListWithIds) {
 
             //debug(`Adding domain =`, domain);
 
@@ -452,17 +456,35 @@ export class EczCodeGraph
         const {
             rootAbstractCodesXSpacing,
             rootAbstractCodesYPosition,
+            rootAbstractCodesYPositionSingleOffset,
             domainNodesXSpacing,
             domainNodesYPosition,
+            domainNodesYPositionSingleOffset,
         } = this.graphOptions.rootPositioning;
 
         let graphRootNodesPrelayoutHints = {};
         let domainIds = Object.keys(this.eczoodb.objects.domain);
+
+        debug(`Domains before custom ordering: ${domainIds}`);
+        // hard-code some constraints on the order:
+        // put 'classical_domain' first, and 'quantum_domain' last
+        const customDomainIdsOrder = {
+            classical_domain: -100,
+            quantum_domain: 100,
+        };
+        domainIds.sort(
+            (aId, bId) => (customDomainIdsOrder[aId] ?? 0) - (customDomainIdsOrder[bId] ?? 0)
+        );
+        debug(`Domains after custom ordering: ${domainIds}`);
+
         for (const [j, domainId] of domainIds.entries()) {
             const nodeId = this.getNodeIdDomain(domainId);
             graphRootNodesPrelayoutHints[nodeId] = {
-                position: {x: (j - (domainIds.length-1)/2) * rootAbstractCodesXSpacing,
-                           y: rootAbstractCodesYPosition},
+                position: {
+                    x: (j - (domainIds.length-1)/2) * domainNodesXSpacing,
+                    y: domainNodesYPosition
+                       + Math.min(j, domainIds.length-1-j) * domainNodesYPositionSingleOffset
+                },
                 radiusOffset: 50,
                 direction: Math.PI - Math.PI * (j+0.5) / domainIds.length,
                 angularSpread: Math.PI / domainIds.length,
@@ -473,8 +495,11 @@ export class EczCodeGraph
         //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
         for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
             graphRootNodesPrelayoutHints[codeNodeId] = {
-                position: {x: (j - (rootCodeNodeIds.length-1)/2) * domainNodesXSpacing,
-                           y: domainNodesYPosition},
+                position: {
+                    x: (j - (rootCodeNodeIds.length-1)/2) * rootAbstractCodesXSpacing,
+                    y: rootAbstractCodesYPosition
+                       - Math.min(j, rootCodeNodeIds.length-1-j) * rootAbstractCodesYPositionSingleOffset
+                },
                 radiusOffset: 50,
                 direction: Math.PI + Math.PI * (j+0.5) / rootCodeNodeIds.length,
                 angularSpread: Math.PI / rootCodeNodeIds.length,
