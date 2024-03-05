@@ -41,9 +41,9 @@ article.ecc-code-page {
     }
 
     .code-alternative-names {
-        font-style: italic;
+        font-style: normal; //italic;
         .code-alternative-name {
-            font-style: normal;
+            font-style: italic; //normal;
         }
     }
 
