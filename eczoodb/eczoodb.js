@@ -228,20 +228,6 @@ export class EcZooDb extends ZooDb
             }
         }
         return false;
-        // ### Nope, don't explore cousin relationships recursively!! Single
-        // ### level only.
-        //
-        // let result = false;
-        // this.code_visit_relations(code, {
-        //     relation_properties: ['cousins', 'cousin_of'],
-        //     callback: (code) => {
-        //         if (code.code_id === cousin_code_id) {
-        //             result = true;
-        //             return true;
-        //         }
-        //     },
-        // });
-        // return result;
     }
 
     code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
@@ -319,6 +305,70 @@ export class EcZooDb extends ZooDb
         return family_tree_codes;
     }
 
+    /**
+     * Follows primary-parent relationships upwards as long as possible.  When
+     * no further primary-parent is found (e.g., for a root property code or for
+     * a kingdom root code), then information about that code is returned.
+     * 
+     * Returns an object
+     * `{ primary_parent_root_code, primary_parent_chain_code_ids }`
+     * containing the root code object and the chain of `code_id`'s explored until
+     * we reached the root code.
+     */
+    code_get_primary_parent_root(code)
+    {
+        // Primary parent relationship = first parent in the parents: list, except for kingdom
+        // root codes (in which case the kingdom node is the 'primary parent')  (?)
+
+        // follow primary parent relationship to determine a root code
+        // whether we're part of a kingdom.
+        let primary_parent_root_code = code;
+        // detect any cycles so we can report an error.
+        let primary_parent_chain_code_ids = [ code.code_id ];
+        while ( (primary_parent_root_code.relations?.root_for_kingdom == null
+                    || primary_parent_root_code.relations?.root_for_kingdom?.length == 0)
+                && primary_parent_root_code.relations?.parents?.length > 0 ) {
+            primary_parent_root_code = primary_parent_root_code.relations.parents[0].code;
+            const primary_parent_root_code_id = primary_parent_root_code.code_id;
+            if (primary_parent_chain_code_ids.includes(primary_parent_root_code_id)) {
+                const seenCodeChainNames = [].concat(
+                    primary_parent_chain_code_ids,
+                    [ primary_parent_root_code_id ]
+                ).map( (cId) => {
+                    let c = this.objects.code[cId];
+                    return `‘${c.name.flm_text ?? c.name}’ (${c.code_id})`;
+                } );
+                throw new Error(
+                    `Detected cycle in primary-parent relationships: `
+                    + seenCodeChainNames.join(' → ')
+                );
+            } else {
+                primary_parent_chain_code_ids.push( primary_parent_root_code_id );
+            }
+        }
+        return { primary_parent_root_code, primary_parent_chain_code_ids };
+    }
+
+    code_get_parent_kingdom(code, { primary_parent_root_code }={})
+    {
+        if (primary_parent_root_code == null) {
+            ({ primary_parent_root_code } = this.code_get_primary_parent_root(code));
+        }
+
+        let root_for_kingdom = primary_parent_root_code.relations?.root_for_kingdom;
+        if (root_for_kingdom == null || root_for_kingdom.length === 0) {
+            return null;
+        }
+
+        if (root_for_kingdom.length > 1) {
+            throw new Error(
+                `Code ${primary_parent_root_code.code_id} is a root code for multiple kingdoms: `
+                + root_for_kingdom.map((k) => k.kingdom_id).join(', ')
+            );
+        }
+
+        return root_for_kingdom[0].kingdom;
+    }
 
     /**
      * Sort the given list of objects such that parents always appear before any
@@ -463,6 +513,8 @@ export class EcZooDb extends ZooDb
 
         return sorted;
     }
+
+
 
 
     //
