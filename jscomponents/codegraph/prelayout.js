@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 const defaultPrelayoutOptions = {
 
-    layoutParentEdgeSelector: '._layoutParent',
+    layoutParentEdgeSelector: '.layoutParent',
 
     origin: {
         position: {x: 0, y: 0},
@@ -163,9 +163,13 @@ export class PrelayoutRadialTree
             let node = this.cy.getElementById(nodeId);
             const { position, isRoot, relatedAs } = positioningInfo;
 
-            node.addClass(["prelayoutPositioned", `prelayoutRelatedAs_${relatedAs}`]);
             if (isRoot) {
-                node.addClass(['prelayoutPositioned', 'prelayoutRoot']);
+                node.addClass(['prelayoutPositioned',
+                               `prelayoutRelatedAs_${relatedAs}`,
+                               'prelayoutRoot']);
+            } else {
+                node.addClass(["prelayoutPositioned",
+                               `prelayoutRelatedAs_${relatedAs}`]);
             }
             node.position(position);
 

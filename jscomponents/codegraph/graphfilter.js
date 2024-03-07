@@ -1,6 +1,7 @@
 
 import { cyStyleNumDomainColors } from './style.js';
 
+import loMerge from 'lodash/merge.js';
 
 // for: search highlights, dim nodes, domain coloring, etc.
 export class EczCodeGraphFilter
@@ -9,6 +10,12 @@ export class EczCodeGraphFilter
     {
         this.eczCodeGraph = eczCodeGraph;
         this.cy = eczCodeGraph.cy;
+        this.filterOptions = null;
+        this.mergeResetFilterOptions = {};
+    }
+    setFilterOptions(filterOptions)
+    {
+        this.filterOptions = loMerge(this.filterOptions, filterOptions);
     }
     applyFilter(/* { eles } */)
     {
@@ -62,16 +69,11 @@ export class EczCodeGraphFilterDomainColors extends EczCodeGraphFilter
 
 export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
 {
-    constructor(eczCodeGraph, { searchText })
-    {
-        super(eczCodeGraph);
-        this.searchText = searchText;
-    }
-    applyFilter({ eles })
+    applyFilter({ eles }, { searchText })
     {
         eles.removeClass(['searchMatchHighlight', 'searchNoMatchDimmed']);
 
-        const textEsc = JSON.stringify(this.searchText);
+        const textEsc = JSON.stringify(searchText);
         const matchEles = eles.nodes(
             `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
         );

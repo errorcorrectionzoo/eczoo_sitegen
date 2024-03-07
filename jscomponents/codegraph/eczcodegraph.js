@@ -1,7 +1,7 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.eczcodegraph');
 
-import _ from 'lodash';
+import loMerge from 'lodash/merge.js';
 
 import cytoscape from 'cytoscape';
 //import cyNavigator from 'cytoscape-navigator';
@@ -15,9 +15,11 @@ import {
 
 import { cyBaseStyleJson, getCyStyleJson } from './style.js';
 
-import { EczCodeGraphSubgraphSelector, EczCodeGraphSubgraphSelectorAll } from './subgraph.js';
+import { PrelayoutRadialTree } from './prelayout.js';
 
-import { EczCodeGraphFilter, EczCodeGraphFilterXYZ } from './graphfilter.js';
+import { EczCodeGraphSubgraphSelector, EczCodeGraphSubgraphSelectorAll } from './subgraphselector.js';
+
+import { EczCodeGraphFilterXYZ } from './graphfilter.js';
 
 // -----
 
@@ -60,7 +62,7 @@ function contentToNodeLabel(content)
  */
 export class EczCodeGraph
 {
-    constructor({ eczoodb, graphOptions, displayOptions })
+    constructor({ eczoodb })
     {
         debug('EczCodeGraph constructor');
 
@@ -68,7 +70,7 @@ export class EczCodeGraph
         this.getNodeIdCode = EczCodeGraph.getNodeIdCode;
         this.getNodeIdDomain = EczCodeGraph.getNodeIdDomain;
         this.getNodeIdKingdom = EczCodeGraph.getNodeIdKingdom;
-        this.getMergedDisplayOptions = EczCodeGraph.getMergedDisplayOptions;
+        //this.getMergedDisplayOptions = EczCodeGraph.getMergedDisplayOptions;
 
         // the eczoodb
         this.eczoodb = eczoodb;
@@ -76,59 +78,10 @@ export class EczCodeGraph
         // the background color to use
         this.bgColor = 'rgb(255, 236, 217)';
 
-        // // options that define properties of the graph
-        // this.graphOptions = _.merge(
-        //     {
-        //         graphRootNodesPrelayoutHints: {
-        //             // keys are nodeId's and values are { position: {x:, y:},
-        //             // direction:, angularSpread: }
-        //         },
-
-        //         isolationRelationSelector: {
-        //             primary: '[TREEDIRECTION][_primaryParent=1]',
-        //             secondary: '[TREEDIRECTION], [_relType="cousin"]',
-        //         },
-
-        //         rootPositioning: {
-        //             rootAbstractCodesXSpacing: 750,
-        //             rootAbstractCodesYPosition: 0,
-        //             rootAbstractCodesYPositionSingleOffset: 150,
-        //             domainNodesXSpacing: 750,
-        //             domainNodesYPosition: 250,
-        //             domainNodesYPositionSingleOffset: 150,
-        //         },
-        //     },
-        //     graphOptions ?? {},
-        // );
-
-        // // options that define how the graph is displayed
-        // this.displayOptions = _.merge({
-        //     displayMode: 'all', // 'all', 'isolate-nodes'
-        //     modeIsolateNodesOptions: {
-        //         nodeIds: null,
-        //         redoLayout: false,
-        //         range: {
-        //             parents: {
-        //                 primary: 5,
-        //                 secondary: 0,
-        //             },
-        //             children: {
-        //                 primary: 2,
-        //                 secondary: 0,
-        //             },
-        //         },
-        //     },
-        //     domainColoring: true,
-        //     cousinEdgesShown: false, //true,
-        //     secondaryParentEdgesShown: false, //true,
-        //     lowDegreeNodesDimmed: {
-        //         enabled: false,
-        //         degree: 8,
-        //         dimLeaf: false,
-        //     },
-        // }, displayOptions ?? {});
-
-        this._initialLayoutInvalidated = true;
+        // the subgraph selector.
+        this.subgraphSelector = null; // initialize only after initial graph is initialized!
+        // any display filters.
+        this.graphFilters = [];
     }
 
     async initialize()
@@ -136,6 +89,9 @@ export class EczCodeGraph
         debug('EczCodeGraph initialize()');
 
         await this.initGraph();
+        
+        EczCodeGraphSubgraphSelector.clear(this);
+        this.subgraphSelector = new EczCodeGraphSubgraphSelectorAll(this);
 
         debug('EczCodeGraph initialize() done');
     }
@@ -155,22 +111,59 @@ export class EczCodeGraph
         return `d_${domainId}`;
     }
 
-    // static getMergedDisplayOptions(modeWithOptionsA, modeWithOptionsB)
-    // {
-    //     let preventMergeArrays = {};
-    //     if (modeWithOptionsB?.modeIsolateNodesOptions?.nodeIds) {
-    //         // prevent merging the arrays by setting the nodeIds to null first
-    //         preventMergeArrays = { modeIsolateNodesOptions: { nodeIds: null } };
-    //     }
-    //     return _.merge(
-    //         {},
-    //         modeWithOptionsA,
-    //         preventMergeArrays,
-    //         modeWithOptionsB,
-    //     );
-    // }
+    // --------------------------------
+
+    installGraphFilter(graphFilterName, graphFilter)
+    {
+        this.graphFilters.push({ graphFilterName, graphFilter });
+
+        const eles = this.cy.elements('.layoutVisible');
+        graphFilter.applyFilter({ eles });
+    }
+
+    setGraphFilterOptions(filterOptionsDict)
+    {
+        const eles = this.cy.elements('.layoutVisible');
+        for (const { graphFilterName, graphFilter } of this.graphFilters) {
+            if (Object.hasOwn(filterOptionsDict, graphFilterName)) {
+                let filterOptions = loMerge(
+                    {},
+                    graphFilter.filterOptions,
+                    filterOptionsDict[graphFilterName]
+                );
+                graphFilter.setFilterOptions(filterOptions);
+            }
+            graphFilter.applyFilter({ eles });
+        }
+    }
+
+    reapplyGraphFilters()
+    {
+        const eles = this.cy.elements('.layoutVisible');
+        for (const graphFilter of this.graphFilters) {
+            graphFilter.applyFilter({ eles });
+        }
+    }
+
+    installSubgraphSelector(subgraphSelector)
+    {
+        const previousSubgraphLayoutInformation =
+            this.subgraphSelector.getSubgraphLayoutInformation();
+
+        // clean the graph from any display filters
+        const prevAllEles = this.cy.elements('.layoutVisible');
+        for (const graphFilter of this.graphFilters) {
+            graphFilter.removeFilter({ eles: prevAllEles });
+        }
+
+        this.subgraphSelector = subgraphSelector;
+        this.subgraphSelector.installSubgraph({ previousSubgraphLayoutInformation });
+
+        this.reapplyGraphFilters();
+    }
 
 
+    // --------------------------------
 
     async initGraph()
     {
@@ -461,7 +454,7 @@ export class EczCodeGraph
 
         this.cy.mount( cyDomNode );
 
-        styleOptions = _.merge( {}, styleOptions );
+        styleOptions = loMerge( {}, styleOptions );
         styleOptions.matchWebPageFonts ??= true; // default to True
 
         const newCyStyleJson = getCyStyleJson( styleOptions );
@@ -757,45 +750,105 @@ export class EczCodeGraph
     //     return this._initialLayoutInvalidated;
     // }
 
+    getOverallRootNodeIds({ includeDomains }={})
+    {
+        includeDomains ??= true;
 
-    async prelayout(rootNodeIds, options)
+        let rootNodeIdsDomains = [];
+        if (includeDomains) {
+            rootNodeIdsDomains = Object.keys(this.eczoodb.objects.domain).map(
+                (domainId) => this.getNodeIdDomain(domainId)
+            );
+        }
+        let rootNodeIdsCodes = Object.entries(this.eczoodb.objects.code).filter(
+            ([/*codeId*/, code]) => (
+                !(code.relations?.parents?.length) && !(code.relations?.root_for_kingdom)
+                && !(code.relations?.root_for_kingdom?.length)
+            )
+        ).map( ([codeId, /*code*/]) => this.getNodeIdCode(codeId) );
+
+        return [].concat(rootNodeIdsDomains, rootNodeIdsCodes);
+    }
+
+
+
+    async layout({ animate, forceRelayout, skipCoseLayout }={})
+    {
+        animate ??= true;
+        forceRelayout ??= false;
+        //skipCoseLayout ??= false;
+        skipCoseLayout ??= true; // DEBUG DEBUG !
+
+        let {
+            reusePreviousLayoutPositions,
+            prelayoutOptions
+         } = this.subgraphSelector.getSubgraphLayoutInformation();
+
+        if (forceRelayout) {
+            reusePreviousLayoutPositions = false;
+        }
+
+        debug('code graph layout()', { forceRelayout, animate }, { reusePreviousLayoutPositions } );
+
+        // Make visible those elements that should be visible, and hiding those that shouldn't.
+        // Cy doesn't have setVisible(), rather we set the class 'hidden' that sets the
+        // style 'display: none', causing the element to be hidden.
+        this.cy.elements().forEach(
+            (ele) => ele.toggleClass('hidden', !ele.hasClass('layoutVisible'))
+        );
+
+        let rootNodeIds = null;
+
+        let shouldApplyPrelayout = true;
+        let shouldApplyCoseLayout = true;
+
+        if (reusePreviousLayoutPositions) {
+            shouldApplyPrelayout = false;
+            shouldApplyCoseLayout = false;
+        }
+        if (skipCoseLayout) {
+            shouldApplyCoseLayout = false;
+        }
+
+        rootNodeIds = this.cy.nodes('.layoutRoot').map( (node) => node.id );
+
+        if (shouldApplyPrelayout) {
+            await this._runPrelayout(rootNodeIds, prelayoutOptions);
+        }
+
+        if (!shouldApplyCoseLayout) {
+            //this.cy.fit();
+            return;
+        }
+
+        debug(`Running fcose layout ...`);
+
+        await this._runCoseLayout({ rootNodeIds, animate });
+    }
+
+    async _runPrelayout({ rootNodeIds, rootNodesPrelayoutInfo, prelayoutOptions })
     {
         // compute an initial position of the nodes to reflect the tree
         // structure of the codes
 
-        let relationSelector;
-        if (this.displayOptions.displayMode === 'all') {
-            relationSelector = {
-                primary: '[TREEDIRECTION][_primaryParent=1]',
-                // don't follow secondary nodes because all nodes are related as
-                // primary node w.r.t SOME root node
-                secondary: false,
-            }
-        } else if (this.displayOptions.displayMode === 'isolate-nodes') {
-            relationSelector = this.graphOptions.isolationRelationSelector;
-        } else {
-            throw new Error(`unknown displayMode=${this.displayOptions.displayMode}`);
-        }
-
-        options = _.merge({
+        prelayoutOptions = loMerge({
             origin: {
                 position: { x: 0, y: 0 },
                 angularSpread: 2*Math.PI,
                 useWeights: false,
             },
-            relationSelector,
+            // layoutParentEdgeSelector: '.layoutParent',
             weightCalcLevels: 6,
             weightCalcSecondaryFactor: 0.3,
-        }, options);
+        }, prelayoutOptions);
 
-
-        debug(`prelayout(): Using rootNodeIds =`, rootNodeIds);
-
+        debug(`_runPrelayout(): Using rootNodeIds =`, rootNodeIds);
 
         let prelayout = new PrelayoutRadialTree({
             cy: this.cy,
-            rootNodeIds, options,
-            graphRootNodesPrelayoutHints: this.graphOptions.graphRootNodesPrelayoutHints
+            rootNodeIds,
+            rootNodesPrelayoutInfo,
+            options: prelayoutOptions,
         });
 
         this.cy.batch( () => {
@@ -827,125 +880,9 @@ export class EczCodeGraph
        
     }
 
-    getOverallRootNodeIds({ includeDomains }={})
+
+    async _runCoseLayout({ rootNodeIds, animate })
     {
-        includeDomains ??= true;
-
-        let rootNodeIdsDomains = [];
-        if (includeDomains) {
-            rootNodeIdsDomains = Object.keys(this.eczoodb.objects.domain).map(
-                (domainId) => this.getNodeIdDomain(domainId)
-            );
-        }
-        let rootNodeIdsCodes = Object.entries(this.eczoodb.objects.code).filter(
-            ([/*codeId*/, code]) => (
-                !(code.relations?.parents?.length) && !(code.relations?.root_for_kingdom)
-                && !(code.relations?.root_for_kingdom?.length)
-            )
-        ).map( ([codeId, /*code*/]) => this.getNodeIdCode(codeId) );
-
-        return [].concat(rootNodeIdsDomains, rootNodeIdsCodes);
-    }
-
-    async layout({ animate, forceRelayout, prelayoutOptions }={})
-    {
-        animate ??= true;
-
-        if (forceRelayout) {
-            this._initialLayoutInvalidated = true;
-        }
-
-        debug('code graph layout()', { forceRelayout, animate },
-              { _initialLayoutInvalidated: this._initialLayoutInvalidated } );
-
-        let rootNodeIds = null;
-
-        let shouldApplyPrelayout = true;
-        let shouldApplyCoseLayout = true;
-
-        if (this.displayOptions.displayMode === 'all') {
-
-            if (!this._initialLayoutInvalidated) {
-                shouldApplyPrelayout = false;
-                shouldApplyCoseLayout = false;
-            }
-
-            rootNodeIds = this.getOverallRootNodeIds();
-
-            prelayoutOptions = _.merge({
-            }, prelayoutOptions);
-
-        } else if (this.displayOptions.displayMode === 'isolate-nodes') {
-
-            let { nodeIds, redoLayout } = this.displayOptions.modeIsolateNodesOptions;
-
-            // check that the given node ID's actually exist!
-            nodeIds = nodeIds.filter( (nodeId) =>  {
-                let e = this.cy.getElementById(nodeId);
-                // only keep elements for which getElementById() actually returns an element.
-                if (!e || !e.length) {
-                    console.error(`Invalid graph node ID: ${nodeId}.`);
-                    return false;
-                }
-                return true;
-            } );
-
-            if (this._initialLayoutInvalidated) {
-                // can't keep current layout if we risk showing nodes that haven't been laid out
-                // properly.
-                redoLayout = true;
-            }
-
-            if (redoLayout) {
-                rootNodeIds = nodeIds;
-            } else {
-                shouldApplyPrelayout = false;
-                rootNodeIds = this.getOverallRootNodeIds();
-            }
-
-            let origin = {
-                position: {x: 0, y: 0},
-                radius: 80,
-            };
-            // FIXME: this is buggy, why??
-            if (rootNodeIds.length === 1) {
-                // keep that node where it is
-                _.merge(origin, {
-                    position: this.cy.getElementById(rootNodeIds[0]).position(), // BUGGY??
-                    radius: 0,
-                });
-            }
-
-            prelayoutOptions = _.merge({
-                origin: _.merge({
-                    direction: Math.PI/2,
-                    angularSpread: Math.PI,
-                }, origin),
-            }, prelayoutOptions);
-
-            if (!redoLayout) {
-                shouldApplyCoseLayout = false;
-            }
-
-            if (shouldApplyPrelayout || shouldApplyCoseLayout) {
-                this._initialLayoutInvalidated = true;
-            }
-        }
-
-        if (shouldApplyPrelayout) {
-            await this.prelayout(rootNodeIds, prelayoutOptions);
-        }
-
-        if (!shouldApplyCoseLayout) {
-            //this.cy.fit();
-            return;
-        }
-
-        debug(`Running fcose layout ...`);
-
-        //### DEBUG: FIXME:  RETURN HERE TO CHECK/DEBUG PRELAYOUT POSITIONNING
-        //return;
-
         // Fix root node positioning to how our prelayout arranged it.
         // Format for fixedNodeConstraint is =
         // [{nodeId: 'n1', position: {x: 100, y: 200}}, {...}]
@@ -974,20 +911,20 @@ export class EczCodeGraph
             // Node repulsion (non overlapping) multiplier
             nodeRepulsion: (/*node*/) => 100000,
             // Ideal edge (non nested) length
-            idealEdgeLength: (edge) => {
-                if (edge.data('_primaryParent') === 1) {
-                    return 100;
-                } else {
-                    return 300;
-                }
+            idealEdgeLength: (edge_) => {
+                //if (edge.is('.layoutParent')) {
+                return 100;
+                // } else {
+                //     return 300;
+                // }
             },
             // Divisor to compute edge forces
-            edgeElasticity: (edge) => {
-                if (edge.data('_primaryParent') === 1) {
-                    return 0.3;
-                } else {
-                    return 0.01;
-                }
+            edgeElasticity: (edge_) => {
+                //if (edge.is('.layoutParent')) {
+                return 0.3;
+                // } else {
+                //     return 0; //0.01;
+                // }
             },
 
             // Maximum number of iterations to perform - this is a suggested
@@ -1018,7 +955,7 @@ export class EczCodeGraph
             let layout = this.cy
                 // .elements('node, edge[_primaryParent=1]').not('[display="none"]')
                 .elements( (el) => (
-                    el.visible() && (el.isNode() || el.data('_primaryParent') === 1)
+                    el.visible() && (el.isNode() || el.is('.layoutParent'))
                 ) )
                 .layout(layoutOptions);
             layout.on('layoutstop', resolve);
@@ -1028,41 +965,38 @@ export class EczCodeGraph
         debug('laying out (fcose) - waiting for promise.');
 
         await p;
-
-        if (this.displayOptions.displayMode === 'all'
-            && shouldApplyPrelayout && shouldApplyCoseLayout) {
-            this._initialLayoutInvalidated = false;
-        }
         
-        debug('layout() done!');
+        debug('_runCoseLayout() done!');
     }
 
 
-    //
-    // Search tool
-    //
 
-    search({text, caseSensitive})
-    {
-        caseSensitive ??= false;
 
-        // const selFn = (n) => {
-        //     if (!n.visible()) {
-        //         return false;
-        //     }
-        //     const nData = n.data();
-        //     if (nData.label?.includes(text) || nData._objectName?.includes(text)) {
-        //         return true;
-        //     }
-        // };
-        // const eles = this.cy.nodes(selFn);
+    // //
+    // // Search tool
+    // //
 
-        const textEsc = JSON.stringify(text);
-        const eles = this.cy.nodes(
-            `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
-        );
+    // search({text, caseSensitive})
+    // {
+    //     caseSensitive ??= false;
 
-        return eles;
-    }
+    //     // const selFn = (n) => {
+    //     //     if (!n.visible()) {
+    //     //         return false;
+    //     //     }
+    //     //     const nData = n.data();
+    //     //     if (nData.label?.includes(text) || nData._objectName?.includes(text)) {
+    //     //         return true;
+    //     //     }
+    //     // };
+    //     // const eles = this.cy.nodes(selFn);
+
+    //     const textEsc = JSON.stringify(text);
+    //     const eles = this.cy.nodes(
+    //         `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
+    //     );
+
+    //     return eles;
+    // }
 }
 

@@ -3,7 +3,7 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
-import _ from 'lodash';
+import loMerge from 'lodash/merge.js';
 
 import React, { useEffect, useState, useRef, useLayoutEffect, useId } from 'react';
 
@@ -77,7 +77,7 @@ export function EczCodeGraphControlsComponent(props)
             cy.zoom({ level: zoomLevel,
                       renderedPosition: { x: cy.width()/2, y: cy.height()/2 } });
         }
-    }, [zoomLevel] );
+    }, [zoomLevel, cy] );
 
     let [ modeIsolateNodesDisplayRange, setModeIsolateNodesDisplayRange ] = useState(
         displayModeWithOptions.modeIsolateNodesOptions.range.parents.primary
@@ -98,7 +98,7 @@ export function EczCodeGraphControlsComponent(props)
                 },
             }
         });
-    }, [ modeIsolateNodesDisplayRange ] ); //, displayModeWithOptions ] );
+    }, [ modeIsolateNodesDisplayRange, onChangeDisplayModeWithOptions ] );
 
     let [ modeIsolateNodesAddSecondary, setModeIsolateNodesAddSecondary ] = useState(
         displayModeWithOptions.modeIsolateNodesOptions.range.parents.secondary !== 0
@@ -120,7 +120,7 @@ export function EczCodeGraphControlsComponent(props)
                 },
             }
         });
-    }, [ modeIsolateNodesAddSecondary ] ); //, displayModeWithOptions ] );
+    }, [ modeIsolateNodesAddSecondary, onChangeDisplayModeWithOptions ] );
 
     let [ searchGraphNodesText, setSearchGraphNodesText ] = useState('');
     useEffect( () => {
@@ -139,21 +139,21 @@ export function EczCodeGraphControlsComponent(props)
             cy.elements().not('.highlight').addClass('dimmed');
             
         }
-    }, [ searchGraphNodesText ] );
+    }, [ searchGraphNodesText, cy, eczCodeGraph ] );
 
     // install events originating from cy itself (e.g. mouse scroll & zoom)
     const cyUserViewportEventNames = 'viewport'; //pinchzoom scrollzoom dragpan';
-    const cyUserViewportEventHandler = (/*event*/) => {
-        if (cy.zoom() != zoomLevel) {
-            setZoomLevel(cy.zoom());
-        }
-    };
     useEffect( () => {
+        const cyUserViewportEventHandler = (/*event*/) => {
+            if (cy.zoom() != zoomLevel) {
+                setZoomLevel(cy.zoom());
+            }
+        };
         cy.on(cyUserViewportEventNames, cyUserViewportEventHandler);
         return () => {
             cy.removeListener(cyUserViewportEventNames, cyUserViewportEventHandler);
         }
-    }, [ eczCodeGraph ]); // run ONCE only for the given code graph!
+    }, [ eczCodeGraph, cy, zoomLevel ]); // run ONCE only for the given code graph!
 
     const rootFieldsetRef = useRef(null);
 
@@ -240,7 +240,7 @@ export function EczCodeGraphControlsComponent(props)
 
         if (format === 'svg') {
 
-            const svgString = eczCodeGraph.cy.svg(_.merge({}, commonOptions, svgOptions));
+            const svgString = eczCodeGraph.cy.svg(loMerge({}, commonOptions, svgOptions));
 
             dataBlob = new Blob([svgString], { type: 'image/svg+xml' });
             fnameExt = '.svg';
@@ -248,7 +248,7 @@ export function EczCodeGraphControlsComponent(props)
         } else if (format === 'png') {
 
             fnameExt = '.png';
-            dataBlob = eczCodeGraph.cy.png(_.merge({
+            dataBlob = eczCodeGraph.cy.png(loMerge({
                 output: 'blob',
             }, commonOptions, pngOptions));
 
@@ -382,35 +382,6 @@ export function EczCodeGraphControlsComponent(props)
                 />
         </fieldset>
     );
-            /*
-            <input type="checkbox"
-                   id="showCousins"
-                   checked={showCousins}
-                   onChange={(ev) => doShowCousins(!!ev.target.checked)} />
-            <label htmlFor="showCousins">show cousins</label>
-            <div>
-                <input type="checkbox"
-                       id="dim"
-                       checked={!!dimDegreeOptions.enabled}
-                       onChange={(ev) => doDim(!!ev.target.checked)} />
-                <label htmlFor="dim">dim by degree:</label>
-                <input type="range"
-                       disabled={!dimDegreeOptions.enabled}
-                       id="dimDegree"
-                       min={0}
-                       max={20}
-                       step={1}
-                       value={dimDegreeOptions.degree}
-                       onChange={(ev) => dimDegree(ev.target.value)} />
-                <input type="checkbox"
-                       id="keepdimLeaf"
-                       disabled={!dimDegreeOptions.enabled}
-                       checked={!dimDegreeOptions.dimLeaf}
-                       onChange={(ev) => dimLeaf(!ev.target.checked)} />
-                <label htmlFor="keepdimLeaf">keep leaf nodes</label>
-            </div>
-        </div>
-    ); */
 }
 
 
