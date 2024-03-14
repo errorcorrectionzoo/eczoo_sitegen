@@ -58,7 +58,7 @@ function contentToNodeLabel(content)
 
 
 /**
- * Contains subgraph and layout information? - YES
+ * Contains subgraph and layout information? - YES via subgraph selector object.
  */
 export class EczCodeGraph
 {
@@ -113,7 +113,7 @@ export class EczCodeGraph
 
     // --------------------------------
 
-    installGraphFilter(graphFilterName, graphFilter)
+    installGraphFilter({ graphFilterName, graphFilter })
     {
         this.graphFilters.push({ graphFilterName, graphFilter });
 
@@ -137,9 +137,16 @@ export class EczCodeGraph
         }
     }
 
-    reapplyGraphFilters()
+    _removeGraphFilters({ eles }={})
     {
-        const eles = this.cy.elements('.layoutVisible');
+        eles ??= this.cy.elements('.layoutVisible');
+        for (const graphFilter of this.graphFilters) {
+            graphFilter.removeFilter({ eles });
+        }
+    }
+    _applyGraphFilters({ eles }={})
+    {
+        eles ??= this.cy.elements('.layoutVisible');
         for (const graphFilter of this.graphFilters) {
             graphFilter.applyFilter({ eles });
         }
@@ -151,15 +158,12 @@ export class EczCodeGraph
             this.subgraphSelector.getSubgraphLayoutInformation();
 
         // clean the graph from any display filters
-        const prevAllEles = this.cy.elements('.layoutVisible');
-        for (const graphFilter of this.graphFilters) {
-            graphFilter.removeFilter({ eles: prevAllEles });
-        }
+        this._removeGraphFilters();
 
         this.subgraphSelector = subgraphSelector;
         this.subgraphSelector.installSubgraph({ previousSubgraphLayoutInformation });
 
-        this.reapplyGraphFilters();
+        this._applyGraphFilters();
     }
 
 
@@ -781,6 +785,7 @@ export class EczCodeGraph
 
         let {
             reusePreviousLayoutPositions,
+            rootNodesPrelayoutInfo,
             prelayoutOptions
          } = this.subgraphSelector.getSubgraphLayoutInformation();
 
@@ -813,7 +818,7 @@ export class EczCodeGraph
         rootNodeIds = this.cy.nodes('.layoutRoot').map( (node) => node.id );
 
         if (shouldApplyPrelayout) {
-            await this._runPrelayout(rootNodeIds, prelayoutOptions);
+            await this._runPrelayout({ rootNodeIds, rootNodesPrelayoutInfo, prelayoutOptions });
         }
 
         if (!shouldApplyCoseLayout) {
@@ -831,16 +836,16 @@ export class EczCodeGraph
         // compute an initial position of the nodes to reflect the tree
         // structure of the codes
 
-        prelayoutOptions = loMerge({
-            origin: {
-                position: { x: 0, y: 0 },
-                angularSpread: 2*Math.PI,
-                useWeights: false,
-            },
-            // layoutParentEdgeSelector: '.layoutParent',
-            weightCalcLevels: 6,
-            weightCalcSecondaryFactor: 0.3,
-        }, prelayoutOptions);
+        // prelayoutOptions = loMerge({
+        //     origin: {
+        //         position: { x: 0, y: 0 },
+        //         angularSpread: 2*Math.PI,
+        //         useWeights: false,
+        //     },
+        //     // layoutParentEdgeSelector: '.layoutParent',
+        //     weightCalcLevels: 6,
+        //     weightCalcSecondaryFactor: 0.3,
+        // }, prelayoutOptions);
 
         debug(`_runPrelayout(): Using rootNodeIds =`, rootNodeIds);
 

@@ -6,20 +6,44 @@ import loMerge from 'lodash/merge.js';
 // for: search highlights, dim nodes, domain coloring, etc.
 export class EczCodeGraphFilter
 {
-    constructor(eczCodeGraph)
+    constructor(eczCodeGraph, filterOptions=null)
     {
         this.eczCodeGraph = eczCodeGraph;
         this.cy = eczCodeGraph.cy;
-        this.filterOptions = null;
+        this.filterOptions = Object.assign({}, filterOptions);
         this.mergeResetFilterOptions = {};
     }
+    /**
+     * Set the filter options.  This is an object whose keys and values are
+     * solely understood and used by the relevant filter subclass.  Newly
+     * given filter options are merged with existing filter options.
+     * 
+     * To avoid merging some filter option properties, subclasses may
+     * initialize `this.mergeResetFilterOptions = { propertyName: null }` in
+     * their constructor to inhibit merging the property `propertyName`.
+     * These properties are set to `null` if they are not specified in the
+     * new `filterOptions`.  Internally, this method applies
+     * `_.merge(this.filterOptions, this.mergeResetFilterOptions, filterOptions)`.
+     * 
+     */
     setFilterOptions(filterOptions)
     {
-        this.filterOptions = loMerge(this.filterOptions, filterOptions);
+        this.filterOptions = loMerge(
+            this.filterOptions,
+            this.mergeResetFilterOptions,
+            filterOptions
+        );
     }
+    /**
+     * Set any style classes relevant for this display filter.  Do not assume any current
+     * state for style classes.
+     */
     applyFilter(/* { eles } */)
     {
     }
+    /**
+     * Remove any trace from the graph that this filter might have been applied in the past.
+     */
     removeFilter(/* { eles } */)
     {
     }
@@ -69,8 +93,10 @@ export class EczCodeGraphFilterDomainColors extends EczCodeGraphFilter
 
 export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
 {
-    applyFilter({ eles }, { searchText })
+    applyFilter({ eles })
     {
+        const searchText = this.filterOptions.searchText;
+
         eles.removeClass(['searchMatchHighlight', 'searchNoMatchDimmed']);
 
         const textEsc = JSON.stringify(searchText);

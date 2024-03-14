@@ -47,9 +47,13 @@ export class EczCodeGraphSubgraphSelector
         .........
         return {
             reusePreviousLayoutPositions,
-            prelayoutOptions
         }
     }
+
+    createPrelayoutInstance({ rootNodeIds })
+    {
+    }
+
 
     static clear(eczCodeGraph)
     {
