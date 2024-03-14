@@ -10,7 +10,7 @@
     "pdfexport": "DEBUG=\"ecz*,zoo*\" yarn node main.js "
   },
   "dependencies": {
-    "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+    "@errorcorrectionzoo/eczoodb": "https://github.com/errorcorrectionzoo/eczoo_sitegen.git#head=main&workspace=@errorcorrectionzoo/eczoodb",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "debug": "^4.3.4",
     "lodash": "^4.17.21",

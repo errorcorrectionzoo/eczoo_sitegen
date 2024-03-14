@@ -18,15 +18,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@errorcorrectionzoo/eczoodb@file:../eczoodb::locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A.":
+"@errorcorrectionzoo/eczoodb@https://github.com/errorcorrectionzoo/eczoo_sitegen.git#head=main&workspace=@errorcorrectionzoo/eczoodb":
   version: 0.1.0
-  resolution: "@errorcorrectionzoo/eczoodb@file:../eczoodb#../eczoodb::hash=5c94e5&locator=%40errorcorrectionzoo%2Fpdfexport%40workspace%3A."
+  resolution: "@errorcorrectionzoo/eczoodb@https://github.com/errorcorrectionzoo/eczoo_sitegen.git#workspace=%40errorcorrectionzoo%2Feczoodb&commit=9c180789fa5707cc4b07fa5de4b8d960edfcb3c8"
   dependencies:
     debug: ^4.3.4
     lodash: ^4.17.21
   peerDependencies:
     "@phfaist/zoodb": "*"
-  checksum: dd81a272500bc3ec0a3201d04130e5de8adca0f7a52495827412aaf9f1d7204bb1f0532d6b40896303a6e703063196892776d05346c04b8454e05027c95c51e2
+  checksum: b3fd420a10c5dc9673431f05436dd5139d2df9358b1527910b88f28e71e0683a7719299e28b8e41447bc536e70bca50fb1e4df2923ed9db2eaa8bee77df571f8
   languageName: node
   linkType: hard
 
@@ -34,7 +34,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@errorcorrectionzoo/pdfexport@workspace:."
   dependencies:
-    "@errorcorrectionzoo/eczoodb": "file:../eczoodb"
+    "@errorcorrectionzoo/eczoodb": "https://github.com/errorcorrectionzoo/eczoo_sitegen.git#head=main&workspace=@errorcorrectionzoo/eczoodb"
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main"
     debug: ^4.3.4
     lodash: ^4.17.21
@@ -55,7 +55,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=6901f377d3350a8b6e3a487740b0d063717651e5"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=10457825b9f1b5a8de91ebee5358a24e08ba5005"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -70,21 +70,12 @@ __metadata:
     js-yaml: ^4.1.0
     jsonschema: ^1.4.1
     lodash: ^4.17.21
-    lunr: ^2.3.9
     node-fetch: ^3.2.10
     parse-full-name: ^1.2.6
     sax: ^1.2.4
     stream-parser: ^0.3.1
-    tippy.js: ^6.3.7
     url: ^0.11.0
-  checksum: 77bc316cd4e1659dffe4d7112332a4d829339d30a7c1cf9efef778add5c682c0b3a1ad56779cf42f5cd56d9330a4bfd404937b1e018b7265c3beade3d58b6f7f
-  languageName: node
-  linkType: hard
-
-"@popperjs/core@npm:^2.9.0":
-  version: 2.11.7
-  resolution: "@popperjs/core@npm:2.11.7"
-  checksum: 5b6553747899683452a1d28898c1b39173a4efd780e74360bfcda8eb42f1c5e819602769c81a10920fc68c881d07fb40429604517d499567eac079cfa6470f19
+  checksum: 5f03848ef84656abf5e0cafa438a0678be18647fc56d4fe6e8c5c030f6e8fbdd7f4fd73b9ec7b9aeef5edcecd1ad3d99accc359b2cf3af2a3652eab50ef5c7fb
   languageName: node
   linkType: hard
 
@@ -622,13 +613,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lunr@npm:^2.3.9":
-  version: 2.3.9
-  resolution: "lunr@npm:2.3.9"
-  checksum: 176719e24fcce7d3cf1baccce9dd5633cd8bdc1f41ebe6a180112e5ee99d80373fe2454f5d4624d437e5a8319698ca6837b9950566e15d2cae5f2a543a3db4b8
-  languageName: node
-  linkType: hard
-
 "merge-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
@@ -921,15 +905,6 @@ __metadata:
   version: 3.0.0
   resolution: "strip-final-newline@npm:3.0.0"
   checksum: 23ee263adfa2070cd0f23d1ac14e2ed2f000c9b44229aec9c799f1367ec001478469560abefd00c5c99ee6f0b31c137d53ec6029c53e9f32a93804e18c201050
-  languageName: node
-  linkType: hard
-
-"tippy.js@npm:^6.3.7":
-  version: 6.3.7
-  resolution: "tippy.js@npm:6.3.7"
-  dependencies:
-    "@popperjs/core": ^2.9.0
-  checksum: cac955318a65288e8d2dca05059878b003c6e66f92c94f7810f5bc5448eb6646abdf7dacc9bd00020e2611592598d0aae3a28ec9a45349a159603c3fdddce5fb
   languageName: node
   linkType: hard
 

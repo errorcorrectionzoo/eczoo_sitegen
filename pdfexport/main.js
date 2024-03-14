@@ -25,6 +25,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
+Error.stackTraceLimit = 999;
+
 
 import { generate_codes_latex_document } from './gen_latex.js';
 
