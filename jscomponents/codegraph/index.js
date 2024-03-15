@@ -3,6 +3,9 @@ const debug = debug_module('eczoo_jscomponents.codegraph');
 
 // import _ from 'lodash';
 
+import { EczCodeGraph } from './eczcodegraph.js';
+
+export { EczCodeGraph };
 
 // import cytoscape from 'cytoscape';
 // //import cyNavigator from 'cytoscape-navigator';

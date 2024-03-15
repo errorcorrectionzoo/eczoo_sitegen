@@ -2,7 +2,7 @@ import debug_module from 'debug';
 const debug = debug_module('eczoo_site.jscomponents.codegraph.setup');
 
 import { EczCodeGraph } from './index.js';
-import { EczCodeGraphComponent } from './ui.jsx';
+import { EczCodeGraphComponent, ui_getMergedDisplayOptions } from './ui.jsx';
 
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
@@ -85,7 +85,7 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 export async function load()
 {
 
-    debug('setup code graph!')
+    debug('codegraph setup: load() called')
 
     const domContainer = window.document.getElementById('main');
 
@@ -110,6 +110,7 @@ export async function load()
 
     let eczoodbRefsData = eczoodbData.refs_data;
 
+    debug(`Setting up eczoodb ...`);
 
     let eczoodbOpts = {
         use_relations_populator,
@@ -141,6 +142,8 @@ export async function load()
 
     let eczoodb = await createEcZooDb(eczoodbOpts, { use_schemas_loader: false });
 
+    debug(`Created eczoodb, loading refs & citations ...`);
+
     //
     // load refs & citations
     //
@@ -151,11 +154,15 @@ export async function load()
         eczoodbRefsData.citations
     );
 
+    debug(`Loaded refs & citations, loading data ...`);
+
     //
     // load zoo data
     //
     await eczoodb.load_data(eczoodbData.db);
 
+
+    debug(`Setting up code graph web app ...`);
 
     //
     // Set initial graph positioning/layout options.  Zoom into the requested
@@ -168,7 +175,7 @@ export async function load()
     const hrefFragment = window.location.hash;
     debug({hrefFragment});
     if (hrefFragment != null) {
-        displayOptions = EczCodeGraph.getMergedDisplayOptions(
+        displayOptions = ui_getMergedDisplayOptions(
             displayOptions,
             getDisplayOptionsFromUrlFragment(hrefFragment)
         );
@@ -176,7 +183,6 @@ export async function load()
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
-        displayOptions,
     });
 
     await eczCodeGraph.initialize();
@@ -196,6 +202,7 @@ export async function load()
                 EczCodeGraphComponent,
                 {
                     eczCodeGraph,
+                    displayOptions,
                     onLayoutDone: () => resolve(),
                 },
                 null

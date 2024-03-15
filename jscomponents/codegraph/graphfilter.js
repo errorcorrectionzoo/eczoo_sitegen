@@ -37,6 +37,12 @@ export class EczCodeGraphFilter
     /**
      * Set any style classes relevant for this display filter.  Do not assume any current
      * state for style classes.
+     * 
+     * Basically, the only way the filter can interact with the display is by setting
+     * filter-specific style classes.  To hide elements, define a filter-specific class
+     * and associate to it a style with 'display: none'.
+     * 
+     * Do NOT set classes 'hidden' or 'layoutXyz' (such as 'layoutVisible').
      */
     applyFilter(/* { eles } */)
     {

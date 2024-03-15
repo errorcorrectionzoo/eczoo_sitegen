@@ -1,4 +1,6 @@
 
+import loIsEmpty from 'lodash/isEmpty.js';
+
 export const cyStyleNumDomainColors = 3;
 
 export const cyBaseStyleJson = [
@@ -244,7 +246,7 @@ export function getCyStyleJson(options)
         customFontStyle['font-style'] = options.fontStyle;
     }
 
-    if (_.isEmpty(customFontStyle)) {
+    if (loIsEmpty(customFontStyle)) {
         return cyBaseStyleJson;
     }
 

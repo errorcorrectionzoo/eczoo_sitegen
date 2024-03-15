@@ -6,19 +6,4 @@
         "...",
     ],
 
-    "transformers": {
-        "*.{pdf,jpg,jpeg,png}": ["@parcel/transformer-raw"],
-        "*.{json,ico}": ["@parcel/transformer-raw"],
-        "*.{xml,txt}": ["@parcel/transformer-raw"],
-        "*.html": ["...", "@errorcorrectionzoo/parcel-transformer-ogimage-phf"],
-    },
-
-    "optimizers": {
-        "*.html": ["parcel-optimizer-nohtmlsuffix", "..."],
-    },
-
-    "namers": [ "@errorcorrectionzoo/parcel-namer-own-folder-hashes", "..." ],
-
-
-    "reporters":  ["...", "parcel-reporter-static-files-copy"],
 }

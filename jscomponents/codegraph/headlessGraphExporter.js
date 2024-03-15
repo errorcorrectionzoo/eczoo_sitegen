@@ -2,7 +2,7 @@
 //const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
 
 import puppeteer from 'puppeteer';
-import { getCyStyleJson } from './index.js';
+import { getCyStyleJson } from './style.js';
 
 import loMerge from 'lodash/merge.js';
 

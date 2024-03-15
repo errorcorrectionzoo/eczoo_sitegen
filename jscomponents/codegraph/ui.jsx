@@ -18,6 +18,23 @@ import './codegraph_style.scss';
 
 
 
+export function ui_getMergedDisplayOptions(modeWithOptionsA, modeWithOptionsB)
+{
+    let preventMergeArrays = {};
+    if (modeWithOptionsB?.modeIsolateNodesOptions?.nodeIds) {
+        // prevent merging the arrays by setting the nodeIds to null first
+        preventMergeArrays = { modeIsolateNodesOptions: { nodeIds: null } };
+    }
+    return loMerge(
+        {},
+        modeWithOptionsA,
+        preventMergeArrays,
+        modeWithOptionsB,
+    );
+}
+
+
+
 function DownloadSnapshotControls(props)
 {
     const { onDownloadSnapshot, bgColor } = props;
@@ -413,38 +430,43 @@ export function EczCodeGraphComponent(props)
     let uiState = {};
 
     [ uiState.domainColoring, uiState.setDomainColoring ] = useState(
-        eczCodeGraph.domainColoring()
+        false //eczCodeGraph.domainColoring()
     );
     useEffect( () => {
         if (!cyUiInitialized) {
             return;
         }
-        eczCodeGraph.setDomainColoring(uiState.domainColoring);
+        //eczCodeGraph.setDomainColoring(uiState.domainColoring);
     }, [ cyUiInitialized, uiState.domainColoring ] );
 
     [ uiState.cousinEdgesShown, uiState.setCousinEdgesShown ] = useState(
-        eczCodeGraph.cousinEdgesShown()
+        false // eczCodeGraph.cousinEdgesShown()
     );
     useEffect( () => {
         if (!cyUiInitialized) {
             return;
         }
-        eczCodeGraph.setCousinEdgesShown(uiState.cousinEdgesShown);
+        //eczCodeGraph.setCousinEdgesShown(uiState.cousinEdgesShown);
     }, [ cyUiInitialized, uiState.cousinEdgesShown ] );
 
     [ uiState.secondaryParentEdgesShown, uiState.setSecondaryParentEdgesShown ] = useState(
-        eczCodeGraph.secondaryParentEdgesShown()
+        false // eczCodeGraph.secondaryParentEdgesShown()
     );
     useEffect( () => {
         if (!cyUiInitialized) {
             return;
         }
-        eczCodeGraph.setSecondaryParentEdgesShown(uiState.secondaryParentEdgesShown);
+        //eczCodeGraph.setSecondaryParentEdgesShown(uiState.secondaryParentEdgesShown);
     }, [ cyUiInitialized, uiState.secondaryParentEdgesShown ] );
 
     [ uiState.displayModeWithOptions, uiState.setDisplayModeWithOptions ] = useState({
-        displayMode: eczCodeGraph.displayMode(),
-        modeIsolateNodesOptions: eczCodeGraph.modeIsolateNodesOptions(),
+        displayMode: null, // eczCodeGraph.displayMode(),
+        modeIsolateNodesOptions: {
+            range: {
+                parents: { primary: 5, secondary: 5},
+                children: { primary: 5, secondary: 5 }
+            }
+        } //eczCodeGraph.modeIsolateNodesOptions(),
     });
     useEffect( () => {
         if (!cyUiInitialized) {
@@ -452,18 +474,18 @@ export function EczCodeGraphComponent(props)
         }
         const runSetDisplayModeAndLayout = async () => {
             debug(`Updating graph's displayMode&Options -> `, uiState.displayModeWithOptions);
-            const displaySettingChanged = eczCodeGraph.setDisplayMode(
-                uiState.displayModeWithOptions.displayMode,
-                uiState.displayModeWithOptions,
-            );
-            if (displaySettingChanged) {
-                await eczCodeGraph.layout({
+            // const displaySettingChanged = eczCodeGraph.setDisplayMode(
+            //     uiState.displayModeWithOptions.displayMode,
+            //     uiState.displayModeWithOptions,
+            // );
+            if (true) { //displaySettingChanged) {
+                await eczCodeGraph.updateLayout({
                     animate: true,
                 });
                 onLayoutDone?.();
             }
         };
-        runSetDisplayModeAndLayout();
+        //runSetDisplayModeAndLayout();
     }, [ cyUiInitialized, uiState.displayModeWithOptions ] );
 
 
@@ -473,7 +495,7 @@ export function EczCodeGraphComponent(props)
     const doUserSelection = ({ nodeId, codeId, kingdomId, domainId, background }) => {
         if (background) {
             uiState.setDisplayModeWithOptions(
-                eczCodeGraph.getMergedDisplayOptions(
+                ui_getMergedDisplayOptions(
                     uiState.displayModeWithOptions,
                     {
                         displayMode: 'all',
@@ -493,7 +515,7 @@ export function EczCodeGraphComponent(props)
         }
 
         uiState.setDisplayModeWithOptions(
-            eczCodeGraph.getMergedDisplayOptions(
+            ui_getMergedDisplayOptions(
                 uiState.displayModeWithOptions,
                 {
                     displayMode: 'isolate-nodes',
@@ -524,6 +546,9 @@ export function EczCodeGraphComponent(props)
     // cytoscape initialization & graph event callbacks (e.g. "tap")
 
     let doInitializeCy = async () => {
+
+        debug('ui: doInitializeCy()');
+
         eczCodeGraph.mountInDom(cyDomNodeRef.current, {
             styleOptions: { matchWebPageFonts, window, },
         });
@@ -579,7 +604,7 @@ export function EczCodeGraphComponent(props)
         });
 
         // perform initial layout
-        await eczCodeGraph.layout({
+        await eczCodeGraph.updateLayout({
             animate: true,
         });
 
@@ -640,12 +665,12 @@ export function EczCodeGraphComponent(props)
                     onChangeDisplayModeWithOptions={
                         (newModeWithOptions) => {
                             debug(`request to set display options -> `, newModeWithOptions);
-                            uiState.setDisplayModeWithOptions(
-                                eczCodeGraph.getMergedDisplayOptions(
-                                    uiState.displayModeWithOptions,
-                                    newModeWithOptions,
-                                )
-                            );
+                            // uiState.setDisplayModeWithOptions(
+                            //     ui_getMergedDisplayOptions(
+                            //         uiState.displayModeWithOptions,
+                            //         newModeWithOptions,
+                            //     )
+                            // );
                         }
                     }
                     domainColoring={ uiState.domainColoring }
