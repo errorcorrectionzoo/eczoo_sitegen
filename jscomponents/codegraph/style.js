@@ -148,13 +148,13 @@ export const cyBaseStyleJson = [
 
     // isolation style
     {
-        selector: '.isolationSecondary',
+        selector: '.isolationExtra',
         style: {
             opacity: 0.3,
         }
     },
     {
-        selector: 'node.isolationSecondary',
+        selector: 'node.isolationExtra',
         style: {
             width: 10,
             height: 10,
@@ -171,6 +171,15 @@ export const cyBaseStyleJson = [
             //opacity: 1,
         }
     },
+    // DEBUG layout parent relations!
+    {
+        selector: 'edge.layoutParent[_relType="parent"], edge.layoutParent[_relType="cousin"]',
+        style: {
+            'line-color': 'rgb(120,0,50)',
+            'color': 'rgb(120,0,50)',
+        }
+    },
+
 
     // hide anything with the 'hidden' class
     {

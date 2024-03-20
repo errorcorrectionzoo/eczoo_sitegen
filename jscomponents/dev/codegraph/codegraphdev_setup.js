@@ -14,7 +14,7 @@ window.eczData = { eczoodbData };
 
 import * as codegraphsetup from '../../codegraph/setup.js';
 import * as mathjax from '../../mathjax/setup.js';
-window.addEventListener('load', function () {
-    mathjax.load();
-    codegraphsetup.load();
+window.addEventListener('load', async function () {
+    await mathjax.load();
+    await codegraphsetup.load();
 });

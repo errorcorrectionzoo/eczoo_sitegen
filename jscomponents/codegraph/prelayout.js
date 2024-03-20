@@ -210,7 +210,7 @@ class _PrelayoutRadialTreeBranchSet
     _computeNodeInfos()
     {
         let nodeOrderinginfoByLevel = [];
-        const options = this.options;
+        //const options = this.options;
 
         let getEdges = null;
         if (this.branchOptions.treeDirection === 'children') {
@@ -281,66 +281,66 @@ class _PrelayoutRadialTreeBranchSet
                     pRLevel += 1;
                 }
 
-                for (const whichRelationStrength of ['primary', 'secondary']) {
+                //for (const whichRelationStrength of ['primary', 'secondary']) {
 
-                    let cyNode = this.cy.getElementById(nodeId);
-                    let connectedEdges = getEdges(cyNode);
+                let cyNode = this.cy.getElementById(nodeId);
+                let connectedEdges = getEdges(cyNode).edges();
 
-                    // // see if we're still allowed to expand in that tree direction
-                    // if (treeDepthRemaining[whichRelationStrength] === 0) {
-                    //     // not true and not a strictly positive number -> cannot
-                    //     // continue exploring relations of this type beyond this
-                    //     // tree node
-                    //     continue;
-                    // }
-                    // let relationEdgesGetter = relationEdgesGetters[whichRelationStrength];
-                    // if (relationEdgesGetter === false) {
-                    //     continue;
-                    // }
+                // // see if we're still allowed to expand in that tree direction
+                // if (treeDepthRemaining[whichRelationStrength] === 0) {
+                //     // not true and not a strictly positive number -> cannot
+                //     // continue exploring relations of this type beyond this
+                //     // tree node
+                //     continue;
+                // }
+                // let relationEdgesGetter = relationEdgesGetters[whichRelationStrength];
+                // if (relationEdgesGetter === false) {
+                //     continue;
+                // }
 
-                    // find children through primary parent relation and add them
-                    // for next level's processing
-                    // let selector = (
-                    //     `${options.relationSelector[whichRelationStrength]}`
-                    //     + `[${closeNodeWhich}="${nodeId}"]`
-                    // );
-                    // debug(`selector =`, selector);
-                    //let connectedEdges = relationEdgesGetter(this.cy.getElementById(nodeId));
-                    let connectedNodesInfos = []
-                    for (const edge of connectedEdges) {
-                        const connectedNode = otherConnectedNode(edge, nodeId);
-                        const connectedNodeId = connectedNode.id();
-                        if (Object.hasOwn(this.positionedNodesData, connectedNodeId)
-                            || seenNodes.has(connectedNodeId)) {
-                            continue;
-                        }
-                        seenNodes.add(connectedNodeId);
-
-                        // let nextTreeDepthRemaining = Object.assign({}, treeDepthRemaining);
-                        // if (nextTreeDepthRemaining[whichRelationStrength] !== true) {
-                        //     // decrease the remaining quota for this whichRelationStrength
-                        //     nextTreeDepthRemaining[whichRelationStrength] -= 1;
-                        // }
-                        // if (whichRelationStrength === 'secondary') {
-                        //     // never consider primary connections of secondary connections
-                        //     nextTreeDepthRemaining.primary = 0;
-                        // }
-
-                        connectedNodesInfos.push({
-                            nodeId: connectedNodeId,
-                            level: level+1,
-                            parentNodeOrderingInfo: nodeOrderingInfo,
-                            connectedNodesInfos: [],
-                            totalNumDescendants: 0,
-                            numDescendants: [],
-                            // treeDepthRemaining: nextTreeDepthRemaining,
-                            //relatedAs: whichRelationStrength,
-                        });
+                // find children through primary parent relation and add them
+                // for next level's processing
+                // let selector = (
+                //     `${options.relationSelector[whichRelationStrength]}`
+                //     + `[${closeNodeWhich}="${nodeId}"]`
+                // );
+                // debug(`selector =`, selector);
+                //let connectedEdges = relationEdgesGetter(this.cy.getElementById(nodeId));
+                let connectedNodesInfos = []
+                for (const edge of connectedEdges) {
+                    const connectedNode = otherConnectedNode(edge, nodeId);
+                    const connectedNodeId = connectedNode.id();
+                    if (Object.hasOwn(this.positionedNodesData, connectedNodeId)
+                        || seenNodes.has(connectedNodeId)) {
+                        continue;
                     }
-                    nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
-                    nextLevelNodes.push(...connectedNodesInfos);
+                    seenNodes.add(connectedNodeId);
+
+                    // let nextTreeDepthRemaining = Object.assign({}, treeDepthRemaining);
+                    // if (nextTreeDepthRemaining[whichRelationStrength] !== true) {
+                    //     // decrease the remaining quota for this whichRelationStrength
+                    //     nextTreeDepthRemaining[whichRelationStrength] -= 1;
+                    // }
+                    // if (whichRelationStrength === 'secondary') {
+                    //     // never consider primary connections of secondary connections
+                    //     nextTreeDepthRemaining.primary = 0;
+                    // }
+
+                    connectedNodesInfos.push({
+                        nodeId: connectedNodeId,
+                        level: level+1,
+                        parentNodeOrderingInfo: nodeOrderingInfo,
+                        connectedNodesInfos: [],
+                        totalNumDescendants: 0,
+                        numDescendants: [],
+                        // treeDepthRemaining: nextTreeDepthRemaining,
+                        //relatedAs: whichRelationStrength,
+                    });
                 }
+                nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
+                nextLevelNodes.push(...connectedNodesInfos);
             }
+            // }
             nodeOrderinginfoByLevel.push( nextLevelNodes );
             thisLevelNodes = nextLevelNodes;
             level += 1;

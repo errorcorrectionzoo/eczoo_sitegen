@@ -3,6 +3,7 @@ import loMerge from 'lodash/merge.js';
 //import { EczCodeGraph } from './eczcodegraph.js';
 
 import { EczCodeGraphSubgraphSelectorAll } from './subgraphselector.js';
+import { EczCodeGraphSubgraphSelectorIsolateFamilyTree } from './subgraphselectorisolatemode.js';
 import {
     EczCodeGraphFilterDomainColors,
     EczCodeGraphFilterHideSecondaryEdges,
@@ -15,17 +16,20 @@ const defaultDisplayOptions = {
     displayMode: 'all', // 'all', 'isolate-nodes'
     modeIsolateNodesOptions: {
         nodeIds: null,
-        redoLayout: false,
         range: {
             parents: {
                 primary: 5,
-                secondary: 0,
+                secondary: 5,
+                extra: 0,
             },
             children: {
                 primary: 2,
-                secondary: 0,
+                secondary: 2,
+                extra: 0,
             },
         },
+        reusePreviousLayoutPositions: true,
+        extraRelationSelector: '',
     },
     domainColoring: true,
     cousinEdgesShown: false,
@@ -64,12 +68,18 @@ export class EczCodeGraphViewController
             defaultDisplayOptions,
             displayOptions ?? {}
         );
+        this.subgraphSelectorInstances = {};
     }
 
     initialize()
     {
+        this.subgraphSelectorInstances = {
+            'all': new EczCodeGraphSubgraphSelectorAll(this.eczCodeGraph),
+            'isolate-nodes': new EczCodeGraphSubgraphSelectorIsolateFamilyTree(this.eczCodeGraph),
+        }
+
         this.eczCodeGraph.installSubgraphSelector(
-            new EczCodeGraphSubgraphSelectorAll(this.eczCodeGraph)
+            this.subgraphSelectorInstances.all
         );
 
         const graphFilterInstances = {
@@ -81,22 +91,42 @@ export class EczCodeGraphViewController
             this.eczCodeGraph.installGraphFilter({ graphFilterName, graphFilter });
         }
 
-        this._setGraphFilterOptions();
+        this._setGraph();
     }
-    _setGraphFilterOptions()
+    
+    _setGraph()
     {
-        this.eczCodeGraph.setGraphFilterOptions({
-            domainColors: {
-                enabled: this.displayOptions.domainColoring
-            },
-            hideSecondaryEdges: {
-                cousinEdgesShown: this.displayOptions.cousinEdgesShown,
-                secondaryParentEdgesShown: this.displayOptions.secondaryParentEdgesShown,
-            },
-            search: {
-                searchText: this.displayOptions.searchHighlightText
-            },
-        });
+        let subgraphSelector = null;
+        let subgraphSelectorOptions = {};
+        if (this.displayOptions.displayMode === 'all') {
+            subgraphSelector = this.subgraphSelectorInstances['all'];
+            subgraphSelectorOptions = {};
+        } else if (this.displayOptions.displayMode === 'isolate-nodes') {
+            subgraphSelector = this.subgraphSelectorInstances['isolate-nodes'];
+            subgraphSelectorOptions = this.displayOptions.modeIsolateNodesOptions;
+        } else {
+            throw new Error(`Invalid display mode: ${this.displayOptions.displayMode}`);
+        }        
+
+        // update everything at once, as necessary.
+        this.eczCodeGraph.updateSubgraphSelectorAndSetGraphFilterOptions(
+            subgraphSelector,
+            subgraphSelectorOptions,
+            // filterOptionsDict:
+            {
+                domainColors: {
+                    enabled: this.displayOptions.domainColoring
+                },
+                hideSecondaryEdges: {
+                    cousinEdgesShown: this.displayOptions.cousinEdgesShown,
+                    secondaryParentEdgesShown: this.displayOptions.secondaryParentEdgesShown,
+                },
+                search: {
+                    searchText: this.displayOptions.searchHighlightText
+                },
+            }
+        );
+
     }
 
     static getMergedDisplayOptions(oldDisplayOptions, displayOptions)
@@ -122,7 +152,7 @@ export class EczCodeGraphViewController
             this.displayOptions,
             displayOptions
         );
-        this._setGraphFilterOptions();
+        this._setGraph();
     }
 
 

@@ -81,32 +81,36 @@ export function EczCodeGraphControlsComponent(props)
     const modeIsolateNodesDisplayRange =
         displayOptionsState.modeIsolateNodesOptions.range.parents.primary;
     const getModeIsolateNodesDisplayRangeOptions = (newRange) => {
+        const rng = Math.round(newRange);
+        const halfrng = Math.round(newRange/2);
         return {
             modeIsolateNodesOptions: {
                 range: {
                     parents: {
-                        primary: Math.round(newRange),
+                        primary: rng,
+                        secondary: rng,
                     },
                     children: {
-                        primary: Math.round(newRange/2),
+                        primary: halfrng,
+                        secondary: halfrng,
                     },
                 },
             }
         };
     };
 
-    const modeIsolateNodesAddSecondary =
-        (displayOptionsState.modeIsolateNodesOptions.range.parents.secondary !== 0);
-    const getModeIsolateNodesAddSecondaryOptions = (addSecondary) => {
-        const secondaryRange = modeIsolateNodesAddSecondary ? 1 : 0;
+    const modeIsolateNodesAddExtra =
+        (displayOptionsState.modeIsolateNodesOptions.range.parents.extra !== 0);
+    const getModeIsolateNodesAddExtraOptions = (addExtra) => {
+        const extraRange = addExtra ? 1 : 0;
         return {
             modeIsolateNodesOptions: {
                 range: {
                     parents: {
-                        secondary: secondaryRange,
+                        extra: extraRange,
                     },
                     children: {
-                        secondary: secondaryRange,
+                        extra: extraRange,
                     },
                 },
             }
@@ -198,7 +202,7 @@ export function EczCodeGraphControlsComponent(props)
     const doModeIsolateRelayout = () => {
         mergeSetDisplayOptionsState({
             modeIsolateNodesOptions: {
-                redoLayout: true,
+                reusePreviousLayoutPositions: false,
             },
         });
     };
@@ -360,9 +364,9 @@ export function EczCodeGraphControlsComponent(props)
                     <input type="checkbox"
                            id="input_modeIsolateNodesAddSecondary"
                            disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
-                           checked={modeIsolateNodesAddSecondary}
+                           checked={modeIsolateNodesAddExtra}
                            onChange={ (ev) => mergeSetDisplayOptionsState(
-                               getModeIsolateNodesAddSecondaryOptions( !! ev.target.checked )
+                               getModeIsolateNodesAddExtraOptions( !! ev.target.checked )
                            ) }
                     />
                     <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
@@ -373,7 +377,7 @@ export function EczCodeGraphControlsComponent(props)
                 <input type="text"
                        id="input_searchGraphNodes"
                        placeholder="type to search"
-                       value={ displayOptionsState.searchHighlightText }
+                       value={ displayOptionsState.searchHighlightText || '' }
                        onChange={ (ev) => mergeSetDisplayOptionsState({
                            searchHighlightText: ev.target.value
                        }) }
@@ -555,7 +559,7 @@ export function EczCodeGraphComponent(props)
                 displayMode: 'isolate-nodes',
                 modeIsolateNodesOptions: {
                     nodeIds: [ nodeId ],
-                    redoLayout: false,
+                    reusePreviousLayoutPositions: true,
                     // will merge remaining options with preexisting ones
                 },
             },

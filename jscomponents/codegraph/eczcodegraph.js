@@ -95,11 +95,6 @@ export class EczCodeGraph
         debug('EczCodeGraph initialize()');
 
         await this.initGraph();
-        
-        //EczCodeGraphSubgraphSelector.clear(this);
-        // this.installSubgraphSelector(
-        //     new EczCodeGraphSubgraphSelectorAll(this)
-        // );
 
         debug("EczCodeGraph initialize() done.  Don't forget to install a subgraph selector.");
     }
@@ -131,7 +126,7 @@ export class EczCodeGraph
         graphFilter.applyFilter({ eles });
     }
 
-    setGraphFilterOptions(filterOptionsDict)
+    setGraphFilterOptions(filterOptionsDict, { skipGraphFilterApplyUpdates }={})
     {
         const eles = this.cy.elements('.layoutVisible');
         for (const { graphFilterName, graphFilter } of this.graphFilters) {
@@ -143,65 +138,126 @@ export class EczCodeGraph
                 );
                 graphFilter.setFilterOptions(filterOptions);
             }
-            graphFilter.applyFilter({ eles });
+            if (!skipGraphFilterApplyUpdates) {
+                graphFilter.applyFilter({ eles });
+            }
         }
     }
 
     _unapplyGraphFilters({ eles }={})
     {
         eles ??= this.cy.elements('.layoutVisible');
-        for (const graphFilter of this.graphFilters) {
+        for (const { graphFilterName_, graphFilter } of this.graphFilters) {
+            debug(`removeFilter for`, graphFilter);
             graphFilter.removeFilter({ eles });
         }
     }
     _applyGraphFilters({ eles }={})
     {
         eles ??= this.cy.elements('.layoutVisible');
-        for (const graphFilter of this.graphFilters) {
+        for (const { graphFilterName_, graphFilter } of this.graphFilters) {
             graphFilter.applyFilter({ eles });
         }
     }
 
-    installSubgraphSelector(subgraphSelector)
-    {
-        debug(`installSubgraphSelector()`);
+    // --------------------------------
 
-        // const previousSubgraphLayoutOptions =
-        //     this.subgraphSelector.getSubgraphLayoutOptions();  // bad idea
+    installSubgraphSelector(subgraphSelector, { skipGraphFilterUpdates }={})
+    {
+        debug(`installSubgraphSelector()`, { subgraphSelector });
 
         // clean the graph from any display filters
-        this._unapplyGraphFilters();
+        if (!skipGraphFilterUpdates) {
+            this._unapplyGraphFilters();
+        }
 
         this.subgraphSelector = subgraphSelector;
-        this.subgraphSelector.installSubgraph(); //{ previousSubgraphLayoutOptions });
+        const resultInfo = this.subgraphSelector.installSubgraph();
+        const { pendingUpdateLayout } = resultInfo ?? {};
 
         debug(
             `installSubgraphSelector(): applied subgraph selection. # of visible nodes = `,
             this.cy.nodes('.layoutVisible').length
         );
 
+        if (!skipGraphFilterUpdates) {
+            this._applyGraphFilters();
+        }
+
+        if (pendingUpdateLayout ?? true) {
+            // request new layout calculation with new subgraph selector.
+            this._setPendingUpdateLayout();
+        }
+    }
+
+    setSubgraphSelectorOptions(options)
+    {
+        if (this.subgraphSelector == null) {
+            throw new Error(`Can't set subgraph selector options, none set`);
+        }
+
+        // clean the graph from any display filters
+        this._unapplyGraphFilters();
+
+        const resultInfo = this.subgraphSelector.setOptions(options);
+        const { pendingUpdateLayout } = resultInfo ?? {};
+
+        if (pendingUpdateLayout ?? true) {
+            this._setPendingUpdateLayout();
+        }
+
+        this._applyGraphFilters();
+    }
+
+    // --------------------------------
+
+    updateSubgraphSelectorAndSetGraphFilterOptions(
+        subgraphSelector, subgraphSelectorOptions, filterOptionsDict
+    )
+    {
+        debug(`updateSubgraphSelectorAndSetGraphFilterOptions()`);
+
+        this._unapplyGraphFilters();
+
+        let subgraphSelectorReturnInfo = { pendingUpdateLayout: false };
+        if (this.subgraphSelector !== subgraphSelector) {
+            subgraphSelector.setOptions(subgraphSelectorOptions);
+            subgraphSelectorReturnInfo = this.installSubgraphSelector(
+                subgraphSelector,
+                { skipGraphFilterUpdates: true }
+            );
+        } else {
+            // simply set options to the subgraphSelector
+            if (this.subgraphSelector.options !== subgraphSelectorOptions) {
+                subgraphSelectorReturnInfo = this.subgraphSelector.setOptions(subgraphSelectorOptions);
+            }
+        }
+        subgraphSelectorReturnInfo ??= {};
+
+        this.setGraphFilterOptions(filterOptionsDict, { skipGraphFilterApplyUpdates: true });
+
         this._applyGraphFilters();
 
-        // request new layout calculation with new subgraph selector.
-        this._pendingUpdateLayout = true;
+        if (subgraphSelectorReturnInfo.pendingUpdateLayout ?? true) {
+            // request new layout calculation with new subgraph selector.
+            this._setPendingUpdateLayout();
+        }
     }
+
+    // --------------------------------
 
     isPendingUpdateLayout()
     {
         return this._pendingUpdateLayout;
     }
 
-    // Should be called by subgraph selector instances to indicate that a new graph layout
-    // calculation should be initiated at the next available opportunity.
-    //
-    // Call without arg to set this state to true, as
-    // `eczCodeGraph.setPendingUpdateLayout()`.
-    //
-    setPendingUpdateLayout(pendingUpdateLayout)
+    _setPendingUpdateLayout(pendingUpdateLayout)
     {
         pendingUpdateLayout ??= true;
         this._pendingUpdateLayout = pendingUpdateLayout;
     }
+
+    // --------------------------------
     
     mountInDom(cyDomNode, { bgColor, styleOptions }={})
     {
@@ -359,7 +415,7 @@ export class EczCodeGraph
             shouldApplyCoseLayout = false;
         }
 
-        const rootNodeIds = this.cy.nodes('.layoutRoot').map( (node) => node.id() );
+        const rootNodeIds = this.cy.nodes('.layoutRoot.layoutVisible').map( (node) => node.id() );
 
         if (shouldApplyPrelayout || shouldApplyCoseLayout) {
             // invalidate any currently laid out nodes
@@ -373,7 +429,8 @@ export class EczCodeGraph
 
         if (shouldApplyCoseLayout) {
             debug(`Running fcose layout ...`);
-            await this._runCoseLayout({ rootNodeIds, animate });
+            // DEBUG DEBUG
+            //await this._runCoseLayout({ rootNodeIds, animate });
         }
 
         this.cy.nodes('.layoutVisible').addClass('_layoutPositioned');

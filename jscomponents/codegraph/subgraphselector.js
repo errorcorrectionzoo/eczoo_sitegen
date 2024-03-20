@@ -27,6 +27,12 @@ import { PrelayoutRadialTree } from './prelayout.js';
  *   set the root nodes information that is used when creating the default
  *   radial prelayout with the default implementation of
  *   `this.createPrelayoutInstance()`.
+ * 
+ * IMPORTANT:
+ * The constructor of this class must NOT assume that this subgraph
+ * selector will imminently be installed!  We can create multiple
+ * subgraph selector instances and then install the one we want
+ * dynamically.
  */
 export class EczCodeGraphSubgraphSelector
 {
@@ -46,6 +52,12 @@ export class EczCodeGraphSubgraphSelector
      * Should not assume any prior state of these classes; i.e., should unset these
      * classes on all elements that shouldn't have them.
      *
+     * This function may return an object of the form
+     * `{ pendingUpdateLayout: true|false }`.
+     * The `pendingUpdateLayout` property indicates whether a layout update
+     * should be initiated after installing the subgraph.  This value defaults
+     * to true if no object is returned or if the returned
+     * `pendingUpdateLayout` property is undefined or null.
      */
     installSubgraph()
     {
@@ -53,6 +65,42 @@ export class EczCodeGraphSubgraphSelector
         eles.addClass('layoutVisible');
         eles.removeClass('layoutParent');
     }
+
+    /**
+     * Updates the options of the subgraph selector.
+     * 
+     * The options might affect how the subgraph is selected and/or laid out, the
+     * effect of these options are completely left to the implementing subclass.
+     * 
+     * By default, a simple property merge is performed with existing options by
+     * using `Object.assign` (no recursion into subproperties).  Reimplement this
+     * method if you need finer-grained merge logic.
+     * 
+     * In this default implementation, after setting the options to `this.options`,
+     * the `installSubgraph()` method is called again to recalculate the subgraph
+     * and/or layout.
+     * 
+     * In the default implementation, a check is made to see if the options object
+     * is the same as the currently set options object (comparison with `===`).  If
+     * so, nothing is done and the function returns immediately, and no graph
+     * layout update is requested.
+     * 
+     * This function may return an object of the form
+     * `{ pendingUpdateLayout: true|false }`.
+     * The `pendingUpdateLayout` property indicates whether a layout update
+     * should be initiated after installing the subgraph.  This value defaults
+     * to true if no object is returned or if the returned
+     * `pendingUpdateLayout` property is undefined or null.
+     */
+    setOptions(options)
+    {
+        if (options === this.options) {
+            return { pendingUpdateLayout: false };
+        }
+        this.options = Object.assign({}, this.options, options);
+        return this.installSubgraph();
+    }
+    
 
     /**
      * Return options about how to lay out the subgraph.
@@ -67,7 +115,7 @@ export class EczCodeGraphSubgraphSelector
     getSubgraphLayoutOptions()
     {
         return {
-            reusePreviousLayoutPositions: true,
+            reusePreviousLayoutPositions: this.options?.reusePreviousLayoutPositions ?? true,
         }
     }
 
@@ -102,9 +150,12 @@ export class EczCodeGraphSubgraphSelector
     static clear(eczCodeGraph)
     {
         const cy = eczCodeGraph.cy;
-        cy.elements().removeClass(['layoutVisible', 'layoutParent']);
+        cy.elements().removeClass(['layoutRoot', 'layoutVisible', 'layoutParent']);
     }
 }
+
+
+
 
 export class EczCodeGraphSubgraphSelectorAll extends EczCodeGraphSubgraphSelector
 {
