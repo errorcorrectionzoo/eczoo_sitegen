@@ -54,7 +54,57 @@ export class EczCodeGraphFilterDomainColors extends EczCodeGraphFilter
     }
 }
 
+export class EczCodeGraphFilterHideSecondaryEdges extends EczCodeGraphFilter
+{
+    constructor(eczCodeGraph, filterOptions)
+    {
+        super(eczCodeGraph, Object.assign({
+            cousinEdgesShown: false,
+            secondaryParentEdgesShown: false,
+        }, filterOptions ?? {}));
+    }
+    applyFilter({ eles })
+    {
+        this.cy.batch( () => {
+            eles.edges().forEach( (edge) => {
+                const { _primaryParent: primaryParent, _relType: relType } = edge.data();
+                const hidden = (
+                    (primaryParent === 0 && !this.filterOptions.secondaryParentEdgesShown)
+                    || (relType === 'cousin' && !this.filterOptions.cousinEdgesShown)
+                );
+                edge.toggleClass('hiddenSecondaryEdge', hidden);
+            });
+        } );
+    }
+    removeFilter({ eles })
+    {
+        eles.edges().removeClass('hiddenSecondaryEdge');
+    }
+}
 
+// export class EczCodeGraphFilterNodeImportance extends EczCodeGraphFilter
+// {
+//     constructor(eczCodeGraph, filterOptions)
+//     {
+//         super(eczCodeGraph, Object.assign({
+//             labelFontSizeByImportance: true,
+//             dimLowDegreeNodes: true,
+//         }, filterOptions ?? {}));
+//     }
+//     applyFilter({ eles })
+//     {
+//         this.cy.batch( () => {
+//             eles.edges().forEach( (edge) => {
+//    .............
+//                 edge.toggleClass('.......', hidden);
+//             });
+//         } );
+//     }
+//     removeFilter({ eles })
+//     {
+//         eles.edges().removeClass('...');
+//     }
+// }
 
 
 export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter

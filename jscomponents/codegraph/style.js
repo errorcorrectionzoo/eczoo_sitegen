@@ -174,7 +174,7 @@ export const cyBaseStyleJson = [
 
     // hide anything with the 'hidden' class
     {
-        selector: '.hidden, .isolationHidden', //', .prelayoutHidden',
+        selector: '.hidden, .isolationHidden, .hiddenSecondaryEdge',
         style: {
             display: 'none',
         }

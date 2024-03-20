@@ -211,15 +211,3 @@ export class EczCodeGraphSubgraphSelectorAll extends EczCodeGraphSubgraphSelecto
         debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph() done.`);
     }
 }
-
-
-// export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphSubgraphSelector
-// {
-//     installSubgraph()
-//     {
-//         this.cy.elements().removeClass('layoutVisible');
-//         this.cy.edges('[_primaryParent=1]').addClass('layoutParent');
-//         let rootNodeIds = this.eczCodeGraph.getOverallRootNodeIds();
-//         ...
-//     }
-// }

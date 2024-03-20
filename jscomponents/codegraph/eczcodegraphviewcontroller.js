@@ -3,7 +3,10 @@ import loMerge from 'lodash/merge.js';
 //import { EczCodeGraph } from './eczcodegraph.js';
 
 import { EczCodeGraphSubgraphSelectorAll } from './subgraphselector.js';
-import { EczCodeGraphFilterDomainColors } from './stdgraphfilters.js';
+import {
+    EczCodeGraphFilterDomainColors,
+    EczCodeGraphFilterHideSecondaryEdges
+} from './stdgraphfilters.js';
 
 
 
@@ -69,6 +72,7 @@ export class EczCodeGraphViewController
 
         const graphFilterInstances = {
             domainColors: new EczCodeGraphFilterDomainColors(this.eczCodeGraph),
+            hideSecondaryEdges: new EczCodeGraphFilterHideSecondaryEdges(this.eczCodeGraph),
         };
         for (const [graphFilterName, graphFilter] of Object.entries(graphFilterInstances)) {
             this.eczCodeGraph.installGraphFilter({ graphFilterName, graphFilter });
@@ -81,6 +85,10 @@ export class EczCodeGraphViewController
         this.eczCodeGraph.setGraphFilterOptions({
             domainColors: {
                 enabled: this.displayOptions.domainColoring
+            },
+            hideSecondaryEdges: {
+                cousinEdgesShown: this.displayOptions.cousinEdgesShown,
+                secondaryParentEdgesShown: this.displayOptions.secondaryParentEdgesShown,
             }
         });
     }
