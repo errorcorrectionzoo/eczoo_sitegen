@@ -1,6 +1,8 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_site.jscomponents.codegraph.setup');
 
+import history from 'history/browser';
+
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
 
@@ -207,6 +209,7 @@ export async function load()
                 {
                     eczCodeGraph,
                     eczCodeGraphViewController,
+                    history,
                     onLayoutDone: () => resolve(),
                 },
                 null

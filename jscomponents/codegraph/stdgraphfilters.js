@@ -111,9 +111,14 @@ export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
 {
     applyFilter({ eles })
     {
-        const searchText = this.filterOptions.searchText;
+        const searchText = this.filterOptions.searchText || '';
 
         eles.removeClass(['searchMatchHighlight', 'searchNoMatchDimmed']);
+
+        if (searchText === '') {
+            // all good, no search to perform
+            return;
+        }
 
         const textEsc = JSON.stringify(searchText);
         const matchEles = eles.nodes(
@@ -124,6 +129,17 @@ export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
               + `matched ${matchEles.length} node elements`);
 
         matchEles.addClass('searchMatchHighlight');
+        
+        // also, move the view to highligh the search matches
+        const cy = this.cy;
+        cy.stop();
+        cy.animate({
+            fit: {
+                eles: matchEles,
+            },
+            duration: 80,
+        });
+
         eles.not('.searchMatchHighlight').addClass('searchNoMatchDimmed');
     }
     removeFilter({ eles })

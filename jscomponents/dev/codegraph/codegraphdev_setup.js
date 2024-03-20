@@ -13,4 +13,8 @@ import eczoodbData from './eczoodata.json';
 window.eczData = { eczoodbData };
 
 import * as codegraphsetup from '../../codegraph/setup.js';
-window.addEventListener('load', function () { codegraphsetup.load(); });
+import * as mathjax from '../../mathjax/setup.js';
+window.addEventListener('load', function () {
+    mathjax.load();
+    codegraphsetup.load();
+});

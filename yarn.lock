@@ -196,6 +196,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.7.6":
+  version: 7.24.1
+  resolution: "@babel/runtime@npm:7.24.1"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 5c8f3b912ba949865f03b3cf8395c60e1f4ebd1033fbd835bdfe81b6cac8a87d85bc3c7aded5fcdf07be044c9ab8c818f467abe0deca50020c72496782639572
+  languageName: node
+  linkType: hard
+
 "@babel/types@npm:^7.22.5":
   version: 7.22.10
   resolution: "@babel/types@npm:7.22.10"
@@ -471,6 +480,7 @@ __metadata:
     cytoscape-svg: ^0.4.0
     debug: ^4.3.4
     escape-html: ^1.0.3
+    history: ^5.3.0
     js-yaml: ^4.1.0
     lodash: ^4.17.21
     parcel: ^2.9.3
@@ -5780,6 +5790,15 @@ __metadata:
   version: 0.2.7
   resolution: "heap@npm:0.2.7"
   checksum: b0f3963a799e02173f994c452921a777f2b895b710119df999736bfed7477235c2860c423d9aea18a9f3b3d065cb1114d605c208cfcb8d0ac550f97ec5d28cb0
+  languageName: node
+  linkType: hard
+
+"history@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "history@npm:5.3.0"
+  dependencies:
+    "@babel/runtime": ^7.7.6
+  checksum: d73c35df49d19ac172f9547d30a21a26793e83f16a78386d99583b5bf1429cc980799fcf1827eb215d31816a6600684fba9686ce78104e23bd89ec239e7c726f
   languageName: node
   linkType: hard
 

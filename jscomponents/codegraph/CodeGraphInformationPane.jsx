@@ -459,7 +459,7 @@ export function CodeGraphInformationPane(props)
                 let domNode = contentDomRef.current;
                 if (domNode != null) {
                     // install MathJax formulas
-                    if (window.MathJax != null) {
+                    if (window && window.MathJax != null) {
                         await window.MathJax.typesetPromise([ domNode ]);
                     }
                     // install link callbacks

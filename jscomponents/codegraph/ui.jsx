@@ -5,7 +5,7 @@ const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
 import loMerge from 'lodash/merge.js';
 
-import React, { useEffect, useState, useRef, useLayoutEffect, useId } from 'react';
+import React, { useEffect, useState, useRef, useLayoutEffect, useId, useCallback } from 'react';
 
 import cytoscape from 'cytoscape';
 import cySvg from 'cytoscape-svg';
@@ -212,11 +212,10 @@ export function EczCodeGraphControlsComponent(props)
         });
     };
 
-    const doSearchGraphNodes = (searchText_) => {
-        //setSearchGraphNodesText(searchText);
-    };
-    const doClearSearchGraphNodes = () => {
-        //setSearchGraphNodesText('');
+    const doClearSearchHighlightText = () => {
+        mergeSetDisplayOptionsState({
+            searchHighlightText: null
+        })
     };
 
     const doDownloadSnapshot = async ({ format, full, scale, bg, pngOptions, svgOptions}) => {
@@ -363,7 +362,7 @@ export function EczCodeGraphControlsComponent(props)
                            disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                            checked={modeIsolateNodesAddSecondary}
                            onChange={ (ev) => mergeSetDisplayOptionsState(
-                               getModeIsolateNodesAddSecondaryOptions(!! ev.target.checked)
+                               getModeIsolateNodesAddSecondaryOptions( !! ev.target.checked )
                            ) }
                     />
                     <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
@@ -374,11 +373,12 @@ export function EczCodeGraphControlsComponent(props)
                 <input type="text"
                        id="input_searchGraphNodes"
                        placeholder="type to search"
-                       value={ displayOptionsState.searchGraphNodesText }
-                       onChange={ (ev) =>
-                           doSearchGraphNodes(ev.target.value) }
+                       value={ displayOptionsState.searchHighlightText }
+                       onChange={ (ev) => mergeSetDisplayOptionsState({
+                           searchHighlightText: ev.target.value
+                       }) }
                 />
-                <button onClick={() => doClearSearchGraphNodes()}>clear</button>
+                <button onClick={() => doClearSearchHighlightText()}>clear</button>
             </fieldset>
             <DownloadSnapshotControls
                 onDownloadSnapshot={doDownloadSnapshot}
@@ -390,16 +390,6 @@ export function EczCodeGraphControlsComponent(props)
 
 
 
-
-
-async function doCyDomMount({
-    eczCodeGraph, matchWebPageFonts, cyDomNode
-})
-{
-    debug('ui: doCyDomMount()');
-
-
-}
 
 export function useCyDomMountedEczCodeGraph(mountSetting)
 {
@@ -439,7 +429,10 @@ export function useCyDomMountedEczCodeGraph(mountSetting)
     };
 }
 
-
+function getDisplayOptionsFromHistoryState({ location })
+{
+    return 
+}
 
 export function EczCodeGraphComponent(props)
 {
@@ -448,6 +441,7 @@ export function EczCodeGraphComponent(props)
         eczCodeGraphViewController,
         matchWebPageFonts,
         onLayoutDone,
+        history, // to manage app state history / browser back/forward buttons
     } = props;
     
     const eczoodb = eczCodeGraph.eczoodb;
@@ -471,14 +465,23 @@ export function EczCodeGraphComponent(props)
     let [ displayOptionsState, setDisplayOptionsState ] = useState(
         eczCodeGraphViewController?.displayOptions
     );
-    const mergeSetDisplayOptionsState = (displayOptions) => {
-        setDisplayOptionsState(
-            (oldDisplayOptions) => EczCodeGraphViewController.getMergedDisplayOptions(
-                oldDisplayOptions,
-                displayOptions
-            )
-        );
-    };
+    const mergeSetDisplayOptionsState = useCallback(
+        (displayOptions, { pushNewHistoryState }={}) => {
+            setDisplayOptionsState(
+                (oldDisplayOptions) => {
+                    const newDisplayOptions = EczCodeGraphViewController.getMergedDisplayOptions(
+                        oldDisplayOptions,
+                        displayOptions
+                    );
+                    if (pushNewHistoryState) {
+                        history.push(history.location, { displayOptionsState: newDisplayOptions });
+                    }
+                    return newDisplayOptions;
+                }
+            );
+        },
+        [ setDisplayOptionsState, history ]
+    );
 
     useEffect( () => {
         if (!cyDomIsMounted) {
@@ -489,11 +492,29 @@ export function EczCodeGraphComponent(props)
 
         if (eczCodeGraph.isPendingUpdateLayout()) {
             eczCodeGraph.updateLayout({
-                animate: false // DEBUG DEBUG
+                //animate: false // DEBUG DEBUG
             });
+            onLayoutDone?.();
         }
 
-    }, [ eczCodeGraphViewController, eczCodeGraph, cyDomIsMounted, displayOptionsState ] );
+    }, [ eczCodeGraphViewController, eczCodeGraph, cyDomIsMounted, displayOptionsState, onLayoutDone ] );
+
+
+    // -- set up app state history tracking (e.g. browser back/forward buttons) --
+
+    useEffect( () => {
+        // make sure state is saved the first time the component is rendered. Run only once!
+        //if (!history.location.state) {
+        history.replace(history.location, { displayOptionsState });
+        //}
+    }, [ history ] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect( () => {
+        const unlisten = history.listen( ({ location, action_ }) => {
+            mergeSetDisplayOptionsState(location.state?.displayOptionsState);
+        } );
+        return unlisten;
+    }, [ history, mergeSetDisplayOptionsState ] );
 
     // --------------------------------
 
@@ -537,7 +558,8 @@ export function EczCodeGraphComponent(props)
                     redoLayout: false,
                     // will merge remaining options with preexisting ones
                 },
-            }
+            },
+            { pushNewHistoryState: true }
         );
         
         const cy = eczCodeGraph.cy;

@@ -198,7 +198,7 @@ export const cyBaseStyleJson = [
 
     // custom highlight & dimmed class
     {
-        selector: '.highlight',
+        selector: '.highlight, .searchMatchHighlight',
         style: {
             opacity: 1,
             color: 'rgb(220,80,0)',
@@ -209,7 +209,7 @@ export const cyBaseStyleJson = [
         }
     },
     {
-        selector: '.dimmed',
+        selector: '.dimmed, .searchNoMatchDimmed',
         style: {
             opacity: 0.3,
         }
