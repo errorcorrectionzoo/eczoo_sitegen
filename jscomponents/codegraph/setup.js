@@ -1,17 +1,17 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_site.jscomponents.codegraph.setup');
 
-import { EczCodeGraph } from './index.js';
-import { EczCodeGraphComponent, ui_getMergedDisplayOptions } from './ui.jsx';
-
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
 
 import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
-// ---
+import { EczCodeGraph } from './index.js';
+import { EczCodeGraphViewController } from './eczcodegraphviewcontroller.js';
 
-//import _ from 'lodash';
+import { EczCodeGraphComponent } from './ui.jsx';
+
+// ---
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -175,7 +175,7 @@ export async function load()
     const hrefFragment = window.location.hash;
     debug({hrefFragment});
     if (hrefFragment != null) {
-        displayOptions = ui_getMergedDisplayOptions(
+        displayOptions = EczCodeGraphViewController.getMergedDisplayOptions(
             displayOptions,
             getDisplayOptionsFromUrlFragment(hrefFragment)
         );
@@ -186,6 +186,10 @@ export async function load()
     });
 
     await eczCodeGraph.initialize();
+
+    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+
+    await eczCodeGraphViewController.initialize();
 
     // expose eczCodeGraph to the JS console for debugging
     window.eczCodeGraph = eczCodeGraph;
@@ -202,7 +206,7 @@ export async function load()
                 EczCodeGraphComponent,
                 {
                     eczCodeGraph,
-                    displayOptions,
+                    eczCodeGraphViewController,
                     onLayoutDone: () => resolve(),
                 },
                 null

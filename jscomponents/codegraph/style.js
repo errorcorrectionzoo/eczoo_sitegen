@@ -61,6 +61,7 @@ export const cyBaseStyleJson = [
 
     // domain coloring
     {
+        // I think that '.useDomainColors' might be necessary to override other color rules.
         selector: 'node.useDomainColors[_domainColorIndex=0]',
         style: {
             color: 'rgb(95,69,130)',
@@ -215,6 +216,7 @@ export const cyBaseStyleJson = [
     },
 
 ];
+
 
 export function getCyStyleJson(options)
 {

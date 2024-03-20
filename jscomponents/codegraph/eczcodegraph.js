@@ -15,20 +15,18 @@ import {
 
 import { cyBaseStyleJson, getCyStyleJson } from './style.js';
 
-import { 
-    EczCodeGraphSubgraphSelector,
-    EczCodeGraphSubgraphSelectorAll
- } from './subgraphselector.js';
+// import { 
+//     EczCodeGraphSubgraphSelector,
+//     // EczCodeGraphSubgraphSelectorAll
+// } from './subgraphselector.js';
 
 //import { EczCodeGraphFilterXYZ } from './graphfilter.js';
 
 // -----
 
-
 //cytoscape.use( cyCoseBilkent );
 cytoscape.use( cyFcose );
 //cytoscape.use( cyNavigator );
-
 
 
 // -----
@@ -76,6 +74,10 @@ export class EczCodeGraph
         // the eczoodb
         this.eczoodb = eczoodb;
 
+        // by default, we start as a headless graph not mounted in the DOM
+        this.mountedDomNode = null;
+        this.eventTapCallbackFn = null;
+
         // the background color to use
         this.bgColor = 'rgb(255, 236, 217)';
 
@@ -83,6 +85,9 @@ export class EczCodeGraph
         this.subgraphSelector = null; // initialize only after initial graph is initialized!
         // any display filters.
         this.graphFilters = [];
+
+        // whether we should update the layout at the next opportunity.
+        this._pendingUpdateLayout = false;
     }
 
     async initialize()
@@ -91,12 +96,12 @@ export class EczCodeGraph
 
         await this.initGraph();
         
-        EczCodeGraphSubgraphSelector.clear(this);
-        this.installSubgraphSelector(
-            new EczCodeGraphSubgraphSelectorAll(this)
-        );
+        //EczCodeGraphSubgraphSelector.clear(this);
+        // this.installSubgraphSelector(
+        //     new EczCodeGraphSubgraphSelectorAll(this)
+        // );
 
-        debug('EczCodeGraph initialize() done');
+        debug("EczCodeGraph initialize() done.  Don't forget to install a subgraph selector.");
     }
 
     static getNodeIdCode(codeId)
@@ -118,6 +123,8 @@ export class EczCodeGraph
 
     installGraphFilter({ graphFilterName, graphFilter })
     {
+        // FIXME: Ensure that a filter of the same name hasn't already been installed
+        
         this.graphFilters.push({ graphFilterName, graphFilter });
 
         const eles = this.cy.elements('.layoutVisible');
@@ -174,6 +181,26 @@ export class EczCodeGraph
         );
 
         this._applyGraphFilters();
+
+        // request new layout calculation with new subgraph selector.
+        this._pendingUpdateLayout = true;
+    }
+
+    isPendingUpdateLayout()
+    {
+        return this._pendingUpdateLayout;
+    }
+
+    // Should be called by subgraph selector instances to indicate that a new graph layout
+    // calculation should be initiated at the next available opportunity.
+    //
+    // Call without arg to set this state to true, as
+    // `eczCodeGraph.setPendingUpdateLayout()`.
+    //
+    setPendingUpdateLayout(pendingUpdateLayout)
+    {
+        pendingUpdateLayout ??= true;
+        this._pendingUpdateLayout = pendingUpdateLayout;
     }
     
     mountInDom(cyDomNode, { bgColor, styleOptions }={})
@@ -182,17 +209,70 @@ export class EczCodeGraph
         this.bgColor = bgColor ?? this.bgColor;
         cyDomNode.style.backgroundColor = this.bgColor;
 
+        if (this.mountedDomNode != null) {
+            this.cy.unmount();
+            if (this.eventTapCallbackFn != null) {
+                this.cy.removeListener('tap', this.eventTapCallbackFn);
+            }
+        }
+
         this.cy.mount( cyDomNode );
+        this.mountedDomNode = cyDomNode;
 
         styleOptions = loMerge( {}, styleOptions );
         styleOptions.matchWebPageFonts ??= true; // default to True
 
         const newCyStyleJson = getCyStyleJson( styleOptions );
+        debug(`Setting style: `, newCyStyleJson);
 
         this.cy.style()
             .resetToDefault()
             .fromJson(newCyStyleJson)
             .update();
+
+        if (this.eventTapCallbackFn != null) {
+            this.cy.addListener('tap', this.eventTapCallbackFn);
+        }    
+    }
+
+    setUserTapCallback(userTapCallbackFn)
+    {
+        const eventCallbackFn = (event) => {
+            const eventTarget = event.target;
+            try {
+                if ( ! eventTarget || ! eventTarget.isNode ) {
+                    // tap on an edge or on the background -- hide info pane
+                    debug('Unknown or non-node tap target.');
+                    userTapCallbackFn({ background: true, event, eventTarget });
+                    return;
+                }
+                if ( eventTarget.isEdge() ) {
+                    // handle edge click
+                    const edge = eventTarget;
+                    debug(`Tapped edge ${edge.id()}`);
+                    userTapCallbackFn({ edgeId: edge.id(), event, eventTarget });
+                    return;
+                }
+                if ( eventTarget.isNode() ) {
+                    const node = eventTarget;
+                    debug(`Tapped node ${node.id()}`);
+                    userTapCallbackFn({ nodeId: node.id(), event, eventTarget });
+                    return;
+                }
+                debug('Unknown tap/click target ??!');
+                return;
+            } catch (err) {
+                console.error(`Ignoring error while handling cytoscape canvas tap/click: `, err);
+                return;
+            }
+        };
+        if (this.mountedDomNode != null && this.eventTapCallbackFn != null) {
+            this.cy.removeListener('tap', this.eventTapCallbackFn);
+        }
+        this.eventTapCallbackFn = eventCallbackFn;
+        if (this.mountedDomNode != null) {
+            this.cy.addListener('tap', this.eventTapCallbackFn);
+        }
     }
 
     // ---------------------------
@@ -227,6 +307,16 @@ export class EczCodeGraph
         skipCoseLayout ??= false;
         //skipCoseLayout ??= true; // DEBUG DEBUG !
 
+        if (this.subgraphSelector == null) {
+            throw new Error(
+                `You didn't install a subgraph selector, which is needed to lay out the code graph. `
+                +`To install a simple "display all" subgraph selector, use  `
+                +`eczCodeGraph.installSubgraphSelector(`
+                +    `new EczCodeGraphSubgraphSelectorAll(eczCodeGraph))`
+                +`  after initialization.`
+            );
+        }
+
         let {
             reusePreviousLayoutPositions,
             //rootNodesPrelayoutInfo,
@@ -245,6 +335,9 @@ export class EczCodeGraph
 
         debug('in updateLayout()',
               { animate, forceRelayout, skipCoseLayout, reusePreviousLayoutPositions } );
+
+        // clear any pending layout update state.
+        this._pendingUpdateLayout = false;
 
         // Make visible those elements that should be visible, and hiding those that shouldn't.
         // Cy doesn't have setVisible(), rather we set the class 'hidden' that sets the
@@ -429,19 +522,11 @@ export class EczCodeGraph
 
         // === domains and kingdoms ===
 
-        // let domainColorIndexCounter = 0;
-        // let domainColorIndexByDomainId = {};
-
         for (const [domainId, domain] of Object.entries(this.eczoodb.objects.domain)) {
 
             //debug(`Adding domain =`, domain);
 
             const thisDomainNodeId = this.getNodeIdDomain(domainId);
-            // const thisDomainColorIndex = domainColorIndexCounter;
-            // domainColorIndexCounter =
-            //     (domainColorIndexCounter + 1) % cyStyleNumDomainColors;
-
-            // domainColorIndexByDomainId[domainId] = thisDomainColorIndex;
 
             const thisDomainName = contentToText(domain.name);
             const thisDomainLabel = contentToNodeLabel(thisDomainName);
@@ -452,7 +537,6 @@ export class EczCodeGraph
                     label: thisDomainLabel,
                     _isDomain: 1,
                     _domainId: domainId,
-                    // _domainColorIndex: thisDomainColorIndex,
 
                     _objectName: thisDomainName,
                 }
@@ -481,7 +565,6 @@ export class EczCodeGraph
                         _kingdomName: kingdomName,
                         _objectName: kingdomName,
                         _parentDomainId: domainId,
-                        // _domainColorIndex: thisDomainColorIndex,
                     }
                 });
 
@@ -545,7 +628,6 @@ export class EczCodeGraph
                     _parentKingdomRootCodeId: parentKingdomRootCodeId,
                     _parentKingdomId: parentKingdomId,
                     _parentDomainId: parentDomainId,
-                    //_domainColorIndex: domainColorIndexByDomainId[parentDomainId],
                 });
 
             } else {

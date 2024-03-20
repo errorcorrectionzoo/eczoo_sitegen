@@ -1,7 +1,7 @@
+// import debug_module from 'debug';
+// const debug = debug_module('eczoo_jscomponents.codegraph.graphfilter');
 
-import { cyStyleNumDomainColors } from './style.js';
-
-import loMerge from 'lodash/merge.js';
+//import loMerge from 'lodash/merge.js';
 
 // for: search highlights, dim nodes, domain coloring, etc.
 export class EczCodeGraphFilter
@@ -9,28 +9,31 @@ export class EczCodeGraphFilter
     constructor(eczCodeGraph, filterOptions=null)
     {
         this.eczCodeGraph = eczCodeGraph;
+        this.eczoodb = eczCodeGraph.eczoodb;
         this.cy = eczCodeGraph.cy;
         this.filterOptions = Object.assign({}, filterOptions);
-        this.mergeResetFilterOptions = {};
     }
     /**
      * Set the filter options.  This is an object whose keys and values are
      * solely understood and used by the relevant filter subclass.  Newly
-     * given filter options are merged with existing filter options.
+     * given filter options are merged with existing filter options in a very
+     * crude way by using `Object.assign()` (does not recurse into
+     * subproperties).
      * 
-     * To avoid merging some filter option properties, subclasses may
-     * initialize `this.mergeResetFilterOptions = { propertyName: null }` in
-     * their constructor to inhibit merging the property `propertyName`.
-     * These properties are set to `null` if they are not specified in the
-     * new `filterOptions`.  Internally, this method applies
-     * `_.merge(this.filterOptions, this.mergeResetFilterOptions, filterOptions)`.
+     * WARNING: This method should ONLY BE CALLED BY THE ECZCODEGRAPH instance.
+     * If you want to change the options for a given graph filter, you should
+     * use the method `eczCodeGraph.setGraphFilterOptions(...)` to ensure that
+     * the options are correclty applied and the corresponding changes are
+     * propagated through the graph.
      * 
+     * Reimplement this method if you'd like finer control over how properties
+     * are merged.
      */
     setFilterOptions(filterOptions)
     {
-        this.filterOptions = loMerge(
+        this.filterOptions = Object.assign(
+            {},
             this.filterOptions,
-            this.mergeResetFilterOptions,
             filterOptions
         );
     }
@@ -40,7 +43,7 @@ export class EczCodeGraphFilter
      * 
      * Basically, the only way the filter can interact with the display is by setting
      * filter-specific style classes.  To hide elements, define a filter-specific class
-     * and associate to it a style with 'display: none'.
+     * and associate to it a class style that has a style declaration 'display: none'.
      * 
      * Do NOT set classes 'hidden' or 'layoutXyz' (such as 'layoutVisible').
      */
@@ -54,68 +57,3 @@ export class EczCodeGraphFilter
     {
     }
 }
-
-
-
-export class EczCodeGraphFilterDomainColors extends EczCodeGraphFilter
-{
-    constructor(eczCodeGraph)
-    {
-        super(eczCodeGraph);
-        this.domainColorIndexByDomainId = {};
-
-        let domainColorIndexCounter = 0;
-        for (const domainId of Object.keys(this.eczoodb.objects.domain)) {
-
-            const thisDomainColorIndex = domainColorIndexCounter;
-            this.domainColorIndexByDomainId[domainId] = thisDomainColorIndex;
-
-            domainColorIndexCounter =
-                (domainColorIndexCounter + 1) % cyStyleNumDomainColors;
-        }
-    }
-    applyFilter({ eles })
-    {
-        eles.nodes().forEach( (node) => {
-            const domainId = node.data('_domainId');
-            const parentDomainId = node.data('_parentDomainId');
-            if (domainId) {
-                node.data('_domainColorId', this.domainColorIndexByDomainId[domainId]);
-            } else if (parentDomainId) {
-                node.data('_domainColorId', this.domainColorIndexByDomainId[parentDomainId]);
-            } else {
-                node.removeData('_domainColorId');
-            }
-        });
-    }
-    removeFilter({ eles })
-    {
-        eles.nodes().removeData('_domainColorId');
-    }
-}
-
-
-
-
-export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
-{
-    applyFilter({ eles })
-    {
-        const searchText = this.filterOptions.searchText;
-
-        eles.removeClass(['searchMatchHighlight', 'searchNoMatchDimmed']);
-
-        const textEsc = JSON.stringify(searchText);
-        const matchEles = eles.nodes(
-            `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
-        );
-
-        matchEles.addClass('searchMatchHighlight');
-        eles.not('.searchMatchHighlight').addClass('searchNoMatchDimmed');
-    }
-    removeFilter({ eles })
-    {
-        eles.removeClass(['searchMatchHighlight', 'searchNoMatchDimmed']);
-    }
-}
-

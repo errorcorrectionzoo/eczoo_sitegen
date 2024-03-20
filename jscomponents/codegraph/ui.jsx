@@ -11,27 +11,11 @@ import cytoscape from 'cytoscape';
 import cySvg from 'cytoscape-svg';
 cytoscape.use( cySvg );
 
-
+import { EczCodeGraphViewController } from './eczcodegraphviewcontroller.js';
 import { CodeGraphInformationPane } from './CodeGraphInformationPane.jsx';
 
 import './codegraph_style.scss';
 
-
-
-export function ui_getMergedDisplayOptions(modeWithOptionsA, modeWithOptionsB)
-{
-    let preventMergeArrays = {};
-    if (modeWithOptionsB?.modeIsolateNodesOptions?.nodeIds) {
-        // prevent merging the arrays by setting the nodeIds to null first
-        preventMergeArrays = { modeIsolateNodesOptions: { nodeIds: null } };
-    }
-    return loMerge(
-        {},
-        modeWithOptionsA,
-        preventMergeArrays,
-        modeWithOptionsB,
-    );
-}
 
 
 
@@ -77,10 +61,8 @@ export function EczCodeGraphControlsComponent(props)
     //
     const {
         eczCodeGraph,
-        domainColoring, onChangeDomainColoring,
-        cousinEdgesShown, onChangeCousinEdgesShown,
-        secondaryParentEdgesShown, onChangeSecondaryParentEdgesShown,
-        displayModeWithOptions, onChangeDisplayModeWithOptions,
+        displayOptionsState,
+        mergeSetDisplayOptionsState,
     } = props;
     let cy = eczCodeGraph.cy;
 
@@ -96,36 +78,28 @@ export function EczCodeGraphControlsComponent(props)
         }
     }, [zoomLevel, cy] );
 
-    let [ modeIsolateNodesDisplayRange, setModeIsolateNodesDisplayRange ] = useState(
-        displayModeWithOptions.modeIsolateNodesOptions.range.parents.primary
-    );
-    useEffect( () => {
-        // Here we assume that the range isn't modified outside of this
-        // component.  If that assumption is no longer true, then we need to
-        // make sure we keep the present state up to date.
-        onChangeDisplayModeWithOptions({
+    const modeIsolateNodesDisplayRange =
+        displayOptionsState.modeIsolateNodesOptions.range.parents.primary;
+    const getModeIsolateNodesDisplayRangeOptions = (newRange) => {
+        return {
             modeIsolateNodesOptions: {
                 range: {
                     parents: {
-                        primary: Math.round(modeIsolateNodesDisplayRange),
+                        primary: Math.round(newRange),
                     },
                     children: {
-                        primary: Math.round(modeIsolateNodesDisplayRange/2),
+                        primary: Math.round(newRange/2),
                     },
                 },
             }
-        });
-    }, [ modeIsolateNodesDisplayRange, onChangeDisplayModeWithOptions ] );
+        };
+    };
 
-    let [ modeIsolateNodesAddSecondary, setModeIsolateNodesAddSecondary ] = useState(
-        displayModeWithOptions.modeIsolateNodesOptions.range.parents.secondary !== 0
-    );
-    useEffect( () => {
-        // Here we assume that the range isn't modified outside of this
-        // component.  If that assumption is no longer true, then we need to
-        // make sure we keep the present state up to date.
+    const modeIsolateNodesAddSecondary =
+        (displayOptionsState.modeIsolateNodesOptions.range.parents.secondary !== 0);
+    const getModeIsolateNodesAddSecondaryOptions = (addSecondary) => {
         const secondaryRange = modeIsolateNodesAddSecondary ? 1 : 0;
-        onChangeDisplayModeWithOptions({
+        return {
             modeIsolateNodesOptions: {
                 range: {
                     parents: {
@@ -136,32 +110,34 @@ export function EczCodeGraphControlsComponent(props)
                     },
                 },
             }
-        });
-    }, [ modeIsolateNodesAddSecondary, onChangeDisplayModeWithOptions ] );
+        };
+    };
 
-    let [ searchGraphNodesText, setSearchGraphNodesText ] = useState('');
-    useEffect( () => {
-        cy.nodes().removeClass(['highlight', 'dimmed']);
-        if (searchGraphNodesText !== '') {
-            //const eles = cy.nodes(`[label @*= ${JSON.stringify(searchGraphNodesText)}]`);
-            const eles = eczCodeGraph.search({text: searchGraphNodesText});
-            eles.addClass('highlight');
-            cy.stop();
-            cy.animate({
-                fit: {
-                    eles,
-                },
-                duration: 80,
-            })
-            cy.elements().not('.highlight').addClass('dimmed');
+    // TODO - SEARCH
+
+    // let [ searchGraphNodesText, setSearchGraphNodesText ] = useState('');
+    // useEffect( () => {
+    //     cy.nodes().removeClass(['highlight', 'dimmed']);
+    //     if (searchGraphNodesText !== '') {
+    //         //const eles = cy.nodes(`[label @*= ${JSON.stringify(searchGraphNodesText)}]`);
+    //         const eles = eczCodeGraph.search({text: searchGraphNodesText});
+    //         eles.addClass('highlight');
+    //         cy.stop();
+    //         cy.animate({
+    //             fit: {
+    //                 eles,
+    //             },
+    //             duration: 80,
+    //         })
+    //         cy.elements().not('.highlight').addClass('dimmed');
             
-        }
-    }, [ searchGraphNodesText, cy, eczCodeGraph ] );
+    //     }
+    // }, [ searchGraphNodesText, cy, eczCodeGraph ] );
 
     // install events originating from cy itself (e.g. mouse scroll & zoom)
     const cyUserViewportEventNames = 'viewport'; //pinchzoom scrollzoom dragpan';
     useEffect( () => {
-        const cyUserViewportEventHandler = (/*event*/) => {
+        const cyUserViewportEventHandler = (event_) => {
             if (cy.zoom() != zoomLevel) {
                 setZoomLevel(cy.zoom());
             }
@@ -170,7 +146,7 @@ export function EczCodeGraphControlsComponent(props)
         return () => {
             cy.removeListener(cyUserViewportEventNames, cyUserViewportEventHandler);
         }
-    }, [ eczCodeGraph, cy, zoomLevel ]); // run ONCE only for the given code graph!
+    }, [ eczCodeGraph, cy, zoomLevel ]);
 
     const rootFieldsetRef = useRef(null);
 
@@ -195,16 +171,16 @@ export function EczCodeGraphControlsComponent(props)
     }
     const doCenter = () => {
         let nodes = cy.nodes();
-        if (displayModeWithOptions.displayMode === 'all') {
+        if (displayOptionsState.displayMode === 'all') {
             // all ok
-        } else if (displayModeWithOptions.displayMode === 'isolate-nodes') {
+        } else if (displayOptionsState.displayMode === 'isolate-nodes') {
             nodes = cy.collection();
-            for (const nodeId of displayModeWithOptions.modeIsolateNodesOptions.nodeIds) {
+            for (const nodeId of displayOptionsState.modeIsolateNodesOptions.nodeIds) {
                 nodes.merge( cy.getElementById(nodeId) );
             }
         } else {
             throw new Error(`can't center, don't know display mode = `,
-                            displayModeWithOptions);
+                            displayOptionsState);
         }
         cy.animate({
             center: {
@@ -215,12 +191,12 @@ export function EczCodeGraphControlsComponent(props)
         });
     };
     const doModeIsolateExit = () => {
-        onChangeDisplayModeWithOptions({
+        mergeSetDisplayOptionsState({
             displayMode: 'all',
         });
     };
     const doModeIsolateRelayout = () => {
-        onChangeDisplayModeWithOptions({
+        mergeSetDisplayOptionsState({
             modeIsolateNodesOptions: {
                 redoLayout: true,
             },
@@ -228,7 +204,7 @@ export function EczCodeGraphControlsComponent(props)
     };
     const doModeIsolateZoomDomains = () => {
         const domainNodeIds = cy.nodes('[_isDomain=1]').map( (n) => n.id() );
-        onChangeDisplayModeWithOptions({
+        mergeSetDisplayOptionsState({
             displayMode: 'isolate-nodes',
             modeIsolateNodesOptions: {
                 nodeIds: domainNodeIds,
@@ -236,11 +212,11 @@ export function EczCodeGraphControlsComponent(props)
         });
     };
 
-    const doSearchGraphNodes = (searchText) => {
-        setSearchGraphNodesText(searchText);
+    const doSearchGraphNodes = (searchText_) => {
+        //setSearchGraphNodesText(searchText);
     };
     const doClearSearchGraphNodes = () => {
-        setSearchGraphNodesText('');
+        //setSearchGraphNodesText('');
     };
 
     const doDownloadSnapshot = async ({ format, full, scale, bg, pngOptions, svgOptions}) => {
@@ -275,8 +251,13 @@ export function EczCodeGraphControlsComponent(props)
 
         // create data URL and download. Argh this is ugly.
         // https://stackoverflow.com/a/71860718/1694896
-        function promiseBlobToDataUrl(blob) {
-            return new Promise(r => {let a = new FileReader(); a.onload=r; a.readAsDataURL(blob)}).then(e => e.target.result);
+        async function promiseBlobToDataUrl(blob) {
+            const e = await new Promise( (resolve) => {
+                let a = new FileReader();
+                a.onload = resolve;
+                a.readAsDataURL(blob);
+            });
+            return e.target.result;
         }
           
         let dataUrl = await promiseBlobToDataUrl(dataBlob);
@@ -320,25 +301,30 @@ export function EczCodeGraphControlsComponent(props)
                 <span className="controls-input-group">
                     <input type="checkbox"
                         id="input_domainColoring"
-                        checked={domainColoring}
-                        onChange={ (ev) => onChangeDomainColoring(!! ev.target.checked) }
+                        checked={displayOptionsState.domainColoring}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            domainColoring: !! ev.target.checked
+                        }) }
                     />
                     <label htmlFor="input_domainColoring">domain colors</label>
                 </span>
                 <span className="controls-input-group">
                     <input type="checkbox"
                         id="input_cousinEdgesShown"
-                        checked={cousinEdgesShown}
-                        onChange={ (ev) => onChangeCousinEdgesShown(!! ev.target.checked) }
+                        checked={displayOptionsState.cousinEdgesShown}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            cousinEdgesShown: !! ev.target.checked
+                        }) }
                     />
                     <label htmlFor="input_cousinEdgesShown">cousins</label>
                 </span>
                 <span className="controls-input-group">
                     <input type="checkbox"
                         id="input_secondaryParentEdgesShown"
-                        checked={secondaryParentEdgesShown}
-                        onChange={ (ev) =>
-                            onChangeSecondaryParentEdgesShown(!! ev.target.checked) }
+                        checked={displayOptionsState.secondaryParentEdgesShown}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            secondaryParentEdgesShown: !! ev.target.checked
+                        }) }
                     />
                     <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
                 </span>
@@ -346,38 +332,39 @@ export function EczCodeGraphControlsComponent(props)
             <fieldset className="controls-input-advanced-fieldset">
                 <legend>Isolation</legend>
                 <button
-                    disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                    disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                     onClick={doModeIsolateExit}>home</button>
                 <span className="controls-input-sep"></span>
                 <button
                     onClick={doModeIsolateZoomDomains}>zoom domains</button>
                 <span className="controls-input-sep"></span>
                 <button
-                    disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                    disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                     onClick={doModeIsolateRelayout}>relayout</button>
                 <span className="controls-input-break"></span>
                 <span className="controls-input-group">
                     <label htmlFor="input_modeIsolateNodesDisplayRange">tree:</label>
                     <input type="range"
                            id="input_modeIsolateNodesDisplayRange"
-                           disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                           disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                            min={0}
                            max={16}
                            step={1}
                            value={modeIsolateNodesDisplayRange}
-                           onChange={(ev) =>
-                               setModeIsolateNodesDisplayRange(parseFloat(ev.target.value))
-                           }
+                           onChange={(ev) => mergeSetDisplayOptionsState(
+                               getModeIsolateNodesDisplayRangeOptions(parseFloat(ev.target.value))
+                           )}
                     />
                 </span>
                 <span className="controls-input-sep"></span>
                 <span className="controls-input-group">
                     <input type="checkbox"
                            id="input_modeIsolateNodesAddSecondary"
-                           disabled={displayModeWithOptions.displayMode !== 'isolate-nodes'}
+                           disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                            checked={modeIsolateNodesAddSecondary}
-                           onChange={ (ev) =>
-                               setModeIsolateNodesAddSecondary(!! ev.target.checked) }
+                           onChange={ (ev) => mergeSetDisplayOptionsState(
+                               getModeIsolateNodesAddSecondaryOptions(!! ev.target.checked)
+                           ) }
                     />
                     <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
                 </span>
@@ -387,7 +374,7 @@ export function EczCodeGraphControlsComponent(props)
                 <input type="text"
                        id="input_searchGraphNodes"
                        placeholder="type to search"
-                       value={ searchGraphNodesText }
+                       value={ displayOptionsState.searchGraphNodesText }
                        onChange={ (ev) =>
                            doSearchGraphNodes(ev.target.value) }
                 />
@@ -403,10 +390,62 @@ export function EczCodeGraphControlsComponent(props)
 
 
 
+
+
+async function doCyDomMount({
+    eczCodeGraph, matchWebPageFonts, cyDomNode
+})
+{
+    debug('ui: doCyDomMount()');
+
+
+}
+
+export function useCyDomMountedEczCodeGraph(mountSetting)
+{
+    const {
+        eczCodeGraph, cyDomNodeRef,
+        // matchWebPageFonts
+    } = mountSetting;
+
+    const [ cyDomMountedForMountSetting, setCyDomMountedForMountSetting ] =
+        useState( {} );
+
+    // cytoscape initialization: make sure it's installed in the DOM correctly
+
+    useLayoutEffect( () => {
+        const needMount = Object.entries(mountSetting).some(
+            ([settingKey, settingValue]) => (settingValue !== cyDomMountedForMountSetting[settingKey])
+        );
+        debug(`Do we need to mount the code graph in the DOM? -> `, { needMount, mountSetting, cyDomMountedForMountSetting });
+        if ( needMount ) {
+            // access eczCodeGraph, cyDomNode via mountSetting. explicitly to facilitate
+            // tracking the layout effect dependencies
+            mountSetting.eczCodeGraph.mountInDom(mountSetting.cyDomNodeRef.current, {
+                styleOptions: {
+                    matchWebPageFonts: mountSetting.matchWebPageFonts,
+                    window: mountSetting.window,
+                },
+            });
+            setCyDomMountedForMountSetting( mountSetting );
+        }
+    }, [ mountSetting, cyDomMountedForMountSetting ] );
+
+    const cyDomNode = cyDomNodeRef.current;
+    const cyDomIsMounted = (eczCodeGraph.mountedDomNode === cyDomNode);
+
+    return {
+        cyDomIsMounted,
+    };
+}
+
+
+
 export function EczCodeGraphComponent(props)
 {
     const {
         eczCodeGraph,
+        eczCodeGraphViewController,
         matchWebPageFonts,
         onLayoutDone,
     } = props;
@@ -420,90 +459,65 @@ export function EczCodeGraphComponent(props)
     let cyDomNodeRef = useRef(null);
     let cyPanelDomNodeRef = useRef(null);
 
-    // This flag stores whether we have performed initial initialization on the cytoscape graph to
-    // integrate the object into the DOM & set up callbacks.  Only after we did this initialization
-    // will we start setting the graph state etc. to avoid running layouts twice, etc.
-    let [cyUiInitialized, setCyUiInitialized] = useState(false);
+    const cyDomIsMounted = useCyDomMountedEczCodeGraph({
+        eczCodeGraph,
+        cyDomNodeRef,
+        matchWebPageFonts,
+        window
+    });
 
     // UI state. Code selected/isolated, etc.
 
-    let uiState = {};
-
-    [ uiState.domainColoring, uiState.setDomainColoring ] = useState(
-        false //eczCodeGraph.domainColoring()
+    let [ displayOptionsState, setDisplayOptionsState ] = useState(
+        eczCodeGraphViewController?.displayOptions
     );
+    const mergeSetDisplayOptionsState = (displayOptions) => {
+        setDisplayOptionsState(
+            (oldDisplayOptions) => EczCodeGraphViewController.getMergedDisplayOptions(
+                oldDisplayOptions,
+                displayOptions
+            )
+        );
+    };
+
     useEffect( () => {
-        if (!cyUiInitialized) {
+        if (!cyDomIsMounted) {
             return;
         }
-        //eczCodeGraph.setDomainColoring(uiState.domainColoring);
-    }, [ cyUiInitialized, uiState.domainColoring ] );
 
-    [ uiState.cousinEdgesShown, uiState.setCousinEdgesShown ] = useState(
-        false // eczCodeGraph.cousinEdgesShown()
-    );
-    useEffect( () => {
-        if (!cyUiInitialized) {
-            return;
+        eczCodeGraphViewController?.setDisplayOptions(displayOptionsState);
+
+        if (eczCodeGraph.isPendingUpdateLayout()) {
+            eczCodeGraph.updateLayout({
+                animate: false // DEBUG DEBUG
+            });
         }
-        //eczCodeGraph.setCousinEdgesShown(uiState.cousinEdgesShown);
-    }, [ cyUiInitialized, uiState.cousinEdgesShown ] );
 
-    [ uiState.secondaryParentEdgesShown, uiState.setSecondaryParentEdgesShown ] = useState(
-        false // eczCodeGraph.secondaryParentEdgesShown()
-    );
-    useEffect( () => {
-        if (!cyUiInitialized) {
-            return;
-        }
-        //eczCodeGraph.setSecondaryParentEdgesShown(uiState.secondaryParentEdgesShown);
-    }, [ cyUiInitialized, uiState.secondaryParentEdgesShown ] );
-
-    [ uiState.displayModeWithOptions, uiState.setDisplayModeWithOptions ] = useState({
-        displayMode: null, // eczCodeGraph.displayMode(),
-        modeIsolateNodesOptions: {
-            range: {
-                parents: { primary: 5, secondary: 5},
-                children: { primary: 5, secondary: 5 }
-            }
-        } //eczCodeGraph.modeIsolateNodesOptions(),
-    });
-    useEffect( () => {
-        if (!cyUiInitialized) {
-            return;
-        }
-        const runSetDisplayModeAndLayout = async () => {
-            debug(`Updating graph's displayMode&Options -> `, uiState.displayModeWithOptions);
-            // const displaySettingChanged = eczCodeGraph.setDisplayMode(
-            //     uiState.displayModeWithOptions.displayMode,
-            //     uiState.displayModeWithOptions,
-            // );
-            if (true) { //displaySettingChanged) {
-                await eczCodeGraph.updateLayout({
-                    animate: true,
-                });
-                onLayoutDone?.();
-            }
-        };
-        //runSetDisplayModeAndLayout();
-    }, [ cyUiInitialized, uiState.displayModeWithOptions ] );
-
+    }, [ eczCodeGraphViewController, eczCodeGraph, cyDomIsMounted, displayOptionsState ] );
 
     // --------------------------------
 
-
-    const doUserSelection = ({ nodeId, codeId, kingdomId, domainId, background }) => {
+    const doUserSelection = ({ nodeId, edgeId, codeId, kingdomId, domainId, background, eventTarget }) =>
+    {
         if (background) {
-            uiState.setDisplayModeWithOptions(
-                ui_getMergedDisplayOptions(
-                    uiState.displayModeWithOptions,
-                    {
-                        displayMode: 'all',
-                    }
-                )
-            );
+            mergeSetDisplayOptionsState({
+                displayMode: 'all',
+            });
             return;
         }
+
+        if (edgeId != null) {
+            // clicked on an edge - zoom to show it
+            let cy = eczCodeGraph.cy;
+            cy.animate({
+                fit: {
+                    eles: eventTarget,
+                    padding: Math.min(cy.width(), cy.height()) / 6,
+                },
+            });
+            return;
+        }
+
         if (domainId) {
             nodeId = eczCodeGraph.getNodeIdDomain(domainId);
         }
@@ -514,25 +528,23 @@ export function EczCodeGraphComponent(props)
             nodeId = eczCodeGraph.getNodeIdCode(codeId);
         }
 
-        uiState.setDisplayModeWithOptions(
-            ui_getMergedDisplayOptions(
-                uiState.displayModeWithOptions,
-                {
-                    displayMode: 'isolate-nodes',
-                    modeIsolateNodesOptions: {
-                        nodeIds: [ nodeId ],
-                        redoLayout: false,
-                        // will merge remaining options with preexisting ones
-                    },
-                }
-            )
+        debug(`Graph selected`, { nodeId });
+
+        mergeSetDisplayOptionsState({
+                displayMode: 'isolate-nodes',
+                modeIsolateNodesOptions: {
+                    nodeIds: [ nodeId ],
+                    redoLayout: false,
+                    // will merge remaining options with preexisting ones
+                },
+            }
         );
         
         const cy = eczCodeGraph.cy;
         const node = cy.getElementById(nodeId);
         let nodeRenderedPosition = node.renderedPosition();
         if (nodeRenderedPosition.x < 0 || nodeRenderedPosition.y < 0 ||
-            nodeRenderedPosition.x > cy.width() || nodeRenderedPosition.y > cy.height()) {
+             nodeRenderedPosition.x > cy.width() || nodeRenderedPosition.y > cy.height()) {
             cy.animate({
                 center: {
                     eles: node,
@@ -543,93 +555,34 @@ export function EczCodeGraphComponent(props)
         }
     };
 
-    // cytoscape initialization & graph event callbacks (e.g. "tap")
+    eczCodeGraph.setUserTapCallback(doUserSelection);
 
-    let doInitializeCy = async () => {
-
-        debug('ui: doInitializeCy()');
-
-        eczCodeGraph.mountInDom(cyDomNodeRef.current, {
-            styleOptions: { matchWebPageFonts, window, },
-        });
-
-        const tapEventHandlerFn = (eventTarget) => {
-
-            if ( ! eventTarget || ! eventTarget.isNode ) {
-                // tap on an edge or on the background -- hide info pane
-                debug('Unknown or non-node tap target.');
-                doUserSelection({ background: true });
-                return;
-            }
-
-            if ( eventTarget.isEdge() ) {
-                // handle edge click
-                let cy = eczCodeGraph.cy;
-                cy.animate({
-                    fit: {
-                        eles: eventTarget,
-                        padding: Math.min(cy.width(), cy.height()) / 6,
-                    },
-                });
-                return;
-            }
-
-            if ( eventTarget.isNode() ) {
-                const node = eventTarget;
-                debug(`Tapped node ${node.id()}`);
-                doUserSelection({ nodeId: node.id() });
-                return;
-            }
-
-            debug('Unknown click target ??!');
-            return;
-        };
-
-        eczCodeGraph.cy.on('tap', (event) => {
-
-            // target holds a reference to the originator
-            // of the event (core or element)
-
-            const eventTarget = event.target;
-            debug('Tap! eventTarget = ', eventTarget);
-
-            try {
-
-                tapEventHandlerFn(eventTarget);
-
-            } catch (err) {
-                console.error(`Error (will ignore) while handling cytoscape canvas tap: `, err);
-                return;
-            }
-        });
-
-        // perform initial layout
-        await eczCodeGraph.updateLayout({
-            animate: true,
-        });
-
-        onLayoutDone?.();
-
-        setCyUiInitialized(true);
-    };
-
-    useLayoutEffect( () => {
-        if (!cyUiInitialized) {
-            doInitializeCy();
+    const onLinkToObjectActivated = (objectType, objectId) => {
+        debug('Link to object clicked: ', { objectType, objectId, });
+        if (objectType === 'code') {
+            doUserSelection({codeId: objectId});
+        } else if (objectType === 'kingdom') {
+            doUserSelection({kingdomId: objectId});
+        } else if (objectType === 'domain') {
+            doUserSelection({domainId: objectId});
+        } else {
+            throw new Error(
+                `I don't know what to do with click on ${objectType}`
+            );
         }
-    }, [ cyUiInitialized ] );
+    };
 
     //
     // Render components
     //
 
-    debug(`Rendering components. displayModeWithOptions=`, uiState.displayModeWithOptions);
+    debug(`Rendering components. displayOptionsState =`, displayOptionsState);
 
     let currentCodeSelected = null;
     let currentDomainSelected = null;
     let currentKingdomSelected = null;
-    if (uiState.displayModeWithOptions.displayMode === 'isolate-nodes') {
-        const { nodeIds } = uiState.displayModeWithOptions.modeIsolateNodesOptions;
+    if (displayOptionsState.displayMode === 'isolate-nodes') {
+        const { nodeIds } = displayOptionsState.modeIsolateNodesOptions;
         if ( nodeIds && nodeIds.length === 1) {
             const nodeId = nodeIds[0];
             const nodeElementCyQuery = eczCodeGraph.cy.getElementById(nodeId);
@@ -661,24 +614,8 @@ export function EczCodeGraphComponent(props)
             <div className="EczCodeGraphComponent_SidePanel">
                 <EczCodeGraphControlsComponent
                     eczCodeGraph={eczCodeGraph}
-                    displayModeWithOptions={uiState.displayModeWithOptions}
-                    onChangeDisplayModeWithOptions={
-                        (newModeWithOptions) => {
-                            debug(`request to set display options -> `, newModeWithOptions);
-                            // uiState.setDisplayModeWithOptions(
-                            //     ui_getMergedDisplayOptions(
-                            //         uiState.displayModeWithOptions,
-                            //         newModeWithOptions,
-                            //     )
-                            // );
-                        }
-                    }
-                    domainColoring={ uiState.domainColoring }
-                    onChangeDomainColoring={ uiState.setDomainColoring }
-                    cousinEdgesShown={ uiState.cousinEdgesShown }
-                    onChangeCousinEdgesShown={ uiState.setCousinEdgesShown }
-                    secondaryParentEdgesShown={ uiState.secondaryParentEdgesShown }
-                    onChangeSecondaryParentEdgesShown={ uiState.setSecondaryParentEdgesShown }
+                    displayOptionsState={displayOptionsState}
+                    mergeSetDisplayOptionsState={mergeSetDisplayOptionsState}
                 />
                 <CodeGraphInformationPane
                     eczoodb={eczoodb}
@@ -686,20 +623,7 @@ export function EczCodeGraphComponent(props)
                     currentDomainSelected={currentDomainSelected}
                     currentKingdomSelected={currentKingdomSelected}
                     captureLinksToObjectTypes={['code', 'domain', 'kingdom']}
-                    onLinkToObjectActivated={ (objectType, objectId) => {
-                        debug('Link to object clicked: ', { objectType, objectId, });
-                        if (objectType === 'code') {
-                            doUserSelection({codeId: objectId});
-                        } else if (objectType === 'kingdom') {
-                            doUserSelection({kingdomId: objectId});
-                        } else if (objectType === 'domain') {
-                            doUserSelection({domainId: objectId});
-                        } else {
-                            throw new Error(
-                                `I don't know what to do with click on ${objectType}`
-                            );
-                        }
-                    } }
+                    onLinkToObjectActivated={onLinkToObjectActivated}
                 />
             </div>
         </div>

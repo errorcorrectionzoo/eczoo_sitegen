@@ -335,7 +335,7 @@ function renderHtmlKingdom({ eczoodb, kingdom, captureLinksToObjectTypes, })
 
 function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
 {
-    const { flm_simple_content, render } = mkRenderWrapUtils({
+    const { flm_simple_content_, render } = mkRenderWrapUtils({
         eczoodb,
         captureLinksToObjectTypes,
     });
@@ -358,7 +358,7 @@ function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
         <p style="margin-top: 2em">Zoom into:</p>
         <ul>`;
         
-        for (const [domain_id, domain] of Object.entries(eczoodb.objects.domain)) {
+        for (const [domain_id, domain_] of Object.entries(eczoodb.objects.domain)) {
             s += sqzhtml`
           <li>${ ref('domain', domain_id) }</li>`;
         }
@@ -485,7 +485,7 @@ export function CodeGraphInformationPane(props)
         };
         setupHtmlContent();
         return;
-    }, [compiledHtmlContent, currentCodeSelected, currentDomainSelected, currentKingdomSelected] );
+    } );
 
     return (
         <div className="CodeGraphInformationPane"
