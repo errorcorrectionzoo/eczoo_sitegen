@@ -3,7 +3,7 @@ const debug = debugm('codegraph_page_main');
 
 function isStrict() { return !this; }
 if (!isStrict()) {
-  throw new Error(`Not strict mode!`);
+    throw new Error(`Not strict mode!`);
 }
 
 
@@ -42,5 +42,10 @@ import * as mathjax from '../../mathjax/setup.js';
 window.addEventListener('load', async function () {
     await mathjax.load();
     await codegraphsetup.load({ displayOptions: initialDisplayOptions });
-    //window.eczCodeGraph.cy.elements().addClass('DEBUG')
+    window.eczcodegraphdebug = () => {
+        window.eczCodeGraph.cy.elements().toggleClass('DEBUG');
+        window.eczCodeGraph.graphGlobalOptions.alwaysSkipCoseLayout =
+            ! window.eczCodeGraph.graphGlobalOptions.alwaysSkipCoseLayout;
+    };
+    console.info('Type eczcodegraphdebug() to enable visual DEBUG mode!');
 });

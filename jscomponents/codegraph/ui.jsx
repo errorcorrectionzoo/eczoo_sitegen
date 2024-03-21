@@ -95,6 +95,7 @@ export function EczCodeGraphControlsComponent(props)
                         secondary: halfrng,
                     },
                 },
+                reusePreviousLayoutPositions: true,
             }
         };
     };
@@ -113,30 +114,10 @@ export function EczCodeGraphControlsComponent(props)
                         extra: extraRange,
                     },
                 },
+                reusePreviousLayoutPositions: true,
             }
         };
     };
-
-    // TODO - SEARCH
-
-    // let [ searchGraphNodesText, setSearchGraphNodesText ] = useState('');
-    // useEffect( () => {
-    //     cy.nodes().removeClass(['highlight', 'dimmed']);
-    //     if (searchGraphNodesText !== '') {
-    //         //const eles = cy.nodes(`[label @*= ${JSON.stringify(searchGraphNodesText)}]`);
-    //         const eles = eczCodeGraph.search({text: searchGraphNodesText});
-    //         eles.addClass('highlight');
-    //         cy.stop();
-    //         cy.animate({
-    //             fit: {
-    //                 eles,
-    //             },
-    //             duration: 80,
-    //         })
-    //         cy.elements().not('.highlight').addClass('dimmed');
-            
-    //     }
-    // }, [ searchGraphNodesText, cy, eczCodeGraph ] );
 
     // install events originating from cy itself (e.g. mouse scroll & zoom)
     const cyUserViewportEventNames = 'viewport'; //pinchzoom scrollzoom dragpan';
@@ -273,9 +254,15 @@ export function EczCodeGraphControlsComponent(props)
         aNode.click();
     };
 
-    const toggleControls = (/*event*/) => {
+    const toggleControlsButtonLabel = {
+        [true]: 'more…',
+        [false]: 'show less',
+    };
+    const toggleControls = (event) => {
         const el = rootFieldsetRef.current;
-        el.classList.toggle('state-hide-controls');
+        const isCurrentlyOn = ! el.classList.contains('state-hide-controls');
+        el.classList.toggle('state-hide-controls', isCurrentlyOn);
+        event.target.innerText = toggleControlsButtonLabel[!isCurrentlyOn];
     };
 
     return (
@@ -297,40 +284,9 @@ export function EczCodeGraphControlsComponent(props)
                     <button onClick={doZoomFit}>fit</button>
                 </span>
                 <span className="controls-input-sep"></span>
-                <button onClick={toggleControls}>more…</button>
-            </fieldset>
-            <fieldset className="controls-input-advanced-fieldset">
-                <legend>Display</legend>
-                <span className="controls-input-group">
-                    <input type="checkbox"
-                        id="input_domainColoring"
-                        checked={displayOptionsState.domainColoring}
-                        onChange={ (ev) => mergeSetDisplayOptionsState({
-                            domainColoring: !! ev.target.checked
-                        }) }
-                    />
-                    <label htmlFor="input_domainColoring">domain colors</label>
-                </span>
-                <span className="controls-input-group">
-                    <input type="checkbox"
-                        id="input_cousinEdgesShown"
-                        checked={displayOptionsState.cousinEdgesShown}
-                        onChange={ (ev) => mergeSetDisplayOptionsState({
-                            cousinEdgesShown: !! ev.target.checked
-                        }) }
-                    />
-                    <label htmlFor="input_cousinEdgesShown">cousins</label>
-                </span>
-                <span className="controls-input-group">
-                    <input type="checkbox"
-                        id="input_secondaryParentEdgesShown"
-                        checked={displayOptionsState.secondaryParentEdgesShown}
-                        onChange={ (ev) => mergeSetDisplayOptionsState({
-                            secondaryParentEdgesShown: !! ev.target.checked
-                        }) }
-                    />
-                    <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
-                </span>
+                <button onClick={toggleControls}>{
+                    toggleControlsButtonLabel[true]
+                }</button>
             </fieldset>
             <fieldset className="controls-input-advanced-fieldset">
                 <legend>Isolation</legend>
@@ -383,6 +339,59 @@ export function EczCodeGraphControlsComponent(props)
                        }) }
                 />
                 <button onClick={() => doClearSearchHighlightText()}>clear</button>
+            </fieldset>
+            <fieldset className="controls-input-advanced-fieldset">
+                <legend>Display</legend>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_domainColoring"
+                        checked={displayOptionsState.domainColoring}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            domainColoring: !! ev.target.checked
+                        }) }
+                    />
+                    <label htmlFor="input_domainColoring">domain colors</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_cousinEdgesShown"
+                        checked={displayOptionsState.cousinEdgesShown}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            cousinEdgesShown: !! ev.target.checked
+                        }) }
+                    />
+                    <label htmlFor="input_cousinEdgesShown">cousins</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_secondaryParentEdgesShown"
+                        checked={displayOptionsState.secondaryParentEdgesShown}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            secondaryParentEdgesShown: !! ev.target.checked
+                        }) }
+                    />
+                    <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_highlightImportantNodes"
+                        checked={displayOptionsState.highlightImportantNodes.highlightImportantNodes}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            highlightImportantNodes: { highlightImportantNodes: !! ev.target.checked }
+                        }) }
+                    />
+                    <label htmlFor="input_highlightImportantNodes">highlight high-degree nodes</label>
+                </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_highlightPrimaryParents"
+                        checked={displayOptionsState.highlightImportantNodes.highlightPrimaryParents}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            highlightImportantNodes: { highlightPrimaryParents: !! ev.target.checked }
+                        }) }
+                    />
+                    <label htmlFor="input_highlightPrimaryParents">fade secondary parents</label>
+                </span>
             </fieldset>
             <DownloadSnapshotControls
                 onDownloadSnapshot={doDownloadSnapshot}

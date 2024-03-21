@@ -140,7 +140,7 @@ export class EczCodeGraphSubgraphSelector
             cy: this.cy,
             rootNodeIds,
             rootNodesPrelayoutInfo,
-            options: prelayoutOptions,
+            prelayoutOptions,
         });
 
         return prelayout;

@@ -15,10 +15,9 @@ import {
 
 import { cyBaseStyleJson, getCyStyleJson } from './style.js';
 
-// import { 
-//     EczCodeGraphSubgraphSelector,
-//     // EczCodeGraphSubgraphSelectorAll
-// } from './subgraphselector.js';
+import { 
+    EczCodeGraphSubgraphSelector,
+} from './subgraphselector.js';
 
 //import { EczCodeGraphFilterXYZ } from './graphfilter.js';
 
@@ -100,7 +99,8 @@ export class EczCodeGraph
                 customDomainIdsOrder:  {
                     classical_domain: -100,
                     quantum_domain: 100,
-                }
+                },
+                alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
             },
             graphGlobalOptions
         );
@@ -192,6 +192,8 @@ export class EczCodeGraph
         if (!skipGraphFilterUpdates) {
             this._unapplyGraphFilters();
         }
+
+        EczCodeGraphSubgraphSelector.clear(this);
 
         if (this.subgraphSelector != null) {
             // clean up any custom classes set by this subgraph selector.
@@ -387,7 +389,11 @@ export class EczCodeGraph
     {
         animate ??= true;
         forceRelayout ??= false;
-        skipCoseLayout ??= false; // true; // DEBUG DEBUG !
+        skipCoseLayout ??= false;
+
+        if (this.graphGlobalOptions.alwaysSkipCoseLayout) {
+            skipCoseLayout = true;
+        }
 
         if (this.subgraphSelector == null) {
             throw new Error(

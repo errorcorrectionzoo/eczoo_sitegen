@@ -68,7 +68,11 @@ export class EczCodeGraphFilterHideSecondaryEdges extends EczCodeGraphFilter
         this.cy.batch( () => {
             eles.edges().forEach( (edge) => {
                 const { _primaryParent: primaryParent, _relType: relType } = edge.data();
-                const hidden = (
+                // 1) never hide an edge that serves as a layout-parent (it would make the graph
+                //    disconnected and it's confusing to see
+                // 2) hide edge if it is a secondary parent relation and if we want to hide such edges
+                // 3) hide edge if it is a cousin relation and if we want to hide such edges
+                const hidden = !edge.hasClass('layoutParent') && (
                     (primaryParent === 0 && !this.filterOptions.secondaryParentEdgesShown)
                     || (relType === 'cousin' && !this.filterOptions.cousinEdgesShown)
                 );
@@ -82,29 +86,43 @@ export class EczCodeGraphFilterHideSecondaryEdges extends EczCodeGraphFilter
     }
 }
 
-// export class EczCodeGraphFilterNodeImportance extends EczCodeGraphFilter
-// {
-//     constructor(eczCodeGraph, filterOptions)
-//     {
-//         super(eczCodeGraph, Object.assign({
-//             labelFontSizeByImportance: true,
-//             dimLowDegreeNodes: true,
-//         }, filterOptions ?? {}));
-//     }
-//     applyFilter({ eles })
-//     {
-//         this.cy.batch( () => {
-//             eles.edges().forEach( (edge) => {
-//    .............
-//                 edge.toggleClass('.......', hidden);
-//             });
-//         } );
-//     }
-//     removeFilter({ eles })
-//     {
-//         eles.edges().removeClass('...');
-//     }
-// }
+
+export class EczCodeGraphFilterHighlightImportantNodes extends EczCodeGraphFilter
+{
+    constructor(eczCodeGraph, filterOptions)
+    {
+        super(eczCodeGraph, Object.assign({
+            highlightImportantNodes: true,
+            degreeThreshold: 8,
+            highlightPrimaryParents: true,
+        }, filterOptions ?? {}));
+    }
+    applyFilter({ eles })
+    {
+        const {
+            highlightImportantNodes,
+            degreeThreshold,
+            highlightPrimaryParents,
+        } = this.filterOptions;
+        this.cy.batch( () => {
+            if (highlightImportantNodes) {
+                eles.nodes().forEach( (node) => {
+                    const isImportantNode =
+                        (node.data('_isKingdom') === 1)
+                        || (node.data('_isDomain') === 1)
+                        || (node.degree() > degreeThreshold);
+                    node.toggleClass('importantNode', isImportantNode);
+                    node.toggleClass('notImportantNode', !isImportantNode);
+                });
+            }
+            eles.edges().toggleClass('enableHighlightPrimaryParents', highlightPrimaryParents);
+        } );
+    }
+    removeFilter({ eles })
+    {
+        eles.removeClass(['importantNode', 'enableHighlightPrimaryParents']);
+    }
+}
 
 
 export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter

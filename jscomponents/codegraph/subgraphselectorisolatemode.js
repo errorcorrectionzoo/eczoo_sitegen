@@ -46,7 +46,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
         this.cy.batch( () => {
 
             this.cy.elements().removeClass([
-                'layoutVisible', 'layoutRoot', 'layoutParent', 'isolationRoot', 'isolationExtra'
+                'layoutVisible', 'layoutRoot', 'layoutParent',
+                'isolationRoot', 'isolationExtra', 'isolationRootConnectingEdge',
             ]);
             //this.cy.edges('[_primaryParent=1]').addClass('layoutParent'); // not automatically!
             
@@ -172,6 +173,9 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
             const extraElements = allElements.not(mainNodes);
             extraElements.addClass('isolationExtra');
 
+            // facilitate highlighting of visible edges that connect to the isolated root nodes
+            rootNodes.connectedEdges('edge.layoutVisible').addClass('isolationRootConnectingEdge');
+
             debug(`extraElements are `, extraElements);
 
         } );
@@ -181,7 +185,7 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
         this.radialPrelayoutOptions = {
             origin: {
                 direction: Math.PI/2,
-                angularSpread: Math.PI*.667,
+                angularSpread: Math.PI*.25,
             },
         };
 
@@ -219,6 +223,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
     uninstallSubgraph()
     {
-        this.cy.elements().removeClass(['isolationExtra', 'isolationRoot']);
+        this.cy.elements().removeClass([
+            'isolationExtra', 'isolationRoot', 'isolationRootConnectingEdge',
+        ]);
     }
 }

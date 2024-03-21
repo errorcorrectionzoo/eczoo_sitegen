@@ -15,7 +15,7 @@ export const cyBaseStyleJson = [
             width: 15,
             height: 15,
 
-            'min-zoomed-font-size': 10,
+            'min-zoomed-font-size': 14,
         }
     },
     {
@@ -87,8 +87,8 @@ export const cyBaseStyleJson = [
     {
         selector: 'edge',
         style: {
-            'width': 1,
-            'opacity': 0.5,
+            'width': 2,
+            'opacity': 0.667,
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             //'label': 'data(label)',
@@ -98,7 +98,7 @@ export const cyBaseStyleJson = [
     {
         selector: 'edge[_relType="parent"]',
         style: {
-            'width': 1,
+            'width': 2,
             'line-color': '#00307f',
             'target-arrow-color': '#00307f',
             'color': '#00307f'
@@ -107,7 +107,8 @@ export const cyBaseStyleJson = [
     {
         selector: 'edge[_primaryParent=0]',
         style: {
-            opacity: 0.25,
+            width: 2,
+            //opacity: 0.25,// not good.
         }
     },
     {
@@ -115,12 +116,13 @@ export const cyBaseStyleJson = [
         style: {
             'width': 1,
             'target-arrow-shape': 'none',
-            'line-style': 'dotted',
+            'line-style': 'dashed',
             'line-color': '#00883f',
             'target-arrow-color': '#00883f',
             'color': '#00883f'
         }
     },
+
 
     //
     // special styling & style classes - e.g., hidden, dimmed.
@@ -129,15 +131,6 @@ export const cyBaseStyleJson = [
     // nodes marked at root --- heads of families / nodes selected for
     // isolated display
     {
-        selector: '.graphRoot[_isDomain!=1]', //', .prelayoutRoot',
-        style: {
-            // color: 'rgb(180,50,50)',
-            // 'background-color': 'rgb(180,50,50)',
-            width: 25,
-            height: 25,
-        }
-    },
-    {
         selector: '.isolationRoot',
         style: {
             color: 'rgb(230,50,50)',
@@ -145,6 +138,13 @@ export const cyBaseStyleJson = [
             'background-color': 'rgb(230,50,50)',
         }
     },
+    {
+        selector: '.isolationRootConnectingEdge',
+        style: {
+            width: 4,
+        }
+    },
+    
 
     // isolation style
     {
@@ -160,6 +160,57 @@ export const cyBaseStyleJson = [
             height: 10,
         }
     },
+
+    // hide anything with the 'hidden' class
+    {
+        selector: '.hidden, .isolationHidden, .hiddenSecondaryEdge',
+        style: {
+            display: 'none',
+        }
+    },
+
+    //
+    // style certain important nodes in the graph more prominently
+    //
+    {
+        selector: '.importantNode',
+        style: {
+            'font-size': 32,
+            'font-weight': 'bold',
+        }
+    },
+    // {
+    //     selector: '.notImportantNode',
+    //     style: {
+    //     }
+    // },
+    {
+        selector: '.enableHighlightPrimaryParents[_primaryParent=0]',
+        style: {
+            'line-style': 'dotted',
+        }
+    },
+
+
+    // custom highlight & dimmed class
+    {
+        selector: '.highlight, .searchMatchHighlight',
+        style: {
+            opacity: 1,
+            color: 'rgb(220,80,0)',
+            'background-color': 'rgb(220,80,0)',
+            width: 40,
+            height: 40,
+            'font-size': 32,
+        }
+    },
+    {
+        selector: '.dimmed, .searchNoMatchDimmed',
+        style: {
+            opacity: 0.3,
+        }
+    },
+
 
     // DEBUG- layout parent relations
     {
@@ -187,50 +238,6 @@ export const cyBaseStyleJson = [
             color: 'rgb(120,0,50)',
             'background-color': 'rgb(120,0,50)',
             //opacity: 1,
-        }
-    },
-
-
-    // hide anything with the 'hidden' class
-    {
-        selector: '.hidden, .isolationHidden, .hiddenSecondaryEdge',
-        style: {
-            display: 'none',
-        }
-    },
-
-    // style nodes that we want to dim out to de-clutter the graph
-    {
-        selector: '.lowDegreeDimmed',
-        style: {
-            opacity: 0.15,
-            label: '',
-        }
-    },
-    {
-        selector: 'node.lowDegreeDimmed',
-        style: {
-            width: 10,
-            height: 10,
-        }
-    },
-
-    // custom highlight & dimmed class
-    {
-        selector: '.highlight, .searchMatchHighlight',
-        style: {
-            opacity: 1,
-            color: 'rgb(220,80,0)',
-            'background-color': 'rgb(220,80,0)',
-            width: 40,
-            height: 40,
-            'font-size': 20,
-        }
-    },
-    {
-        selector: '.dimmed, .searchNoMatchDimmed',
-        style: {
-            opacity: 0.3,
         }
     },
 

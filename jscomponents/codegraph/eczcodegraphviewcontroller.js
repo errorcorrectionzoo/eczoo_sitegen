@@ -8,6 +8,7 @@ import {
     EczCodeGraphFilterDomainColors,
     EczCodeGraphFilterHideSecondaryEdges,
     EczCodeGraphFilterSearchHighlight,
+    EczCodeGraphFilterHighlightImportantNodes,
 } from './stdgraphfilters.js';
 
 
@@ -18,14 +19,14 @@ const defaultDisplayOptions = {
         nodeIds: null,
         range: {
             parents: {
-                primary: 5,
-                secondary: 5,
-                extra: 0,
-            },
-            children: {
                 primary: 2,
                 secondary: 2,
-                extra: 0,
+                extra: 1,
+            },
+            children: {
+                primary: 1,
+                secondary: 1,
+                extra: 1,
             },
         },
         reusePreviousLayoutPositions: true,
@@ -35,7 +36,13 @@ const defaultDisplayOptions = {
     cousinEdgesShown: false,
     secondaryParentEdgesShown: false,
     searchHighlightText: null,
+    highlightImportantNodes: {
+        highlightImportantNodes: true,
+        degreeThreshold: 8,
+        highlightPrimaryParents: true,
+    },
 };
+
 
 /**
  * The view controller ensures that:
@@ -81,6 +88,7 @@ export class EczCodeGraphViewController
             domainColors: new EczCodeGraphFilterDomainColors(this.eczCodeGraph),
             hideSecondaryEdges: new EczCodeGraphFilterHideSecondaryEdges(this.eczCodeGraph),
             search: new EczCodeGraphFilterSearchHighlight(this.eczCodeGraph),
+            highlightImportantNodes: new EczCodeGraphFilterHighlightImportantNodes(this.eczCodeGraph),
         };
         for (const [graphFilterName, graphFilter] of Object.entries(graphFilterInstances)) {
             this.eczCodeGraph.installGraphFilter({ graphFilterName, graphFilter });
@@ -117,8 +125,9 @@ export class EczCodeGraphViewController
                     secondaryParentEdgesShown: this.displayOptions.secondaryParentEdgesShown,
                 },
                 search: {
-                    searchText: this.displayOptions.searchHighlightText
+                    searchText: this.displayOptions.searchHighlightText,
                 },
+                highlightImportantNodes: this.displayOptions.highlightImportantNodes,
             }
         );
 
