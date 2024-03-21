@@ -1,7 +1,7 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.subgraphselector');
 
-import loMerge from 'lodash/merge.js';
+//import loMerge from 'lodash/merge.js';
 
 import { PrelayoutRadialTree } from './prelayout.js';
 
@@ -100,7 +100,18 @@ export class EczCodeGraphSubgraphSelector
         this.options = Object.assign({}, this.options, options);
         return this.installSubgraph();
     }
-    
+
+    /**
+     * Removes any custom styles/classes that was set by installSubgraph().
+     * 
+     * This method (or its possible subclass reimplementation) does not have
+     * to clean up the classes 'layoutVisible', 'layoutParent', or 'layoutRoot',
+     * as they are automatically removed as necessary when the subgraph selector
+     * is uninstalled.
+     */
+    uninstallSubgraph()
+    {
+    }
 
     /**
      * Return options about how to lay out the subgraph.

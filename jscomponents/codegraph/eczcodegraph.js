@@ -193,6 +193,11 @@ export class EczCodeGraph
             this._unapplyGraphFilters();
         }
 
+        if (this.subgraphSelector != null) {
+            // clean up any custom classes set by this subgraph selector.
+            this.subgraphSelector.uninstallSubgraph();
+        }
+
         this.subgraphSelector = subgraphSelector;
         const resultInfo = this.subgraphSelector.installSubgraph();
         const { pendingUpdateLayout } = resultInfo ?? {};

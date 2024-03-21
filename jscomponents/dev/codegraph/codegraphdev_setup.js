@@ -1,15 +1,15 @@
 import debugm from 'debug';
 const debug = debugm('codegraph_page_main');
 
-function isStrict() { return !this; };
+function isStrict() { return !this; }
 if (!isStrict()) {
   throw new Error(`Not strict mode!`);
 }
 
 
 const initialDisplayOptions = {
-  cousinEdgesShown: true,
-  secondaryParentEdgesShown: true,
+  // cousinEdgesShown: true,
+  // secondaryParentEdgesShown: true,
 
   // displayMode: 'isolate-nodes',
   // modeIsolateNodesOptions: {
@@ -42,5 +42,5 @@ import * as mathjax from '../../mathjax/setup.js';
 window.addEventListener('load', async function () {
     await mathjax.load();
     await codegraphsetup.load({ displayOptions: initialDisplayOptions });
-    window.eczCodeGraph.cy.elements().addClass('DEBUG')
+    //window.eczCodeGraph.cy.elements().addClass('DEBUG')
 });

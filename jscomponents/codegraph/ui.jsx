@@ -197,7 +197,7 @@ export function EczCodeGraphControlsComponent(props)
     const doModeIsolateExit = () => {
         mergeSetDisplayOptionsState({
             displayMode: 'all',
-        });
+        }, { pushNewHistoryState: true });
     };
     const doModeIsolateRelayout = () => {
         mergeSetDisplayOptionsState({
@@ -213,7 +213,7 @@ export function EczCodeGraphControlsComponent(props)
             modeIsolateNodesOptions: {
                 nodeIds: domainNodeIds,
             },
-        });
+        }, { pushNewHistoryState: true });
     };
 
     const doClearSearchHighlightText = () => {
@@ -433,10 +433,6 @@ export function useCyDomMountedEczCodeGraph(mountSetting)
     };
 }
 
-function getDisplayOptionsFromHistoryState({ location })
-{
-    return 
-}
 
 export function EczCodeGraphComponent(props)
 {
@@ -527,7 +523,7 @@ export function EczCodeGraphComponent(props)
         if (background) {
             mergeSetDisplayOptionsState({
                 displayMode: 'all',
-            });
+            }, { pushNewHistoryState: true });
             return;
         }
 

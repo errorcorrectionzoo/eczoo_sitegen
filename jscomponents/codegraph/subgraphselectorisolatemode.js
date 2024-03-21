@@ -216,4 +216,9 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
         return this.installSubgraph();
     }
     
+
+    uninstallSubgraph()
+    {
+        this.cy.elements().removeClass(['isolationExtra', 'isolationRoot']);
+    }
 }
