@@ -1,10 +1,11 @@
 //import debugm from 'debug';
 //const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
 
-import puppeteer from 'puppeteer';
-import { getCyStyleJson } from './style.js';
-
 import loMerge from 'lodash/merge.js';
+
+import puppeteer from 'puppeteer';
+
+import { getCyStyleJson } from './style.js';
 
 
 // Keep "Source Sans Pro" for now, not "Source Sans 3", because otherwise I get
@@ -46,7 +47,7 @@ ${ importSourceSansFontsCss }
 </html>`);
 
         const scriptUrls = [
-            "https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.min.js",
+            "https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js",
             "https://unpkg.com/canvas2svg@1.0.16/canvas2svg.js",
             "https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js",
         ];

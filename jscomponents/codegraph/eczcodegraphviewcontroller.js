@@ -32,15 +32,19 @@ const defaultDisplayOptions = {
         reusePreviousLayoutPositions: true,
         extraRelationSelector: 'edge',
     },
+
     domainColoring: true,
+
     cousinEdgesShown: false,
     secondaryParentEdgesShown: false,
-    searchHighlightText: null,
+
     highlightImportantNodes: {
         highlightImportantNodes: true,
         degreeThreshold: 8,
         highlightPrimaryParents: true,
     },
+
+    searchHighlightText: null,
 };
 
 
@@ -73,7 +77,7 @@ export class EczCodeGraphViewController
         this.subgraphSelectorInstances = {};
     }
 
-    initialize()
+    async initialize()
     {
         this.subgraphSelectorInstances = {
             'all': new EczCodeGraphSubgraphSelectorAll(this.eczCodeGraph),

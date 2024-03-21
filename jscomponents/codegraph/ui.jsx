@@ -360,7 +360,7 @@ export function EczCodeGraphControlsComponent(props)
                             cousinEdgesShown: !! ev.target.checked
                         }) }
                     />
-                    <label htmlFor="input_cousinEdgesShown">cousins</label>
+                    <label htmlFor="input_cousinEdgesShown">all cousins</label>
                 </span>
                 <span className="controls-input-group">
                     <input type="checkbox"
@@ -370,7 +370,7 @@ export function EczCodeGraphControlsComponent(props)
                             secondaryParentEdgesShown: !! ev.target.checked
                         }) }
                     />
-                    <label htmlFor="input_secondaryParentEdgesShown">secondary parents</label>
+                    <label htmlFor="input_secondaryParentEdgesShown">all parents</label>
                 </span>
                 <span className="controls-input-group">
                     <input type="checkbox"

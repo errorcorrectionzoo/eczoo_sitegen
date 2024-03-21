@@ -3,6 +3,11 @@
 
 
 import { EczCodeGraph } from './eczcodegraph.js';
+import { EczCodeGraphViewController } from './eczcodegraphviewcontroller.js';
 
-export { EczCodeGraph };
+
+export {
+    EczCodeGraph,
+    EczCodeGraphViewController,
+};
 
