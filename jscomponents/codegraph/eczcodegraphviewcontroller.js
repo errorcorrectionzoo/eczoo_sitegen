@@ -13,7 +13,7 @@ import {
 
 
 const defaultDisplayOptions = {
-    displayMode: 'all', // 'all', 'isolate-nodes'
+    displayMode: 'all', // 'all' | 'isolate-nodes'
     modeIsolateNodesOptions: {
         nodeIds: null,
         range: {
@@ -29,16 +29,11 @@ const defaultDisplayOptions = {
             },
         },
         reusePreviousLayoutPositions: true,
-        extraRelationSelector: '',
+        extraRelationSelector: 'edge',
     },
     domainColoring: true,
     cousinEdgesShown: false,
     secondaryParentEdgesShown: false,
-    // lowDegreeNodesDimmed: {
-    //     enabled: false,
-    //     degree: 8,
-    //     dimLeaf: false,
-    // },
     searchHighlightText: null,
 };
 
@@ -93,7 +88,7 @@ export class EczCodeGraphViewController
 
         this._setGraph();
     }
-    
+
     _setGraph()
     {
         let subgraphSelector = null;

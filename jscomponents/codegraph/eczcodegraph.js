@@ -61,7 +61,7 @@ function contentToNodeLabel(content)
  */
 export class EczCodeGraph
 {
-    constructor({ eczoodb })
+    constructor({ eczoodb, graphGlobalOptions })
     {
         debug('EczCodeGraph constructor');
 
@@ -86,8 +86,30 @@ export class EczCodeGraph
         // any display filters.
         this.graphFilters = [];
 
+        // global options for this code graph.
+        this.graphGlobalOptions = loMerge(
+            {
+                rootPositioning: {
+                    rootAbstractCodesXSpacing: 750,
+                    rootAbstractCodesYPosition: 0,
+                    rootAbstractCodesYPositionSingleOffset: 150,
+                    domainNodesXSpacing: 750,
+                    domainNodesYPosition: 250,
+                    domainNodesYPositionSingleOffset: 150,
+                },
+                customDomainIdsOrder:  {
+                    classical_domain: -100,
+                    quantum_domain: 100,
+                }
+            },
+            graphGlobalOptions
+        );
+
         // whether we should update the layout at the next opportunity.
         this._pendingUpdateLayout = false;
+
+        // computed when the graph is initialized
+        this.globalGraphRootNodesInfo = null;
     }
 
     async initialize()
@@ -360,8 +382,7 @@ export class EczCodeGraph
     {
         animate ??= true;
         forceRelayout ??= false;
-        skipCoseLayout ??= false;
-        //skipCoseLayout ??= true; // DEBUG DEBUG !
+        skipCoseLayout ??= false; // true; // DEBUG DEBUG !
 
         if (this.subgraphSelector == null) {
             throw new Error(
@@ -375,8 +396,6 @@ export class EczCodeGraph
 
         let {
             reusePreviousLayoutPositions,
-            //rootNodesPrelayoutInfo,
-            //prelayoutOptions
         } = this.subgraphSelector.getSubgraphLayoutOptions();
 
         if (this.cy.nodes('.layoutVisible').not('._layoutPositioned').length) {
@@ -404,6 +423,9 @@ export class EczCodeGraph
             }
         );
 
+        debug(`updateLayout() - Nodes that participate in the layout (.layoutVisible):`,
+              this.cy.nodes('.layoutVisible').map( (n) => n.id() ));
+
         let shouldApplyPrelayout = true;
         let shouldApplyCoseLayout = true;
 
@@ -424,19 +446,18 @@ export class EczCodeGraph
 
         if (shouldApplyPrelayout) {
             debug(`Running prelayout ...`);
-            await this._runPrelayout({ rootNodeIds }); //, rootNodesPrelayoutInfo, prelayoutOptions });
+            await this._runPrelayout({ rootNodeIds });
         }
 
         if (shouldApplyCoseLayout) {
             debug(`Running fcose layout ...`);
-            // DEBUG DEBUG
-            //await this._runCoseLayout({ rootNodeIds, animate });
+            await this._runCoseLayout({ rootNodeIds, animate });
         }
 
         this.cy.nodes('.layoutVisible').addClass('_layoutPositioned');
     }
 
-    async _runPrelayout({ rootNodeIds }) //, rootNodesPrelayoutInfo, prelayoutOptions })
+    async _runPrelayout({ rootNodeIds })
     {
         // compute an initial position of the nodes to reflect the tree
         // structure of the codes
@@ -444,6 +465,8 @@ export class EczCodeGraph
         debug(`_runPrelayout(): Using rootNodeIds =`, rootNodeIds);
 
         let prelayout = this.subgraphSelector.createPrelayoutInstance({ rootNodeIds });
+
+        let layoutVisibleNodes = this.cy.elements('.layoutVisible');
 
         this.cy.batch( () => {
             // clear all CY markings
@@ -461,15 +484,14 @@ export class EczCodeGraph
             }
 
             // mark edges between two marked nodes as well
-            this.cy
+            layoutVisibleNodes
                 .edges( (edge) => (edge.target().is('.prelayoutPositioned')
                                    && edge.source().is('.prelayoutPositioned')) )
                 .addClass('prelayoutPositioned');
             
             // anything that is not marked but visible is probably a bug; mark it
             // visually so we can debug that
-            this.cy.elements(':visible').not('.prelayoutPositioned')
-                .addClass('prelayoutOutOfLayoutTree');
+            layoutVisibleNodes.not('.prelayoutPositioned').addClass('prelayoutOutOfLayoutTree');
         } );
        
     }
@@ -764,42 +786,77 @@ export class EczCodeGraph
         // create the cytoscape object
         this.cy = cytoscape(cytoscapeConfig);
 
-        // // Apply the current settings already stored in this.displayOptions to set
-        // // all the graph classes correctly according to the display options.
-        // this._applyDisplayMode();
-        // this._applyDomainColoring();
-        // this._applyCousinEdgesShown();
-        // this._applySecondaryParentEdgesShown();
-        // this._applyLowDegreeNodesDimmed();
+        // compute positions of root nodes in our default global layout
+        this._initGlobalGraphRootNodesInfo();
 
         debug("EczCodeGraph: initGraph() done");
     }
 
-    // //
-    // // Search tool
-    // //
+    //
+    // Find out where to position the graph root nodes
+    //
+    _initGlobalGraphRootNodesInfo()
+    {
+        const {
+            rootPositioning,
+            customDomainIdsOrder
+        } = this.graphGlobalOptions;
+        
+        const {
+            rootAbstractCodesXSpacing,
+            rootAbstractCodesYPosition,
+            rootAbstractCodesYPositionSingleOffset,
+            domainNodesXSpacing,
+            domainNodesYPosition,
+            domainNodesYPositionSingleOffset,
+        } = rootPositioning;
 
-    // search({text, caseSensitive})
-    // {
-    //     caseSensitive ??= false;
+        let rootNodesPrelayoutInfo = {};
+        let domainIds = Object.keys(this.eczoodb.objects.domain);
 
-    //     // const selFn = (n) => {
-    //     //     if (!n.visible()) {
-    //     //         return false;
-    //     //     }
-    //     //     const nData = n.data();
-    //     //     if (nData.label?.includes(text) || nData._objectName?.includes(text)) {
-    //     //         return true;
-    //     //     }
-    //     // };
-    //     // const eles = this.cy.nodes(selFn);
+        debug(`Domains before custom ordering: ${domainIds}`);
 
-    //     const textEsc = JSON.stringify(text);
-    //     const eles = this.cy.nodes(
-    //         `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
-    //     );
+        domainIds.sort(
+            (aId, bId) => (customDomainIdsOrder[aId] ?? 0) - (customDomainIdsOrder[bId] ?? 0)
+        );
+        debug(`Domains after custom ordering: ${domainIds}`);
 
-    //     return eles;
-    // }
+        for (const [j, domainId] of domainIds.entries()) {
+            const nodeId = this.getNodeIdDomain(domainId);
+            rootNodesPrelayoutInfo[nodeId] = {
+                position: {
+                    x: (j - (domainIds.length-1)/2) * domainNodesXSpacing,
+                    y: domainNodesYPosition
+                       + Math.min(j, domainIds.length-1-j) * domainNodesYPositionSingleOffset
+                },
+                radiusOffset: 50,
+                direction: Math.PI - Math.PI * (j+0.5) / domainIds.length,
+                angularSpread: Math.PI / domainIds.length,
+            };
+        }
+        // these are abstract property codes:
+        let rootCodeNodeIds = this.getOverallRootNodeIds({ includeDomains: false });
+        //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
+        for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
+            rootNodesPrelayoutInfo[codeNodeId] = {
+                position: {
+                    x: (j - (rootCodeNodeIds.length-1)/2) * rootAbstractCodesXSpacing,
+                    y: rootAbstractCodesYPosition
+                       - Math.min(j, rootCodeNodeIds.length-1-j) * rootAbstractCodesYPositionSingleOffset
+                },
+                radiusOffset: 50,
+                direction: Math.PI + Math.PI * (j+0.5) / rootCodeNodeIds.length,
+                angularSpread: Math.PI / rootCodeNodeIds.length,
+            };
+        }
+
+        this.globalGraphRootNodesInfo = {
+            radialPrelayoutRootNodesPrelayoutInfo: rootNodesPrelayoutInfo,
+            rootNodeIds: Object.keys(rootNodesPrelayoutInfo),
+        };
+
+        debug(`globalGraphRootNodesInfo = `, this.globalGraphRootNodesInfo);
+    }
+
 }
 

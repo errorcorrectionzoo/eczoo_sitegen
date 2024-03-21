@@ -362,14 +362,14 @@ export function EczCodeGraphControlsComponent(props)
                 <span className="controls-input-sep"></span>
                 <span className="controls-input-group">
                     <input type="checkbox"
-                           id="input_modeIsolateNodesAddSecondary"
+                           id="input_modeIsolateNodesAddExtra"
                            disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
                            checked={modeIsolateNodesAddExtra}
                            onChange={ (ev) => mergeSetDisplayOptionsState(
                                getModeIsolateNodesAddExtraOptions( !! ev.target.checked )
                            ) }
                     />
-                    <label htmlFor="input_modeIsolateNodesAddSecondary">expand with secondary step</label>
+                    <label htmlFor="input_modeIsolateNodesAddExtra">include neighbors</label>
                 </span>
             </fieldset>
             <fieldset className="controls-input-advanced-fieldset">

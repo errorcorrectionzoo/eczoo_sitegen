@@ -84,7 +84,7 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 //
 
 
-export async function load()
+export async function load({ displayOptions }={})
 {
 
     debug('codegraph setup: load() called')
@@ -171,7 +171,7 @@ export async function load()
     // node, if any was requested as a HTML URL fragment.
     //
 
-    let displayOptions = {};
+    displayOptions ??= {};
 
     // inspect htmlFragment for display options
     const hrefFragment = window.location.hash;

@@ -125,17 +125,6 @@ export class EczCodeGraphSubgraphSelector
 
         let prelayoutOptions = this.radialPrelayoutOptions;
 
-        prelayoutOptions = loMerge({
-            origin: {
-                position: { x: 0, y: 0 },
-                angularSpread: 2*Math.PI,
-                useWeights: false,
-            },
-            // layoutParentEdgeSelector: '.layoutParent',
-            weightCalcLevels: 6,
-            weightCalcSecondaryFactor: 0.3,
-        }, prelayoutOptions);
-
         let prelayout = new PrelayoutRadialTree({
             cy: this.cy,
             rootNodeIds,
@@ -159,28 +148,6 @@ export class EczCodeGraphSubgraphSelector
 
 export class EczCodeGraphSubgraphSelectorAll extends EczCodeGraphSubgraphSelector
 {
-    constructor(eczCodeGraph, options={})
-    {
-        options = loMerge(
-            {
-                rootPositioning: {
-                    rootAbstractCodesXSpacing: 750,
-                    rootAbstractCodesYPosition: 0,
-                    rootAbstractCodesYPositionSingleOffset: 150,
-                    domainNodesXSpacing: 750,
-                    domainNodesYPosition: 250,
-                    domainNodesYPositionSingleOffset: 150,
-                },
-                customDomainIdsOrder:  {
-                    classical_domain: -100,
-                    quantum_domain: 100,
-                }
-            },
-            options
-        );
-        super(eczCodeGraph, options);
-    }
-
     installSubgraph()
     {
         debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph()`);
@@ -190,72 +157,14 @@ export class EczCodeGraphSubgraphSelectorAll extends EczCodeGraphSubgraphSelecto
         allElements.removeClass('layoutParent');
         allElements.edges('[_primaryParent=1]').addClass('layoutParent');
 
-        // Find out where to position the graph root nodes
-
-        const eczCodeGraph = this.eczCodeGraph;
-        const cy = this.cy;
-        const eczoodb = this.eczoodb;
-
-        const {
-            rootPositioning,
-            customDomainIdsOrder
-        } = this.options;
-        
-        const {
-            rootAbstractCodesXSpacing,
-            rootAbstractCodesYPosition,
-            rootAbstractCodesYPositionSingleOffset,
-            domainNodesXSpacing,
-            domainNodesYPosition,
-            domainNodesYPositionSingleOffset,
-        } = rootPositioning;
-
-        let rootNodesPrelayoutInfo = {};
-        let domainIds = Object.keys(eczoodb.objects.domain);
-
-        debug(`Domains before custom ordering: ${domainIds}`);
-
-        domainIds.sort(
-            (aId, bId) => (customDomainIdsOrder[aId] ?? 0) - (customDomainIdsOrder[bId] ?? 0)
-        );
-        debug(`Domains after custom ordering: ${domainIds}`);
-
-        for (const [j, domainId] of domainIds.entries()) {
-            const nodeId = eczCodeGraph.getNodeIdDomain(domainId);
-            rootNodesPrelayoutInfo[nodeId] = {
-                position: {
-                    x: (j - (domainIds.length-1)/2) * domainNodesXSpacing,
-                    y: domainNodesYPosition
-                       + Math.min(j, domainIds.length-1-j) * domainNodesYPositionSingleOffset
-                },
-                radiusOffset: 50,
-                direction: Math.PI - Math.PI * (j+0.5) / domainIds.length,
-                angularSpread: Math.PI / domainIds.length,
-            };
-        }
-        // these are abstract property codes:
-        let rootCodeNodeIds = eczCodeGraph.getOverallRootNodeIds({ includeDomains: false });
-        //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
-        for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
-            rootNodesPrelayoutInfo[codeNodeId] = {
-                position: {
-                    x: (j - (rootCodeNodeIds.length-1)/2) * rootAbstractCodesXSpacing,
-                    y: rootAbstractCodesYPosition
-                       - Math.min(j, rootCodeNodeIds.length-1-j) * rootAbstractCodesYPositionSingleOffset
-                },
-                radiusOffset: 50,
-                direction: Math.PI + Math.PI * (j+0.5) / rootCodeNodeIds.length,
-                angularSpread: Math.PI / rootCodeNodeIds.length,
-            };
+        const globalGraphRootNodesInfo = this.eczCodeGraph.globalGraphRootNodesInfo;
+        if (globalGraphRootNodesInfo.radialPrelayoutRootNodesPrelayoutInfo) {
+            this.radialPrelayoutRootNodesPrelayoutInfo =
+                globalGraphRootNodesInfo.radialPrelayoutRootNodesPrelayoutInfo;
         }
 
-        debug(`rootNodesPrelayoutInfo = `, rootNodesPrelayoutInfo);
-
-        this.radialPrelayoutRootNodesPrelayoutInfo = rootNodesPrelayoutInfo;
-
-        for (const graphRootNodeId
-             of Object.keys( rootNodesPrelayoutInfo )) {
-            let graphRootNode = cy.getElementById(graphRootNodeId);
+        for (const graphRootNodeId of globalGraphRootNodesInfo.rootNodeIds) {
+            let graphRootNode = this.cy.getElementById(graphRootNodeId);
             graphRootNode.addClass('layoutRoot');
         }
 

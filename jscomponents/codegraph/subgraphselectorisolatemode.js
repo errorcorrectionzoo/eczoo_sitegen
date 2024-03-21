@@ -26,7 +26,7 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
                         extra: 0,
                     },
                 },
-                extraRelationSelector: '',
+                extraRelationSelector: 'edge',
             },
             options
         );
@@ -48,7 +48,7 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
             this.cy.elements().removeClass([
                 'layoutVisible', 'layoutRoot', 'layoutParent', 'isolationRoot', 'isolationExtra'
             ]);
-            this.cy.edges('[_primaryParent=1]').addClass('layoutParent');
+            //this.cy.edges('[_primaryParent=1]').addClass('layoutParent'); // not automatically!
             
             // add selected root nodes to the layout.
             for (const nodeId of nodeIds) {
@@ -59,25 +59,24 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
             let rootNodes = this.cy.nodes('.layoutVisible');
 
-            let seenNodes = new Set( rootNodes.map( (node) => node.id() ) );
-
             // expand the graph, following primary parent relationships.
             let primaryParentElements = rootNodes;
             for (let step = 0; step < range.parents.primary; ++step) {
-                let edges = primaryParentElements.outgoers('[_primaryParent=1]');
+                let edges = primaryParentElements.outgoers('[_primaryParent=1]'); // only the edges
+                edges.addClass('layoutParent');
                 primaryParentElements = primaryParentElements.union(edges).union(edges.connectedNodes());
             }
 
             let primaryChildElements = rootNodes;
             for (let step = 0; step < range.children.primary; ++step) {
-                let edges = primaryChildElements.incomers('[_primaryParent=1]');
+                let edges = primaryChildElements.incomers('[_primaryParent=1]'); // only the edges
+                edges.addClass('layoutParent');
                 primaryChildElements = primaryChildElements.union(edges).union(edges.connectedNodes());
             }
 
-            // mark the nodes we've collected so far as belonging to the layout.  We need this
-            // now already for the next step
-            primaryParentElements.addClass('layoutVisible');
-            primaryChildElements.addClass('layoutVisible');
+            let seenNodeIds = new Set();
+            primaryParentElements.forEach( (n) => seenNodeIds.add(n.id()) );
+            primaryChildElements.forEach( (n) => seenNodeIds.add(n.id()) );
 
             // Further expand the graph, including secondary parent relationships.
             // We need to start again from rootNodes for the counting to work out correctly;
@@ -85,14 +84,15 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
             // track when an edge needs to be included in the .layoutParent main edge tree
             let secondaryParentElements = rootNodes;
             for (let step = 0; step < range.parents.secondary; ++step) {
-                let edges = secondaryParentElements.outgoers('[_relType="parent"]');
+                let edges = secondaryParentElements.outgoers('[_relType="parent"]'); // only the edges
                 edges.forEach( (edge) => {
                     // mark the edge as being a directing edge for the layout if it needs to be one
                     // for this subgraph.
-                    const nodeId = edge.target().id();
-                    if (!seenNodes.has(nodeId)) {
+                    const node = edge.target();
+                    const nodeId = node.id();
+                    if (!seenNodeIds.has(nodeId)) {
                         edge.addClass('layoutParent');
-                        seenNodes.add(nodeId);
+                        seenNodeIds.add(nodeId);
                     }
                 } );
                 secondaryParentElements =
@@ -100,74 +100,98 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
             }
             let secondaryChildElements = rootNodes;
             for (let step = 0; step < range.parents.secondary; ++step) {
-                let edges = secondaryChildElements.incomers('[_relType="parent"]');
+                let edges = secondaryChildElements.incomers('[_relType="parent"]'); // only the edges
                 edges.forEach( (edge) => {
                     // mark the edge as being a directing edge for the layout if it needs to be one
                     // for this subgraph.
-                    const nodeId = edge.source().id();
-                    if (!seenNodes.has(nodeId)) {
+                    const node = edge.source();
+                    const nodeId = node.id();
+                    if (!seenNodeIds.has(nodeId)) {
                         edge.addClass('layoutParent');
-                        seenNodes.add(nodeId);
+                        seenNodeIds.add(nodeId);
                     }
                 } );
                 secondaryChildElements =
                     secondaryChildElements.union(edges).union(edges.connectedNodes());
             }
-            secondaryParentElements.addClass('layoutVisible');
-            secondaryChildElements.addClass('layoutVisible');
 
             let mainNodes = primaryParentElements.union(primaryChildElements)
                 .union(secondaryParentElements).union(secondaryChildElements);
 
+            debug(`mainNodes are `, mainNodes, `extra relation selector = `, extraRelationSelector);
+
             // Expand the graph even further, including opposite-direction parent relationships
             // and/or cousin relationships.
-            let extraElements = mainNodes;
-            let maxExtra = Math.max(range.parents.extra, range.children.extra);
+            let allElements = mainNodes;
+            let maxExtra = Math.max(range.parents.extra ?? 0, range.children.extra ?? 0);
+            debug(`range = `, range, `maxExtra = `, maxExtra);
             for (let step = 0; step < maxExtra; ++step) {
+                debug(`Processing extra/neighbor nodes step ${step}. allElements = `, allElements);
                 let outElements = [];
                 let inElements = [];
                 if (step < range.parents.extra) {
-                    let outEdges = extraElements.outgoers(extraRelationSelector);
+                    let outEdges = allElements.outgoers(extraRelationSelector);
                     outEdges.forEach( (edge) => {
+                        if (!edge.isEdge()) { return }
                         // mark the edge as being a directing edge for the layout if it needs to be one
                         // for this subgraph.
-                        const nodeId = edge.source().id();
-                        if (!seenNodes.has(nodeId)) {
+                        const node = edge.target();
+                        const nodeId = node.id();
+                        if (!seenNodeIds.has(nodeId)) {
                             edge.addClass('layoutParent');
-                            seenNodes.add(nodeId);
+                            seenNodeIds.add(nodeId);
                         }
                     } );
                     outElements = outEdges.union(outEdges.connectedNodes());
+                    debug({ outEdges, outElements });
                 }
                 if (step < range.children.extra) {
-                    let inEdges = extraElements.incomers(extraRelationSelector);
+                    let inEdges = allElements.incomers(extraRelationSelector);
                     inEdges.forEach( (edge) => {
+                        if (!edge.isEdge()) { return }
                         // mark the edge as being a directing edge for the layout if it needs to be one
                         // for this subgraph.
-                        const nodeId = edge.source().id();
-                        if (!seenNodes.has(nodeId)) {
+                        const node = edge.source();
+                        const nodeId = node.id();
+                        if (!seenNodeIds.has(nodeId)) {
                             edge.addClass('layoutParent');
-                            seenNodes.add(nodeId);
+                            seenNodeIds.add(nodeId);
                         }
                     } );
                     inElements = inEdges.union(inEdges.connectedNodes());
+                    debug({ inEdges, inElements });
                 }
-                extraElements = extraElements.union(inElements).union(outElements);
+                allElements = allElements.union(inElements).union(outElements);
             }
-            extraElements.addClass('layoutVisible');
 
-            extraElements.not(mainNodes).addClass('isolationExtra');
+            // primaryParentElements.addClass('layoutVisible');
+            // primaryChildElements.addClass('layoutVisible');
+            // secondaryParentElements.addClass('layoutVisible');
+            // secondaryChildElements.addClass('layoutVisible');
+            allElements.addClass('layoutVisible');
+            const extraElements = allElements.not(mainNodes);
+            extraElements.addClass('isolationExtra');
+
+            debug(`extraElements are `, extraElements);
 
         } );
 
         // store some info for the radial prelayout engine
 
-        this.radialPrelayoutRootNodesPrelayoutInfo = {
+        this.radialPrelayoutOptions = {
             origin: {
                 direction: Math.PI/2,
-                angularSpread: Math.PI,
+                angularSpread: Math.PI*.667,
             },
         };
+
+        // use global computed prelayout information for our layout, just in case root nodes
+        // coincide with global root nodes (e.g. for "zoom domains" option)
+        const globalGraphRootNodesInfo = this.eczCodeGraph.globalGraphRootNodesInfo;
+        if (globalGraphRootNodesInfo?.radialPrelayoutRootNodesPrelayoutInfo) {
+            this.radialPrelayoutRootNodesPrelayoutInfo =
+                globalGraphRootNodesInfo.radialPrelayoutRootNodesPrelayoutInfo;
+        }
 
         // note the EczCodeGraph will automatically mark itself as needing a layout update.
     }

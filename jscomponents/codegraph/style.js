@@ -161,22 +161,32 @@ export const cyBaseStyleJson = [
         }
     },
 
-    // items that our prelayout couldn't handle -- mark visually because the
+    // DEBUG- layout parent relations
+    {
+        selector: 'edge.DEBUG.layoutParent[_relType="parent"], edge.DEBUG.layoutParent[_relType="cousin"]',
+        style: {
+            'width': 3,
+            'line-color': 'rgb(120,0,50)',
+            'color': 'rgb(120,0,50)',
+        }
+    },
+    // DEBUG- items that are positioned by the prelayout.
+    // {
+    //     selector: '.DEBUG.prelayoutPositioned',
+    //     style: {
+    //         color: 'rgb(0,120,50)',
+    //         'background-color': 'rgb(0,120,50)',
+    //         //opacity: 1,
+    //     }
+    // },
+    // DEBUG- items that our prelayout couldn't handle -- mark visually because the
     // existence of such visible nodes is a bug
     {
-        selector: '.prelayoutOutOfLayoutTree',
+        selector: '.DEBUG.prelayoutOutOfLayoutTree',
         style: {
             color: 'rgb(120,0,50)',
             'background-color': 'rgb(120,0,50)',
             //opacity: 1,
-        }
-    },
-    // DEBUG layout parent relations!
-    {
-        selector: 'edge.layoutParent[_relType="parent"], edge.layoutParent[_relType="cousin"]',
-        style: {
-            'line-color': 'rgb(120,0,50)',
-            'color': 'rgb(120,0,50)',
         }
     },
 

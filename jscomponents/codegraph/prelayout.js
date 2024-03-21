@@ -1,7 +1,8 @@
 import debug_module from 'debug';
-const debug = debug_module('eczoo_jscomponents.codegraph.eczcodegraph');
+const debug = debug_module('eczoo_jscomponents.codegraph.prelayout');
 
-import _ from 'lodash';
+import loSum from 'lodash/sum.js';
+import loMerge from 'lodash/merge.js';
 
 
 const defaultPrelayoutOptions = {
@@ -11,7 +12,7 @@ const defaultPrelayoutOptions = {
     origin: {
         position: {x: 0, y: 0},
         radius: 50.0,
-        angularSpread: 2*Math.PI, ///3, //2*Math.PI * 0.2,
+        angularSpread: Math.PI, //2*Math.PI, ///3, //2*Math.PI * 0.2,
         direction: Math.PI/2,
         useWeights: false,
     },
@@ -19,9 +20,8 @@ const defaultPrelayoutOptions = {
     radiusSegmentLevels: [200, 200, ],
     radiusSegmentLevelFactor: 1.1,
 
-    weightCalcLevels: 2, // look at descendants over X levels for weights  
-
-    weightCalcSecondaryFactor: 0.2,
+    weightCalcLevels: 6, // look at descendants over X levels for weights
+    weightCalcSecondaryFactor: 0.3,
 };
 
 
@@ -38,19 +38,19 @@ const defaultPrelayoutOptions = {
  *   spread to use for the branches.  Will sprout branches at angles within
  *   "direction +/- (angular spread/2)"
  * 
- * - `options` - see default options above
+ * - `prelayoutOptions` - see default options above
  */
 export class PrelayoutRadialTree
 {
-    constructor({cy, rootNodeIds, rootNodesPrelayoutInfo, options})
+    constructor({cy, rootNodeIds, rootNodesPrelayoutInfo, prelayoutOptions})
     {
         this.cy = cy;
         this.rootNodeIds = rootNodeIds;
         this.rootNodesPrelayoutInfo = rootNodesPrelayoutInfo;
-        this.options = _.merge(
+        this.prelayoutOptions = loMerge(
             {},
             defaultPrelayoutOptions,
-            options
+            prelayoutOptions
         );
     }
 
@@ -75,8 +75,10 @@ export class PrelayoutRadialTree
         // positioned & directed
         const numJ = rootNodeIdsToBePositioned.length;
         const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
-        const origin = this.options.origin;
+        const origin = this.prelayoutOptions.origin;
+
         debug(`Will need to auto position ${numJ} root nodes;`, { origin });
+
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
             let angleFraction = j / maxJ;
             if (maxJ === 1) { // special case if we're positioning a single node
@@ -109,8 +111,10 @@ export class PrelayoutRadialTree
 
             const cyRootNode = this.cy.getElementById(rootNodeId);
 
-            const hasChildren = cyRootNode.incomers(this.options.layoutParentEdgeSelector).length > 0;
-            const hasParents = cyRootNode.outgoers(this.options.layoutParentEdgeSelector).length > 0;
+            const hasChildren =
+                cyRootNode.incomers(this.prelayoutOptions.layoutParentEdgeSelector).length > 0;
+            const hasParents =
+                cyRootNode.outgoers(this.prelayoutOptions.layoutParentEdgeSelector).length > 0;
 
             if (hasChildren) {
                 pBranches.push(new _PrelayoutRadialTreeBranchSet({
@@ -122,7 +126,7 @@ export class PrelayoutRadialTree
                         direction: prelayoutInfo.direction,
                         angularSpread: prelayoutInfo.angularSpread,
                     },
-                    options: this.options,
+                    prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
                         treeDirection: 'children',
                         flipDirection: false,
@@ -137,10 +141,12 @@ export class PrelayoutRadialTree
                         nodeId: rootNodeId,
                         radius: prelayoutInfo.radiusOffset,
                         position: prelayoutInfo.position,
+                        // will automatically point in opposite direction because we have
+                        // 'flipDirection: true' in the branchOptions below.
                         direction: prelayoutInfo.direction,
                         angularSpread: prelayoutInfo.angularSpread,
                     },
-                    options: this.options,
+                    prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
                         treeDirection: 'parents',
                         flipDirection: true,
@@ -183,18 +189,29 @@ export class PrelayoutRadialTree
 // ---
 
 
+const getEdgesFunctions = {
+    children: (node, layoutParentEdgeSelector) => {
+        return node.incomers(layoutParentEdgeSelector).edges('.layoutVisible');
+    },
+    parents: (node, layoutParentEdgeSelector) => {
+        return node.outgoers(layoutParentEdgeSelector).edges('.layoutVisible');
+    },
+};
+
+
+
 class _PrelayoutRadialTreeBranchSet
 {
-    constructor({cy, root, options, branchOptions, positionedNodesData})
+    constructor({cy, root, prelayoutOptions, branchOptions, positionedNodesData})
     {
         this.cy = cy;
 
         this.root = root; // { nodeId, position, direction, angularSpread }
         this.rootNode = this.cy.getElementById(this.root.nodeId);
 
-        this.options = options;
+        this.prelayoutOptions = prelayoutOptions;
 
-        this.branchOptions = _.merge({
+        this.branchOptions = loMerge({
             treeDirection: 'children',
             flipDirection: false,
         }, branchOptions);
@@ -202,6 +219,9 @@ class _PrelayoutRadialTreeBranchSet
         this.positionedNodesData = positionedNodesData;
 
         this.nodeOrderinginfoByLevel = null;
+
+        debug(`Initialized _PrelayoutRadialTreeBranchSet with root node ${this.rootNode.id()}`,
+              { branchOptions: this.branchOptions, positionedNodesData });
     }
 
     //
@@ -210,21 +230,15 @@ class _PrelayoutRadialTreeBranchSet
     _computeNodeInfos()
     {
         let nodeOrderinginfoByLevel = [];
-        //const options = this.options;
-
-        let getEdges = null;
-        if (this.branchOptions.treeDirection === 'children') {
-            getEdges = (node) => node.incomers(this.options.layoutParentEdgeSelector);
-        } else if (this.branchOptions.treeDirection === 'parents') {
-            getEdges = (node) => node.outgoers(this.options.layoutParentEdgeSelector);
-        }
+        
+        let getEdges = getEdgesFunctions[this.branchOptions.treeDirection];
+        const layoutParentEdgeSelector = this.prelayoutOptions.layoutParentEdgeSelector;
 
         let seenNodes = new Set();
 
         let thisLevelNodes = [ {
             nodeId: this.root.nodeId,
             level: 0,
-            //treeDepthRemaining: Object.assign({}, this.branchOptions.tree),
             parentNodeOrderingInfo: null,
             connectedNodesInfos: [],
             totalNumDescendants: 0,
@@ -242,29 +256,19 @@ class _PrelayoutRadialTreeBranchSet
             }
             return src;
         };
-        // let relationEdgesGetters = {};
-        // for (const whichRelationStrength of ['primary', 'secondary']) {
-        //     const selector = options.relationSelector[whichRelationStrength];
-        //     if (selector === false) {
-        //         relationEdgesGetters[whichRelationStrength] = false;
-        //         continue;
-        //     }
-        //     const fn = mkRelationEdgesGetterWithTreeDirection(
-        //         selector, this.branchOptions.treeDirection
-        //     );
-        //     relationEdgesGetters[whichRelationStrength] = fn;
-        // }
-        // debug({ relationEdgesGetters });
 
         nodeOrderinginfoByLevel.push(thisLevelNodes);
         let level = 0;
         while (thisLevelNodes.length) {
             let nextLevelNodes = [];
 
+            debug(`Getting layout-children of nodes at current layout level ${level}, current `
+                  + `level nodes are `, thisLevelNodes);
+
             for (const nodeOrderingInfo of thisLevelNodes) {
 
                 const {
-                    nodeId, parentNodeOrderingInfo, //treeDepthRemaining
+                    nodeId, parentNodeOrderingInfo,
                 } = nodeOrderingInfo;
 
                 // for each node, update the number of descendants of each
@@ -281,66 +285,42 @@ class _PrelayoutRadialTreeBranchSet
                     pRLevel += 1;
                 }
 
-                //for (const whichRelationStrength of ['primary', 'secondary']) {
-
                 let cyNode = this.cy.getElementById(nodeId);
-                let connectedEdges = getEdges(cyNode).edges();
+                let connectedEdges = getEdges(cyNode, layoutParentEdgeSelector);
 
-                // // see if we're still allowed to expand in that tree direction
-                // if (treeDepthRemaining[whichRelationStrength] === 0) {
-                //     // not true and not a strictly positive number -> cannot
-                //     // continue exploring relations of this type beyond this
-                //     // tree node
-                //     continue;
-                // }
-                // let relationEdgesGetter = relationEdgesGetters[whichRelationStrength];
-                // if (relationEdgesGetter === false) {
-                //     continue;
-                // }
+                debug(`Node ${cyNode.id()} has connected edges`, connectedEdges);
 
-                // find children through primary parent relation and add them
-                // for next level's processing
-                // let selector = (
-                //     `${options.relationSelector[whichRelationStrength]}`
-                //     + `[${closeNodeWhich}="${nodeId}"]`
-                // );
-                // debug(`selector =`, selector);
-                //let connectedEdges = relationEdgesGetter(this.cy.getElementById(nodeId));
                 let connectedNodesInfos = []
                 for (const edge of connectedEdges) {
                     const connectedNode = otherConnectedNode(edge, nodeId);
                     const connectedNodeId = connectedNode.id();
+
+                    debug(`Layout-child node: ${cyNode.id()}->${connectedNodeId}; `
+                          + `pos-data? ${JSON.stringify(this.positionedNodeData?.[connectedNodeId])} `
+                          + `seen? ${seenNodes.has(connectedNodeId)}`);
+
                     if (Object.hasOwn(this.positionedNodesData, connectedNodeId)
                         || seenNodes.has(connectedNodeId)) {
                         continue;
                     }
                     seenNodes.add(connectedNodeId);
 
-                    // let nextTreeDepthRemaining = Object.assign({}, treeDepthRemaining);
-                    // if (nextTreeDepthRemaining[whichRelationStrength] !== true) {
-                    //     // decrease the remaining quota for this whichRelationStrength
-                    //     nextTreeDepthRemaining[whichRelationStrength] -= 1;
-                    // }
-                    // if (whichRelationStrength === 'secondary') {
-                    //     // never consider primary connections of secondary connections
-                    //     nextTreeDepthRemaining.primary = 0;
-                    // }
-
-                    connectedNodesInfos.push({
+                    let newNodeInfo = {
                         nodeId: connectedNodeId,
                         level: level+1,
                         parentNodeOrderingInfo: nodeOrderingInfo,
                         connectedNodesInfos: [],
                         totalNumDescendants: 0,
                         numDescendants: [],
-                        // treeDepthRemaining: nextTreeDepthRemaining,
-                        //relatedAs: whichRelationStrength,
-                    });
+                    };
+
+                    connectedNodesInfos.push(newNodeInfo);
+
+                    debug(`Added layout-child node ${connectedNodeId} with info`, newNodeInfo);
                 }
                 nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
                 nextLevelNodes.push(...connectedNodesInfos);
             }
-            // }
             nodeOrderinginfoByLevel.push( nextLevelNodes );
             thisLevelNodes = nextLevelNodes;
             level += 1;
@@ -359,11 +339,11 @@ class _PrelayoutRadialTreeBranchSet
             orderinginfoList.forEach( (info) => {
                 let w = Math.max(
                     1,
-                    _.sum(info.numDescendants.slice(0, this.options.weightCalcLevels))
+                    loSum(info.numDescendants.slice(0, this.prelayoutOptions.weightCalcLevels))
                         ?? 0
                 );
                 if (info.relatedAs === 'secondary') {
-                    w *= this.options.weightCalcSecondaryFactor;
+                    w *= this.prelayoutOptions.weightCalcSecondaryFactor;
                 }
                 info._weight = w;
             } );
@@ -432,7 +412,7 @@ class _PrelayoutRadialTreeBranchSet
         isRoot ??= false;
         useWeights ??= true;
 
-        let totalWeight = _.sum( nodeInfos.map( (info) => info._weight ?? 1 ) );
+        let totalWeight = loSum( nodeInfos.map( (info) => info._weight ?? 1 ) );
         let cumulWeight = 0;
 
         let positionedNodes = [];
@@ -505,7 +485,7 @@ class _PrelayoutRadialTreeBranchSet
     // how to position a non-root node -- in the right direction etc.
     _positionNodeChildren({/*node,*/ nodePosition, nodeInfo, level, angularSpread, direction})
     {
-        const options = this.options;
+        const options = this.prelayoutOptions;
 
         if (direction == null) {
             direction = Math.atan2(nodePosition.y - this.root.position.y,
