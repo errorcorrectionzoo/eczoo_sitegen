@@ -19,6 +19,5 @@
 
     "namers": [ "@errorcorrectionzoo/parcel-namer-own-folder-hashes", "..." ],
 
-
     "reporters":  ["...", "parcel-reporter-static-files-copy"],
 }

@@ -28,7 +28,7 @@ const render = async (data) => {
 
     debug(`Rendering kingdom graph for kingdom ‘${kingdom.kingdom_id}’`);
 
-    const { EczCodeGraph } =
+    const { EczCodeGraph, EczCodeGraphViewController } =
           await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
 
     const displayOptions = {
@@ -37,32 +37,35 @@ const render = async (data) => {
             nodeIds: [
                 EczCodeGraph.getNodeIdKingdom( kingdom.kingdom_id )
             ],
-            redoLayout: true,
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 0, //1,
+                    secondary: 3,
+                    extra: 0,
                 },
                 children: {
                     primary: 2,
-                    secondary: 0, //1,
+                    secondary: 2,
+                    extra: 0,
                 },
             },
+        },
+        highlightImportantNodes: {
+            highlightImportantNodes: false,
+            highlightPrimaryParents: false,
+            highlightRootConnectingEdges: false,
         },
     };
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
-        displayOptions,
     });
-
     await eczCodeGraph.initialize();
 
-    await eczCodeGraph.layout({ animate: false });
+    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    await eczCodeGraphViewController.initialize();
 
-    // debug(`Node final positions are: `,
-    //       eczCodeGraph.cy.nodes(':visible')
-    //       .map( (n) => Object.assign({ nId: n.id() }, n.position()) ));
+    await eczCodeGraph.updateLayout({ animate: false });
 
     // now, export to SVG:
 

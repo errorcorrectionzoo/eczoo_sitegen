@@ -28,36 +28,44 @@ const render = async (data) => {
 
     debug(`Rendering domain graph for domain ‘${domain.domain_id}’`);
 
-    const { EczCodeGraph } =
+    const { EczCodeGraph, EczCodeGraphViewController } =
           await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
+    
     const displayOptions = {
         displayMode: 'isolate-nodes',
         modeIsolateNodesOptions: {
             nodeIds: [
                 EczCodeGraph.getNodeIdDomain( domain.domain_id )
             ],
-            redoLayout: true,
             range: {
                 parents: {
                     primary: 5,
-                    secondary: 0, //1,
+                    secondary: 3,
+                    extra: 0,
                 },
                 children: {
                     primary: 2,
-                    secondary: 0, //1,
+                    secondary: 2,
+                    extra: 0,
                 },
             },
+        },
+        highlightImportantNodes: {
+            highlightImportantNodes: false,
+            highlightPrimaryParents: false,
+            highlightRootConnectingEdges: false,
         },
     };
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
-        displayOptions,
     });
-
     await eczCodeGraph.initialize();
 
-    await eczCodeGraph.layout({ animate: false });
+    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    await eczCodeGraphViewController.initialize();
+
+    await eczCodeGraph.updateLayout({ animate: false });
 
     // now, export to SVG:
 

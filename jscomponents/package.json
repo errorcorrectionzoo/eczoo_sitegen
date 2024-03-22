@@ -12,12 +12,13 @@
     "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_search",
     "@popperjs/core": "^2.11.6",
     "@uiw/react-codemirror": "^4.15.1",
-    "cytoscape": "^3.23.0",
+    "cytoscape": "^3.28.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-fcose": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable",
     "cytoscape-svg": "^0.4.0",
     "debug": "^4.3.4",
     "escape-html": "^1.0.3",
+    "history": "^5.3.0",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "puppeteer": "^19.4.1",
@@ -44,38 +45,6 @@
     "@phfaist/zoodbtools_preview": "*"
   },
   "targets": {
-    "mathjax": {
-      "distDir": "dist/mathjax",
-      "source": "./mathjax/setup.js"
-    },
-    "linkanchorvisualhighlight": {
-      "distDir": "dist/linkanchorvisualhighlight",
-      "source": "./linkanchorvisualhighlight/setup.js"
-    },
-    "popuptippy": {
-      "distDir": "dist/popuptippy",
-      "source": "./popuptippy/setup.js"
-    },
-    "codegraph": {
-      "distDir": "dist/codegraph",
-      "source": "./codegraph/setup.js"
-    },
-    "search": {
-      "distDir": "dist/search",
-      "source": "./search/setup.js"
-    },
-    "randomcode": {
-      "distDir": "dist/randomcode",
-      "source": "./randomcode/setup.js"
-    },
-    "gitzoopreview": {
-      "distDir": "dist/gitzoopreview",
-      "source": "./gitzoopreview/setup.js"
-    },
-    "editcodelegacy": {
-      "distDir": "dist/editcodelegacy",
-      "source": "./editcodelegacy/setup.js"
-    },
     "dev-codegraph": {
       "distDir": "dev-dist",
       "source": "./dev/codegraph/codegraphdev.html"
@@ -85,9 +54,11 @@
     "dev-codegraph-build": "rm -rf .parcel-cache dev-dist && parcel build --no-cache --no-scope-hoist --no-optimize --target dev-codegraph && yarn private-dist-add-use-strict",
     "private-dist-add-use-strict": "bash -c 'for i in dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
   },
-  "browserslist": "> 0.1%, last 3 versions, not dead",
   "@mischnic/parcel-resolver-root": {
     "~": ".."
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
   },
   "alias": {
     "yaml": "../node_modules/yaml/browser/dist/index.js"

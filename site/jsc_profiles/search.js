@@ -4,7 +4,7 @@ import * as search from '@errorcorrectionzoo/jscomponents/search/setup.js';
 
 
 window.addEventListener('load', async function() {
-    mathjax.load();
     linkanchorvisualhighlight.load();
+    await mathjax.load();
     await search.load();
 });

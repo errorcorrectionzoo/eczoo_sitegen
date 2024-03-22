@@ -3,9 +3,9 @@ import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/lin
 import * as editcodelegacy from '@errorcorrectionzoo/jscomponents/editcodelegacy/setup.js';
 
 
-window.addEventListener('load', function() {
-    mathjax.load();
+window.addEventListener('load', async function() {
     linkanchorvisualhighlight.load();
+    await mathjax.load();
     editcodelegacy.load();
 });
 

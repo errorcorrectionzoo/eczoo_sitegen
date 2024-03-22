@@ -3,9 +3,9 @@ import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/lin
 import * as popuptippy from '@errorcorrectionzoo/jscomponents/popuptippy/setup.js';
 
 
-window.addEventListener('load', function() {
-    mathjax.load();
+window.addEventListener('load', async function() {
     linkanchorvisualhighlight.load();
     popuptippy.load();
+    await mathjax.load();
 });
 
