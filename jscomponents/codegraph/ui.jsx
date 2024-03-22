@@ -513,6 +513,9 @@ export function EczCodeGraphComponent(props)
         [ setDisplayOptionsState, history ]
     );
 
+    // DEBUG: enable user to set displayOptionsState directly in the JS console!
+    window.eczCodeGraphUiSetMergeDisplayOptions = mergeSetDisplayOptionsState;
+
     useEffect( () => {
         if (!cyDomIsMounted) {
             return;

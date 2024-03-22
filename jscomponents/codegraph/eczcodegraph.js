@@ -112,6 +112,8 @@ export class EczCodeGraph
         this.globalGraphRootNodesInfo = null;
     }
 
+    // --------------------------------
+
     async initialize()
     {
         debug('EczCodeGraph initialize()');
