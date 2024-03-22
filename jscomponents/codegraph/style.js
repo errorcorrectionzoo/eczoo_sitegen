@@ -15,6 +15,16 @@ export const cyBaseStyleJson = [
             width: 15,
             height: 15,
 
+            // 'text-opacity': 1,
+            // 'text-background-color': '#ffffff',
+            // 'text-background-opacity': 0.8,
+            // 'text-background-shape': 'round-rectangle',
+            // 'text-background-padding': '1px',
+
+            'text-outline-color': '#fff',
+            'text-outline-width': 1,
+            'text-outline-opacity': .5,
+
             'min-zoomed-font-size': 14,
         }
     },
@@ -136,12 +146,16 @@ export const cyBaseStyleJson = [
             color: 'rgb(230,50,50)',
             'font-weight': 'bold',
             'background-color': 'rgb(230,50,50)',
-        }
-    },
-    {
-        selector: '.isolationRootConnectingEdge',
-        style: {
-            width: 4,
+
+            'text-opacity': 1,
+            // 'text-background-color': '#ffffff',
+            // 'text-background-opacity': 0.5,
+            // 'text-background-shape': 'round-rectangle',
+            // 'text-background-padding': '3px',
+            'text-outline-color': '#fff',
+            'text-outline-width': 1,
+            'text-outline-opacity': 1,
+
         }
     },
     
@@ -188,6 +202,44 @@ export const cyBaseStyleJson = [
         selector: '.enableHighlightPrimaryParents[_primaryParent=0]',
         style: {
             'line-style': 'dotted',
+        }
+    },
+    {
+        selector: '.isolationRootConnectingEdge.highlightRootConnectingEdge',
+        style: {
+            width: 4,
+            opacity: 1,
+            'font-size': 8,
+            'text-justification': 'auto',
+            'source-text-offset': 150,
+            'target-text-offset': 150,
+            'text-opacity': 1,
+            'text-background-color': '#ffffff',
+            'text-background-opacity': 0.9,
+            'text-background-shape': 'round-rectangle',
+            'text-background-padding': '1px',
+            'text-max-width': 80,
+            'text-wrap': 'wrap',
+            'source-text-rotation': 'autorotate',
+            'target-text-rotation': 'autorotate',
+        }
+    },
+    {
+        selector: '.isolationRootConnectingEdge.highlightRootIncomingEdge',
+        style: {
+            'target-label': 'data(source_label)',
+        }
+    },
+    {
+        selector: '.isolationRootConnectingEdge.highlightRootOutgoingEdge',
+        style: {
+            'source-label': 'data(target_label)',
+        }
+    },
+    {
+        selector: '.isolationRootConnectingEdge.highlightRootOutgoingEdge[_primaryParent=1]',
+        style: {
+            width: 6,
         }
     },
 

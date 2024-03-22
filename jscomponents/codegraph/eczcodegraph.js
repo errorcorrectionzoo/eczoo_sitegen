@@ -466,6 +466,8 @@ export class EczCodeGraph
         }
 
         this.cy.nodes('.layoutVisible').addClass('_layoutPositioned');
+
+        debug(`updateLayout() done!`);
     }
 
     async _runPrelayout({ rootNodeIds })
@@ -585,8 +587,13 @@ export class EczCodeGraph
                     el.visible() && (el.isNode() || el.is('.layoutParent'))
                 ) )
                 .layout(layoutOptions);
-            layout.on('layoutstop', resolve);
+            layout.on('layoutstop', () => {
+                debug(`in promise - layoutstop event received, resolving promise.`);
+                resolve();
+            });
+            debug('in promise - running layout');
             layout.run();
+            debug('in promise - ran layout');
         } );
 
         debug('laying out (fcose) - waiting for promise.');
@@ -610,6 +617,8 @@ export class EczCodeGraph
         let nodes = [];
         let edges = [];
 
+        const nodeLabelsByNodeId = {};
+
         // === domains and kingdoms ===
 
         for (const [domainId, domain] of Object.entries(this.eczoodb.objects.domain)) {
@@ -632,6 +641,7 @@ export class EczCodeGraph
                 }
             });
 
+            nodeLabelsByNodeId[thisDomainNodeId] = thisDomainLabel;
 
             // Add all the domain's kingdoms
 
@@ -658,6 +668,8 @@ export class EczCodeGraph
                     }
                 });
 
+                nodeLabelsByNodeId[thisKingdomNodeId] = label;
+
                 // create edge that connects the kingdom to the domain
 
                 edges.push({
@@ -683,6 +695,8 @@ export class EczCodeGraph
             let label = contentToNodeLabel(codeShortName);
 
             const thisCodeNodeId = this.getNodeIdCode(codeId);
+
+            nodeLabelsByNodeId[thisCodeNodeId] = label;
 
             let nodeData = {
                 id: thisCodeNodeId,
@@ -775,6 +789,13 @@ export class EczCodeGraph
                 }
             }
         }
+
+        // add source_label and target_label to all edge infos:
+        for (const edgeData of edges) {
+            edgeData.data.source_label = nodeLabelsByNodeId[edgeData.data.source];
+            edgeData.data.target_label = nodeLabelsByNodeId[edgeData.data.target];
+        }
+
 
         // === set up cytoscape ===
 

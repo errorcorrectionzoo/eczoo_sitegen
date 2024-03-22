@@ -195,6 +195,7 @@ export async function load({ displayOptions }={})
 
     // expose eczCodeGraph to the JS console for debugging
     window.eczCodeGraph = eczCodeGraph;
+    window.eczCodeGraphViewController = eczCodeGraphViewController;
 
     debug('Graph initialized.');
 

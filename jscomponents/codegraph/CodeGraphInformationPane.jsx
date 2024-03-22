@@ -400,7 +400,7 @@ export function CodeGraphInformationPane(props)
         displayInformationOptions,
     } = props;
 
-    debug(`In CodeGraphInformationPane ()`, props);
+    debug(`CodeGraphInformationPane component - render`, props);
     
     captureLinksToObjectTypes ??= [ 'code', 'domain', 'kingdom' ];
    

@@ -95,6 +95,7 @@ export class EczCodeGraphFilterHighlightImportantNodes extends EczCodeGraphFilte
             highlightImportantNodes: true,
             degreeThreshold: 8,
             highlightPrimaryParents: true,
+            highlightRootConnectingEdges: true,
         }, filterOptions ?? {}));
     }
     applyFilter({ eles })
@@ -103,6 +104,7 @@ export class EczCodeGraphFilterHighlightImportantNodes extends EczCodeGraphFilte
             highlightImportantNodes,
             degreeThreshold,
             highlightPrimaryParents,
+            highlightRootConnectingEdges,
         } = this.filterOptions;
         this.cy.batch( () => {
             if (highlightImportantNodes) {
@@ -115,12 +117,29 @@ export class EczCodeGraphFilterHighlightImportantNodes extends EczCodeGraphFilte
                     node.toggleClass('notImportantNode', !isImportantNode);
                 });
             }
+
             eles.edges().toggleClass('enableHighlightPrimaryParents', highlightPrimaryParents);
+
+            eles.edges().removeClass([
+                'highlightRootConnectingEdge', 'highlightRootIncomingEdge',
+                'highlightRootOutgoingEdge',
+            ]);
+            const rootNodes = eles.nodes('.layoutRoot');
+            const rootIncomers = rootNodes.incomers('edge.layoutVisible');
+            const rootOutgoers = rootNodes.outgoers('edge.layoutVisible');
+            if (highlightRootConnectingEdges) {
+                rootIncomers.addClass(['highlightRootConnectingEdge', 'highlightRootIncomingEdge']);
+                rootOutgoers.addClass(['highlightRootConnectingEdge', 'highlightRootOutgoingEdge']);
+            }
         } );
     }
     removeFilter({ eles })
     {
-        eles.removeClass(['importantNode', 'enableHighlightPrimaryParents']);
+        eles.removeClass([
+            'importantNode', 'enableHighlightPrimaryParents',
+            'highlightRootConnectingEdge', 'highlightRootIncomingEdge',
+            'highlightRootOutgoingEdge',
+        ]);
     }
 }
 

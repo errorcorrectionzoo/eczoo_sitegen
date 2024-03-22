@@ -4,6 +4,7 @@ import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
 import loMerge from 'lodash/merge.js';
+import loIsEqual from 'lodash/isEqual.js';
 
 import React, { useEffect, useState, useRef, useLayoutEffect, useId, useCallback } from 'react';
 
@@ -372,6 +373,9 @@ export function EczCodeGraphControlsComponent(props)
                     />
                     <label htmlFor="input_secondaryParentEdgesShown">all parents</label>
                 </span>
+            </fieldset>
+            <fieldset className="controls-input-advanced-fieldset">
+                <legend>Visual Aids</legend>
                 <span className="controls-input-group">
                     <input type="checkbox"
                         id="input_highlightImportantNodes"
@@ -392,6 +396,18 @@ export function EczCodeGraphControlsComponent(props)
                     />
                     <label htmlFor="input_highlightPrimaryParents">fade secondary parents</label>
                 </span>
+                <span className="controls-input-group">
+                    <input type="checkbox"
+                        id="input_highlightRootConnectingEdges"
+                        checked={displayOptionsState.highlightImportantNodes.highlightRootConnectingEdges}
+                        onChange={ (ev) => mergeSetDisplayOptionsState({
+                            highlightImportantNodes: {
+                                highlightRootConnectingEdges: !! ev.target.checked
+                            }
+                        }) }
+                    />
+                    <label htmlFor="input_highlightRootConnectingEdges">selected code’s relations</label>
+                </span>
             </fieldset>
             <DownloadSnapshotControls
                 onDownloadSnapshot={doDownloadSnapshot}
@@ -407,20 +423,24 @@ export function EczCodeGraphControlsComponent(props)
 export function useCyDomMountedEczCodeGraph(mountSetting)
 {
     const {
-        eczCodeGraph, cyDomNodeRef,
-        // matchWebPageFonts
+        eczCodeGraph,
+        // cyDomNodeRef,
+        // matchWebPageFonts,
+        // window,
     } = mountSetting;
 
-    const [ cyDomMountedForMountSetting, setCyDomMountedForMountSetting ] =
-        useState( {} );
+    const [ cyDomMountedForMountSetting, setCyDomMountedForMountSetting ] = useState({});
+
+    const needMount = ! loIsEqual(mountSetting, cyDomMountedForMountSetting);
+    
+    debug(`useCyDomMountedEczCodeGraph(). eczCodeGraph.mountedDomNode = `,
+          eczCodeGraph.mountedDomNode, `.  Debug: `,
+          { mountSetting, cyDomMountedForMountSetting, needMount });
 
     // cytoscape initialization: make sure it's installed in the DOM correctly
 
     useLayoutEffect( () => {
-        const needMount = Object.entries(mountSetting).some(
-            ([settingKey, settingValue]) => (settingValue !== cyDomMountedForMountSetting[settingKey])
-        );
-        debug(`Do we need to mount the code graph in the DOM? -> `, { needMount, mountSetting, cyDomMountedForMountSetting });
+        // debug(`Do we need to mount the code graph in the DOM? -> `, { needMount, mountSetting, cyDomMountedForMountSetting });
         if ( needMount ) {
             // access eczCodeGraph, cyDomNode via mountSetting. explicitly to facilitate
             // tracking the layout effect dependencies
@@ -432,13 +452,10 @@ export function useCyDomMountedEczCodeGraph(mountSetting)
             });
             setCyDomMountedForMountSetting( mountSetting );
         }
-    }, [ mountSetting, cyDomMountedForMountSetting ] );
-
-    const cyDomNode = cyDomNodeRef.current;
-    const cyDomIsMounted = (eczCodeGraph.mountedDomNode === cyDomNode);
+    }, [ mountSetting, cyDomMountedForMountSetting, needMount ] );
 
     return {
-        cyDomIsMounted,
+        cyDomIsMounted: !needMount,
     };
 }
 
@@ -455,6 +472,8 @@ export function EczCodeGraphComponent(props)
     
     const eczoodb = eczCodeGraph.eczoodb;
 
+    debug(`EczCodeGraphComponent render!`);
+
     //
     // React HOOKS
     //
@@ -462,12 +481,14 @@ export function EczCodeGraphComponent(props)
     let cyDomNodeRef = useRef(null);
     let cyPanelDomNodeRef = useRef(null);
 
-    const cyDomIsMounted = useCyDomMountedEczCodeGraph({
+    const { cyDomIsMounted } = useCyDomMountedEczCodeGraph({
         eczCodeGraph,
         cyDomNodeRef,
         matchWebPageFonts,
         window
     });
+
+    debug(`cyDomIsMounted = ${cyDomIsMounted}`);
 
     // UI state. Code selected/isolated, etc.
 
@@ -497,14 +518,25 @@ export function EczCodeGraphComponent(props)
             return;
         }
 
+        debug(`UI - setting displayOptions state, then will possibly recalculate layout`);
+
         eczCodeGraphViewController?.setDisplayOptions(displayOptionsState);
 
+        let flagCancelledUpdateLayoutNotification = { didCancel: false };
+
         if (eczCodeGraph.isPendingUpdateLayout()) {
-            eczCodeGraph.updateLayout({
-                //animate: false // DEBUG DEBUG
-            });
-            onLayoutDone?.();
+            (async () => {
+                await eczCodeGraph.updateLayout({
+                    //animate: false // DEBUG DEBUG
+                });
+                if (flagCancelledUpdateLayoutNotification.didCancel) {
+                    return;
+                }
+                onLayoutDone?.();
+            })();
         }
+
+        return () => { flagCancelledUpdateLayoutNotification.didCancel = true; }
 
     }, [ eczCodeGraphViewController, eczCodeGraph, cyDomIsMounted, displayOptionsState, onLayoutDone ] );
 

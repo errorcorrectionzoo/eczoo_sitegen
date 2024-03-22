@@ -39,9 +39,11 @@ window.eczData = { eczoodbData };
 
 import * as codegraphsetup from '../../codegraph/setup.js';
 import * as mathjax from '../../mathjax/setup.js';
+
 window.addEventListener('load', async function () {
     await mathjax.load();
     await codegraphsetup.load({ displayOptions: initialDisplayOptions });
+    debug(`window load handler - code graph setup done!`);
     window.eczcodegraphdebug = () => {
         window.eczCodeGraph.cy.elements().toggleClass('DEBUG');
         window.eczCodeGraph.graphGlobalOptions.alwaysSkipCoseLayout =

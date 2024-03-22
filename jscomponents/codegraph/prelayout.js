@@ -82,7 +82,7 @@ export class PrelayoutRadialTree
         const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
         const origin = this.prelayoutOptions.origin;
 
-        debug(`Will need to auto position ${numJ} root nodes;`, { origin });
+        //debug(`Will need to auto position ${numJ} root nodes;`, { origin });
 
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
             let angleFraction = j / maxJ;
@@ -106,7 +106,7 @@ export class PrelayoutRadialTree
         
         for (const [rootNodeId, prelayoutInfo] of Object.entries(rootNodePrelayoutInfo)) {
 
-            debug(`Prelayout - Prepping root node ${rootNodeId}`, { prelayoutInfo });
+            //debug(`Prelayout - Prepping root node ${rootNodeId}`, { prelayoutInfo });
 
             positionedNodesData[rootNodeId] = {
                 position: prelayoutInfo.position,
@@ -123,7 +123,7 @@ export class PrelayoutRadialTree
                 cyRootNode.outgoers(this.prelayoutOptions.layoutParentEdgeSelector)
                 .edges('.layoutVisible');
 
-            debug(`root node children & parent edges are`, { childrenEdges, parentsEdges });
+            //debug(`root node children & parent edges are`, { childrenEdges, parentsEdges });
 
             if (childrenEdges.length) {
                 pBranches.push(new _PrelayoutRadialTreeBranchSet({
@@ -213,8 +213,8 @@ class _PrelayoutRadialTreeBranchSet
 
         this.nodeOrderinginfoByLevel = null;
 
-        debug(`Initialized _PrelayoutRadialTreeBranchSet with root node ${this.rootNode.id()}`,
-              { branchOptions: this.branchOptions, positionedNodesData });
+        //debug(`Initialized _PrelayoutRadialTreeBranchSet with root node ${this.rootNode.id()}`,
+        //      { branchOptions: this.branchOptions, positionedNodesData });
     }
 
     //
@@ -255,8 +255,8 @@ class _PrelayoutRadialTreeBranchSet
         while (thisLevelNodes.length) {
             let nextLevelNodes = [];
 
-            debug(`Getting layout-children of nodes at current layout level ${level}, current `
-                  + `level nodes are `, thisLevelNodes);
+            //debug(`Getting layout-children of nodes at current layout level ${level}, current `
+            //      + `level nodes are `, thisLevelNodes);
 
             for (const nodeOrderingInfo of thisLevelNodes) {
 
@@ -290,7 +290,7 @@ class _PrelayoutRadialTreeBranchSet
                         .edges('.layoutVisible');
                 }
 
-                debug(`Node ${cyNode.id()} has connected edges`, connectedEdges);
+                //debug(`Node ${cyNode.id()} has connected edges`, connectedEdges);
 
                 let connectedNodesInfos = []
                 for (const edge of connectedEdges) {
@@ -301,9 +301,9 @@ class _PrelayoutRadialTreeBranchSet
                     const connectedNode = otherConnectedNode(edge, nodeId);
                     const connectedNodeId = connectedNode.id();
 
-                    debug(`Layout-child node: ${cyNode.id()}->${connectedNodeId}; `
-                          + `pos-data? ${JSON.stringify(this.positionedNodeData?.[connectedNodeId])} `
-                          + `seen? ${seenNodes.has(connectedNodeId)}`);
+                    // debug(`Layout-child node: ${cyNode.id()}->${connectedNodeId}; `
+                    //       + `pos-data? ${JSON.stringify(this.positionedNodeData?.[connectedNodeId])} `
+                    //       + `seen? ${seenNodes.has(connectedNodeId)}`);
 
                     if (Object.hasOwn(this.positionedNodesData, connectedNodeId)
                         || seenNodes.has(connectedNodeId)) {
@@ -323,7 +323,7 @@ class _PrelayoutRadialTreeBranchSet
 
                     connectedNodesInfos.push(newNodeInfo);
 
-                    debug(`Added layout-child node ${connectedNodeId} with info`, newNodeInfo);
+                    // debug(`Added layout-child node ${connectedNodeId} with info`, newNodeInfo);
                 }
                 nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
                 nextLevelNodes.push(...connectedNodesInfos);

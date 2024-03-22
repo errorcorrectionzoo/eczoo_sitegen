@@ -42,6 +42,7 @@ const defaultDisplayOptions = {
         highlightImportantNodes: true,
         degreeThreshold: 8,
         highlightPrimaryParents: true,
+        highlightRootConnectingEdges: true,
     },
 
     searchHighlightText: null,

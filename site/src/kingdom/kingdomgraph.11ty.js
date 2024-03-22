@@ -53,6 +53,7 @@ const render = async (data) => {
         highlightImportantNodes: {
             highlightImportantNodes: false,
             highlightPrimaryParents: false,
+            highlightRootConnectingEdges: false,
         },
     };
 
