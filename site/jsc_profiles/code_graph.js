@@ -4,7 +4,7 @@ import * as codegraph from '@errorcorrectionzoo/jscomponents/codegraph/setup.js'
 
 
 window.addEventListener('load', async function() {
-    mathjax.load();
     linkanchorvisualhighlight.load();
+    await mathjax.load();
     await codegraph.load();
 });

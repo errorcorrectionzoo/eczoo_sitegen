@@ -3,9 +3,9 @@ import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/lin
 //import * as obnoxiouscookiebar from '@errorcorrectionzoo/jscomponents/obnoxiouscookiebar/setup.js';
 
 
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
     console.log('Setting up!');
-    mathjax.load();
     linkanchorvisualhighlight.load();
     //obnoxiouscookiebar.load();
+    await mathjax.load();
 });
