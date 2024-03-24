@@ -64,6 +64,7 @@ export function EczCodeGraphControlsComponent(props)
         eczCodeGraph,
         displayOptionsState,
         mergeSetDisplayOptionsState,
+        history,
     } = props;
     let cy = eczCodeGraph.cy;
 
@@ -255,9 +256,27 @@ export function EczCodeGraphControlsComponent(props)
         aNode.click();
     };
 
+    // ------------
+
+    // history controls
+    let historyControls = [];
+    if (history != null) {
+        historyControls = [
+            (<button key="btnBack"
+                disabled={false /* ??? */}
+                onClick={() => history.back()}>◀</button>),
+            (<button key="btnForward"
+                disabled={false /* ??? */}
+                onClick={() => history.forward()}>▶</button>),
+            (<span key="btnHistSep" className="controls-input-sep"></span>),
+        ];
+    }
+history
+    // ------------
+
     const toggleControlsButtonLabel = {
-        [true]: 'more…',
-        [false]: 'show less',
+        [false]: 'more…',
+        [true]: 'show less',
     };
     const toggleControls = (event) => {
         const el = rootFieldsetRef.current;
@@ -286,15 +305,16 @@ export function EczCodeGraphControlsComponent(props)
                 </span>
                 <span className="controls-input-sep"></span>
                 <button onClick={toggleControls}>{
-                    toggleControlsButtonLabel[true]
+                    toggleControlsButtonLabel[false]
                 }</button>
             </fieldset>
             <fieldset className="controls-input-advanced-fieldset">
                 <legend>Isolation</legend>
                 <button
                     disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
-                    onClick={doModeIsolateExit}>home</button>
+                    onClick={doModeIsolateExit}>🏠</button>
                 <span className="controls-input-sep"></span>
+                {historyControls}
                 <button
                     onClick={doModeIsolateZoomDomains}>zoom domains</button>
                 <span className="controls-input-sep"></span>
@@ -682,6 +702,7 @@ export function EczCodeGraphComponent(props)
                     eczCodeGraph={eczCodeGraph}
                     displayOptionsState={displayOptionsState}
                     mergeSetDisplayOptionsState={mergeSetDisplayOptionsState}
+                    history={history}
                 />
                 <CodeGraphInformationPane
                     eczoodb={eczoodb}
