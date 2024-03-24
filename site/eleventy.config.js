@@ -99,6 +99,12 @@ module.exports = (eleventyConfig) => {
     );
     eleventyConfig.addWatchTarget( eczoo_config.data_dir );
 
+    // build the EC zoo and include it in the 11ty structure as global data.
+    eleventyConfig.addGlobalData("eczoodb", async () => {
+        const { load_or_reload_eczoodb } = await import('./sitelib/build_eczoo.js');
+        return await load_or_reload_eczoodb(eczoo_config);
+    });
+
     // building the zoo is pretty consequential, even incrementally, so don't
     // react right away but wait for a couple seconds first
     eleventyConfig.setWatchThrottleWaitTime(5000); // in milliseconds
@@ -166,29 +172,6 @@ module.exports = (eleventyConfig) => {
         }
     );
 
-
-    // // copy in the Old JS Edit Code Web App --- hmmm nope, seems too complicated to patch
-    // eleventyConfig.addPassthroughCopy(
-    //     {
-    //         "old_edit_code_app_pkg/dist/*": ".",
-    //     },
-    // );
-
-    // Copy in any needed static files (robots.txt, etc.)
-    // --- static files now copied via PARCEL plugin
-    // --- config in eczoo_sitegen/package.json
-
-    // // copy in the JS components needed in our site
-    // let jscomponentsDistDir = "./jscomponents_dist";
-    // eleventyConfig.addPassthroughCopy(
-    //     {
-    //         // [jscomponentsDistDir]: "jsbundle",
-    //         './static_copy': '.',
-    //     },
-    //     {
-    //         expand: true, // expand symbolic links
-    //     }
-    // );
 
 
     if (eczoo_run_options.run_11ty_parcel) {

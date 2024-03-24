@@ -1,3 +1,13 @@
+import fs from 'fs';
+
+import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
+import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
+
+import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
+
+import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
+
+
 
 let cached_eczoodb = null;
 
@@ -22,21 +32,9 @@ function get_error_string(err)
 }
 
 
-module.exports = async (configData) => {
-
-    const eczoo_config = configData.eczoo_config;
-
+export async function load_or_reload_eczoodb(eczoo_config)
+{
     if (cached_eczoodb == null) {
-        const fs = await import('fs');
-
-        const { createEcZooDb } = await import('@errorcorrectionzoo/eczoodb/eczoodb.js');
-        const { get_eczoo_full_options } =
-              await import('@errorcorrectionzoo/eczoodb/fullopts.js');
-
-        const { createEcZooYamlDbDataLoader } =
-              await import('@errorcorrectionzoo/eczoodb/load_yamldb.js');
-
-        const { ZooDbDataLoaderHandler } = await import('@phfaist/zoodb');
 
         try {
 
