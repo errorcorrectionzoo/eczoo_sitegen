@@ -34,7 +34,9 @@ export class CodeGraphSvgExporter
         // Now, launch a fake browser to run cytoscape & generate svg (:/)
         //
 
-        this.browser = await puppeteer.launch();
+        this.browser = await puppeteer.launch({
+            //headless: "new",
+        });
         this.page = await this.browser.newPage();
 
         await this.page.setContent(`<!DOCTYPE HTML>

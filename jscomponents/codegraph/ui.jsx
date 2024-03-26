@@ -3,6 +3,8 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.ui');
 
+import { Action } from 'history';
+
 import loMerge from 'lodash/merge.js';
 import loIsEqual from 'lodash/isEqual.js';
 
@@ -64,7 +66,7 @@ export function EczCodeGraphControlsComponent(props)
         eczCodeGraph,
         displayOptionsState,
         mergeSetDisplayOptionsState,
-        history,
+        history, uiHistoryControl,
     } = props;
     let cy = eczCodeGraph.cy;
 
@@ -261,17 +263,19 @@ export function EczCodeGraphControlsComponent(props)
     // history controls
     let historyControls = [];
     if (history != null) {
+        const canGoBack = uiHistoryControl?.canGoBack ?? false;
+        const canGoForward = uiHistoryControl?.canGoForward ?? false;
         historyControls = [
             (<button key="btnBack"
-                disabled={false /* ??? */}
+                disabled={!canGoBack}
                 onClick={() => history.back()}>◀</button>),
             (<button key="btnForward"
-                disabled={false /* ??? */}
+                disabled={!canGoForward}
                 onClick={() => history.forward()}>▶</button>),
             (<span key="btnHistSep" className="controls-input-sep"></span>),
         ];
     }
-history
+
     // ------------
 
     const toggleControlsButtonLabel = {
@@ -523,8 +527,29 @@ export function EczCodeGraphComponent(props)
                         oldDisplayOptions,
                         displayOptions
                     );
-                    if (pushNewHistoryState) {
-                        history.push(history.location, { displayOptionsState: newDisplayOptions });
+                    if (history != null && pushNewHistoryState) {
+                        // mark the current state as being one where we can navigate forward
+                        const currentReplaceHistoryState = loMerge(
+                            {},
+                            history.location.state,
+                            {
+                                uiHistoryControl: {
+                                    canGoForward: true,
+                                },
+                            }
+                        )
+                        history.replace(history.location, currentReplaceHistoryState);
+                        // now, push the new state.
+                        const newHistoryState = {
+                            displayOptionsState: newDisplayOptions,
+                            uiHistoryControl: {
+                                canGoBack: true,
+                                canGoForward: false,
+                            },
+                        };
+                        debug(`history.push(), newHistoryState =`, newHistoryState);
+                        history.push(history.location, newHistoryState);
+                        debug(`history.push() done`);
                     }
                     return newDisplayOptions;
                 }
@@ -567,17 +592,45 @@ export function EczCodeGraphComponent(props)
     // -- set up app state history tracking (e.g. browser back/forward buttons) --
 
     useEffect( () => {
-        // make sure state is saved the first time the component is rendered. Run only once!
-        //if (!history.location.state) {
-        history.replace(history.location, { displayOptionsState });
-        //}
-    }, [ history ] ); // eslint-disable-line react-hooks/exhaustive-deps
+        // Make sure the current history state is up-to-date with the current displayOptionsState.
+        if ( history != null &&
+             ! loIsEqual(displayOptionsState, history.location?.state?.displayOptionsState) ) {
+            const replaceCurrentHistoryState = Object.assign(
+                {},
+                history.location.state,
+                {
+                    displayOptionsState,
+                }
+            );
+            debug(`Updating our history.state to our display state.`, { displayOptionsState });
+            history.replace(history.location, replaceCurrentHistoryState);
+            debug(`history.replace done.`);
+        } else {
+            debug(`No history.replace() update necessary at this point`);
+        }
+    }, [ history, displayOptionsState ] );
 
     useEffect( () => {
-        const unlisten = history.listen( ({ location, action_ }) => {
-            mergeSetDisplayOptionsState(location.state?.displayOptionsState);
+        if (history == null) {
+            return;
+        }
+        const unlisten = history.listen( ({ location, action }) => {
+            debug(`history navigation event: `, { location, action, test_history_Action_Pop: Action.Pop });
+            if (action === Action.Pop) {
+                debug(`Is a history pop event! `, { location, action });
+                // the user navigated to this state - update the UI to the relevant state
+                mergeSetDisplayOptionsState(
+                    location.state?.displayOptionsState,
+                );
+                debug(`Is a history pop event, finished setting merged display options.`);
+            } else {
+                debug(`Not a navigation event, nothing to do `, { location, action });
+            }
         } );
-        return unlisten;
+        return () => {
+            debug(`Un-registering history listener ...`);
+            unlisten();
+        };
     }, [ history, mergeSetDisplayOptionsState ] );
 
     // --------------------------------
@@ -703,6 +756,7 @@ export function EczCodeGraphComponent(props)
                     displayOptionsState={displayOptionsState}
                     mergeSetDisplayOptionsState={mergeSetDisplayOptionsState}
                     history={history}
+                    uiHistoryControl={history?.location?.state?.uiHistoryControl}
                 />
                 <CodeGraphInformationPane
                     eczoodb={eczoodb}
