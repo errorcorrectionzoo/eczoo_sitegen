@@ -12,7 +12,7 @@
     "helpers/parcel-transformer-ogimage-phf"
   ],
   "scripts": {
-    "buildall": "(cd site && yarn build)",
+    "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)",
     "lint": "eslint jscomponents/**/*.js jscomponents/**/*.jsx eczoodb/**/*.js previewtool/*.js previewtool/*.jsx",
     "serve": "(cd site && yarn serve)",
     "preview": "(cd previewtool && yarn node runPreview.js)"

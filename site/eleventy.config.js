@@ -5,7 +5,6 @@
 const debug = require('debug')('eczoo_sitegen.eleventyConfigJs');
 
 const path = require('path');
-//const fs = require('fs');
 
 const faviconPlugin = require("eleventy-favicon");
 
@@ -15,50 +14,6 @@ const packageJson = require('./package.json');
 
 
 Error.stackTraceLimit = 999;
-
-
-//
-// Helper to force Parcel refresh because of sync issues when 11ty outputs its
-// files & parcel refreshes
-//
-// let _last_touch_dir_tree = null;
-// const min_touch_dir_tree_interval_ms = 1000;
-// function touchDirsTree(dirs, { predicate }={})
-// {
-//     console.log(`Request to touch dirs ‘${dirs}’ recursively`);
-
-//     const now = new Date();
-
-//     if (_last_touch_dir_tree != null
-//         && (now - _last_touch_dir_tree) < min_touch_dir_tree_interval_ms) {
-//         return;
-//     }
-//     _last_touch_dir_tree = now;
-
-//     function _touchDirTreeInner(dir) {
-//         fs.readdirSync(dir).forEach(file => {
-//             let fullPath = path.join(dir, file);
-//             if (fs.lstatSync(fullPath).isDirectory()) {
-//                 //console.log(fullPath);
-//                 _touchDirTreeInner(fullPath);
-//             } else {
-//                 //console.log(fullPath);
-//                 // touch file
-//                 if (predicate != null && !predicate(fullPath)) {
-//                     return;
-//                 }
-//                 console.log(`Touching ‘${fullPath}’`);
-//                 fs.utimesSync(fullPath, now, now);
-//             }
-//         });
-//     };
-
-//     for (const dir of dirs) {
-//         console.log(`Touching tree ‘${dir}’ recursively`);
-//         _touchDirTreeInner(dir);
-//     }
-// };
-
 
 
 
@@ -81,7 +36,6 @@ module.exports = (eleventyConfig) => {
         data_dir: path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
         site_base_url_host_name: 'https://errorcorrectionzoo.org/',
-        //development_mode_skip_jscomponents: ['randomcode', 'linkanchorvisualhighlight'],
     };
     if (eczoo_run_options.use_test_data) {
         eczoo_config.data_dir =
@@ -99,11 +53,42 @@ module.exports = (eleventyConfig) => {
     );
     eleventyConfig.addWatchTarget( eczoo_config.data_dir );
 
-    // build the EC zoo and include it in the 11ty structure as global data.
+    let _eczoo_code_graph_svg_exporter_instance = null;
+
+    // Build the EC zoo and include it in the 11ty structure as global data.
+    // The callback will be executed again on subsequent builds in dev mode.
     eleventyConfig.addGlobalData("eczoodb", async () => {
+        //
+        // (Re)load the EC Zoo Database.
+        //
         const { load_or_reload_eczoodb } = await import('./sitelib/build_eczoo.js');
-        return await load_or_reload_eczoodb(eczoo_config);
+        const eczoodb = await load_or_reload_eczoodb(eczoo_config);
+        //
+        // Prepare data dump of the EC Zoo.
+        //
+        const eczoodbData = await eczoodb.data_dump({});
+        eczoodb.cached_data_dump = eczoodbData;
+        //
+        // Prepare a code graph SVG generator instance (use single instance across
+        // all generated graphs because an instance spins up a Chrome puppeteer
+        // instance!)
+        //
+        if ( eczoo_config.generate_code_graph_svg_exports ) {
+            const { init_headless_graph_exporter } =
+                await import('./sitelib/init_headless_graph_exporter.js');
+            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter(eczoodbData);
+            eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+        }
+        return eczoodb;
     });
+    if ( eczoo_config.generate_code_graph_svg_exports ) {
+        eleventyConfig.on('eleventy.after', async () => {
+            if (_eczoo_code_graph_svg_exporter_instance != null) {
+                await _eczoo_code_graph_svg_exporter_instance.done();
+                _eczoo_code_graph_svg_exporter_instance = null;
+            }
+        });
+    }
 
     // building the zoo is pretty consequential, even incrementally, so don't
     // react right away but wait for a couple seconds first
@@ -126,95 +111,63 @@ module.exports = (eleventyConfig) => {
     });
 
 
-    //
-    // Prepare a code graph SVG generator instance (use single instance across
-    // all generated graphs because an instance spins up a Chrome puppeteer
-    // instance!)
-    //
-    if ( eczoo_config.generate_code_graph_svg_exports ) {
-        debug('Setting up the code graph SVG exporter instance');
-        eleventyConfig.on('eleventy.before', async () => {
-            try {
-                const { CodeGraphSvgExporter } = await import(
-                    '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
-                );
-                if (_eczoo_code_graph_svg_exporter_instance != null) {
-                    throw new Error(
-                        `There is already an instance set in `
-                        + `_eczoo_code_graph_svg_exporter_instance!!`
-                    );
-                }
-                _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
-                    autoCloseMs: 5 * 60 * 1000, // 5 minutes
-                });
-                await _eczoo_code_graph_svg_exporter_instance.setup();
-            } catch (error) {
-                console.error('Failed to initialize the SVG code graph exporter!');
-                console.error(error);
-                _eczoo_code_graph_svg_exporter_instance = null;
-                //throw new Error(`Failed to initialize the SVG code graph exporter.`);
-                console.error('process.exit now');
-                process.exit(101); // otherwise it looks like end up with pending promises ...
-            }
-        });
-        eleventyConfig.on('eleventy.after', async () => {
-            if (_eczoo_code_graph_svg_exporter_instance) {
-                await _eczoo_code_graph_svg_exporter_instance.done();
-                _eczoo_code_graph_svg_exporter_instance = null;
-            }
-        });
-    }
-    eleventyConfig.addGlobalData(
-        "get_eczoo_code_graph_svg_exporter", {
-            getInstance() {
-                return _eczoo_code_graph_svg_exporter_instance;
-            }
-        }
-    );
+    // //
+    // // Prepare a code graph SVG generator instance (use single instance across
+    // // all generated graphs because an instance spins up a Chrome puppeteer
+    // // instance!)
+    // //
+    // if ( eczoo_config.generate_code_graph_svg_exports ) {
+    //     debug('Setting up the code graph SVG exporter instance');
+    //     eleventyConfig.on('eleventy.before', async () => {
+    //         try {
+    //             const { CodeGraphSvgExporter } = await import(
+    //                 '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
+    //             );
+    //             if (_eczoo_code_graph_svg_exporter_instance != null) {
+    //                 throw new Error(
+    //                     `There is already an instance set in `
+    //                     + `_eczoo_code_graph_svg_exporter_instance!!`
+    //                 );
+    //             }
+    //             _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
+    //                 autoCloseMs: 5 * 60 * 1000, // 5 minutes
+    //             });
+    //             await _eczoo_code_graph_svg_exporter_instance.setup();
+    //         } catch (error) {
+    //             console.error('Failed to initialize the SVG code graph exporter!');
+    //             console.error(error);
+    //             _eczoo_code_graph_svg_exporter_instance = null;
+    //             //throw new Error(`Failed to initialize the SVG code graph exporter.`);
+    //             console.error('process.exit now');
+    //             process.exit(101); // otherwise it looks like end up with pending promises ...
+    //         }
+    //     });
+    //     eleventyConfig.on('eleventy.after', async () => {
+    //         if (_eczoo_code_graph_svg_exporter_instance) {
+    //             await _eczoo_code_graph_svg_exporter_instance.done();
+    //             _eczoo_code_graph_svg_exporter_instance = null;
+    //         }
+    //     });
+    // }
+    // eleventyConfig.addGlobalData(
+    //     "get_eczoo_code_graph_svg_exporter", {
+    //         getInstance() {
+    //             return _eczoo_code_graph_svg_exporter_instance;
+    //         }
+    //     }
+    // );
 
 
 
     if (eczoo_run_options.run_11ty_parcel) {
 
-        //const eleventy_out_dir = '_site/';
-
-        //
-        // Parcel 2.8 lazy seems to have issues with refreshing content when new
-        // files are written.  Running 'touch _site/** / *.html' after eleventy
-        // finished outputting its files immediately fixes the problem.  We try
-        // to do this automatically here by hooking into the middleware's
-        // pathRewrite() function.  Whenever a HTML page is requested, we touch
-        // the entire 11ty output folder (so that dependent assets including
-        // figures are also refreshed).
-        //
-
         const pathRewrite = (p, req_) => {
             console.log(`Request ${p}`);
-
             let finalPath = p;
             if (/^(\/[^.]+)$/.test(p)) {
                 // page requested -- rewrite path to include .html
                 finalPath = `${p}.html`;
             }
-            // if we requested a HTML page, we should touch entire source tree
-            // to force parcel to refresh
-            if (finalPath === '/' || finalPath.endsWith('.html')) {
-                //
-                // ### Let's see if more recent version of ParcelJS can handle
-                // ### changes better ...
-                // touchDirsTree( [eleventy_out_dir] );
-                //
-                // touchDirsTree(
-                //     [ eleventy_out_dir, 'jscomponents' ],
-                //     {
-                //         predicate: (fname) => (
-                //             fname.endsWith('.html')
-                //             || fname.endsWith('.js') //(&& !fname.endsWith('/setup.js'))
-                //         ),
-                //     }
-                // );
-            }
-
             return finalPath;
         };
 
@@ -239,7 +192,10 @@ module.exports = (eleventyConfig) => {
                     //logLevel: 'verbose',
 
                     defaultTargetOptions: {
-                        sourceMaps: (eczoo_run_options.run_11ty_parcel_lazy && eczoo_run_options.development_mode ? true : false),
+                        sourceMaps: (
+                            eczoo_run_options.run_11ty_parcel_lazy
+                            && eczoo_run_options.development_mode ? true : false
+                        ),
                     },
 
                     // build only the pages/modules that were requested
