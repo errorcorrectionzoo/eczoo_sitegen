@@ -2,6 +2,18 @@
 // PUPPETEER IN-BROWSER CODE
 //
 
+console.log(`Executing in-browser code now`);
+
+function isStrict() { return !this; }
+if (!isStrict()) {
+    console.error(`Not strict mode!`);
+    throw new Error(`Not strict mode!`);
+}
+
+// -----
+
+import debugm from 'debug'; const debug = debugm('_headless_exporter_browser_code');
+
 import loMerge from 'lodash/merge.js';
 
 import { load_eczoodb_from_data } from './setup_eczoodb.js';
@@ -43,6 +55,8 @@ async function _prepareCodeGraphAndLayout(
 
     const domNode = window.document.createElement('div');
     window.document.body.appendChild(domNode);
+    domNode.style.width = 800;
+    domNode.style.height = 600;
     
     await eczCodeGraph.mountInDom(
         domNode,
@@ -55,6 +69,8 @@ async function _prepareCodeGraphAndLayout(
         }
     );
 
+    eczCodeGraphViewController.setDisplayOptions(displayOptions);
+
     // perform layout !
     await eczCodeGraph.updateLayout(loMerge(
         {
@@ -62,6 +78,9 @@ async function _prepareCodeGraphAndLayout(
         },
         updateLayoutOptions
     ));
+
+    // fit into view
+    await eczCodeGraph.cy.fit();
 
     return {
         eczoodb,
@@ -72,3 +91,9 @@ async function _prepareCodeGraphAndLayout(
 
 window.loadCodeGraph = _loadCodeGraph;
 window.prepareCodeGraphAndLayout = _prepareCodeGraphAndLayout;
+
+window.localStorage.debug = '*';
+
+console.log('Loaded (console.log)');
+debug(`Loaded.`);
+console.debug('Loaded (console.debug)');

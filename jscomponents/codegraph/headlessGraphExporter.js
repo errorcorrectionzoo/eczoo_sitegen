@@ -1,10 +1,10 @@
-//import debugm from 'debug';
-//const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
 
 import fs from 'fs';
 import path from 'path';
 
-const __filename = (new URL(import.meta.url)).pathname;
+//const __filename = (new URL(import.meta.url)).pathname;
 const __dirname = (new URL('.', import.meta.url)).pathname;
 
 
@@ -12,13 +12,16 @@ import loMerge from 'lodash/merge.js';
 
 import puppeteer from 'puppeteer';
 
-import { getCyStyleJson } from './style.js';
+//import { getCyStyleJson } from './style.js';
 
 
 // Keep "Source Sans Pro" for now, not "Source Sans 3", because otherwise I get
 // issues with fonte rendering in the SVG graphic.  Tried a few things, it's
 // buggy, unsure how to best fix!!
 const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
+
+
+const browser_code_page_url = `file://${__dirname}/_headless_exporter_browser_code_dist/_headless_exporter_browser_page.html`;
 
 
 
@@ -46,28 +49,28 @@ export class CodeGraphSvgExporter
         });
         this.page = await this.browser.newPage();
 
-        await this.page.setContent(`<!DOCTYPE HTML>
-<html>
-<style>
-${ importSourceSansFontsCss }
-</style>
-<body id="body">
-</body>
-</html>`);
+        await this.page.goto(browser_code_page_url);
+        this.page.on('console', (msg) => console.log('//Puppeteer//' + msg.text()));
+        this.page.on('load', () => debug('Puppeteer page appears to have loaded now.'));
 
-        // const scriptUrls = [
-        //     "https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js",
-        //     "https://unpkg.com/canvas2svg@1.0.16/canvas2svg.js",
-        //     "https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js",
-        // ];
-        // for (const scriptUrl of scriptUrls) {
-        //     await this.page.addScriptTag({
-        //         url: scriptUrl,
-        //     });
-        // }
+        await new Promise( (resolve) => setTimeout(resolve, 5000) );
 
         this._fireAutoCloseTimer();
     }
+
+    async done()
+    {
+        // remove any existing timeout.
+        this._cancelAutoCloseTimer();
+
+        // Close browser.
+        if (this.browser != null) {
+            await this.browser.close();
+            this.browser = null;
+        }
+    }
+
+    // ------------
 
     _cancelAutoCloseTimer() {
         if (this.autoCloseTimeoutId != null) {
@@ -88,91 +91,9 @@ ${ importSourceSansFontsCss }
         }
     }
 
-    async done()
-    {
-        // remove any existing timeout.
-        this._cancelAutoCloseTimer();
+    // ------------
 
-        // Close browser.
-        if (this.browser != null) {
-            await this.browser.close();
-            this.browser = null;
-        }
-    }
-
-    // // option 1 - export an already-laid out eczCodeGraph object
-
-    // async compileCodeGraph(eczCodeGraph, options={})
-    // {
-    //     this._cancelAutoCloseTimer();
-    //     if (this.browser == null) {
-    //         throw new Error(
-    //             'CodeGraphSvgExporter.compile(): Browser is already null! '
-    //             + '(either didn\'t setup(), timed out, or done() called)'
-    //         );
-    //     }
-
-    //     const {
-    //         cyStyleJsonOptions,
-    //         fitWidth,
-    //         embedSourceSansFonts,
-    //     } = options ;
-
-    //     try {
-
-    //         // first, get the SVG data for this graph
-    //         const cyJsonData = eczCodeGraph.cy.json();
-
-    //         const styleData = getCyStyleJson(
-    //             loMerge(
-    //                 {
-    //                     fontFamily: "Source Sans Pro",
-    //                     fontSize: '18px',
-    //                 },
-    //                 cyStyleJsonOptions
-    //             )
-    //         );
-
-    //         const jsCode = `
-    // (function () {
-
-    // var graphData = ${JSON.stringify(cyJsonData)};
-    // var styleData = ${JSON.stringify(styleData)};
-
-    // var domNode = window.document.createElement('div');
-    // window.document.body.appendChild(domNode);
-    // //domNode.setAttribute('style', "width: '400px'; height: '600px';"); // looks unnecessary.
-
-    // var cy = cytoscape({
-    //     container: domNode
-    // });
-
-    // cy.json(graphData);
-    // cy.style(styleData);
-
-    // var svgData = cy.svg({ full: true });
-
-    // window.document.body.removeChild(domNode);
-
-    // return svgData;
-
-    // })();
-    // `;
-    //         //debug('Generating SVG, using jsCode =', jsCode);
-
-    //         // Evaluate JavaScript
-    //         let svgData = await this.page.evaluate(jsCode);
-
-    //         svgData = this.fixSvg(svgData, {fitWidth, embedSourceSansFonts});
-
-    //         return svgData;
-
-    //     } finally {
-    //         this._fireAutoCloseTimer();
-    //     }
-    // }
-
-    fixSvg(svgData, { fitWidth, embedSourceSansFonts })
+    _fixSvg(svgData, { fitWidth, embedSourceSansFonts })
     {
         if (fitWidth ?? false) {
             svgData = svgData.replace(
@@ -194,7 +115,7 @@ ${ importSourceSansFontsCss }
             svgData = svgData.replace(
                 /(<svg [^>]*>)/,
                 (match) => {
-                    return match + `<style>${ importSourceSansFontsCss }</style>`;
+                    return match + `<style>${ importSourceSansFontsCss.replace('&', '&#x26;') }</style>`;
                 }
             );
         }
@@ -202,17 +123,27 @@ ${ importSourceSansFontsCss }
         return svgData;
     }
 
+    // ------------
+
     // Load the data to build a eczoo and perform all layouting etc. in the
     // Chrome/Puppeteer instance itself (looks more reliable to run layouts etc!)
     async loadEcZooDbData(eczoodbData)
     {
-        // make sure we load the necessary browser code
-        window.addScriptTag(fs.readFileSync(
-            path.join(
-                __dirname,
-                '_headless_exporter_browser_code_dist/_headless_expoter_browser_code.js',
-            )
-        ));
+        debug(`loadEcZooDbData()`);
+
+        // // make sure we load the necessary browser code
+        // const scriptContent = fs.readFileSync(
+        //     path.join(
+        //         __dirname,
+        //         '_headless_exporter_browser_code_dist/_headless_exporter_browser_code.js',
+        //     ),
+        //     { encoding: 'utf-8' }
+        // );
+        // debug(`init script content = "${scriptContent.slice(0,100)}..."`);
+        // // this.page.addScriptTag({
+        // //     content: scriptContent
+        // // });
+        // await this.page.evaluate(scriptContent);
 
         const jsCode = `
 window.eczoodbData = ${JSON.stringify(eczoodbData)};
@@ -225,6 +156,8 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
         fitWidth, embedSourceSansFonts,
     })
     {
+        debug(`compileLoadedEczCodeGraph()`);
+        
         this._cancelAutoCloseTimer();
 
         try {
@@ -232,17 +165,27 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
                 displayOptions, updateLayoutOptions, cyStyleJsonOptions
             };
             const jsCode = `
-(function() {
+(async function() {
     var prepareOptions = ${JSON.stringify(prepareOptions)};
-    var result = window.prepareCodeGraphAndLayout(window.eczoodbData, prepareOptions);
+    var result = await window.prepareCodeGraphAndLayout(window.eczoodbData, prepareOptions);
 
-    var svgData = result.eczCodeGraph.cy.svg(${svgOptions ? JSON.stringify(svgOptions) : ''});
-    return svgData;
+    var cy = result.eczCodeGraph.cy;
+
+    var svgData = cy.svg(${svgOptions ? JSON.stringify(svgOptions) : ''});
+    return {
+        svgData: svgData,
+        moredata: {
+            cy_data: cy.data(),
+        }
+    };
 })();
 `;
-            let svgData = await this.page.evaluate(jsCode);
+            let result = await this.page.evaluate(jsCode);
+            let { svgData, moredata } = result;
+            debug(`Result: `, result);
+            debug(`compileLoadedEczCodeGraph() - evaluated compilation code and got SVG data!`);
 
-            svgData = this.fixSvg(svgData, { fitWidth, embedSourceSansFonts, });
+            svgData = this._fixSvg(svgData, { fitWidth, embedSourceSansFonts, });
             return svgData;
 
         } finally {

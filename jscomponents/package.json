@@ -46,8 +46,12 @@
   },
   "targets": {
     "_codegraph_headless_exporter_browser_code": {
-      "distDir": "jscomponents/codegraph/_headless_exporter_browser_code_dist",
-      "source": "./codegraph/_headless_exporter_browser_code.js"
+      "distDir": "codegraph/_headless_exporter_browser_code_dist",
+      "source": "./codegraph/_headless_exporter_browser_page.html",
+      "scopeHoist": false,
+      "engines": {
+        "browsers": "Chrome 120"
+      }
     },
     "dev-codegraph": {
       "distDir": "dev-dist",
@@ -55,9 +59,9 @@
     }
   },
   "scripts": {
-    "build": "rm -rf .parcel-cache jscomponents/codegraph/_headless_exporter_browser_code_dist/ && parcel build --target _codegraph_headless_exporter_browser_code && yarn private-dist-add-use-strict",
+    "build": "rm -rf .parcel-cache codegraph/_headless_exporter_browser_code_dist/ && parcel build --target _codegraph_headless_exporter_browser_code && yarn private-dist-add-use-strict",
     "dev-codegraph-build": "rm -rf .parcel-cache dev-dist && parcel build --no-cache --no-scope-hoist --no-optimize --target dev-codegraph && yarn private-dist-add-use-strict",
-    "private-dist-add-use-strict": "bash -c 'for i in jscomponents/codegraph/_headless_exporter_browser_code_dist/*.js dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
+    "private-dist-add-use-strict": "bash -c 'for i in codegraph/_headless_exporter_browser_code_dist/*.js dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
   },
   "@mischnic/parcel-resolver-root": {
     "~": ".."
@@ -68,9 +72,9 @@
   "alias": {
     "yaml": "../node_modules/yaml/browser/dist/index.js"
   },
-  "browser": {
-    "node-fetch": {
-        "global": "fetch"
-    }
+  "@parcel/bundler-default": {
+    "minBundles": 2,
+    "minBundleSize": 9999999,
+    "maxParallelRequests": 20
   }
 }
