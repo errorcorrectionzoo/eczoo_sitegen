@@ -120,7 +120,8 @@ export class EczCodeGraph
 
         await this.initGraph();
 
-        debug("EczCodeGraph initialize() done.  Don't forget to install a subgraph selector.");
+        debug(`EczCodeGraph initialize() done.  Don't forget to install a subgraph selector, `
+              + `for instance, via a EczCodeGraphViewController instance.`);
     }
 
     static getNodeIdCode(codeId)
@@ -436,8 +437,10 @@ export class EczCodeGraph
             }
         );
 
-        debug(`updateLayout() - Nodes that participate in the layout (.layoutVisible):`,
-              this.cy.nodes('.layoutVisible').map( (n) => n.id() ));
+        // DEBUG
+        const nodeIdsInLayout = this.cy.nodes('.layoutVisible').map( (n) => n.id() );
+        debug(`updateLayout(): ${nodeIdsInLayout.length} nodes participate in the layout (.layoutVisible):`,
+              nodeIdsInLayout);
 
         let shouldApplyPrelayout = true;
         let shouldApplyCoseLayout = true;
@@ -816,6 +819,8 @@ export class EczCodeGraph
         
         // the stylesheet for the graph
         cytoscapeConfig.style = cyBaseStyleJson;
+
+        debug(`About to initialize cytoscape graph w/ ${nodes.length} nodes & ${edges.length} edges`);
 
         // create the cytoscape object
         this.cy = cytoscape(cytoscapeConfig);

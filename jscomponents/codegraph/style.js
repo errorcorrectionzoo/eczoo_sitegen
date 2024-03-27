@@ -1,3 +1,4 @@
+import debugm from 'debug'; const debug = debugm('eczoo_jscomponents.codegraph.style');
 
 import loIsEmpty from 'lodash/isEmpty.js';
 
@@ -302,6 +303,12 @@ export function getCyStyleJson(options)
 
     options ??= {};
 
+    debug(`getCyStyleJson: options are `, JSON.stringify(
+        Object.fromEntries( Object.entries(options).map( ([k, v]) => {
+            try { return [k, JSON.parse(JSON.stringify(v)) ]; }
+            catch (e) { return [k, '<cannot stringify value>'] }
+        }) ) ));
+
     if (options.matchWebPageFonts) {
         let windowObject = (options.window ?? window);
         let computedStyle = windowObject.getComputedStyle(windowObject.document.body);
@@ -325,6 +332,8 @@ export function getCyStyleJson(options)
     if (options.fontStyle != null) {
         customFontStyle['font-style'] = options.fontStyle;
     }
+
+    debug(`getCyStyleJson: customFontStyle is `, JSON.stringify(customFontStyle));
 
     if (loIsEmpty(customFontStyle)) {
         return cyBaseStyleJson;
