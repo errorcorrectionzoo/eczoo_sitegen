@@ -13,6 +13,7 @@ import loMerge from 'lodash/merge.js';
 import puppeteer from 'puppeteer';
 import sirv from 'sirv';
 import http from 'http';
+import { performance } from 'node:perf_hooks';
 
 //import { getCyStyleJson } from './style.js';
 
@@ -74,6 +75,8 @@ export class CodeGraphSvgExporter
             autoCloseMs: -1,
         }, options ?? {});
         this.autoCloseTimeoutId = null;
+
+        this.browserCodeStartupTimeoutMs = 5000;
     }
 
     async setup()
@@ -97,9 +100,18 @@ export class CodeGraphSvgExporter
 
         // wait until page has fully loaded and our initialization code has finished running
         let ready = false;
+        let startTime = performance.now();
         while (!ready) {
             await new Promise( resolve => setTimeout(resolve, 200) );
             ready = await this.page.evaluate('window.finished_loading');
+            let curTime = performance.now();
+            if ( (curTime - startTime) > this.browserCodeStartupTimeoutMs ) {
+                throw new Error(
+                    `Puppeteer browser code page is still not ready after `
+                    + `${this.browserCodeStartupTimeoutMs}ms, `
+                    + `there might have been a problem during start-up.  Try again perhaps?`
+                );
+            }
         }
         debug('Puppeteer page appears to have completely finished loading now.');
 
