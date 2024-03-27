@@ -46,7 +46,8 @@ class _BrowserCodeSourceServer {
         return await new Promise( (resolve) => {
             this.server.listen(this.port, this.hostname, (err) => {
                 if (err) throw err;
-                debug(`Started internal headless browser code server!`);
+                debug(`Started internal headless browser code server!  Serving files in `
+                      + `${browser_code_dir} on http://${this.hostname}:${this.port}/`);
                 resolve({ port: this.port, hostname: this.hostname });
             });
 		});

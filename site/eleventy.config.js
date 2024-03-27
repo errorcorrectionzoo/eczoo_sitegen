@@ -58,6 +58,20 @@ module.exports = (eleventyConfig) => {
     // Build the EC zoo and include it in the 11ty structure as global data.
     // The callback will be executed again on subsequent builds in dev mode.
     eleventyConfig.addGlobalData("eczoodb", async () => {
+
+        //
+        // Prepare a code graph SVG generator instance (use single instance across
+        // all generated graphs because an instance spins up a Chrome puppeteer
+        // instance!)  
+        //
+        // TODO: Don't wait until this is finished before starting to load the EcZoo.
+        //
+        if ( eczoo_config.generate_code_graph_svg_exports ) {
+            const { init_headless_graph_exporter } =
+                await import('./sitelib/init_headless_graph_exporter.js');
+            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
+        }
+
         //
         // (Re)load the EC Zoo Database.
         //
@@ -68,16 +82,19 @@ module.exports = (eleventyConfig) => {
         //
         const eczoodbData = await eczoodb.data_dump({});
         eczoodb.cached_data_dump = eczoodbData;
-        //
-        // Prepare a code graph SVG generator instance (use single instance across
-        // all generated graphs because an instance spins up a Chrome puppeteer
-        // instance!)
-        //
-        if ( eczoo_config.generate_code_graph_svg_exports ) {
-            const { init_headless_graph_exporter } =
-                await import('./sitelib/init_headless_graph_exporter.js');
-            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter(eczoodbData);
-            eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+
+        // save the exporter (whether or not it is null) directly as an attribute of the eczoodb
+        // object. This is how domain-graph and kingdom-graph pages access the instance.
+        eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+
+        if (_eczoo_code_graph_svg_exporter_instance != null) {
+            
+            try {
+                await _eczoo_code_graph_svg_exporter_instance.loadEcZooDbData(eczoodbData);
+            } catch (err) {
+                console.error(`Problem initializing code graph exporter!`);
+                process.exit(1);
+            }
         }
         return eczoodb;
     });

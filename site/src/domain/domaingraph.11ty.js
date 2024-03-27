@@ -16,7 +16,9 @@ const data = {
 
 const render = async (data) => {
 
-    const eczoo_code_graph_svg_exporter = data.get_eczoo_code_graph_svg_exporter.getInstance();
+    const { domain, eczoodb } = data;
+
+    const eczoo_code_graph_svg_exporter = eczoodb.custom_headless_graph_exporter_instance;
 
     if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder
@@ -24,12 +26,10 @@ const render = async (data) => {
         return placeholdersSvg.notBuiltInDevelMode;
     }
 
-    const { domain, eczoodb } = data;
-
     debug(`Rendering domain graph for domain ‘${domain.domain_id}’`);
 
-    const { EczCodeGraph, EczCodeGraphViewController } =
-          await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
+    const { EczCodeGraph } =
+        await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
     
     const displayOptions = {
         displayMode: 'isolate-nodes',
@@ -57,24 +57,36 @@ const render = async (data) => {
         },
     };
 
-    let eczCodeGraph = new EczCodeGraph({
-        eczoodb,
+    // let eczCodeGraph = new EczCodeGraph({
+    //     eczoodb,
+    // });
+    // await eczCodeGraph.initialize();
+
+    // let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    // await eczCodeGraphViewController.initialize();
+
+    // await eczCodeGraph.updateLayout({ animate: false });
+
+    // // now, export to SVG:
+
+    // let svgData = await eczoo_code_graph_svg_exporter.compile(
+    //     eczCodeGraph,
+    //     {
+    //         fitWidth: 620,
+    //     }
+    // );
+
+    const svgData = await eczoo_code_graph_svg_exporter.compileLoadedEczCodeGraph({
+        displayOptions,
+        //updateLayoutOptions: ...,
+        cyStyleOptions: {
+            fontFamily: 'Source Sans Pro',
+            fontSize: 18,
+        },
+        //svgOptions: ...,
+        fitWidth: 620,
+        importSourceSansFonts: true,
     });
-    await eczCodeGraph.initialize();
-
-    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
-    await eczCodeGraphViewController.initialize();
-
-    await eczCodeGraph.updateLayout({ animate: false });
-
-    // now, export to SVG:
-
-    let svgData = await eczoo_code_graph_svg_exporter.compile(
-        eczCodeGraph,
-        {
-            fitWidth: 620,
-        }
-    );
 
     return svgData;
 };

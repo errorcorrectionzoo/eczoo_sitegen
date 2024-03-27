@@ -1,15 +1,19 @@
 import { CodeGraphSvgExporter } from '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js';
 
 
-export async function init_headless_graph_exporter(eczoodbData)
+export async function init_headless_graph_exporter()
 {
     let exporter = null;
     try {
+
         exporter = new CodeGraphSvgExporter({
             autoCloseMs: 5 * 60 * 1000, // 5 minutes
         });
+
         await exporter.setup();
-        await exporter.loadEcZooDbData(eczoodbData);
+
+        return exporter;
+
     } catch (error) {
         console.error('Failed to initialize the SVG code graph exporter!');
         console.error(error);
