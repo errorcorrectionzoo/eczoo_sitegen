@@ -1,7 +1,7 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter');
 
-import fs from 'fs';
+//import fs from 'fs';
 import path from 'path';
 
 //const __filename = (new URL(import.meta.url)).pathname;
@@ -11,6 +11,8 @@ const __dirname = (new URL('.', import.meta.url)).pathname;
 import loMerge from 'lodash/merge.js';
 
 import puppeteer from 'puppeteer';
+import sirv from 'sirv';
+import http from 'http';
 
 //import { getCyStyleJson } from './style.js';
 
@@ -21,14 +23,50 @@ import puppeteer from 'puppeteer';
 const importSourceSansFontsCss = "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');";
 
 
-const browser_code_page_url = `file://${__dirname}/_headless_exporter_browser_code_dist/_headless_exporter_browser_page.html`;
+const browser_code_dir = path.join(__dirname, '_headless_exporter_browser_code_dist');
+const browser_code_page_path = '/_headless_exporter_browser_page.html';
 
+class _BrowserCodeSourceServer {
+    constructor()
+    {
+        this.sirv_fn = sirv(browser_code_dir, {});
+        this.server = http.createServer(this.sirv_fn);
+        this.server.on('request', (req, res_) => {
+			req.once('end', () => {
+				let uri = req.originalUrl || req.url;
+				debug(`Internal headless browser code server request: ${uri}`);
+			});
+		});
+        this.port = 39135;
+        this.hostname = 'localhost';
+    }
+    async startServer()
+    {
+        return await new Promise( (resolve) => {
+            this.server.listen(this.port, this.hostname, (err) => {
+                if (err) throw err;
+                debug(`Started internal headless browser code server!`);
+                resolve({ port: this.port, hostname: this.hostname });
+            });
+		});
+    }
+    async close()
+    {
+        debug(`Closing internal headless browser code server`);
+        await new Promise( (resolve) => {
+            this.server.close(resolve);
+        } );
+
+    }
+}
 
 
 export class CodeGraphSvgExporter
 {
     constructor(options)
     {
+        this.browser_code_server = null;
+
         this.browser = null;
         this.page = null;
 
@@ -44,16 +82,26 @@ export class CodeGraphSvgExporter
         // Now, launch a fake browser to run cytoscape & generate svg (:/)
         //
 
+        this.browser_code_server = new _BrowserCodeSourceServer();
+
+        const { hostname, port } = await this.browser_code_server.startServer();
+
         this.browser = await puppeteer.launch({
             headless: "new",
         });
         this.page = await this.browser.newPage();
 
-        await this.page.goto(browser_code_page_url);
-        this.page.on('console', (msg) => console.log('//Puppeteer//' + msg.text()));
-        this.page.on('load', () => debug('Puppeteer page appears to have loaded now.'));
+        this.page.on('console', (msg) => console.log('|Puppeteer console|',  msg.text()));
 
-        await new Promise( (resolve) => setTimeout(resolve, 5000) );
+        await this.page.goto(`http://${hostname}:${port}${browser_code_page_path}`);
+
+        // wait until page has fully loaded and our initialization code has finished running
+        let ready = false;
+        while (!ready) {
+            await new Promise( resolve => setTimeout(resolve, 200) );
+            ready = await this.page.evaluate('window.finished_loading');
+        }
+        debug('Puppeteer page appears to have completely finished loading now.');
 
         this._fireAutoCloseTimer();
     }
@@ -62,6 +110,10 @@ export class CodeGraphSvgExporter
     {
         // remove any existing timeout.
         this._cancelAutoCloseTimer();
+
+        if (this.browser_code_server != null) {
+            await this.browser_code_server.close();
+        }
 
         // Close browser.
         if (this.browser != null) {
@@ -93,7 +145,7 @@ export class CodeGraphSvgExporter
 
     // ------------
 
-    _fixSvg(svgData, { fitWidth, embedSourceSansFonts })
+    _fixSvg(svgData, { fitWidth, importSourceSansFonts })
     {
         if (fitWidth ?? false) {
             svgData = svgData.replace(
@@ -110,7 +162,7 @@ export class CodeGraphSvgExporter
             );
         }
 
-        if (embedSourceSansFonts ?? true) {
+        if (importSourceSansFonts ?? true) {
             // insert imports immediately after the end of the first tag
             svgData = svgData.replace(
                 /(<svg [^>]*>)/,
@@ -149,11 +201,14 @@ export class CodeGraphSvgExporter
 window.eczoodbData = ${JSON.stringify(eczoodbData)};
 `;
         await this.page.evaluate(jsCode);
+
+        debug(`loaded data, it's: `, await this.page.evaluate('window.eczoodbData'));
     }
 
     async compileLoadedEczCodeGraph({
-        displayOptions, updateLayoutOptions, cyStyleJsonOptions, svgOptions,
-        fitWidth, embedSourceSansFonts,
+        displayOptions, updateLayoutOptions, cyStyleOptions,
+        svgOptions,
+        fitWidth, importSourceSansFonts,
     })
     {
         debug(`compileLoadedEczCodeGraph()`);
@@ -162,30 +217,24 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
 
         try {
             const prepareOptions = {
-                displayOptions, updateLayoutOptions, cyStyleJsonOptions
+                displayOptions, updateLayoutOptions, cyStyleOptions
             };
             const jsCode = `
-(async function() {
+(function() {
     var prepareOptions = ${JSON.stringify(prepareOptions)};
-    var result = await window.prepareCodeGraphAndLayout(window.eczoodbData, prepareOptions);
+    var eczoodbData = window.eczoodbData;
+    var svgOptions = ${ JSON.stringify(svgOptions || {}) };
 
-    var cy = result.eczCodeGraph.cy;
+    return window.loadAndCompileCodeGraphToSvgPromise(eczoodbData, prepareOptions, svgOptions);
 
-    var svgData = cy.svg(${svgOptions ? JSON.stringify(svgOptions) : ''});
-    return {
-        svgData: svgData,
-        moredata: {
-            cy_data: cy.data(),
-        }
-    };
 })();
 `;
             let result = await this.page.evaluate(jsCode);
-            let { svgData, moredata } = result;
-            debug(`Result: `, result);
+            let { svgData } = result;
+            //debug(`Result: `, result);
             debug(`compileLoadedEczCodeGraph() - evaluated compilation code and got SVG data!`);
 
-            svgData = this._fixSvg(svgData, { fitWidth, embedSourceSansFonts, });
+            svgData = this._fixSvg(svgData, { fitWidth, importSourceSansFonts, });
             return svgData;
 
         } finally {

@@ -53,6 +53,8 @@ async function _prepareCodeGraphAndLayout(
         eczCodeGraphViewController,
     } = await _loadCodeGraph(eczoodbData, displayOptions);
 
+    debug(`Code graph loaded.`);
+
     const domNode = window.document.createElement('div');
     window.document.body.appendChild(domNode);
     domNode.style.width = 800;
@@ -61,15 +63,21 @@ async function _prepareCodeGraphAndLayout(
     await eczCodeGraph.mountInDom(
         domNode,
         {
-            styleOptions: {
-                matchWebPageFonts: false,
-                window,
-                ...cyStyleOptions
-            },
+            styleOptions: Object.assign(
+                {
+                    matchWebPageFonts: false,
+                    window: window,
+                },
+                cyStyleOptions,
+            ),
         }
     );
 
+    debug(`Mounted in DOM!`);
+
     eczCodeGraphViewController.setDisplayOptions(displayOptions);
+
+    debug(`set display options!`);
 
     // perform layout !
     await eczCodeGraph.updateLayout(loMerge(
@@ -79,8 +87,16 @@ async function _prepareCodeGraphAndLayout(
         updateLayoutOptions
     ));
 
+    debug(`ran updateLayout()!`);
+
+    const cy = eczCodeGraph.cy;
+
     // fit into view
-    await eczCodeGraph.cy.fit();
+    await cy.fit();
+
+    debug(`fit cy canvas view to graph. Done!`);
+
+    debug(`There are ${cy.nodes().length} nodes in the graph.`);
 
     return {
         eczoodb,
@@ -89,11 +105,36 @@ async function _prepareCodeGraphAndLayout(
     };
 }
 
+async function _loadAndCompileCodeGraphToSvgPromise(eczoodbData, prepareOptions, svgOptions)
+{
+    //debug('eczoodbData = ', JSON.stringify(eczoodbData)); // ok, works
+    debug('prepareOptions = ', JSON.stringify(prepareOptions));
+    var result = await _prepareCodeGraphAndLayout(eczoodbData, prepareOptions);
+
+    var cy = result.eczCodeGraph.cy;
+
+    var svgData = cy.svg(Object.assign(
+        {
+            full: true
+        },
+        svgOptions
+    ));
+    return {
+        svgData: svgData,
+        // moredata: {
+        //     cy_data: cy.json(),
+        // }
+    };
+}
+
 window.loadCodeGraph = _loadCodeGraph;
 window.prepareCodeGraphAndLayout = _prepareCodeGraphAndLayout;
+window.loadAndCompileCodeGraphToSvgPromise = _loadAndCompileCodeGraphToSvgPromise;
 
 window.localStorage.debug = '*';
 
-console.log('Loaded (console.log)');
-debug(`Loaded.`);
-console.debug('Loaded (console.debug)');
+console.log('Loaded (msg via console.log())');
+debug(`Loaded (msg via debug()).`);
+console.debug('Loaded (msg via console.debug())');
+
+window.finished_loading = true;

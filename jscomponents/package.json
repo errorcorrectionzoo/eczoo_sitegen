@@ -28,6 +28,7 @@
     "react-tabs": "^6.0.0",
     "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
+    "sirv": "^2.0.4",
     "tippy.js": "^6.3.7",
     "yaml": "^2.0.0-10"
   },
@@ -48,9 +49,8 @@
     "_codegraph_headless_exporter_browser_code": {
       "distDir": "codegraph/_headless_exporter_browser_code_dist",
       "source": "./codegraph/_headless_exporter_browser_page.html",
-      "scopeHoist": false,
       "engines": {
-        "browsers": "Chrome 120"
+        "browsers": "Chrome 110"
       }
     },
     "dev-codegraph": {
@@ -71,10 +71,5 @@
   },
   "alias": {
     "yaml": "../node_modules/yaml/browser/dist/index.js"
-  },
-  "@parcel/bundler-default": {
-    "minBundles": 2,
-    "minBundleSize": 9999999,
-    "maxParallelRequests": 20
   }
 }

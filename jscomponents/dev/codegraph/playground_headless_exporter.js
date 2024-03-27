@@ -12,10 +12,10 @@ import eczoodbData from './eczoodata.json' assert { type: 'json' };
 
 
 const displayOptions = {
-    displayMode: 'all', //'isolate-nodes',
+    displayMode: 'isolate-nodes', // 'all'
     modeIsolateNodesOptions: {
         nodeIds: [
-            'k_oscillators',
+            'd_classical_domain', //'k_oscillators',
         ],
         range: {
             parents: {
@@ -31,7 +31,7 @@ const displayOptions = {
         },
     },
     highlightImportantNodes: {
-        highlightImportantNodes: false,
+        highlightImportantNodes: true,
         highlightPrimaryParents: false,
         highlightRootConnectingEdges: false,
     },
@@ -48,10 +48,13 @@ await exporter.loadEcZooDbData(eczoodbData);
 const svgData = await exporter.compileLoadedEczCodeGraph({
     displayOptions,
     //updateLayoutOptions: ...,
-    //cyStyleJsonOptions: ...,
+    cyStyleOptions: {
+        fontFamily: 'Source Sans Pro',
+        fontSize: 18,
+    },
     //svgOptions: ...,
     //fitWidth: ...,
-    //embedSourceSansFonts: ...,
+    importSourceSansFonts: true
 })
 
 debug(`Got SVG data: "${svgData.slice(0,100)}..."`);
