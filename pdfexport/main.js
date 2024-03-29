@@ -1,5 +1,5 @@
 import debugm from 'debug';
-const debug = debugm('eczoo_pdfexport.try_load_zoo');
+const debug = debugm('eczoo_pdfexport.main');
 
 import fs from 'fs';
 import path from 'path';

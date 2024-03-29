@@ -589,6 +589,35 @@ a.linkcodegraph:hover {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// for bibliography page
+//
+////////////////////////////////////////////////////////////////////////////////
+
+ul.bibliography-list {
+
+    padding-left: 2em;
+
+    > li {
+        display: block;
+        list-style: none;
+        margin-top: 0.5em;
+        margin-left: 0px;
+        text-indent: -2em;
+    }
+
+    .bibliography-backref {
+        font-style: italic;
+        font-size: 0.85em;
+        
+        display: block;
+        margin-left: 0px;
+        text-indent: 0px;
+        margin-top: 0.2em;
+    }
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

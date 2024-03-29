@@ -198,6 +198,7 @@ async function render(data)
     <li><a href="/lists">Code lists</a></li>
     <li><a href="/all">All codes</a></li>
     <li><a href="/concepts">Glossary of concepts</a></li>
+    <li><a href="/references">Bibliographic references</a></li>
     <!--<li><a href="/search">Search</a></li>-->
     <li>
       <form action="/search" method="GET">

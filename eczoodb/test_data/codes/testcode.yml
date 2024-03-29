@@ -177,7 +177,7 @@ notes:
       fancy stuff}, Taylor \& Francis, 1999}}.
 
   - |
-      Figures don't need to have numbers & captions (but then you can't
+      Figures don't need to have numbers \& captions (but then you can't
       reference them):
 
       \begin{figure}
