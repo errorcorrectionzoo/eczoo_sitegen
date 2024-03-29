@@ -41,7 +41,8 @@ const render = async (data) => {
         if (!Object.hasOwn(bib_db, cite_prefixkey)) {
             let compiled_flm = citation_compiler.get_compiled_citation(cite_prefix, cite_key);
             let sort_key = compiled_flm.flm_text ?? compiled_flm;
-            sort_key = sort_key.replace(/[{}]|\b\w\w?\b\.?[ -]*| and /g, ''); // attempt to remove initials
+            sort_key = sort_key.replace(/\b\w\b\.?[ -]*| and /g, ''); // attempt to remove initials & "and"
+            sort_key = sort_key.replace(/\W/g, ''); // remove all non-alphanum chars
             //debug(`sort_key: ${compiled_flm.flm_text} -> ${sort_key}`);
 
             bib_db[cite_prefixkey] = {
