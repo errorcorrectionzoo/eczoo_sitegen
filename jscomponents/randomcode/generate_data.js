@@ -3,7 +3,13 @@
 //
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr, __class__, __get__, __super__ } = zooflm;
+const {
+    // $$kw, repr,
+    __class__, __get__,
+    // __super__
+} = zooflm;
+
+import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
 
 
 const truncate_description_at_length = 360;
@@ -19,14 +25,14 @@ const CustomHtmlFragmentRenderer = __class__(
         // class members
 
         get render_float () {return __get__ (this, function
-        (self, float_instance, render_context) {
+        (self_, float_instance_, render_context_) {
 
             return '<!-- do not render floats in random code preview -->';
 
         });},
 
     }
-);    
+);
 
 
 
@@ -63,7 +69,13 @@ export function generate_random_code_data({eczoodb})
             feature_render_options: {
                 endnotes: {
                     inhibit_render_endnote_marks: true,
-                }
+                },
+                refs: {
+                    // use placeholder_ref_resolver to ignore any undefined references -- e.g. a
+                    // figure reference in the first paragraph of a description text that was
+                    // used as a snippet
+                    add_external_ref_resolvers: [ docrefs_placeholder_ref_resolver ],
+                },
             },
             render_endnotes: false,
         });
