@@ -4,11 +4,11 @@ const debug = debug_mod("eczoodbjs.render_codelist");
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
+//const { $$kw, repr } = zooflm;
 
 import {
     render_meta_changelog,
-    docrefs_placeholder_ref_resolver
+    docrefs_placeholder_ref_resolver,
 } from './render_utils.js';
 
 import { get_list_data } from './compile_codelist.js';

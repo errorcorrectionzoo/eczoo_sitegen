@@ -42,7 +42,6 @@ export function generate_random_code_data({eczoodb})
 
     let html_fragment_renderer = new CustomHtmlFragmentRenderer();
 
-
     for (const [code_id, code] of Object.entries(eczoodb.objects.code)) {
 
         // make sure the code isn't a simple empty "stub"
