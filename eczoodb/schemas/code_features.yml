@@ -42,8 +42,10 @@ properties:
       _flm: full
 
   transversal_gates:
-    type: string
-    _flm: full
+    type: array
+    items:
+      type: string
+      _flm: full
 
   fault_tolerance:
     type: array
