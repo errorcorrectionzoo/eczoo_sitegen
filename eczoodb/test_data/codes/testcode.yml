@@ -38,7 +38,7 @@ description: |
   \cite{doi:10.7907/059V-MG69}.
   
   %%Double-percent '%%' introduces a FLM comment
-  %%Example invalid citation: \cite{arXiv:1806.1032}
+  %%Example invalid citation: \cite{arXivSKIP:1806.1032}
 
 
 protection: |

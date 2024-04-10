@@ -26,6 +26,11 @@ export async function loadEcZoo({ dataDir, } = {})
 
     dataDir ??= path.join(__dirname, '..', '..', 'eczoo_data');
 
+    // make dataDir an absolute path
+    if (!path.isAbsolute(dataDir)) {
+        dataDir = path.join(process.cwd(), dataDir);
+    }
+
     debug(`Using dataDir=‘${dataDir}’`);
 
     const eczoodbopts = _.merge(
