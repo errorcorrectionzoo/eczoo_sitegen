@@ -131,39 +131,39 @@ async function runmain(args)
 
         let obj = _.cloneDeep(eczoodb.raw_data_db.objects.code[code_id]);
 
-        for (const {fieldname, fieldvalue, fieldschema, parent, parent_index}
-            of iter_object_fields_recursive(obj, code_schema, {provide_parent: true})) {
-
-            const flm_options = parse_schema_flm_options(fieldschema);
-
-            if ( ! flm_options.enabled ) {
-                // no FLM here, no processing required
-                continue;
-            }
-
-            // otherwise, we'll check if it has a citation to works that are more recent
-            // than the "introduced" paper date.
-            let remove_this_item = false;
-            const citation_matches = fieldvalue.matchAll(/(arxiv|doi):([^},]+)/ig);
-            for (const [citation_full_match, cite_prefix, cite_key] of citation_matches) {
-                const citation_date = date_from_csl(
-                    citation_manager.get_citation_by_id(`${cite_prefix.toLowerCase()}:${cite_key}`)
-                );
-                debug(`Found citation in ${code_id}:${fieldname} -> ${citation_full_match}`
-                      + `  pub on ${citation_date.toDateString()}`);
-                if (citation_date && citation_date > introduced_arxiv_date) {
-                    debug(`Removing item with citation to ${citation_full_match} which appeared `
-                          + `on ${citation_date.toDateString()}`);
-                    remove_this_item = true;
-                    break;
-                } else {
-                    // all ok
-                }
-            }
-            if (remove_this_item) {
-                parent[parent_index] = undefined;
-            }
-        }
+        // for (const {fieldname, fieldvalue, fieldschema, parent, parent_index}
+        //     of iter_object_fields_recursive(obj, code_schema, {provide_parent: true})) {
+        //
+        //     const flm_options = parse_schema_flm_options(fieldschema);
+        //
+        //     if ( ! flm_options.enabled ) {
+        //         // no FLM here, no processing required
+        //         continue;
+        //     }
+        //
+        //     // otherwise, we'll check if it has a citation to works that are more recent
+        //     // than the "introduced" paper date.
+        //     let remove_this_item = false;
+        //     const citation_matches = fieldvalue.matchAll(/(arxiv|doi):([^},]+)/ig);
+        //     for (const [citation_full_match, cite_prefix, cite_key] of citation_matches) {
+        //         const citation_date = date_from_csl(
+        //             citation_manager.get_citation_by_id(`${cite_prefix.toLowerCase()}:${cite_key}`)
+        //         );
+        //         debug(`Found citation in ${code_id}:${fieldname} -> ${citation_full_match}`
+        //               + `  pub on ${citation_date.toDateString()}`);
+        //         if (citation_date && citation_date > introduced_arxiv_date) {
+        //             debug(`Removing item with citation to ${citation_full_match} which appeared `
+        //                   + `on ${citation_date.toDateString()}`);
+        //             remove_this_item = true;
+        //             break;
+        //         } else {
+        //             // all ok
+        //         }
+        //     }
+        //     if (remove_this_item) {
+        //         parent[parent_index] = undefined;
+        //     }
+        // }
 
         curated_llm_inputs.push({
             code_id,
