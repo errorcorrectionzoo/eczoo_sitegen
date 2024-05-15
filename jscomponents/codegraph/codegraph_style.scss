@@ -71,10 +71,13 @@ $page-link-color: var(--page-link-color); //rgba(50,50,200,1.0);
     margin: 0px;
     padding: 0px;
 
-    // WORKAROUND for bug? in Firefox; without this, resizing to a smaller
+    // WORKAROUND for bug? in Firefox; without "overflow: auto", resizing to a smaller
     // window causes many delayed updates and the panel only moves slowly back
     // to its correct location.
-    overflow: auto;
+    //
+    // ### UPDATE: Now Firefox bugs with "overflow: auto" producing flashing scroll bars; it
+    //     prefers "overflow: hidden"
+    overflow: hidden;
 }
 .EczCodeGraphComponent_Cy {
     // position: relative;
