@@ -8,7 +8,7 @@ relations) are stored in the [`eczoo_data`
 repository](https://github.com/errorcorrectionzoo/eczoo_data).  If you'd like to
 contribute to the zoo by updating information about codes, the relevant files to
 modify will be in that repository.  Check out also the [README
-file](https://github.com/errorcorrectionzoo/eczoo_data/blob/eczoodb/README.md)
+file](https://github.com/errorcorrectionzoo/eczoo_data/blob/main/README.md)
 for that repository for more information about how to edit code information.
 
 The scripts to actually generate the error correction zoo website files are
