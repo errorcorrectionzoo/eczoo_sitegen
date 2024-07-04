@@ -8,31 +8,6 @@ const { $$kw, repr } = zooflm;
 
 
 
-// function run_predicate_string_arg(predicate_fn, predicate_args, apply_not, apply_any, apply_all)
-// {
-//     if (apply_any) {
-//         for (const arg of predicate_args) {
-//             if (predicate_fn(arg)) {
-//                 return !apply_not ? true : false;
-//             }
-//             return !apply_not ?  false : true;
-//         }
-//     }
-//     if (apply_all) {
-//         for (const arg of predicate_args) {
-//             if (!predicate_fn(arg)) {
-//                 return !apply_not ? false : true;
-//             }
-//             return !apply_not ? true : false;
-//         }
-//     }
-//     if (predicate_fn(arg)) {
-//         return !apply_not ? true : false;
-//     }
-//     return !apply_not ? false : true;
-// }
-
-
 function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
 {
     let predicate_name = predicate_name_raw;

@@ -45,6 +45,13 @@ properties:
         items:
           $ref: '/schemas/codelist_predicate'
 
+    _description: >-
+      Specify the logic that determines which codes are included in this list.  The
+      "codes: select:" object value is an array of predicate collections.  Within
+      each predicate collection, each predicate must match (AND logic within each
+      predicate collection); codes are collected from the different predicate
+      collections in the array and combined together (OR logic between predicate
+      collections).
 
 
   sort:

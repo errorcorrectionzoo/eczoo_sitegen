@@ -7,8 +7,17 @@ $id: "https://errorcorrectionzoo.org/schemas/codelist_predicate"
 # a code list.
 #
 
+
+_description: >-
+  A collection of predicates used to specify which codes should be included in
+  a code list page.  Predicates specified together as different keys in this
+  object combine with "AND" logic, i.e., all the predicate keys given by the user
+  in this object instance need to be satisfied for a code to be included in
+  the codes collected by this predicate collection.
+
 type: object
 additionalProperties: false
+
 properties:
 
   property:
@@ -19,100 +28,178 @@ properties:
         type: string
       value:
         type: string
+    _description: >-
+      Require a code to have the property `name` set to the value `value` (comparison
+      with JS strict equality "===").
   
   manual_code_list:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are explicitly specified in this list of code_ids.
+
   exclude:
     type: array
     items:
       type: string
+    _description: >-
+      Include codes except those that are explicitly specified in this list of code_ids.
 
   property_set:
     type: string
+    _description: >-
+      Only include codes that have the given property name set to a
+      non-null/non-undefined value.
   any_property_set:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that have one or more of the given property names set to a
+      non-null/non-undefined value.
   all_property_set:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that have all of the given property names set to a
+      non-null/non-undefined value.
   not_property_set:
     type: string
+    _description: >-
+      Only include codes that do not have the given property name set to a
+      non-null/non-undefined value.
   not_any_property_set:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that do not have one or more of the given property names
+      set to a non-null/non-undefined value.
   not_all_property_set:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that do not have all of the given property names
+      set to a non-null/non-undefined value.
   
   domain:
     type: string
+    _description: >-
+      Only include codes that are descendants of the domain with the given domain_id.
   any_domain:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are descendants of any of the domains corresponding to
+      the given domain_id's.
   all_domain:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are descendants of all of the domains corresponding to
+      the given domain_id's.
   not_domain:
     type: string
+    _description: >-
+      Only include codes that are not descendants of the domain corresponding to
+      the given domain_id.
   not_any_domain:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not descendants of any of the domains corresponding to
+      the given domain_id's.
   not_all_domain:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not descendants of all the domains corresponding to
+      the given domain_id's.
 
   # kingdom:  # use descendant_of instead
   #   type: string
 
   descendant_of:
     type: string
+    _description: >-
+      Only include codes that are descendants of the code corresponding to the given code_id.
   any_descendant_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are descendants of any of the codes corresponding to the
+      given code_id's.
   all_descendant_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are descendants of all the codes corresponding to the
+      given code_id's.
   not_descendant_of:
     type: string
+    _description: >-
+      Only include codes that are not descendants of the code corresponding to the
+      given code_id.
   not_any_descendant_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not descendants of any of the codes corresponding to the
+      given code_id's.
   not_all_descendant_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not descendants of all the codes corresponding to the
+      given code_id's.
   
   cousin_of:
     type: string
+    _description: >-
+      Only include codes that are direct cousins of the code corresponding to the
+      given code_id.
   any_cousin_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are direct cousins of any of the codes corresponding to the
+      given code_id's.
   all_cousin_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are direct cousins of all the codes corresponding to the
+      given code_id's.
   not_cousin_of:
     type: string
+    _description: >-
+      Only include codes that are not direct cousins of the code corresponding to the
+      given code_id.
   not_any_cousin_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not direct cousins of any of the codes corresponding to the
+      given code_id's.
   not_all_cousin_of:
     type: array
     items:
       type: string
+    _description: >-
+      Only include codes that are not direct cousins of all of the codes corresponding to the
+      given code_id's.
   
