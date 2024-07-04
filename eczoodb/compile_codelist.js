@@ -106,9 +106,9 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
             eczoodb.code_visit_relations(code, {
                 relation_properties: ['parents'],
                 callback: (code) => {
-                    debug(`any_descendant_of: testing ‘${code.code_id}’ for ${JSON.stringify(predicate_args)}... `);
+                    //debug(`any_descendant_of: testing ‘${code.code_id}’ for ${JSON.stringify(predicate_args)}... `);
                     if (predicate_args.includes(code.code_id)) {
-                        debug(`... found!`);
+                        //debug(`... found!`);
                         result = true;
                         return true;
                     }
