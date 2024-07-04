@@ -8,6 +8,172 @@ const { $$kw, repr } = zooflm;
 
 
 
+// function run_predicate_string_arg(predicate_fn, predicate_args, apply_not, apply_any, apply_all)
+// {
+//     if (apply_any) {
+//         for (const arg of predicate_args) {
+//             if (predicate_fn(arg)) {
+//                 return !apply_not ? true : false;
+//             }
+//             return !apply_not ?  false : true;
+//         }
+//     }
+//     if (apply_all) {
+//         for (const arg of predicate_args) {
+//             if (!predicate_fn(arg)) {
+//                 return !apply_not ? false : true;
+//             }
+//             return !apply_not ? true : false;
+//         }
+//     }
+//     if (predicate_fn(arg)) {
+//         return !apply_not ? true : false;
+//     }
+//     return !apply_not ? false : true;
+// }
+
+
+function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
+{
+    let predicate_name = predicate_name_raw;
+
+    if (predicate_name === 'property') {
+        const { name, value } = predicate_args;
+        return ( getfield(code, name) === value );
+    }
+    if (predicate_name === 'manual_code_list') {
+        return predicate_args.includes(code.code_id);
+    }
+    if (predicate_name === 'exclude') {
+        return ! predicate_args.includes(code.code_id);
+    }
+
+    // handle any_*, all_*, not_*, not_any_*, not_all_*
+    const apply_not = predicate_name.startsWith('not_');
+    let do_apply_not = (result) => result;
+    if (apply_not) {
+        predicate_name = predicate_name.substring(4);
+        do_apply_not = (result) => !result;
+    }
+    const apply_all = predicate_name.startsWith('all_');
+    if (apply_all) {
+        predicate_name = predicate_name.substring(4);
+    }
+    const apply_any = !apply_all && predicate_name.startsWith('any_');
+    if (apply_any) {
+        predicate_name = predicate_name.substring(4);
+    }
+    
+
+    if (predicate_name === 'property_set') {
+        if (apply_any) {
+            return do_apply_not( predicate_args.some( (arg) => (getfield(code, arg) != null) ) );
+        }
+        if (apply_all) {
+            return do_apply_not( predicate_args.every( (arg) => (getfield(code, arg) != null) ) );
+        }
+        return do_apply_not( getfield(code, predicate_args) != null );
+    }
+
+    if (predicate_name === 'domain') {
+        if (apply_any) {
+            const domains = eczoodb.code_parent_domains(
+                code,
+            );
+            const domain_ids = domains.map( (d) => d.domain_id );
+            let result = predicate_args.some( (arg) => domain_ids.includes(arg) );
+            return do_apply_not( result );
+        }
+        if (apply_all) {
+            const domains = eczoodb.code_parent_domains(
+                code, // { find_domain_id: predicate_args }
+            );
+            const domain_ids = domains.map( (d) => d.domain_id );
+            let result = predicate_args.every( (arg) => domain_ids.includes(arg) );
+            return do_apply_not( result );
+        }
+        // apply simple:
+        const domains = eczoodb.code_parent_domains(
+            code, { find_domain_id: predicate_args }
+        );
+        let result = domains.some( (d) => d.domain_id === predicate_args );
+        return do_apply_not( result );
+    }
+
+    if (predicate_name === 'descendant_of') {
+        if (apply_any) {
+            let result = false;
+            this.code_visit_relations(code, {
+                relation_properties: ['parents'],
+                callback: (code) => {
+                    if (predicate_args.includes(code.code_id)) {
+                        result = true;
+                        return true;
+                    }
+                },
+            });
+            return do_apply_not( result );
+        }
+        if (apply_all) {
+            let missing = [ ... predicate_args ];
+            this.code_visit_relations(code, {
+                relation_properties: ['parents'],
+                callback: (code) => {
+                    const code_id = code.code_id;
+                    if (missing.includes(code_id)) {
+                        missing = missing.filter( (arg) => arg !== code_id );
+                        if (missing.length === 0) {
+                            return true;
+                        }
+                    }
+                },
+            });
+            let result = (missing.length === 0);
+            return do_apply_not( result );
+        }
+        let result = eczoodb.code_is_descendant_of(code, predicate_args);
+        return do_apply_not( result );
+    }
+
+    if (predicate_name === 'cousin_of') {
+        if (apply_any) {
+            let result = (
+                code.relations?.cousins?.some(
+                    (rel_info) => predicate_args.includes(rel_info.code_id)
+                )
+                || code.relations?.cousin_of?.some(
+                    (rel_info) => predicate_args.includes(rel_info.code_id)
+                )
+            );
+            return do_apply_not( result );
+        }
+        if (apply_all) {
+            let missing = [ ... predicate_args ];
+            let all_cousins = [
+                ... code.relations?.cousins ?? [],
+                ... code.relations?.cousin_of ?? []
+            ];
+            all_cousins.forEach(
+                (rel_info) => {
+                    const code_id = rel_info.code_id;
+                    if (missing.includes(code_id)) {
+                        missing = missing.filter( (arg) => arg !== code_id );
+                    }
+                }
+            );
+            let result = (missing.length === 0);
+            return do_apply_not( result );
+        }
+        return do_apply_not( eczoodb.code_is_cousin_of(code, predicate_args) );
+    }
+
+    throw new Error(`Invalid predicate name: ${predicate_name}`);
+}
+
+
+
+
+
 export function get_list_data({codelist, eczoodb})
 {
     // resolve code list, prepare all codes
@@ -17,44 +183,15 @@ export function get_list_data({codelist, eczoodb})
         // 'AND'.  Check each one that is specified; if any one does not match,
         // we need to return false.
         //
-        if (predinfo.not != null) {
-            if ( code_select_predicate(code, predinfo.not) ) {
+
+        for (const [predicate_name_raw, predicate_args] of Object.entries(predinfo)) {
+
+            let predicate_name = predicate_name_raw;
+
+            if (!run_predicate(predicate_name, predicate_args)) {
                 return false;
             }
-        }
-        if (predinfo.property_set != null) {
-            if ( getfield(code, predinfo.property_set) == null ) {
-                return false;
-            }
-        }
-        if (predinfo.property != null) {
-            const { name, value } = predinfo.property;
-            if ( getfield(code, name) !== value ) {
-                return false;
-            }
-        }
-        if (predinfo.domain != null) {
-            const domains = eczoodb.code_parent_domains(
-                code, { find_domain_id: predinfo.domain }
-            );
-            if (domains.filter( (d) => d.domain_id === predinfo.domain ).length == 0) {
-                return false;
-            }
-        }
-        if (predinfo.descendant_of) {
-            if ( ! eczoodb.code_is_descendant_of(code, predinfo.descendant_of) ) {
-                return false;
-            }
-        }
-        if (predinfo.cousin_of) {
-            if ( ! eczoodb.code_is_cousin_of(code, predinfo.cousin_of) ) {
-                return false;
-            }
-        }
-        if (predinfo.manual_code_list) {
-            if ( ! predinfo.manual_code_list.includes(code.code_id) ) {
-                return false;
-            }
+
         }
 
         return true;

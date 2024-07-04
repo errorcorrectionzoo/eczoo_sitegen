@@ -1,0 +1,116 @@
+$schema: "http://json-schema.org/draft-06/schema"
+$id: "https://errorcorrectionzoo.org/schemas/codelist_predicate"
+
+#
+# A <codelist_predicate> is an object that specifies a condition (which may be
+# composed of multiple conditions) that a code must satisfy to be included in
+# a code list.
+#
+
+type: object
+additionalProperties: false
+properties:
+
+  property_set:
+    type: string
+  any_property_set:
+    type: array
+    items:
+      type: string
+  all_property_set:
+    type: array
+    items:
+      type: string
+  not_property_set:
+    type: string
+  not_any_property_set:
+    type: array
+    items:
+      type: string
+  not_all_property_set:
+    type: array
+    items:
+      type: string
+  
+  property:
+    type: object
+    required: ['name', 'value']
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+  
+  domain:
+    type: string
+  any_domain:
+    type: array
+    items:
+      type: string
+  all_domain:
+    type: array
+    items:
+      type: string
+  not_domain:
+    type: string
+  not_any_domain:
+    type: array
+    items:
+      type: string
+  not_all_domain:
+    type: array
+    items:
+      type: string
+
+  # kingdom:  # use descendant_of instead
+  #   type: string
+  descendant_of:
+    type: string
+  any_descendant_of:
+    type: array
+    items:
+      type: string
+  all_descendant_of:
+    type: array
+    items:
+      type: string
+  not_descendant_of:
+    type: string
+  not_any_descendant_of:
+    type: array
+    items:
+      type: string
+  not_all_descendant_of:
+    type: array
+    items:
+      type: string
+  
+  cousin_of:
+    type: string
+  any_cousin_of:
+    type: array
+    items:
+      type: string
+  all_cousin_of:
+    type: array
+    items:
+      type: string
+  not_cousin_of:
+    type: string
+  not_any_cousin_of:
+    type: array
+    items:
+      type: string
+  not_all_cousin_of:
+    type: array
+    items:
+      type: string
+  
+  manual_code_list:
+    type: array
+    items:
+      type: string
+  exclude:
+    type: array
+    items:
+      type: string

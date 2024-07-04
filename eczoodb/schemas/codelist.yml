@@ -43,31 +43,8 @@ properties:
       select:
         type: array
         items:
-          type: object
-          additionalProperties: false
-          properties:
-            property_set:
-              type: string
-            property:
-              type: object
-              required: ['name', 'value']
-              properties:
-                name:
-                  type: string
-                value:
-                  type: string
-            domain:
-              type: string
-            # kingdom:  # use descendant_of instead
-            #   type: string
-            descendant_of:
-              type: string
-            cousin_of:
-              type: string
-            manual_code_list:
-              type: array
-              items:
-                type: string
+          $ref: '/schemas/codelist_predicate'
+
 
 
   sort:
