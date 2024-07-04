@@ -103,10 +103,12 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
     if (predicate_name === 'descendant_of') {
         if (apply_any) {
             let result = false;
-            this.code_visit_relations(code, {
+            eczoodb.code_visit_relations(code, {
                 relation_properties: ['parents'],
                 callback: (code) => {
+                    debug(`any_descendant_of: testing ‘${code.code_id}’ for ${JSON.stringify(predicate_args)}... `);
                     if (predicate_args.includes(code.code_id)) {
+                        debug(`... found!`);
                         result = true;
                         return true;
                     }
@@ -116,7 +118,7 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
         }
         if (apply_all) {
             let missing = [ ... predicate_args ];
-            this.code_visit_relations(code, {
+            eczoodb.code_visit_relations(code, {
                 relation_properties: ['parents'],
                 callback: (code) => {
                     const code_id = code.code_id;
@@ -188,7 +190,7 @@ export function get_list_data({codelist, eczoodb})
 
             let predicate_name = predicate_name_raw;
 
-            if (!run_predicate(predicate_name, predicate_args)) {
+            if (!run_predicate(predicate_name, predicate_args, code, eczoodb)) {
                 return false;
             }
 

@@ -11,6 +11,24 @@ type: object
 additionalProperties: false
 properties:
 
+  property:
+    type: object
+    required: ['name', 'value']
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+  
+  manual_code_list:
+    type: array
+    items:
+      type: string
+  exclude:
+    type: array
+    items:
+      type: string
+
   property_set:
     type: string
   any_property_set:
@@ -31,15 +49,6 @@ properties:
     type: array
     items:
       type: string
-  
-  property:
-    type: object
-    required: ['name', 'value']
-    properties:
-      name:
-        type: string
-      value:
-        type: string
   
   domain:
     type: string
@@ -64,6 +73,7 @@ properties:
 
   # kingdom:  # use descendant_of instead
   #   type: string
+
   descendant_of:
     type: string
   any_descendant_of:
@@ -106,11 +116,3 @@ properties:
     items:
       type: string
   
-  manual_code_list:
-    type: array
-    items:
-      type: string
-  exclude:
-    type: array
-    items:
-      type: string

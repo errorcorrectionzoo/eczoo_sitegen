@@ -36,6 +36,6 @@ sort:
 
 codes:
   select:
-    - descendant_of: stabilizer
+    - any_descendant_of: ['stabilizer', 'binary_linear']
       not_descendant_of: css
 
