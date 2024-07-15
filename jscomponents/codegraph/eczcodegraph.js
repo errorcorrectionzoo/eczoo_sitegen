@@ -767,7 +767,7 @@ export class EczCodeGraph
 
             // add an edge for every parent or cousin relation.
             for (const relationType of ['parent', 'cousin']) {
-                let relationInstances = code.relations[relationType + 's'];
+                let relationInstances = code.relations?.[relationType + 's'];
                 //debug(`code's ${relationType} relations is: `, relationInstances);
                 if (relationInstances == null) {
                     // null or undefined
