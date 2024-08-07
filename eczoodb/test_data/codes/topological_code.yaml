@@ -1,0 +1,16 @@
+code_id: 'topological_code'
+
+name: 'Topological code'
+
+description: |-
+  A property code that heads all quantum topological codes.
+
+relations:
+  parents:
+    - code_id: quantum_code
+
+
+_meta:
+  changelog:
+    - user_id: PhF
+      date: '2024-08-07'

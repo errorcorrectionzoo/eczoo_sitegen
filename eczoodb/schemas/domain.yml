@@ -8,7 +8,7 @@ $id: "https://errorcorrectionzoo.org/schemas/domain"
 _zoo_primarykey: 'domain_id'
 type: object
 additionalProperties: false
-required: ['domain_id', 'name', 'description']
+required: ['domain_id', 'name', 'description', 'root_codes']
 properties:
 
   domain_id:
@@ -25,6 +25,20 @@ properties:
     type: string
     _flm: full
 
+  root_codes:
+    type: array
+    items:
+      additionalProperties: false
+      requried: ['code_id']
+      properties:
+        code_id:
+          type: string
+          _single_line_string: True
+
+        # automatically populated fields, don't specify manually
+        code:
+          _auto_populated: true
+      
   # automatically populated
   kingdoms:
     _auto_populated: true

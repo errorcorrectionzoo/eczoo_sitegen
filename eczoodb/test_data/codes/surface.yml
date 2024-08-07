@@ -56,8 +56,8 @@ relations:
     #   detail: ''
     # - code_id: quantum_ldpc
     #   detail: 'Stabilizer generator weights and qubit degrees are given by the properties of the tessellation, and most conventional tesselations satisfy the QLDPC requirements.'
-    # - code_id: topological
-    #   detail: ''
+    - code_id: topological_code
+      detail: 'The surface code is a topological code'
 
   # cousins:
   #   - code_id: hypergraph_product

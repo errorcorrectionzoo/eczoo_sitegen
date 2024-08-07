@@ -1,0 +1,20 @@
+#######################################################
+## This is a code entry in the error correction zoo. ##
+##       https://github.com/errorcorrectionzoo       ##
+#######################################################
+
+code_id: classical_code
+
+name: 'Classical code'
+#introduced: ''
+
+description: |
+  Classical code [root code of the classical domain]
+
+
+# Begin Entry Meta Information
+_meta:
+  changelog:
+    - user_id: PhF
+      date: '2024-08-07'
+      notes: 'These logs are completely fictitious'
