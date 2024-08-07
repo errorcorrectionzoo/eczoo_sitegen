@@ -66,6 +66,21 @@ export function render_code_page(
 `
         }
 
+        const domainRelList = code.relations?.root_for_domain;
+        if (domainRelList != null && domainRelList.length >= 1) {
+            for (const { domain } of domainRelList) {
+                html += sqzhtml`
+<div class="sectioncontent code-root-code-domain-name">
+    <span class="domain-name-label">
+      Root code for the
+    </span> <!-- space -->${
+   ref('domain', domain.domain_id)
+}</div>
+<div class="domain-description">${ rdr(domain.description) }</div>
+`;
+            }
+        }
+
         const kingdomRelList = code.relations?.root_for_kingdom;
         if (kingdomRelList != null && kingdomRelList.length >= 1) {
             for (const { kingdom } of kingdomRelList) {

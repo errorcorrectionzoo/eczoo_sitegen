@@ -1,0 +1,14 @@
+code_id: abstr
+
+name: 'Abstract property code'
+
+description: |-
+  Not a child of any domain or kingdom root code.
+
+
+# Begin Entry Meta Information
+_meta:
+  changelog:
+    - user_id: PhF
+      date: '2024-08-07'
+      notes: 'These logs are completely fictitious'

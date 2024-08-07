@@ -69,6 +69,13 @@ export const cyBaseStyleJson = [
             height: 20,
         }
     },
+    {
+        selector: 'node[_isPropertyCode=1]',
+        style: {
+            //opacity: 0.8,
+            'font-style': 'italic',
+        }
+    },
 
     // domain coloring
     {

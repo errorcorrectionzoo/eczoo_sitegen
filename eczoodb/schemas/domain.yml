@@ -28,6 +28,7 @@ properties:
   root_codes:
     type: array
     items:
+      type: object
       additionalProperties: false
       requried: ['code_id']
       properties:
@@ -55,3 +56,11 @@ properties:
           type: object
           _auto_populated: true
           
+
+_zoo_relations:
+  - object_field: 'root_codes'
+    to_object_type: 'code'
+    relation_primary_key_field: 'code_id'
+    relation_add_object_field: 'code'
+    backreference:
+      field: 'relations.root_for_domain'

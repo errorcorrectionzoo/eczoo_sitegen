@@ -110,18 +110,6 @@ properties:
       cite multiple references with a single ‘\cite’ command, separating keys
       with commas.
 
-  # physical:
-  #   type: object
-  #   properties:
-  #     space_id:
-  #       type: string
-  #       _single_line_string: True
-  # logical:
-  #   type: object
-  #   properties:
-  #     space_id:
-  #       type: string
-  #       _single_line_string: True
   physical:
     type: string
     _single_line_string: True
@@ -187,6 +175,8 @@ properties:
             # including 'code_id', no need to specify them here)
         
 
+      root_for_domain:
+        _auto_populated: true
       root_for_kingdom:
         _auto_populated: true
 

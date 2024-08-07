@@ -12,6 +12,11 @@ description: |
   Classical code [root code of the classical domain]
 
 
+relations:
+  parents:
+    - code_id: abstr
+      detail: 'All classical is child of some abstract property code, for testing purposes'
+
 # Begin Entry Meta Information
 _meta:
   changelog:

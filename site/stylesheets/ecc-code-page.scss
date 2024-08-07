@@ -47,16 +47,21 @@ article.ecc-code-page {
         }
     }
 
-    > .code-root-code-kingdom-name {
+    > .code-root-code-kingdom-name, > .code-root-code-domain-name {
         font-size: 1rem;
         padding: 4px;
         border-radius: 2px;
 
-        .kingdom-name-label {
+        .kingdom-name-label, .domain-name-label {
             font-weight: normal;
         }
 
         font-weight: bold;
+    }
+    > .code-root-code-domain-name {
+        background-color: $ecc-page-domain-background-color;
+    }
+    > .code-root-code-kingdom-name {
         background-color: $ecc-page-kingdom-background-color;
     }
 

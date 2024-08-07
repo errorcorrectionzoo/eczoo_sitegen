@@ -377,8 +377,11 @@ export class EczCodeGraph
         }
         let rootNodeIdsCodes = Object.entries(this.eczoodb.objects.code).filter(
             ([/*codeId*/, code]) => (
-                !(code.relations?.parents?.length) && !(code.relations?.root_for_kingdom)
+                !(code.relations?.parents?.length)
+                && !(code.relations?.root_for_kingdom)
                 && !(code.relations?.root_for_kingdom?.length)
+                && !(code.relations?.root_for_domain)
+                && !(code.relations?.root_for_domain?.length)
             )
         ).map( ([codeId, /*code*/]) => this.getNodeIdCode(codeId) );
 
@@ -713,47 +716,73 @@ export class EczCodeGraph
 
             // debug(`Searching for ${codeId}'s primary-parent root code`);
 
-            const primaryParentRootCodeInfo  = this.eczoodb.code_get_primary_parent_root(code);
-            const primaryParentRootCode = primaryParentRootCodeInfo.primary_parent_root_code;
+            const primaryParentRootCodeInfo =
+                this.eczoodb.code_get_primary_parent_root(
+                    code,
+                    { include_domain_kingdom_root_info: true }
+                );
+            const primaryParentRootCode =
+                primaryParentRootCodeInfo.primary_parent_root_code;
 
-            const parentKingdom = this.eczoodb.code_get_parent_kingdom(code, primaryParentRootCodeInfo);
+            const parentDomain = primaryParentRootCodeInfo.parent_domain;
+            const parentKingdom = primaryParentRootCodeInfo.parent_kingdom;
+            const isDomainRootCode = primaryParentRootCodeInfo.is_domain_root_code;
+            const isKingdomRootCode = primaryParentRootCodeInfo.is_kingdom_root_code;
+            const isPropertyCode = (parentKingdom == null) ;
 
-            const isKingdomRootCode = (parentKingdom != null) && (primaryParentRootCode === code);
-
+            if (parentDomain != null) {
+                const parentDomainId = parentDomain.domain_id;
+                if (isDomainRootCode) {
+                    Object.assign(nodeData, {
+                        _isDomainRootCode: 1,
+                    });
+                }
+                Object.assign(nodeData, {
+                    _parentDomainId: parentDomainId,
+                })
+            }
             if (parentKingdom != null) {
-
                 const parentKingdomRootCodeId = primaryParentRootCode.code_id;
                 const parentKingdomId = parentKingdom.kingdom_id;
-                const parentDomainId = parentKingdom.parent_domain.domain_id;
-
                 if (isKingdomRootCode) {
                     Object.assign(nodeData, {
                         _isKingdomRootCode: 1,
                     });
-                }    
-
+                }
                 Object.assign(nodeData, {
                     _hasParentKingdom: 1,
                     _parentKingdomRootCodeId: parentKingdomRootCodeId,
                     _parentKingdomId: parentKingdomId,
-                    _parentDomainId: parentDomainId,
                 });
-
-            } else {
-
+            }
+            if (parentKingdom == null) {
                 Object.assign(nodeData, {
                     _hasParentKingdom: 0,
                 });
-
+            }
+            if (isPropertyCode) {
+                Object.assign(nodeData, {
+                    _isPropertyCode: 1,
+                });
             }
 
             nodes.push({
                 data: nodeData,
             });
 
+            // if this code is a domain root code, add an edge to the domain node.
+            if (isDomainRootCode) {
+                edges.push({
+                    data: {
+                        _relType: 'parent',
+                        _primaryParent: 1,
+                        source: thisCodeNodeId,
+                        target: this.getNodeIdDomain(parentDomain.domain_id),
+                    }
+                });
+            }
             // if this code is a kingdom root code, add an edge to the kingdom node.
             if (isKingdomRootCode) {
-
                 edges.push({
                     data: {
                         _relType: 'parent',
@@ -762,7 +791,6 @@ export class EczCodeGraph
                         target: this.getNodeIdKingdom(parentKingdom.kingdom_id),
                     }
                 });
-
             }
 
             // add an edge for every parent or cousin relation.
@@ -782,7 +810,7 @@ export class EczCodeGraph
                         target: this.getNodeIdCode(relationInstance.code.code_id),
                     };
                     if (relationType === 'parent') {
-                        if (j === 0 && !isKingdomRootCode) {
+                        if (j === 0 && !isDomainRootCode && !isKingdomRootCode) {
                             edgeData._primaryParent = 1;
                         } else {
                             edgeData._primaryParent = 0;

@@ -232,10 +232,15 @@ export class EcZooDb extends ZooDb
 
     code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
     {
-        let domains_by_kingdom_root_code_id = {};
+        let domains_by_dk_root_code_id = {};
+        for (const domain of Object.values(this.objects.domain)) {
+            for (const domainRootCodeRel of domain.root_codes) {
+                domains_by_dk_root_code_id[ domainRootCodeRel.code_id ] = domain;
+            }
+        }
         for (const kingdom of Object.values(this.objects.kingdom)) {
             for (const kingdomRootCodeRel of kingdom.root_codes) {
-                domains_by_kingdom_root_code_id[ kingdomRootCodeRel.code_id ] =
+                domains_by_dk_root_code_id[ kingdomRootCodeRel.code_id ] =
                     kingdom.parent_domain;
             }
         }
@@ -244,7 +249,7 @@ export class EcZooDb extends ZooDb
         this.code_visit_relations(code, {
             relation_properties: ['parents'],
             callback: (code_visit) => {
-                const domain = domains_by_kingdom_root_code_id[code_visit.code_id];
+                const domain = domains_by_dk_root_code_id[code_visit.code_id];
                 if (domain !== undefined) {
                     domains.push(domain);
                     if (find_domain_id != null && domain.domain_id === find_domain_id) {
@@ -264,6 +269,10 @@ export class EcZooDb extends ZooDb
         // and a code can have at most one primary parent).
         const child_relations = child_code.relations;
         if (child_relations == null) {
+            return false;
+        }
+        if (child_relations.root_for_domain != null
+            && child_relations.root_for_domain.length >= 1) {
             return false;
         }
         if (child_relations.root_for_kingdom != null
@@ -308,27 +317,32 @@ export class EcZooDb extends ZooDb
     /**
      * Follows primary-parent relationships upwards as long as possible.  When
      * no further primary-parent is found (e.g., for a root property code or for
-     * a kingdom root code), then information about that code is returned.
+     * a domain/kingdom root code), then information about that code is returned.
      * 
      * Returns an object
      * `{ primary_parent_root_code, primary_parent_chain_code_ids }`
-     * containing the root code object and the chain of `code_id`'s explored until
-     * we reached the root code.
+     * containing the root code object and the chain (an array) of `code_id`'s
+     * explored until we reached the root code.
      */
-    code_get_primary_parent_root(code)
+    code_get_primary_parent_root(code, { include_domain_kingdom_root_info }={})
     {
-        // Primary parent relationship = first parent in the parents: list, except for kingdom
-        // root codes (in which case the kingdom node is the 'primary parent')  (?)
+        // Primary parent relationship = first parent in the parents: list, except for
+        // domain and kingdom root codes (in which case the domain or kingdom node is
+        // the 'primary parent')
 
         // follow primary parent relationship to determine a root code
         // whether we're part of a kingdom.
         let primary_parent_root_code = code;
+        let is_root_code = true;
         // detect any cycles so we can report an error.
         let primary_parent_chain_code_ids = [ code.code_id ];
         while ( (primary_parent_root_code.relations?.root_for_kingdom == null
                     || primary_parent_root_code.relations?.root_for_kingdom?.length == 0)
+                && (primary_parent_root_code.relations?.root_for_domain == null
+                    || primary_parent_root_code.relations?.root_for_domain?.length == 0)
                 && primary_parent_root_code.relations?.parents?.length > 0 ) {
             primary_parent_root_code = primary_parent_root_code.relations.parents[0].code;
+            is_root_code = false;
             const primary_parent_root_code_id = primary_parent_root_code.code_id;
             if (primary_parent_chain_code_ids.includes(primary_parent_root_code_id)) {
                 const seenCodeChainNames = [].concat(
@@ -346,7 +360,82 @@ export class EcZooDb extends ZooDb
                 primary_parent_chain_code_ids.push( primary_parent_root_code_id );
             }
         }
-        return { primary_parent_root_code, primary_parent_chain_code_ids };
+        let info = {
+            primary_parent_root_code,
+            primary_parent_chain_code_ids,
+            is_root_code,
+        };
+        if (include_domain_kingdom_root_info) {
+            let parent_domain =  null;
+            let parent_kingdom = null;
+            let is_domain_root_code = false;
+            let is_kingdom_root_code = false;
+
+            let root_for_domain = primary_parent_root_code.relations?.root_for_domain;
+            if (root_for_domain != null && root_for_domain.length > 0) {
+                if (root_for_domain.length > 1) {
+                    throw new Error(
+                        `Code ${primary_parent_root_code.code_id} is root code for multiple `
+                        + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                    );
+                }
+                parent_domain = root_for_domain[0].domain;
+                parent_kingdom = null;
+                is_domain_root_code = is_root_code;
+                is_kingdom_root_code = false;
+            } else {
+                let root_for_kingdom = primary_parent_root_code.relations?.root_for_kingdom;
+                if (root_for_kingdom != null && root_for_kingdom.length > 0) {
+                    if (root_for_kingdom.length > 1) {
+                        throw new Error(
+                            `Code ${primary_parent_root_code.code_id} is root for multiple `
+                            + `kingdoms: ` + root_for_kingdom.map((k) => k.kingdom_id).join(', ')
+                        );
+                    }
+                    parent_kingdom = root_for_kingdom[0].kingdom;
+                    parent_domain = parent_kingdom?.parent_domain;
+                    is_domain_root_code = false;
+                    is_kingdom_root_code = is_root_code;
+                }
+            }
+
+            info.parent_domain = parent_domain;
+            info.parent_kingdom = parent_kingdom;
+            info.is_domain_root_code = is_domain_root_code;
+            info.is_kingdom_root_code = is_kingdom_root_code;
+        }
+        return info;
+    }
+
+    code_get_parent_domain(code, { primary_parent_root_code }={})
+    {
+        if (primary_parent_root_code == null) {
+            ({ primary_parent_root_code } = this.code_get_primary_parent_root(code));
+        }
+
+        let root_for_domain = primary_parent_root_code.relations?.root_for_domain;
+        if (root_for_domain != null && root_for_domain.length > 0) {
+            if (root_for_domain.length > 1) {
+                throw new Error(
+                    `Code ${primary_parent_root_code.code_id} is root code for multiple domains: `
+                    + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                );
+            }
+            return root_for_domain[0].domain;
+        }
+
+        let root_for_kingdom = primary_parent_root_code.relations?.root_for_kingdom;
+        if (root_for_kingdom != null && root_for_kingdom.length > 0) {
+            if (root_for_kingdom.length > 1) {
+                throw new Error(
+                    `Code ${primary_parent_root_code.code_id} is root for multiple kingdoms: `
+                    + root_for_kingdom.map((k) => k.kingdom_id).join(', ')
+                );
+            }
+            return root_for_kingdom[0].kingdom?.parent_domain;
+        }
+
+        return null;
     }
 
     code_get_parent_kingdom(code, { primary_parent_root_code }={})
@@ -533,6 +622,26 @@ export class EcZooDb extends ZooDb
         let all_parent_child_sorted_codes = this.code_parent_child_sort(
             Object.values(this.objects.code)
         );
+
+        // Check that all codes are at most root codes of a single domain/kingdom.
+        for (const [code_id, code] of Object.entries(this.objects.code)) {
+            const root_for_domain = code.relations?.root_for_domain ?? [];
+            const root_for_kingdom = code.relations?.root_for_kingdom ?? [];
+            if (root_for_domain.length + root_for_kingdom.length > 1) {
+                throw new Error(
+                    `Code ‘${code_id}’ is root code for more than one domain/kingdom: `
+                    + [
+                        (root_for_domain.length
+                         ? `Domain(s): ` + root_for_domain.map((k) => k.domain_id).join(', ')
+                         : '')
+                        ,
+                        (root_for_kingdom.length
+                          ? `Kingdom(s): ` + root_for_kingdom.map((k) => k.kingdom_id).join(', ')
+                          : '')
+                    ].join(' and ')
+                );
+            }
+        }
     }
 }
 
