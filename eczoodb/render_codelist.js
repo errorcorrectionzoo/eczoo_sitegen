@@ -5,6 +5,7 @@ import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
 //const { $$kw, repr } = zooflm;
+import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
     render_meta_changelog,
@@ -128,19 +129,34 @@ const styles = {
 
         let html = '';
 
-        html += `
-<ol class="code-index">`;
-        for (const code of list_data) {
+        if (display_options.show_description) {
             html += `
+<div class="code-index-control-display"><a href="javascript:void(0);" onClick="document.getElementById('main').classList.toggle('code-index-with-descriptions');">[<span class="code-index-ctrl-label-show">Show</span><span class="code-index-ctrl-label-hide">Hide</span> short descriptions]</a></div>
+<ol class="code-index">`;
+        }
+        for (const code of list_data) {
+            html += sqzhtml`
   <li>
     <span class="code-name">`;
             html += ref('code', code.code_id);
             if (display_options.show_introduced && ne(code.introduced)) {
-                html += `
-        <span class="code-introduced">${ rdr(code.introduced) }</span>` .trim();
+                html += sqzhtml`
+        <span class="code-introduced">${ rdr(code.introduced) }</span>`;
             }
             html += `
-    </span>` .trim();
+    </span>`;
+            if (display_options.show_alternative_names
+                && code.alternative_names && code.alternative_names.length) {
+                const alt_names_joined =
+                    code.alternative_names
+                    .map( (n) => `<span class="code-alternative-name">${ rdr(n) }</span>` )
+                    .join(', ');
+                html += sqzhtml`
+        <span class="sectioncontent code-alternative-names">
+          a.k.a. ${alt_names_joined}.
+        </span>
+        `
+            }
             if (display_options.show_description) {
                 let description = code.description;
                 if (ne(description) && display_options.description_first_paragraph) {
@@ -152,7 +168,7 @@ const styles = {
                     );
                 }
                 html += `
-      <span class="code-description">${ rdr(description) }</span>` .trim();
+      <div class="code-description code-index-code-description-start-hidden">${ rdr(description) }</div>` .trim();
             }
             html += `
   </li>` .trim();
