@@ -81,7 +81,7 @@ it.
 
 To run a complete build of the website, navigate to *eczoo_sitegen/site* and run *yarn build*:
 ```
-> cd eczoo_sitegen/site
+> cd eczoo_sitegen/
 > yarn build
 ```
 
