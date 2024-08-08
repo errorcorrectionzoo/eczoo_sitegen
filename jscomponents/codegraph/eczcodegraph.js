@@ -89,12 +89,16 @@ export class EczCodeGraph
         this.graphGlobalOptions = loMerge(
             {
                 rootPositioning: {
-                    rootAbstractCodesXSpacing: 750,
-                    rootAbstractCodesYPosition: 0,
-                    rootAbstractCodesYPositionSingleOffset: 150,
-                    domainNodesXSpacing: 750,
-                    domainNodesYPosition: 250,
-                    domainNodesYPositionSingleOffset: 150,
+                    
+                    // rootAbstractCodesXSpacing: 750,
+                    // rootAbstractCodesYPosition: 0,
+                    // rootAbstractCodesYPositionSingleOffset: 150,
+                    // domainNodesXSpacing: 750,
+                    // domainNodesYPosition: 250,
+                    // domainNodesYPositionSingleOffset: 150,
+
+                    rootNodesCircleXRadius: 500,
+                    rootNodesCircleYRadius: 300,
                 },
                 customDomainIdsOrder:  {
                     classical_domain: -100,
@@ -869,17 +873,8 @@ export class EczCodeGraph
             customDomainIdsOrder
         } = this.graphGlobalOptions;
         
-        const {
-            rootAbstractCodesXSpacing,
-            rootAbstractCodesYPosition,
-            rootAbstractCodesYPositionSingleOffset,
-            domainNodesXSpacing,
-            domainNodesYPosition,
-            domainNodesYPositionSingleOffset,
-        } = rootPositioning;
-
         let rootNodesPrelayoutInfo = {};
-        let domainIds = Object.keys(this.eczoodb.objects.domain);
+        let domainIds = [ ... Object.keys(this.eczoodb.objects.domain) ];
 
         debug(`Domains before custom ordering: ${domainIds}`);
 
@@ -888,34 +883,20 @@ export class EczCodeGraph
         );
         debug(`Domains after custom ordering: ${domainIds}`);
 
-        for (const [j, domainId] of domainIds.entries()) {
-            const nodeId = this.getNodeIdDomain(domainId);
-            rootNodesPrelayoutInfo[nodeId] = {
-                position: {
-                    x: (j - (domainIds.length-1)/2) * domainNodesXSpacing,
-                    y: domainNodesYPosition
-                       + Math.min(j, domainIds.length-1-j) * domainNodesYPositionSingleOffset
-                },
-                radiusOffset: 50,
-                direction: Math.PI - Math.PI * (j+0.5) / domainIds.length,
-                angularSpread: Math.PI / domainIds.length,
-            };
-        }
-        // these are abstract property codes:
         let rootCodeNodeIds = this.getOverallRootNodeIds({ includeDomains: false });
-        //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
-        for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
-            rootNodesPrelayoutInfo[codeNodeId] = {
-                position: {
-                    x: (j - (rootCodeNodeIds.length-1)/2) * rootAbstractCodesXSpacing,
-                    y: rootAbstractCodesYPosition
-                       - Math.min(j, rootCodeNodeIds.length-1-j) * rootAbstractCodesYPositionSingleOffset
-                },
-                radiusOffset: 50,
-                direction: Math.PI + Math.PI * (j+0.5) / rootCodeNodeIds.length,
-                angularSpread: Math.PI / rootCodeNodeIds.length,
-            };
-        }
+
+        // this._positionRootNodes_domainsBelow_propertyCodesAbove(
+        //     rootNodesPrelayoutInfo,
+        //     domainIds,
+        //     rootCodeNodeIds,
+        //     rootPositioning,
+        // )
+        this._positionRootNodes_allAround(
+            rootNodesPrelayoutInfo,
+            domainIds,
+            rootCodeNodeIds,
+            rootPositioning,
+        )
 
         this.globalGraphRootNodesInfo = {
             radialPrelayoutRootNodesPrelayoutInfo: rootNodesPrelayoutInfo,
@@ -925,5 +906,92 @@ export class EczCodeGraph
         debug(`globalGraphRootNodesInfo = `, this.globalGraphRootNodesInfo);
     }
 
-}
 
+    // _positionRootNodes_domainsBelow_propertyCodesAbove(
+    //     rootNodesPrelayoutInfo,
+    //     domainIds,
+    //     rootCodeNodeIds,
+    //     rootPositioning,
+    // )
+    // {
+    //     const {
+    //         rootAbstractCodesXSpacing,
+    //         rootAbstractCodesYPosition,
+    //         rootAbstractCodesYPositionSingleOffset,
+    //         domainNodesXSpacing,
+    //         domainNodesYPosition,
+    //         domainNodesYPositionSingleOffset,
+    //     } = rootPositioning;
+
+    //     for (const [j, domainId] of domainIds.entries()) {
+    //         const nodeId = this.getNodeIdDomain(domainId);
+    //         rootNodesPrelayoutInfo[nodeId] = {
+    //             position: {
+    //                 x: (j - (domainIds.length-1)/2) * domainNodesXSpacing,
+    //                 y: domainNodesYPosition
+    //                    + Math.min(j, domainIds.length-1-j) * domainNodesYPositionSingleOffset
+    //             },
+    //             radiusOffset: 50,
+    //             direction: Math.PI - Math.PI * (j+0.5) / domainIds.length,
+    //             angularSpread: Math.PI / domainIds.length,
+    //         };
+    //     }
+    //     // these are abstract property codes:
+    //     //debug(`rootCodeNodeIds = `, rootCodeNodeIds);
+    //     for (const [j, codeNodeId] of rootCodeNodeIds.entries()) {
+    //         rootNodesPrelayoutInfo[codeNodeId] = {
+    //             position: {
+    //                 x: (j - (rootCodeNodeIds.length-1)/2) * rootAbstractCodesXSpacing,
+    //                 y: rootAbstractCodesYPosition
+    //                    - Math.min(j, rootCodeNodeIds.length-1-j) * rootAbstractCodesYPositionSingleOffset
+    //             },
+    //             radiusOffset: 50,
+    //             direction: Math.PI + Math.PI * (j+0.5) / rootCodeNodeIds.length,
+    //             angularSpread: Math.PI / rootCodeNodeIds.length,
+    //         };
+    //     }
+    // }
+
+    _positionRootNodes_allAround(
+        rootNodesPrelayoutInfo,
+        domainIds,
+        rootCodeNodeIds,
+        rootPositioning,
+    )
+    {
+        const {
+            rootNodesCircleXRadius,
+            rootNodesCircleYRadius,
+        } = rootPositioning;
+
+        let numDomains = domainIds.length;
+        let numPropertyCodes = rootCodeNodeIds.length;
+        let numTotal = numDomains + numPropertyCodes;
+
+        let startAngle = - Math.PI / 2.0 + 1.0 * (numPropertyCodes-1) / (numTotal-1);
+
+        let domainNodeIds = domainIds.map( (domainId) => this.getNodeIdDomain(domainId) );
+        domainNodeIds.reverse()
+
+        let rootNodeIds = [
+            ... rootCodeNodeIds,
+            ... domainNodeIds,
+        ];
+
+        for (const [j, nodeId] of rootNodeIds.entries()) {
+            const a = startAngle + 2*Math.PI * j / numTotal;
+            rootNodesPrelayoutInfo[nodeId] = {
+                position: {
+                    x: rootNodesCircleXRadius * Math.cos(a),
+                    y: rootNodesCircleYRadius * Math.sin(a),
+                },
+                radiusOffset: 200,
+                direction: a,
+                angularSpread: 2*Math.PI / numTotal,
+                // if we have property and non-property child codes, sort
+                // them first or last?
+                propertyCodesSortOrder: Math.cos(a) > 0 ? +1 : -1,
+            };
+        }
+    }
+}

@@ -134,6 +134,7 @@ export class PrelayoutRadialTree
                         position: prelayoutInfo.position,
                         direction: prelayoutInfo.direction,
                         angularSpread: prelayoutInfo.angularSpread,
+                        propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -151,6 +152,7 @@ export class PrelayoutRadialTree
                         position: prelayoutInfo.position,
                         direction: prelayoutInfo.direction + Math.PI, // opposite direction
                         angularSpread: prelayoutInfo.angularSpread,
+                        propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -200,16 +202,20 @@ class _PrelayoutRadialTreeBranchSet
     {
         this.cy = cy;
 
-        this.root = root; // { nodeId, position, direction, angularSpread }
+        // { nodeId, position, direction, angularSprea, propertyCodesSortOrder }
+        this.root = root;
         this.rootNode = this.cy.getElementById(this.root.nodeId);
 
         this.prelayoutOptions = prelayoutOptions;
 
         this.branchOptions = loMerge({
             initialEdges: null,
+            propertyCodesSortOrder: 1,
         }, branchOptions);
 
         this.positionedNodesData = positionedNodesData;
+
+        this.propertyCodesSortOrder = root.propertyCodesSortOrder;
 
         this.nodeOrderinginfoByLevel = null;
 
@@ -225,6 +231,7 @@ class _PrelayoutRadialTreeBranchSet
         let nodeOrderinginfoByLevel = [];
         
         const layoutParentEdgeSelector = this.prelayoutOptions.layoutParentEdgeSelector;
+        const propertyCodesSortOrder = this.propertyCodesSortOrder;
 
         let seenNodes = new Set();
 
@@ -292,7 +299,7 @@ class _PrelayoutRadialTreeBranchSet
 
                 //debug(`Node ${cyNode.id()} has connected edges`, connectedEdges);
 
-                let connectedNodesInfos = []
+                let connectedNodesInfos = [];
                 for (const edge of connectedEdges) {
                     if (edge === nodeConnectingEdge) {
                         // don't go back up the tree!
@@ -319,12 +326,18 @@ class _PrelayoutRadialTreeBranchSet
                         connectedNodesInfos: [],
                         totalNumDescendants: 0,
                         numDescendants: [],
+                        isPropertyCode: connectedNode.data('_isPropertyCode') ? 1 : 0,
                     };
 
                     connectedNodesInfos.push(newNodeInfo);
 
                     // debug(`Added layout-child node ${connectedNodeId} with info`, newNodeInfo);
                 }
+                // let's see if property codes should be on one side or the other - 
+                connectedNodesInfos.sort(
+                    (a, b) =>
+                        propertyCodesSortOrder*(b.isPropertyCode - a.isPropertyCode)
+                );
                 nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
                 nextLevelNodes.push(...connectedNodesInfos);
             }
