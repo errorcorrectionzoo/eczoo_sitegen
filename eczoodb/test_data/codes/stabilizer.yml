@@ -29,6 +29,8 @@ relations:
   parents:
     - code_id: qubits_into_qubits
       detail: ''
+    - code_id: quantum_code
+      detail: ''
   # cousins:
   #   - code_id: hamiltonian
   #     detail: 'Codespace is the ground-state space of the \textit{code Hamiltonian}, consisting of an equal linear combination of stabilizer generators.'

@@ -152,10 +152,15 @@ article.ecc-code-page {
         opacity: .7;
     }
 
-    // code hierarchy
+    //
+    // code hierarchy diagram
+    //
     .code-hierarchy-item {
-        border-left: solid 0.4pt gray;
+        border-left: solid 1pt $text-dim-color;
         margin-left: 10pt;
+
+        padding-left: 15pt;
+        > div { margin-left: -15pt; }
 
         &.code-hierarchy-item-self {
             font-weight: bold;
@@ -164,7 +169,7 @@ article.ecc-code-page {
 
             &::before {
                 content: '●';
-                color: gray;
+                color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
                 margin-left: -20pt;
@@ -174,9 +179,45 @@ article.ecc-code-page {
             
             padding-left: 15pt;
             display: inline-block;
-            width: 100%;
             box-sizing: border-box;
         }
+
+        &.code-hierarchy-item-domain .code-hierarchy-item-name {
+            width: 100%;
+            background-color: $ecc-page-domain-background-color;
+        }
+        &.code-hierarchy-item-kingdom .code-hierarchy-item-name {
+            width: 100%;
+            background-color: $ecc-page-kingdom-background-color;
+        }
+
+        .code-hierarchy-item-inner-ancestors {
+            display: inline;
+            font-style: italic;
+            font-size: $small-font-size;
+            margin-left: 0pt;
+
+            &::before {
+                content: '←';
+                display: inline-block;
+                margin-left: .5em;
+                margin-right: .5em;
+            }
+
+            .code-hierarchy-item-inner-ancestor {
+                display: inline-block;
+                border: solid .4pt;
+                border-radius: 4pt;
+                padding: 0pt 2pt;
+                &::before { content: '#'; }
+
+                &.code-hierarchy-item-is-duplicate {
+                    background-color: rgb(220, 30, 128);
+                    color: #fff;
+                }
+            }
+        }
+
         > .code-hierarchy-item-relation-detail {
             padding-top: .75em;
             padding-bottom: .75em;
@@ -189,7 +230,7 @@ article.ecc-code-page {
                 content: '▴';
                 font-style: normal;
                 font-weight: normal;
-                color: gray;
+                color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
                 margin-left: -15pt;
@@ -203,15 +244,8 @@ article.ecc-code-page {
         }
 
         .code-hierarchy-item-relation-detail {
-            font-size: 0.9em;
+            font-size: $small-font-size;
             font-style: italic;
-        }
-
-        &.code-hierarchy-item-domain .code-hierarchy-item-name {
-            background-color: $ecc-page-domain-background-color;
-        }
-        &.code-hierarchy-item-kingdom .code-hierarchy-item-name {
-            background-color: $ecc-page-kingdom-background-color;
         }
 
 
@@ -239,6 +273,7 @@ article.ecc-code-page {
             .code-hierarchy-item-secondary-parent {
 
                 display: block;
+                margin-left: 0pt;
                 padding-bottom: 0.5em;
                 &:last-child { padding-bottom: 0px; }
 

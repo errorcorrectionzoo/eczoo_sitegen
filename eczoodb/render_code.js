@@ -54,7 +54,7 @@ function get_code_hierarchy_info(code, eczoodb)
     if (children && children.length > 0) {
         for (const child_info of children) {
             const ccode = child_info.code;
-            set_code_seen(seen_parent_ids, 'child');
+            set_code_seen(ccode.code_id, 'child');
             hierarchy_items.children.push( {
                 code: ccode,
                 object_type: 'code',
@@ -129,7 +129,7 @@ function get_code_hierarchy_info(code, eczoodb)
     }
 
     // now that we've established the primary-parent chain, go take note of all
-    // anscestor codes of each parent in the primary parent chain.  Mark
+    // ancestor codes of each parent in the primary parent chain.  Mark
     // duplicates, which correspond to cycles in the nondirected code parent-child
     // hierarchy.
     //
@@ -144,12 +144,12 @@ function get_code_hierarchy_info(code, eczoodb)
         const psecparents = eczoodb.code_get_secondary_parents(pcode);
         for (const psecparentcoderel of psecparents) {
             const psecparentcode = psecparentcoderel.code;
-            let seen = set_code_seen(psecparentcode);
-            primary_parent_item.push({
+            let duplicate_where = set_code_seen(psecparentcode.code_id);
+            primary_parent_item.secondary_parents.push({
                 code: psecparentcode,
                 name: psecparentcode.name,
                 //detail: psecparentcoderel.detail,
-                duplicate: seen,
+                duplicate_where,
                 object_type: 'code',
                 object_id: psecparentcode.code_id,
             });
@@ -346,7 +346,9 @@ ${rdr(value)}
         };
 
 
-
+        // ---------------------
+        // FORMAT CODE HIERARCHY
+        // ---------------------
 
         const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
 
@@ -361,12 +363,15 @@ ${rdr(value)}
 
             if (ppitem.secondary_parents && ppitem.secondary_parents.length) {
                 code_hierarchy_content += sqzhtml`
-  <div class="code-hierarchy-item-inner-anscestors">`;
+  <div class="code-hierarchy-item-inner-ancestors">`;
                 for (const spar of ppitem.secondary_parents) {
+                    const is_duplicate = (spar.duplicate_where ? true : false);
                     code_hierarchy_content += sqzhtml`
-    <a class="code-hierarchy-item-inner-anscestor" href="${
+    <a class="code-hierarchy-item-inner-ancestor${
+        is_duplicate ? ' code-hierarchy-item-is-duplicate' : ''
+    }" href="${
         refhref(spar.object_type, spar.object_id)
-    }">${ rdr(eczoodb.code_short_name(spar)) }</a>  <!-- space -->`;
+    }">${ rdr(eczoodb.code_short_name(spar.code)) }</a>  <!-- space -->`;
                 }
                 code_hierarchy_content += sqzhtml`
   </div>`;
@@ -418,6 +423,7 @@ ${rdr(value)}
 ${code_hierarchy_content}
 </div>`;
 
+        // ------------------
 
         const relations = code.relations ?? {};
         html += display_code_relation('parents', relations.parents ?? [],
