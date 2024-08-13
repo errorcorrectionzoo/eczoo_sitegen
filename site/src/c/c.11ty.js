@@ -148,6 +148,9 @@ const data = async () => {
                 header_navigation_links: generate_navigation_links({
                     code: data.code, eczoodb: data.eczoodb, flmrender
                 }),
+                // provide wide page layouts for code pages because we want to display the
+                // code hierarchy, too
+                wide_layout: true,
             }),
 
             page_description_text: (data) => {
@@ -294,6 +297,7 @@ const render = async (data) => {
 
     s += sqzhtml`
 <div class="sectioncontent info-popup-button-container"></div>
+<a class="sectioncontent code-easy-link-show-code-hierarchy" href="#code_hierarchy">[Jump to code hierarchy]</a>
 `;
 
     s += code_page_html;

@@ -139,17 +139,18 @@ function get_code_hierarchy_info(code, eczoodb)
         if (pcode == null) {
             continue;
         }
-        const psecparents = eczoodb.code_get_secondary_parents(pcode);
-        for (const psecparentcoderel of psecparents) {
-            const psecparentcode = psecparentcoderel.code;
-            let duplicate_where = set_code_seen(psecparentcode.code_id, 'ancestor-of-primary');
+        const pancestors = eczoodb.code_get_ancestors(pcode);
+        for (const pancestorcode of pancestors) {
+            let duplicate_where = set_code_seen(
+                pancestorcode.code_id,
+                `ancestor of "${pcode.code_id}"`
+            );
             primary_parent_item.secondary_parents.push({
-                code: psecparentcode,
-                name: psecparentcode.name,
-                //detail: psecparentcoderel.detail,
+                code: pancestorcode,
+                name: pancestorcode.name,
                 duplicate_where,
                 object_type: 'code',
-                object_id: psecparentcode.code_id,
+                object_id: pancestorcode.code_id,
             });
         }
     }
@@ -182,6 +183,9 @@ export function render_code_page(
              ref, refhref } = R;
 
         let html = '';
+
+        html += sqzhtml`
+<div class="code-main-section">`;
 
         html += sqzhtml`
 <div class="sectioncontent code-name">
@@ -304,6 +308,17 @@ ${rdr(value)}
 
         html += display_field('notes', 'Notes');
 
+        html += `
+<RENDER_ENDNOTES/>
+`;
+        const changelog = code._meta?.changelog;
+        if (changelog != null) {
+            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
+        }
+
+        html += sqzhtml`
+</div>`; // .code-main-section
+
         // Relationships to other codes
 
         const display_code_relation = (relation_fieldname, relation_list, [singular, plural]) => {
@@ -351,6 +366,9 @@ ${rdr(value)}
         const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
 
         let code_hierarchy_content = '';
+
+        code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-items">`;
         
         // display elements of the primary parent chain first:
         for (const ppitem of hierarchy_items.primary_parent_chain) {
@@ -414,20 +432,19 @@ ${rdr(value)}
             code_hierarchy_content += sqzhtml`
 </div>`;
         }
+        code_hierarchy_content += sqzhtml`
+</div>`; // .code-hierarchy-items
         
         html += sqzhtml`
 <div class="sectioncontent code-hierarchy">
 <h2 id="code_hierarchy" class="code-hierarchy">Code Hierarchy</h2>
-${code_hierarchy_content}
-</div>`;
-
-        // ------------------
+${code_hierarchy_content}`;
 
         const relations = code.relations ?? {};
-        html += display_code_relation('parents', relations.parents ?? [],
-                                      ['Parent', 'Parents']);
-        html += display_code_relation('parent_of', relations.parent_of ?? [],
-                                      ['Child', 'Children']);
+        // html += display_code_relation('parents', relations.parents ?? [],
+        //                               ['Parent', 'Parents']);
+        // html += display_code_relation('parent_of', relations.parent_of ?? [],
+        //                               ['Child', 'Children']);
 
         html += display_code_relation(
             'cousins',
@@ -435,17 +452,10 @@ ${code_hierarchy_content}
             ['Cousin', 'Cousins']
         );
 
+        html += sqzhtml`
+</div>`;
 
-        html += `
-
-<RENDER_ENDNOTES/>
-
-`;
-
-        const changelog = code._meta?.changelog;
-        if (changelog != null) {
-            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
-        }
+        // ------------------
 
         return html;
     };

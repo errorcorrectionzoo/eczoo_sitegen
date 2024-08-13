@@ -285,35 +285,6 @@ export class EcZooDb extends ZooDb
         return false;
     }
 
-    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
-    {
-        let predicate_relation = null;
-        if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) =>
-                this.code_is_primary_parent(code, relation.code)
-                ;
-        }
-
-        let family_tree_codes = [];
-        this.code_visit_relations(root_code, {
-            relation_properties: ['parent_of'],
-            callback: (code) => {
-                family_tree_codes.push(code);
-            },
-            predicate_relation,
-        });
-        
-        if (parent_child_sort ?? true) {
-            // enforce the returned array to be topologically sorted, i.e., a
-            // parent always appears before any of its children in the list.
-            // Simple BFS doesn't always enforce this on its own
-            // (cf. https://stackoverflow.com/a/35458168/1694896)
-            return this.code_parent_child_sort(family_tree_codes);
-        }
-
-        return family_tree_codes;
-    }
-
     /** Returns { code: , domain: , kingdom: , relation_object: } | null,
      * with the information on the primary parent code/domain/kingdom, with N/A
      * fields set to null.  If the code has no primary parent, returns null. */
@@ -527,6 +498,64 @@ export class EcZooDb extends ZooDb
         }
 
         return root_for_kingdom[0].kingdom;
+    }
+
+    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
+    {
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(code, relation.code)
+                ;
+        }
+
+        let family_tree_codes = [];
+        this.code_visit_relations(root_code, {
+            relation_properties: ['parent_of'],
+            callback: (code) => {
+                family_tree_codes.push(code);
+            },
+            predicate_relation,
+        });
+        
+        if (parent_child_sort ?? true) {
+            // enforce the returned array to be topologically sorted, i.e., a
+            // parent always appears before any of its children in the list.
+            // Simple BFS doesn't always enforce this on its own
+            // (cf. https://stackoverflow.com/a/35458168/1694896)
+            return this.code_parent_child_sort(family_tree_codes);
+        }
+
+        return family_tree_codes;
+    }
+
+    code_get_ancestors(code, { parent_child_sort, only_primary_parent_relation } = {})
+    {
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, code)
+                ;
+        }
+
+        let ancestor_codes = [];
+        this.code_visit_relations(code, {
+            relation_properties: ['parents'],
+            callback: (code) => {
+                ancestor_codes.push(code);
+            },
+            predicate_relation,
+        });
+        
+        if (parent_child_sort ?? true) {
+            // enforce the returned array to be topologically sorted, i.e., a
+            // parent always appears before any of its children in the list.
+            // Simple BFS doesn't always enforce this on its own
+            // (cf. https://stackoverflow.com/a/35458168/1694896)
+            return this.code_parent_child_sort(ancestor_codes);
+        }
+
+        return ancestor_codes;
     }
 
     /**
