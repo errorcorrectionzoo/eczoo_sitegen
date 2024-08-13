@@ -45,6 +45,7 @@ describe('render_code', function () {
             {
                 zoo_flm_environment,
                 doc_metadata: {},
+                eczoodb,
             }
         );
 

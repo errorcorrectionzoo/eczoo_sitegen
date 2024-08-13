@@ -221,7 +221,7 @@ const render = async (data) => {
     const eczoodb = data.eczoodb;
 
     const zooflm = await import('@phfaist/zoodb/zooflm');
-    const { $$kw } = zooflm;
+    //const { $$kw } = zooflm;
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
 
     let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
@@ -242,9 +242,15 @@ const render = async (data) => {
 `;
 
     // RENDER THE BULK OF THE CODE PAGE
-    const code_page_html =
-          rendercodepage.render_code_page(code, {zoo_flm_environment, doc_metadata,
-                                                 extra_html_after_title});
+    const code_page_html = rendercodepage.render_code_page(
+        code,
+        {
+            zoo_flm_environment,
+            doc_metadata,
+            extra_html_after_title,
+            eczoodb,
+        }
+    );
 
     // additional info for popups, etc.
 

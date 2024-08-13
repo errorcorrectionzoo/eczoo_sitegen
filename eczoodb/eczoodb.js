@@ -314,6 +314,76 @@ export class EcZooDb extends ZooDb
         return family_tree_codes;
     }
 
+    /** Returns { code: , domain: , kingdom: , relation_object: } | null,
+     * with the information on the primary parent code/domain/kingdom, with N/A
+     * fields set to null.  If the code has no primary parent, returns null. */
+    code_get_primary_parent(code)
+    {
+        const relations = code.relations;
+        if (relations == null) {
+            return null;
+        }
+        let root_for_domain = relations.root_for_domain;
+        if (root_for_domain != null && root_for_domain.length > 0) {
+            if (root_for_domain.length > 1) {
+                throw new Error(
+                    `Code ${code.code_id} is root code for multiple `
+                    + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                );
+            }
+            return {
+                domain: root_for_domain[0].domain,
+                relation_object: root_for_domain[0]
+            };
+        }
+        let root_for_kingdom = relations.root_for_kingdom;
+        if (root_for_kingdom != null && root_for_kingdom.length > 0) {
+            if (root_for_kingdom.length > 1) {
+                throw new Error(
+                    `Code ${code.code_id} is root for multiple `
+                    + `kingdoms: ` + root_for_kingdom.map((k) => k.kingdom_id).join(', ')
+                );
+            }
+            return {
+                kingdom: root_for_kingdom[0].kingdom,
+                relation_object: root_for_kingdom[0]
+            };
+        }
+        const parents = relations.parents;
+        if (parents != null && parents.length > 0) {
+            return {
+                code: parents[0].code,
+                relation_object: parents[0],
+            }
+        }
+        return null;
+    }
+    /**
+     * Returns an array of *parent code relation objects* that are secondary parents.
+     * These are all parents (ie immediate parents) that are not a primary parent.
+     * This returns either `relations.parents` or `relations.parents.slice(1)`, depending
+     * on whether or not the first parent is a primary parent (e.g. it isn't for a domain
+     * or kingdom root code).
+     */
+    code_get_secondary_parents(code)
+    {
+        const relations = code.relations;
+        if (relations == null || relations.parents == null || relations.parents.length == 0) {
+            return [];
+        }
+        let root_for_domain = relations.root_for_domain;
+        if (root_for_domain != null && root_for_domain.length > 0) {
+            // is a root domain code - all listed parents are secondary parents
+            return relations.parents;
+        }
+        let root_for_kingdom = relations.root_for_kingdom;
+        if (root_for_kingdom != null && root_for_kingdom.length > 0) {
+            // is a kingdom domain code - all listed parents are secondary parents
+            return relations.parents;
+        }
+        return relations.parents.slice(1);
+    }
+
     /**
      * Follows primary-parent relationships upwards as long as possible.  When
      * no further primary-parent is found (e.g., for a root property code or for

@@ -162,7 +162,8 @@ export async function renderObject({ zoodb, objectType, objectId, object,
                 additional_setup_render_context,
                 render_meta_changelog_options: {
                     details_open: true
-                }
+                },
+                eczoodb: zoodb,
             }
         );
 

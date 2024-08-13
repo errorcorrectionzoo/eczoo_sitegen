@@ -1,29 +1,54 @@
 
 article.ecc-code-page {
 
+    // LAYOUT - CSS GRID
+
     display: grid;
-    grid-template-columns: 1fr auto;
+    //grid-template-columns: 1fr auto;
+    //grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+    padding-left: 20px;
+    padding-right: 20px;
+    grid-template-columns:
+        [code-main-sections] minmax(500px, 625px)
+        [code-infobox-buttons code-hierarchy-sections] minmax(250px, ($page-max-main-width - 625px - 40px))
+        auto;
+    grid-gap: 15px;
+    grid-auto-flow: row dense;
+    justify-items: left;
+
+    //columns: 450px auto;
+
+    >.sectioncontent {
+        grid-column: code-main-sections / span 1; //2;
+    }
+    >.sectioncontent.info-popup-button-container {
+        grid-column: code-infobox-buttons / span 1
+    }
+    >.sectioncontent.code-hierarchy,
+    >.sectioncontent.code-parents,
+    >.sectioncontent.code-parent_of,
+    >.sectioncontent.code-cousins {
+        grid-column: code-hierarchy-sections / span 2;
+    }
+    // >.sectioncontent.code-description,
+    // >.sectioncontent.code-protection,
+    // >.sectioncontent.code-notes {
+    //     grid-column: code-main-sections / span 2;
+    // }
+
 
     h2 {
-        grid-column-start: 1;
-        grid-column-end: 3;
         margin: 0px; // reset margin; margin will be set below
     }
 
     > .sectioncontent {
         margin-left: 0px;
-        grid-column-start: 1;
-        grid-column-end: 3;
 
         width: 100%;
         box-sizing: border-box;
     }
     
-    // > h2, > .sectioncontent
-    // {
-    //     padding: 2px 0px;
-    //     margin-bottom: 10px;
-    // }
     h2 {
         padding: 0px;
         margin-top: 0.5rem;
@@ -47,7 +72,8 @@ article.ecc-code-page {
         }
     }
 
-    > .code-root-code-kingdom-name, > .code-root-code-domain-name {
+    > .code-root-code-kingdom-name,
+    > .code-root-code-domain-name {
         font-size: 1rem;
         padding: 4px;
         border-radius: 2px;
@@ -66,13 +92,8 @@ article.ecc-code-page {
     }
 
     @media screen {
-        >.sectioncontent.code-name {
-            grid-column-end: 2;
-        }
         >.sectioncontent.info-popup-button-container {
             margin-top: 0px;
-            grid-column-start: 2;
-            grid-row-start: 1;
         }
     }
 
@@ -85,8 +106,6 @@ article.ecc-code-page {
     // style appearance:
 
     h2 {
-        // give these dt elements an inner header style -- we should probably
-        // have rendered these as <h2> elements... oh well...
         font-size: 1.1rem;
         font-style: normal;
         font-weight: normal;
@@ -100,11 +119,6 @@ article.ecc-code-page {
         font-style: italic;
         color: $text-dim-color;
     }
-
-    // .code-name {
-    //     font-size: 1.1rem;
-    //     font-weight: bold;
-    // }
 
     h1.code-name {
         margin: 0px 10px 0px 0px;
@@ -136,6 +150,123 @@ article.ecc-code-page {
         padding: 15px 25px;
         font-style: italic;
         opacity: .7;
+    }
+
+    // code hierarchy
+    .code-hierarchy-item {
+        border-left: solid 0.4pt gray;
+        margin-left: 10pt;
+
+        &.code-hierarchy-item-self {
+            font-weight: bold;
+        }
+        > .code-hierarchy-item-name {
+
+            &::before {
+                content: '●';
+                color: gray;
+                text-align: center;
+                width: 10pt;
+                margin-left: -20pt;
+                margin-right: 10pt;
+                display: inline-block;
+            }
+            
+            padding-left: 15pt;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        > .code-hierarchy-item-relation-detail {
+            padding-top: .75em;
+            padding-bottom: .75em;
+            &:empty {
+                padding-top: 0px;
+                padding-bottom: 0px;
+            }
+
+            &::before {
+                content: '▴';
+                font-style: normal;
+                font-weight: normal;
+                color: gray;
+                text-align: center;
+                width: 10pt;
+                margin-left: -15pt;
+                margin-right: 5pt;
+                display: inline-block;
+            }
+            padding-left: 10pt;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .code-hierarchy-item-relation-detail {
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        &.code-hierarchy-item-domain .code-hierarchy-item-name {
+            background-color: $ecc-page-domain-background-color;
+        }
+        &.code-hierarchy-item-kingdom .code-hierarchy-item-name {
+            background-color: $ecc-page-kingdom-background-color;
+        }
+
+
+        &.code-hierarchy-inner-secondary-parents {
+            padding-left: 25pt;
+            padding-top: .75em;
+            padding-bottom: .75em;
+
+            &::before {
+                content: '↗';
+                width: 15pt;
+                vertical-align: -3pt;
+                display: inline-block;
+                margin-left: -15pt;
+            }
+        }
+
+        &.code-hierarchy-item-secondary-parents,
+        &.code-hierarchy-item-children {
+            padding-left: 25pt;
+            padding-top: .75em;
+            padding-bottom: .75em;
+
+            .code-hierarchy-item-child,
+            .code-hierarchy-item-secondary-parent {
+
+                display: block;
+                padding-bottom: 0.5em;
+                &:last-child { padding-bottom: 0px; }
+
+                &::before {
+                    //content: '↗'; // set below
+                    width: 15pt;
+                    display: inline-block;
+                    margin-left: -15pt;
+                }
+
+                .code-hierarchy-item-name {
+                    display: inline-block;
+                    &::after { content: ' '; }
+                }
+                .code-hierarchy-item-relation-detail {
+                    padding-top: 0.5em;
+                    display: block;
+                }
+            }
+        }
+        .code-hierarchy-item-child::before {
+            content: '↘';
+            vertical-align: 1pt;
+        }
+        .code-hierarchy-item-secondary-parent::before {
+            content: '↗';
+            vertical-align: -3pt;
+        }
     }
 }
 

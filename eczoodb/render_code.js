@@ -1,5 +1,5 @@
-//import debug_mod from 'debug';
-//const debug = debug_mod("eczoodbjs.render_code");
+import debug_mod from 'debug';
+const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
@@ -15,9 +15,157 @@ import {
 // ------
 
 
+function get_code_hierarchy_info(code, eczoodb)
+{
+    // produce an overview of the top-down code parents hierarchy
+    let hierarchy_items = {
+        primary_parent_chain: [],
+        secondary_parents: [],
+        self: [],
+        children: [],
+    };
+
+    let seen_parent_ids = {};
+
+    const set_code_seen = (seen_code_id, what) => {
+        const seen_where = seen_parent_ids[seen_code_id];
+        if (seen_where == null) {
+            seen_parent_ids[seen_code_id] = what;
+            return null;
+        } else {
+            const already_seen_where = seen_parent_ids[seen_code_id];
+            debug(`Code ${seen_code_id} (${what}) was already seen as `
+                  + `${already_seen_where} of ${code.code_id}`);
+            return already_seen_where;
+        }
+    };
+
+    // first, the code itself.
+    hierarchy_items.self.push( {
+        code: code,
+        object_type: 'code',
+        object_id: code.code_id,
+        name: code.name,
+    } );
+    set_code_seen(code.code_id, 'self');
+
+    // display immediate children at the end of the hierarchy items list
+    const children = code.relations?.parent_of;
+    if (children && children.length > 0) {
+        for (const child_info of children) {
+            const ccode = child_info.code;
+            set_code_seen(seen_parent_ids, 'child');
+            hierarchy_items.children.push( {
+                code: ccode,
+                object_type: 'code',
+                object_id: ccode.code_id,
+                name: ccode.name,
+                detail: child_info.detail,
+            } );
+        }
+    }
+
+    // now, get secondary parents
+    const secondary_parents_relations = eczoodb.code_get_secondary_parents(code);
+    if (secondary_parents_relations && secondary_parents_relations.length > 0) {
+        for (const secparent_info of secondary_parents_relations) {
+            const spcode = secparent_info.code;
+            set_code_seen(spcode.code_id, 'secondary-parent');
+            hierarchy_items.secondary_parents.push( {
+                code: spcode,
+                object_type: 'code',
+                object_id: spcode.code_id,
+                name: spcode.name,
+                detail: secparent_info.detail,
+            }) ;
+        }
+    }
+
+    // go up the primary parents chain
+    let primparent_info = eczoodb.code_get_primary_parent(code);
+    while (primparent_info != null) {
+        if (primparent_info.domain != null) {
+            const domain = primparent_info.domain;
+            hierarchy_items.primary_parent_chain.unshift({
+                domain: domain,
+                object_type: 'domain',
+                object_id: domain.domain_id,
+                name: domain.name,
+                detail: null, // not '', because this will be processed with render_value()
+                secondary_parents: [],
+            })
+            primparent_info = null;
+        } else if (primparent_info.kingdom != null) {
+            const kingdom = primparent_info.kingdom;
+            hierarchy_items.primary_parent_chain.unshift({
+                kingdom: kingdom,
+                object_type: 'kingdom',
+                object_id: kingdom.kingdom_id,
+                name: kingdom.name,
+                detail: null, // not '', because this will be processed with render_value()
+                secondary_parents: [],
+            });
+            primparent_info = {
+                domain: kingdom.parent_domain.domain,
+            };
+        } else if (primparent_info.code != null) {
+            const parent_code = primparent_info.code;
+            set_code_seen(parent_code.code_id, 'primary-parent-chain');
+            const rel_obj = primparent_info.relation_object;
+            hierarchy_items.primary_parent_chain.unshift({
+                code: parent_code,
+                object_type: 'code',
+                object_id: parent_code.code_id,
+                name: parent_code.name,
+                detail: rel_obj.detail,
+                secondary_parents: [],
+            });
+            primparent_info = eczoodb.code_get_primary_parent(parent_code);
+        } else {
+            console.error('Invalid primary parent?? ', primparent_info);
+            // wtf?
+            throw Error(`???`);
+        }
+    }
+
+    // now that we've established the primary-parent chain, go take note of all
+    // anscestor codes of each parent in the primary parent chain.  Mark
+    // duplicates, which correspond to cycles in the nondirected code parent-child
+    // hierarchy.
+    //
+    // It's important we do this step *after* establishing the full primary parent
+    // tree, so that the secondary parents/property codes are marked as duplicates,
+    // not the main codes in the primary parent tree.
+    for (let primary_parent_item of hierarchy_items.primary_parent_chain) {
+        const pcode = primary_parent_item.code;
+        if (pcode == null) {
+            continue;
+        }
+        const psecparents = eczoodb.code_get_secondary_parents(pcode);
+        for (const psecparentcoderel of psecparents) {
+            const psecparentcode = psecparentcoderel.code;
+            let seen = set_code_seen(psecparentcode);
+            primary_parent_item.push({
+                code: psecparentcode,
+                name: psecparentcode.name,
+                //detail: psecparentcoderel.detail,
+                duplicate: seen,
+                object_type: 'code',
+                object_id: psecparentcode.code_id,
+            });
+        }
+    }
+
+    return hierarchy_items;
+}
+
+
+
+
 export function render_code_page(
     code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
-            additional_setup_render_context, render_meta_changelog_options }
+            additional_setup_render_context, render_meta_changelog_options,
+            eczoodb }
 )
 {
     //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
@@ -32,7 +180,8 @@ export function render_code_page(
         }
 
         const R = zooflm.make_render_shorthands({render_context});
-        const { ne, rdr, ref } = R;
+        const { ne, rdr, //rdrblock,
+             ref, refhref } = R;
 
         let html = '';
 
@@ -91,7 +240,7 @@ export function render_code_page(
     </span> <!-- space -->${
    ref('kingdom', kingdom.kingdom_id)
 }</div>
-<div class="kingdom-description">${ rdr(kingdom.description) }</div>
+<div class="sectioncontent kingdom-description">${ rdr(kingdom.description) }</div>
 `;
             }
         }
@@ -123,9 +272,12 @@ export function render_code_page(
                 classlist.push(clname);
             }
             const classnames = classlist.join(' '); // eg. "code-feature code-feature-rate"
-            return `
+            return sqzhtml`
+<div class="sectioncontent ${classnames}">
 <h2 id="${fieldname.replace('.', '_')}" class="${classnames}">${title}</h2>
-<div class="sectioncontent ${classnames}">${rdr(value)}</div>`;
+${rdr(value)}
+</div>
+`;
         };
 
         html += display_field('description', 'Description');
@@ -161,45 +313,117 @@ export function render_code_page(
                 return ``;
             }
 
-            let result = `
-<h2 id="relations_${relation_fieldname}" class="code-${relation_fieldname}">
+            let result = sqzhtml`
+<div class="sectioncontent code-${relation_fieldname}">
+  <h2 id="relations_${relation_fieldname}" class="code-${relation_fieldname}">
   ${ (relation_list.length > 1) ? plural : singular }
 </h2>
-<div class="sectioncontent code-${relation_fieldname}">`;
+`;
             // if (relation_list.length == 0) {
             //     return `<span class="na">(none)</span>`;
             // }
-            result += `
+            result += sqzhtml`
   <ul class="code-relations-list code-${relation_fieldname}-list">`;
             for (const rel of relation_list) {
-                result += `
+                result += sqzhtml`
     <li class="paragraph-in-list">
       <span class="code-${relation_fieldname}}-1-code">${
         ref('code', rel.code_id)
       }</span>`;
                 if (ne(rel.detail)) {
-                    result += `
+                    result += sqzhtml`
       <span class="code-${relation_fieldname}-1-detail">${''
         }<!-- whitespace, em dash, no-break space -->${''
         }&#x2014;&nbsp;${rdr(rel.detail)}</span>`;
                 }
-                result += `
-    </li>` .trim();
+                result += sqzhtml`
+    </li>`;
             }
-            result += `
+            result += sqzhtml`
   </ul>
-</div>` .trim();
+</div>`;
             return result;
         };
 
-        const relations = code.relations ?? {};
 
+
+
+        const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
+
+        let code_hierarchy_content = '';
+        
+        // display elements of the primary parent chain first:
+        for (const ppitem of hierarchy_items.primary_parent_chain) {
+
+            code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-${ppitem.object_type}">
+  <div class="code-hierarchy-item-name">${ ref(ppitem.object_type, ppitem.object_id) }</div>`;
+
+            if (ppitem.secondary_parents && ppitem.secondary_parents.length) {
+                code_hierarchy_content += sqzhtml`
+  <div class="code-hierarchy-item-inner-anscestors">`;
+                for (const spar of ppitem.secondary_parents) {
+                    code_hierarchy_content += sqzhtml`
+    <a class="code-hierarchy-item-inner-anscestor" href="${
+        refhref(spar.object_type, spar.object_id)
+    }">${ rdr(eczoodb.code_short_name(spar)) }</a>  <!-- space -->`;
+                }
+                code_hierarchy_content += sqzhtml`
+  </div>`;
+            }
+            code_hierarchy_content += sqzhtml`
+  <div class="code-hierarchy-item-relation-detail">${ rdr(ppitem.detail) }</div>
+</div>`;
+        }
+
+        // then, the secondary parents of the present specific code
+        if ( hierarchy_items.secondary_parents &&  hierarchy_items.secondary_parents.length ) {
+            code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-secondary-parents">`;
+            for (const spitem of hierarchy_items.secondary_parents) {
+                code_hierarchy_content += sqzhtml`
+  <div class="code-hierarchy-item-secondary-parent">
+    <div class="code-hierarchy-item-name">${ref(spitem.object_type, spitem.object_id)}</div>
+    <div class="code-hierarchy-item-relation-detail">${rdr(spitem.detail)}</div>
+  </div>`;
+            }
+            code_hierarchy_content += sqzhtml`
+</div>`;
+        }
+
+        // then, the code itself
+        code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-code code-hierarchy-item-self">
+  <div class="code-hierarchy-item-name">${ rdr(code.name) }</div>
+</div>
+`;
+        // finally, the child items.
+        if ( hierarchy_items.children &&  hierarchy_items.children.length ) {
+            code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-children">`;
+            for (const citem of hierarchy_items.children) {
+                code_hierarchy_content += sqzhtml`
+  <div class="code-hierarchy-item-child">
+    <div class="code-hierarchy-item-name">${ref(citem.object_type, citem.object_id)}</div>
+    <div class="code-hierarchy-item-relation-detail">${rdr(citem.detail)}</div>
+  </div>`;
+            }
+            code_hierarchy_content += sqzhtml`
+</div>`;
+        }
+        
+        html += sqzhtml`
+<div class="sectioncontent code-hierarchy">
+<h2 id="code_hierarchy" class="code-hierarchy">Code Hierarchy</h2>
+${code_hierarchy_content}
+</div>`;
+
+
+        const relations = code.relations ?? {};
         html += display_code_relation('parents', relations.parents ?? [],
                                       ['Parent', 'Parents']);
-
         html += display_code_relation('parent_of', relations.parent_of ?? [],
                                       ['Child', 'Children']);
-
 
         html += display_code_relation(
             'cousins',
