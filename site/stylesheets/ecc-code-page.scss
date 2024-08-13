@@ -92,8 +92,8 @@ article.ecc-code-page {
         }
     }
 
-    > .code-root-code-kingdom-name,
-    > .code-root-code-domain-name {
+    .code-root-code-kingdom-name,
+    .code-root-code-domain-name {
         font-size: 1rem;
         padding: 4px;
         border-radius: 2px;
@@ -104,10 +104,10 @@ article.ecc-code-page {
 
         font-weight: bold;
     }
-    > .code-root-code-domain-name {
+    .code-root-code-domain-name {
         background-color: $ecc-page-domain-background-color;
     }
-    > .code-root-code-kingdom-name {
+    .code-root-code-kingdom-name {
         background-color: $ecc-page-kingdom-background-color;
     }
 
@@ -214,7 +214,7 @@ article.ecc-code-page {
                 color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
-                margin-left: -20.25pt;
+                margin-left: -20.5pt;
                 margin-right: 10pt;
                 display: inline-block;
             }
@@ -276,7 +276,7 @@ article.ecc-code-page {
                 color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
-                margin-left: -15.25pt;
+                margin-left: -15.5pt;
                 margin-right: 5pt;
                 display: inline-block;
             }
@@ -367,6 +367,7 @@ article.ecc-code-page {
         // }
     }
     .code-hierarchy-items {
+        margin-top: 1em;
         margin-bottom: 1em;
     }
 }

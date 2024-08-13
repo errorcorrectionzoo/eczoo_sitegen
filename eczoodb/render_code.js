@@ -90,7 +90,7 @@ function get_code_hierarchy_info(code, eczoodb)
                 object_id: domain.domain_id,
                 name: domain.name,
                 detail: null, // not '', because this will be processed with render_value()
-                secondary_parents: [],
+                ancestors: [],
             })
             primparent_info = null;
         } else if (primparent_info.kingdom != null) {
@@ -101,7 +101,7 @@ function get_code_hierarchy_info(code, eczoodb)
                 object_id: kingdom.kingdom_id,
                 name: kingdom.name,
                 detail: null, // not '', because this will be processed with render_value()
-                secondary_parents: [],
+                ancestors: [],
             });
             primparent_info = {
                 domain: kingdom.parent_domain.domain,
@@ -116,7 +116,7 @@ function get_code_hierarchy_info(code, eczoodb)
                 object_id: parent_code.code_id,
                 name: parent_code.name,
                 detail: rel_obj.detail,
-                secondary_parents: [],
+                ancestors: [],
             });
             primparent_info = eczoodb.code_get_primary_parent(parent_code);
         } else {
@@ -139,18 +139,32 @@ function get_code_hierarchy_info(code, eczoodb)
         if (pcode == null) {
             continue;
         }
-        const pancestors = eczoodb.code_get_ancestors(pcode);
-        for (const pancestorcode of pancestors) {
+        const pancestors = eczoodb.code_get_ancestors(pcode, {
+            return_relation_info: true
+        });
+        for (const pancestorcodeinfo of pancestors) {
+            if (pancestorcodeinfo.code === pcode) {
+                continue; // skip the primary parent code itself
+            }
+            const pancestorcode = pancestorcodeinfo.code;
+            let ancestor_relation_info_chain = [];
+            let pintermediatecodeinfo = pancestorcodeinfo;
+            while (pintermediatecodeinfo != null) {
+                ancestor_relation_info_chain.push(pintermediatecodeinfo);
+                pintermediatecodeinfo = pintermediatecodeinfo.reached_from_code_info;
+            }
+            ancestor_relation_info_chain.reverse();
             let duplicate_where = set_code_seen(
                 pancestorcode.code_id,
                 `ancestor of "${pcode.code_id}"`
             );
-            primary_parent_item.secondary_parents.push({
+            primary_parent_item.ancestors.push({
                 code: pancestorcode,
                 name: pancestorcode.name,
                 duplicate_where,
                 object_type: 'code',
                 object_id: pancestorcode.code_id,
+                ancestor_relation_info_chain,
             });
         }
     }
@@ -377,17 +391,21 @@ ${rdr(value)}
 <div class="code-hierarchy-item code-hierarchy-item-${ppitem.object_type}">
   <div class="code-hierarchy-item-name">${ ref(ppitem.object_type, ppitem.object_id) }</div>`;
 
-            if (ppitem.secondary_parents && ppitem.secondary_parents.length) {
+            if (ppitem.ancestors && ppitem.ancestors.length) {
                 code_hierarchy_content += sqzhtml`
   <div class="code-hierarchy-item-inner-ancestors">`;
-                for (const spar of ppitem.secondary_parents) {
+                for (const spar of ppitem.ancestors) {
                     const is_duplicate = (spar.duplicate_where ? true : false);
+                    const sparcode = spar.code;
                     code_hierarchy_content += sqzhtml`
     <a class="code-hierarchy-item-inner-ancestor${
         is_duplicate ? ' code-hierarchy-item-is-duplicate' : ''
     }" href="${
         refhref(spar.object_type, spar.object_id)
-    }">${ rdr(eczoodb.code_short_name(spar.code)) }</a>  <!-- space -->`;
+    }" title="${
+        spar.ancestor_relation_info_chain.map( (cinfo) => rdr(cinfo.code.name) )
+        .join(' ← ')
+    }">${ rdr(sparcode ? eczoodb.code_short_name(sparcode) : spar.name) }</a>  <!-- space -->`;
                 }
                 code_hierarchy_content += sqzhtml`
   </div>`;
