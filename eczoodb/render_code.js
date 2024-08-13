@@ -32,12 +32,10 @@ function get_code_hierarchy_info(code, eczoodb)
         if (seen_where == null) {
             seen_parent_ids[seen_code_id] = what;
             return null;
-        } else {
-            const already_seen_where = seen_parent_ids[seen_code_id];
-            debug(`Code ${seen_code_id} (${what}) was already seen as `
-                  + `${already_seen_where} of ${code.code_id}`);
-            return already_seen_where;
         }
+        debug(`Code ${seen_code_id} (${what}) was already seen as `
+              + `${seen_where} of ${code.code_id}`);
+        return seen_where;
     };
 
     // first, the code itself.
@@ -144,7 +142,7 @@ function get_code_hierarchy_info(code, eczoodb)
         const psecparents = eczoodb.code_get_secondary_parents(pcode);
         for (const psecparentcoderel of psecparents) {
             const psecparentcode = psecparentcoderel.code;
-            let duplicate_where = set_code_seen(psecparentcode.code_id);
+            let duplicate_where = set_code_seen(psecparentcode.code_id, 'ancestor-of-primary');
             primary_parent_item.secondary_parents.push({
                 code: psecparentcode,
                 name: psecparentcode.name,

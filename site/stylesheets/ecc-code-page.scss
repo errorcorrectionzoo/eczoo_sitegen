@@ -156,13 +156,35 @@ article.ecc-code-page {
     // code hierarchy diagram
     //
     .code-hierarchy-item {
-        border-left: solid 1pt $text-dim-color;
+
         margin-left: 10pt;
+        //position: relative;
+        //box-sizing: border-box;
+
+        border-left: solid 1pt $text-dim-color;
+        // &::before {
+        //     content: '';
+        //     position: absolute;
+        //     top: 0%;
+        //     left: -.25pt;
+        //     height: 50%;
+        //     border-left: solid 1pt $text-dim-color;
+        // }
+        // &::after {
+        //     content: '';
+        //     position: absolute;
+        //     bottom: 0%;
+        //     left: -.25pt;
+        //     height: 50%;
+        //     border-left: solid 1pt $text-dim-color;
+        // }
 
         padding-left: 15pt;
         > div { margin-left: -15pt; }
 
         &.code-hierarchy-item-self {
+            padding-top: .5em;
+            padding-bottom: .5em;
             font-weight: bold;
         }
         > .code-hierarchy-item-name {
@@ -172,7 +194,7 @@ article.ecc-code-page {
                 color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
-                margin-left: -20pt;
+                margin-left: -20.25pt;
                 margin-right: 10pt;
                 display: inline-block;
             }
@@ -212,8 +234,10 @@ article.ecc-code-page {
                 &::before { content: '#'; }
 
                 &.code-hierarchy-item-is-duplicate {
-                    background-color: rgb(220, 30, 128);
-                    color: #fff;
+                    text-decoration-style: wavy;
+                    text-decoration-color: rgb(220, 30, 128);
+                    //background-color: rgb(220, 30, 128);
+                    //color: #fff;
                 }
             }
         }
@@ -233,7 +257,7 @@ article.ecc-code-page {
                 color: $text-dim-color;
                 text-align: center;
                 width: 10pt;
-                margin-left: -15pt;
+                margin-left: -15.25pt;
                 margin-right: 5pt;
                 display: inline-block;
             }
@@ -269,6 +293,17 @@ article.ecc-code-page {
             padding-top: .75em;
             padding-bottom: .75em;
 
+            &::before {
+                // 'SECONDARY PARENTS' / 'CHILDREN' label
+                margin-left: -15pt;
+                font-size: 0.8em;
+                font-weight: light;
+                color: $text-dim-color;
+                letter-spacing: .3pt;
+                margin-bottom: .5em;
+                display: block;
+            }
+
             .code-hierarchy-item-child,
             .code-hierarchy-item-secondary-parent {
 
@@ -278,10 +313,13 @@ article.ecc-code-page {
                 &:last-child { padding-bottom: 0px; }
 
                 &::before {
-                    //content: '↗'; // set below
-                    width: 15pt;
+                    content: ''; //content: '↗'; // set below
                     display: inline-block;
-                    margin-left: -15pt;
+                    margin-left: -25pt;
+                    width: 18pt;
+                    margin-right: 7pt;
+                    border-top: solid 1px $text-dim-color;
+                    vertical-align: 1.8pt;
                 }
 
                 .code-hierarchy-item-name {
@@ -294,14 +332,20 @@ article.ecc-code-page {
                 }
             }
         }
-        .code-hierarchy-item-child::before {
-            content: '↘';
-            vertical-align: 1pt;
+        &.code-hierarchy-item-secondary-parents::before {
+            content: 'SECONDARY PARENTS';
         }
-        .code-hierarchy-item-secondary-parent::before {
-            content: '↗';
-            vertical-align: -3pt;
+        &.code-hierarchy-item-children::before {
+            content: 'CHILDREN';
         }
+        // .code-hierarchy-item-child::before {
+        //     content: '↘';
+        //     vertical-align: 1pt;
+        // }
+        // .code-hierarchy-item-secondary-parent::before {
+        //     content: '↗';
+        //     vertical-align: -3pt;
+        // }
     }
 }
 
