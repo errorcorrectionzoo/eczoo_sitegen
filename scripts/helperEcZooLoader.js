@@ -20,11 +20,15 @@ const __dirname = path.dirname(__filename);
 
 
 
-export async function loadEcZoo({ dataDir, } = {})
+export async function loadEcZoo({
+    dataDir,
+    useFlmProcessor,
+} = {})
 {
     debug(`loadEcZoo(), dataDir=${dataDir}`);
 
     dataDir ??= path.join(__dirname, '..', '..', 'eczoo_data');
+    useFlmProcessor ??= true;
 
     // make dataDir an absolute path
     if (!path.isAbsolute(dataDir)) {
@@ -32,6 +36,12 @@ export async function loadEcZoo({ dataDir, } = {})
     }
 
     debug(`Using dataDir=‘${dataDir}’`);
+
+    let overrideOptions = {};
+
+    if (!useFlmProcessor) {
+        overrideOptions.use_flm_processor = false;
+    }
 
     const eczoodbopts = _.merge(
         {
@@ -57,6 +67,7 @@ export async function loadEcZoo({ dataDir, } = {})
                     `__abstract_fig_reference__/${graphics_resource.src_url}`
             },
         },
+        overrideOptions,
     );
 
     let eczoodb = await createEcZooDb(eczoodbopts);

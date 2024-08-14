@@ -1,3 +1,8 @@
+//
+// Run as "yarn node scripts/query_bib_references.js [...]".
+// Try --help to get a list of options.
+//
+
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.scripts.query_bib_references');
 
