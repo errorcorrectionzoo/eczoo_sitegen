@@ -50,9 +50,41 @@ async function run_list_ancestors(argv)
 
     let ancestorsData = null;
     if (argv.linear) {
+
         const ancestors = eczoodb.code_get_ancestors(code);
         ancestorsData = ancestors.map( (c) => c.code_id );
+
+    } else if (argv.listByAncestor) {
+
+        ancestorsData = {};
+        
+        let visitCode = ({ ancestorsData, c, ancPath} ) => {
+            let codeId = c.code_id;
+            ancPath ??= [];
+            debug(`Visiting ${codeId} from ${ancPath} ...`);
+            let pathList = ancestorsData[codeId];
+            if (pathList == null) {
+                pathList = ancestorsData[codeId] = [];
+            }
+            pathList.push( [...ancPath, codeId] );
+            for (const prel of c.relations?.parents ?? []) {
+                visitCode({ ancestorsData, c: prel.code, ancPath: [... ancPath, c.code_id] });
+            }
+        };
+
+        visitCode({ ancestorsData, c: code });
+
+        // possibly filter the final ancestorsData object to limit to only those ancestors
+        // that we're interested in:
+        if (argv.showOnlyAncestors != null && argv.showOnlyAncestors.trim().length) {
+            const codeIds = argv.showOnlyAncestors.split(',').map( (x) => x.trim() );
+            ancestorsData = Object.fromEntries(
+                Object.entries(ancestorsData).filter( ([cId,aInfo]) => codeIds.includes(cId) )
+            );
+        }
+
     } else {
+
         // display full tree
         let seenCodeIds = {};
         
@@ -99,8 +131,17 @@ async function run_list_ancestors(argv)
     if (argv.outputFormat === 'json') {
         outputData = JSON.stringify(ancestorsData);
     } else if (argv.outputFormat === 'txt') {
+
         const lineWidth = argv.lineWidth;
         const minWrapWidth = 20;
+        // display full parents tree
+        let dispCodeLabel = (codeId) => {
+            if (!argv.fullNames) {
+                return codeId;
+            }
+            return `${eczoodb.objects.code[codeId].name} ⟨${codeId}⟩`;
+        };
+        
         if (argv.linear) {
             outputData = (
                 '\n'
@@ -108,14 +149,35 @@ async function run_list_ancestors(argv)
                 + ancestorsData.map( (c) => `  * ${c}\n` ).join('')
                 + '\n'
             );
-        } else {
-            // display full parents tree
-            let dispCodeLabel = (codeId) => {
-                if (!argv.fullNames) {
-                    return codeId;
+        } else if (argv.listByAncestor) {
+            outputData = '\n';
+            let wrapToWidth = lineWidth - 4;
+            if (wrapToWidth < minWrapWidth) { wrapToWidth = minWrapWidth; }
+
+            for (const [codeId, ancPathList] of Object.entries(ancestorsData)) {
+                const dispCodeLines = wordWrapLines(
+                    `${dispCodeLabel(codeId)}:`,
+                    wrapToWidth,
+                    {
+                        firstIndent: '* ',
+                        subsequentIndent: '  ',
+                    }
+                );
+                outputData += dispCodeLines.join('\n') + '\n\n';
+                for (const ancPath of ancPathList) {
+                    const dispAncPathLines = wordWrapLines(
+                        ancPath.map(dispCodeLabel).join(' ← '),
+                        wrapToWidth,
+                        {
+                            firstIndent: '  - ',
+                            subsequentIndent: '    ',
+                        }
+                    );
+                    outputData += dispAncPathLines.join('\n') + '\n';
                 }
-                return `${eczoodb.objects.code[codeId].name} ⟨${codeId}⟩`;
-            };
+                outputData += '\n';
+            }
+        } else {
             let dispAncInfo = ({ ancestorInfo, indents }) => {
                 let lines = [];
                 indents ??= [];
@@ -211,6 +273,14 @@ run_list_ancestors.yargs_builder = (yargs) => {
                 boolean: true,
                 describe: 'List all ancestor codes as a simple list.  The list respects global parent/child order, i.e., parents appear before their children.'
             },
+            'list-by-ancestor': {
+                boolean: true,
+                describe: 'For each ancestor, display the different paths through which this code appears as an ancestor',
+            },
+            'show-only-ancestors': {
+                default: null,
+                describe: 'Refine the output of --list-by-ancestor to only show information about the given ancestors (provide comma-separated list of CODE_ID\'s)',
+            },
             'full-names': {
                 boolean: true,
                 describe: 'Display the full name for each code, not only its code ID.'
@@ -264,7 +334,7 @@ await main();
 
 // helper
 
-function wordWrapLines(x, width, { minWidth }={})
+function wordWrapLines(x, width, { minWidth, firstIndent, subsequentIndent }={})
 {
     debug(`Wrapping: `, {x, width, minWidth});
     minWidth ??= 20;
@@ -282,7 +352,7 @@ function wordWrapLines(x, width, { minWidth }={})
         }
         let rpos = remaining.lastIndexOf(' ', width);
         if (rpos === -1 || rpos < minWidth) {
-            const thisLine = remaining.slice(0,width-1);
+            let thisLine = remaining.slice(0,width-1);
             const newRemaining = remaining.slice(width-1).trim();
             debug(`Splitting remaining=‘${remaining}’ at width-1=${width-1}`, {thisLine,newRemaining});
             lines.push(
@@ -290,13 +360,23 @@ function wordWrapLines(x, width, { minWidth }={})
             );
             remaining = newRemaining;
         } else {
-            const thisLine = remaining.slice(0,rpos).trim();
+            let thisLine = remaining.slice(0,rpos).trim();
             const newRemaining = remaining.slice(rpos);
             debug(`Splitting remaining=‘${remaining}’ at rpos=${rpos}`, {thisLine, newRemaining});
             lines.push(thisLine);
             remaining = newRemaining;
         }
     }
+    // add first/subsequent indents to the lines
+    lines = lines.map( (line, index) => {
+        if (index === 0 && firstIndent != null) {
+            return firstIndent + line;
+        }
+        if (index > 0 && subsequentIndent != null) {
+            return subsequentIndent + line;
+        }
+        return line;
+    } );
     debug(`---> lines = `, lines);
     return lines;
 }

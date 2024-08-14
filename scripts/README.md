@@ -25,8 +25,19 @@ appear before children:
 eczoo_sitegen> yarn node scripts/ancestorsTools list-ancestors --linear  surface
 ```
 
-In either case you can use `--full-names` to show the full names of the codes,
+To show the information, for each individual ancestor, of through which parental
+relationship paths the code is an acestor, use:
+```
+eczoo_sitegen> yarn node scripts/ancestorsTools list-ancestors --list-by-ancestor  surface
+```
+If you're only interested in information about specific ancestors, try
+```
+eczoo_sitegen> yarn node scripts/ancestorsTools list-ancestors --list-by-ancestor --show-only-ancestors=css,galois_css surface
+```
+
+In all cases you can use `--full-names` to show the full names of the codes,
 not only the CODE_ID's.
+
 
 
 ## Query bibliographic references in the zoo
