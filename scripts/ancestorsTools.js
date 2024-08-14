@@ -85,7 +85,8 @@ async function run_detect_degenerate_paths(argv)
 
     debuglog('runmain(): zoo is now loaded!');
 
-    const { dispCodeLabel, lineWidth, minWrapWidth } = common_args({argv, eczoodb});
+    const { dispCodeLabel, lineWidth,  } = common_args({argv, eczoodb});
+    const minCellWrapWidth = 8; // arbitrary, makes sure a cell isn't like 2 spaces wide
 
     //
     // Zoo is loaded (eczoodb). Query anything we need from it at this point.
@@ -305,10 +306,13 @@ async function run_detect_degenerate_paths(argv)
         outputData = '\n';
 
         for (const dpInfo of Object.values(detectedDegeneratePaths)) {
-            const { codeIds, paths } = dpInfo;
+            let { codeIds, paths } = dpInfo;
 
-            const codeLabel0 = dispCodeLabel(codeIds[0]);
-            const codeLabel1 = dispCodeLabel(codeIds[1]);
+            // switch 0 <-> 1 so we display the ancestor above, and the descendant below
+            const codeLabel0 = dispCodeLabel(codeIds[1]);
+            const codeLabel1 = dispCodeLabel(codeIds[0]);
+            // also reverse all paths for the same reason.
+            paths = paths.map( (path) => [...path].reverse() );
 
             // Fix the paths: 1) remove endpoints from paths, and 2) prepare the display strings.
             let pathsWithDispCodeLabels = paths.map( (path) => path.slice(1, -1).map(
@@ -318,14 +322,19 @@ async function run_detect_degenerate_paths(argv)
             let lineBullet = '*   ';
             let lineIndent = '    ';
 
+            let bulletLabelWrapWidth = lineWidth - lineIndent.length;
+            if (bulletLabelWrapWidth < minCellWrapWidth) {
+                bulletLabelWrapWidth = minCellWrapWidth;
+            }
+
             outputData += wordWrapLines(
-                `${codeLabel0} → ... → ${codeLabel1}`,
-                lineWidth - lineIndent.length,
+                `${codeLabel1} → ... → ${codeLabel0}`,
+                bulletLabelWrapWidth,
                 {
                     firstIndent: lineBullet,
                     subsequentIndent: lineIndent,
                 }
-            ).map( x => x+'\n' ).join() + '\n';
+            ).join('\n') + '\n\n';
 
             let nCols = pathsWithDispCodeLabels.length;
             let cellGap = 4;
@@ -342,8 +351,8 @@ async function run_detect_degenerate_paths(argv)
             if (cellWidth > maxLabelWidth) {
                 cellWidth = maxLabelWidth;
             }
-            if (cellWidth < 10) { // sanity check
-                cellWidth = 10;
+            if (cellWidth < minCellWrapWidth) { // sanity check
+                cellWidth = minCellWrapWidth;
             }
 
             let cellLWidth = parseInt(Math.floor(cellWidth/2))-1;
@@ -352,8 +361,8 @@ async function run_detect_degenerate_paths(argv)
 
             let megaCellWidth = cellRWidth + ((cellGap+cellWidth)*(nCols-2)) + cellGap + cellLWidth;
             let megaCellLPadding = 2;
-            if (megaCellWidth < cellWidth+megaCellLPadding) { // sanity check
-                megaCellWidth = cellWidth+megaCellLPadding;
+            if (megaCellWidth < minCellWrapWidth+2*megaCellLPadding) { // sanity check
+                megaCellWidth = minCellWrapWidth+2*megaCellLPadding;
             }
 
             debug(`Cell sizes: `, {cellWidth, cellLWidth, cellRWidth, cellGap, megaCellWidth, nCols});
@@ -364,12 +373,12 @@ async function run_detect_degenerate_paths(argv)
 
             outputData += wordWrapLines(
                 `${codeLabel0}`,
-                megaCellWidth - megaCellLPadding,
+                megaCellWidth - 2*megaCellLPadding,
                 {
                     firstIndent: lineIndent + ' '.repeat(cellLWidth+1+megaCellLPadding),
                     subsequentIndent: lineIndent + ' '.repeat(cellLWidth+1+megaCellLPadding),
                 }
-            ).map( x => x+'\n' ).join();
+            ).join('\n')+'\n';
 
             outputData += `${lineIndent}${
                 ' '.repeat(cellLWidth) + '/' + '-'.repeat(megaCellWidth) + '\\'
@@ -430,12 +439,12 @@ async function run_detect_degenerate_paths(argv)
 
             outputData += wordWrapLines(
                 `${codeLabel1}`,
-                megaCellWidth - megaCellLPadding,
+                megaCellWidth - 2*megaCellLPadding,
                 {
                     firstIndent: lineIndent + ' '.repeat(cellLWidth+1+megaCellLPadding),
                     subsequentIndent: lineIndent + ' '.repeat(cellLWidth+1+megaCellLPadding),
                 }
-            ).map( x => x+'\n' ).join();
+            ).join('\n') + '\n';
 
             outputData += `${lineIndent}${
                 ' '.repeat(cellLWidth) + ' ' + '-'.repeat(megaCellWidth) + ' '
@@ -765,7 +774,12 @@ await main();
 function wordWrapLines(x, width, { minWidth, firstIndent, subsequentIndent }={})
 {
     debug(`Wrapping: `, {x, width, minWidth});
-    minWidth ??= 15;
+    if (!width || width <= 0) {
+        throw new Error(`wordWrapLines() invalid width=${width}`);
+    }
+    if (minWidth == null) {
+        minWidth = parseInt(Math.floor(width * 0.4));
+    }
     if (width < minWidth) {
         throw new Error(`wordWrapLines() invalid width=${width} is less than minWidth=${minWidth}`);
     }

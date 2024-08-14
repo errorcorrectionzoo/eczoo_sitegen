@@ -14,6 +14,8 @@ some warnings (`ExperimentalWarnings`) that `node` displays.
 
 ## List ancestors of a given code
 
+### Simply listing ancestors and code hierarchy tree
+
 List the ancestors tree of the surface code (with CODE_ID "surface"):
 ```
 eczoo_sitegen> yarn node scripts/ancestorsTools list-ancestors  surface
@@ -38,7 +40,24 @@ eczoo_sitegen> yarn node scripts/ancestorsTools list-ancestors --list-by-ancesto
 In all cases you can use `--full-names` to show the full names of the codes,
 not only the CODE_ID's.
 
+### Detecting degenerate paths in graph
 
+I call "degenerate paths" a set of distinct paths with same start and end points following
+the parent relationships.  The `ancestorsTools` script provides a routine to find such
+paths.
+
+Try:
+```
+eczoo_sitegen> yarn node scripts/ancestorsTools detect-degenerate-paths --full-names
+```
+
+You can also use `--full-names` to get full code names, not just ID's.
+
+You can also inspect the ancestry of one or more specific codes, instead of listing all
+degenerate paths one can find in the zoo:
+```
+eczoo_sitegen> yarn node scripts/ancestorsTools detect-degenerate-paths galois_css,stabilizer
+```
 
 ## Query bibliographic references in the zoo
 
