@@ -20,21 +20,24 @@ function get_code_hierarchy_info(code, eczoodb)
     // produce an overview of the top-down code parents hierarchy
     let hierarchy_items = {
         primary_parent_chain: [],
-        secondary_parents: [],
+        first_parent_is_primary_parent: null,
+        parents: [],
         self: [],
         children: [],
     };
 
     let seen_parent_ids = {};
 
-    const set_code_seen = (seen_code_id, what) => {
+    let fetch_ancestors_for_items = [];
+
+    const mark_code_seen = (seen_code_id, what) => {
         const seen_where = seen_parent_ids[seen_code_id];
         if (seen_where == null) {
             seen_parent_ids[seen_code_id] = what;
             return null;
         }
-        debug(`Code ${seen_code_id} (${what}) was already seen as `
-              + `${seen_where} of ${code.code_id}`);
+        // debug(`Code ${seen_code_id} (${what}) was already seen as `
+        //       + `${seen_where} of ${code.code_id}`);
         return seen_where;
     };
 
@@ -45,42 +48,59 @@ function get_code_hierarchy_info(code, eczoodb)
         object_id: code.code_id,
         name: code.name,
     } );
-    set_code_seen(code.code_id, 'self');
+    mark_code_seen(code.code_id, 'self');
 
     // display immediate children at the end of the hierarchy items list
     const children = code.relations?.parent_of;
     if (children && children.length > 0) {
         for (const child_info of children) {
             const ccode = child_info.code;
-            set_code_seen(ccode.code_id, 'child');
+            mark_code_seen(ccode.code_id, 'child');
             hierarchy_items.children.push( {
                 code: ccode,
                 object_type: 'code',
                 object_id: ccode.code_id,
                 name: ccode.name,
                 detail: child_info.detail,
+                descendants: [],
             } );
         }
     }
 
-    // now, get secondary parents
-    const secondary_parents_relations = eczoodb.code_get_secondary_parents(code);
-    if (secondary_parents_relations && secondary_parents_relations.length > 0) {
-        for (const secparent_info of secondary_parents_relations) {
-            const spcode = secparent_info.code;
-            set_code_seen(spcode.code_id, 'secondary-parent');
-            hierarchy_items.secondary_parents.push( {
-                code: spcode,
+    const parents_relations = code.relations?.parents;
+
+    let primparent_info = eczoodb.code_get_primary_parent(code);
+    if (parents_relations != null && parents_relations.length
+        && primparent_info.code != null && primparent_info.code === parents_relations[0].code) {
+        hierarchy_items.first_parent_is_primary_parent = true;
+    } else {
+        hierarchy_items.first_parent_is_primary_parent = false;
+    }
+
+    // now, get first-level parents & info
+    if (parents_relations != null && parents_relations.length > 0) {
+        for (const [j,parent_info] of parents_relations.entries()) {
+            const pcode = parent_info.code;
+            mark_code_seen(pcode.code_id, 'parent');
+            let is_primary_parent = (j == 0 && hierarchy_items.first_parent_is_primary_parent);
+            const item = {
+                code: pcode,
                 object_type: 'code',
-                object_id: spcode.code_id,
-                name: spcode.name,
-                detail: secparent_info.detail,
-            }) ;
+                object_id: pcode.code_id,
+                name: pcode.name,
+                detail: parent_info.detail,
+                ancestors: [],
+                //ancestor_search_skip_primary_parent: is_primary_parent,
+            };
+            hierarchy_items.parents.push( item );
+            if (!is_primary_parent) {
+                // primary parent's ancestors will be shown above
+                fetch_ancestors_for_items.push( item );
+            }
         }
     }
 
     // go up the primary parents chain
-    let primparent_info = eczoodb.code_get_primary_parent(code);
     while (primparent_info != null) {
         if (primparent_info.domain != null) {
             const domain = primparent_info.domain;
@@ -90,7 +110,6 @@ function get_code_hierarchy_info(code, eczoodb)
                 object_id: domain.domain_id,
                 name: domain.name,
                 detail: null, // not '', because this will be processed with render_value()
-                ancestors: [],
             })
             primparent_info = null;
         } else if (primparent_info.kingdom != null) {
@@ -101,23 +120,25 @@ function get_code_hierarchy_info(code, eczoodb)
                 object_id: kingdom.kingdom_id,
                 name: kingdom.name,
                 detail: null, // not '', because this will be processed with render_value()
-                ancestors: [],
             });
             primparent_info = {
                 domain: kingdom.parent_domain.domain,
             };
         } else if (primparent_info.code != null) {
             const parent_code = primparent_info.code;
-            set_code_seen(parent_code.code_id, 'primary-parent-chain');
+            mark_code_seen(parent_code.code_id, 'primary-parent-chain');
             const rel_obj = primparent_info.relation_object;
-            hierarchy_items.primary_parent_chain.unshift({
+            const item = {
                 code: parent_code,
                 object_type: 'code',
                 object_id: parent_code.code_id,
                 name: parent_code.name,
                 detail: rel_obj.detail,
                 ancestors: [],
-            });
+                ancestor_search_skip_primary_parent: true,
+            };
+            hierarchy_items.primary_parent_chain.unshift(item);
+            fetch_ancestors_for_items.push(item);
             primparent_info = eczoodb.code_get_primary_parent(parent_code);
         } else {
             console.error('Invalid primary parent?? ', primparent_info);
@@ -127,20 +148,16 @@ function get_code_hierarchy_info(code, eczoodb)
     }
 
     // now that we've established the primary-parent chain, go take note of all
-    // ancestor codes of each parent in the primary parent chain.  Mark
-    // duplicates, which correspond to cycles in the nondirected code parent-child
-    // hierarchy.
-    //
-    // It's important we do this step *after* establishing the full primary parent
-    // tree, so that the secondary parents/property codes are marked as duplicates,
-    // not the main codes in the primary parent tree.
-    for (let primary_parent_item of hierarchy_items.primary_parent_chain) {
+    // ancestor codes of each parent in the primary parent chain.
+    for (let primary_parent_item of fetch_ancestors_for_items) {
         const pcode = primary_parent_item.code;
         if (pcode == null) {
             continue;
         }
         const pancestors = eczoodb.code_get_ancestors(pcode, {
-            return_relation_info: true
+            return_relation_info: true,
+            skip_first_primary_parent_relation: primary_parent_item.ancestor_search_skip_primary_parent,
+            //parent_child_sort: true,
         });
         for (const pancestorcodeinfo of pancestors) {
             if (pancestorcodeinfo.code === pcode) {
@@ -154,17 +171,41 @@ function get_code_hierarchy_info(code, eczoodb)
                 pintermediatecodeinfo = pintermediatecodeinfo.reached_from_code_info;
             }
             ancestor_relation_info_chain.reverse();
-            let duplicate_where = set_code_seen(
-                pancestorcode.code_id,
-                `ancestor of "${pcode.code_id}"`
-            );
             primary_parent_item.ancestors.push({
                 code: pancestorcode,
                 name: pancestorcode.name,
-                duplicate_where,
                 object_type: 'code',
                 object_id: pancestorcode.code_id,
                 ancestor_relation_info_chain,
+            });
+        }
+    }
+
+    // also, fetch descendants of children.
+    for (let child_item of hierarchy_items.children) {
+        const ccode = child_item.code;
+        const cdescendants = eczoodb.code_get_family_tree(ccode, {
+            return_relation_info: true,
+            parent_child_sort: true,
+        });
+        for (const cdescendantinfo of cdescendants) {
+            if (cdescendantinfo.code === ccode) {
+                continue; // skip the child code itself
+            }
+            const cdescendantcode = cdescendantinfo.code;
+            let descendant_relation_info_chain = [];
+            let cintermediatecodeinfo = cdescendantinfo;
+            while (cintermediatecodeinfo != null) {
+                descendant_relation_info_chain.push(cintermediatecodeinfo);
+                cintermediatecodeinfo = cintermediatecodeinfo.reached_from_code_info;
+            }
+            descendant_relation_info_chain.reverse();
+            child_item.descendants.push({
+                code: cdescendantcode,
+                name: cdescendantcode.name,
+                object_type: 'code',
+                object_id: cdescendantcode.code_id,
+                descendant_relation_info_chain,
             });
         }
     }
@@ -379,76 +420,169 @@ ${rdr(value)}
 
         const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
 
+        const rdrtext = (fragment) => zooflm.render_text_standalone(fragment);
+
         let code_hierarchy_content = '';
+
+        let leftdecorationelements = sqzhtml`
+<span class="code-hierarchy-item-leftdecoration-symbol"></span>
+<span class="code-hierarchy-item-leftdecoration-b1"></span>
+<span class="code-hierarchy-item-leftdecoration-b2"></span>
+        `;
 
         code_hierarchy_content += sqzhtml`
 <div class="code-hierarchy-items">`;
+
+        const gen_ancestors = (ppitemancestors) => {
+            if (ppitemancestors == null || !ppitemancestors.length) {
+                return '';
+            }
+            let s = sqzhtml`
+    <span class="code-hierarchy-item-inner-ancestors">
+        ${leftdecorationelements}`;
+            for (const spar of ppitemancestors) {
+                const sparcode = spar.code;
+                s += sqzhtml`
+        <a class="code-hierarchy-item-inner-ancestor" href="${
+            refhref(spar.object_type, spar.object_id).replace('"', '&quot;')
+        }" title="${
+            (spar.ancestor_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )
+             .join(' ← ')).replace('"', '&quot;')
+        }">${ rdr(sparcode ? eczoodb.code_short_name(sparcode) : spar.name) }</a>  <!-- space -->`;
+            }
+            s += sqzhtml`
+    </span>`;
+            return s;
+        };
+        
+        const gen_descendants = (citemdescendants) => {
+            if (citemdescendants == null || !citemdescendants.length) {
+                return '';
+            }
+            let s = sqzhtml`
+    <span class="code-hierarchy-item-inner-descendants">
+        ${leftdecorationelements}`;
+            for (const ccinfo of citemdescendants) {
+                const ccode = ccinfo.code;
+                s += sqzhtml`
+        <a class="code-hierarchy-item-inner-descendant" href="${
+            refhref(ccinfo.object_type, ccinfo.object_id).replace('"', '&quot;')
+        }" title="${
+            (ccinfo.descendant_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )
+             .join(' → ')).replace('"', '&quot;')
+        }">${ rdr(ccode ? eczoodb.code_short_name(ccode) : ccinfo.name) }</a>  <!-- space -->`;
+            }
+            s += sqzhtml`
+    </span>`;
+            return s;
+        };
         
         // display elements of the primary parent chain first:
         for (const ppitem of hierarchy_items.primary_parent_chain) {
 
             code_hierarchy_content += sqzhtml`
 <div class="code-hierarchy-item code-hierarchy-item-${ppitem.object_type}">
-  <div class="code-hierarchy-item-name">${ ref(ppitem.object_type, ppitem.object_id) }</div>`;
+    <div class="code-hierarchy-item-row code-hierarchy-item-name">
+        ${leftdecorationelements}
+        <span class="code-hierarchy-item-content">${ ref(ppitem.object_type, ppitem.object_id) }`;
 
-            if (ppitem.ancestors && ppitem.ancestors.length) {
-                code_hierarchy_content += sqzhtml`
-  <div class="code-hierarchy-item-inner-ancestors">`;
-                for (const spar of ppitem.ancestors) {
-                    const is_duplicate = (spar.duplicate_where ? true : false);
-                    const sparcode = spar.code;
-                    code_hierarchy_content += sqzhtml`
-    <a class="code-hierarchy-item-inner-ancestor${
-        is_duplicate ? ' code-hierarchy-item-is-duplicate' : ''
-    }" href="${
-        refhref(spar.object_type, spar.object_id)
-    }" title="${
-        spar.ancestor_relation_info_chain.map( (cinfo) => rdr(cinfo.code.name) )
-        .join(' ← ')
-    }">${ rdr(sparcode ? eczoodb.code_short_name(sparcode) : spar.name) }</a>  <!-- space -->`;
-                }
-                code_hierarchy_content += sqzhtml`
-  </div>`;
-            }
+            // gen_ancestors() simply returns an empty string if its argument is invalid/undefined
+            code_hierarchy_content += gen_ancestors(ppitem.ancestors);
+            code_hierarchy_content += sqzhtml`</span>
+    </div>`;
+
+    //         code_hierarchy_content += sqzhtml`
+    // <div class="code-hierarchy-item-row ${
+    //     ne(ppitem.detail) ? '' : 'code-hierarchy-item-row-thin'
+    // } code-hierarchy-item-relation-detail">
+    //     ${leftdecorationelements}
+    //     <span class="code-hierarchy-item-content">${ rdr(ppitem.detail) }</span>
+    // </div>`;
             code_hierarchy_content += sqzhtml`
-  <div class="code-hierarchy-item-relation-detail">${ rdr(ppitem.detail) }</div>
+    <div class="code-hierarchy-item-row code-hierarchy-item-row-thin code-hierarchy-item-relation-detail">
+        ${leftdecorationelements}
+        <span class="code-hierarchy-item-content"></span>
+    </div>`;
+
+            code_hierarchy_content += sqzhtml`
 </div>`;
         }
 
-        // then, the secondary parents of the present specific code
-        if ( hierarchy_items.secondary_parents &&  hierarchy_items.secondary_parents.length ) {
+        // then, the parents of the present specific code
+        if ( hierarchy_items.parents &&  hierarchy_items.parents.length ) {
             code_hierarchy_content += sqzhtml`
-<div class="code-hierarchy-item code-hierarchy-item-secondary-parents">`;
-            for (const spitem of hierarchy_items.secondary_parents) {
-                code_hierarchy_content += sqzhtml`
-  <div class="code-hierarchy-item-secondary-parent">
-    <div class="code-hierarchy-item-name">${ref(spitem.object_type, spitem.object_id)}</div>
-    <div class="code-hierarchy-item-relation-detail">${rdr(spitem.detail)}</div>
-  </div>`;
-            }
-            code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-section code-hierarchy-item-section-parents">
+    <div class="code-hierarchy-item-row code-hierarchy-item-sectiontitle">
+        ${leftdecorationelements}
+        <span class="code-hierarchy-item-content">Parents</span>
+    </div>
 </div>`;
+            for (const pitem of hierarchy_items.parents) {
+                code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-parent">
+    <div class="code-hierarchy-item-row code-hierarchy-item-name">
+        ${leftdecorationelements}
+        <div class="code-hierarchy-item-leftdecoration-notch"></div>
+        <span class="code-hierarchy-item-content">${ref(pitem.object_type, pitem.object_id)}`;
+                // ancestors
+                // gen_ancestors() simply returns an empty string if its argument is invalid/undefined
+                code_hierarchy_content += gen_ancestors(pitem.ancestors);
+                code_hierarchy_content += sqzhtml`</span>
+    </div>`;
+
+                code_hierarchy_content += sqzhtml`
+    <div class="code-hierarchy-item-row ${
+        ne(pitem.detail) ? '' : 'code-hierarchy-item-row-thin'
+    } code-hierarchy-item-relation-detail">
+        ${leftdecorationelements}
+        <div class="code-hierarchy-item-leftdecoration-notch"></div>
+        <span class="code-hierarchy-item-content">${rdr(pitem.detail)}</span>
+    </div>
+</div>`;
+            }
         }
 
         // then, the code itself
         code_hierarchy_content += sqzhtml`
 <div class="code-hierarchy-item code-hierarchy-item-code code-hierarchy-item-self">
-  <div class="code-hierarchy-item-name">${ rdr(code.name) }</div>
+    <div class="code-hierarchy-item-row code-hierarchy-item-name">
+        ${leftdecorationelements}
+        <span class="code-hierarchy-item-content">${ rdr(code.name) }</span>
+    </div>
 </div>
 `;
         // finally, the child items.
         if ( hierarchy_items.children &&  hierarchy_items.children.length ) {
             code_hierarchy_content += sqzhtml`
-<div class="code-hierarchy-item code-hierarchy-item-children">`;
+<div class="code-hierarchy-item code-hierarchy-item-section code-hierarchy-item-section-children">
+    <div class="code-hierarchy-item-row code-hierarchy-item-sectiontitle">
+        ${leftdecorationelements}
+        <span class="code-hierarchy-item-content">Children</span>
+    </div>
+</div>`;
             for (const citem of hierarchy_items.children) {
                 code_hierarchy_content += sqzhtml`
-  <div class="code-hierarchy-item-child">
-    <div class="code-hierarchy-item-name">${ref(citem.object_type, citem.object_id)}</div>
-    <div class="code-hierarchy-item-relation-detail">${rdr(citem.detail)}</div>
-  </div>`;
-            }
-            code_hierarchy_content += sqzhtml`
+<div class="code-hierarchy-item code-hierarchy-item-child">
+    <div class="code-hierarchy-item-row code-hierarchy-item-name">
+        ${leftdecorationelements}
+        <div class="code-hierarchy-item-leftdecoration-notch"></div>
+        <span class="code-hierarchy-item-content">
+            ${ref(citem.object_type, citem.object_id)}`;
+                // descendants
+                // gen_descendants() simply returns an empty string if its argument is invalid/undefined
+                code_hierarchy_content += gen_descendants(citem.descendants);
+                code_hierarchy_content += sqzhtml`</span>
+    </div>`;
+                code_hierarchy_content += sqzhtml`
+    <div class="code-hierarchy-item-row ${
+        ne(citem.detail) ? '' : 'code-hierarchy-item-row-thin'
+    } code-hierarchy-item-relation-detail">
+        ${leftdecorationelements}
+        <div class="code-hierarchy-item-leftdecoration-notch"></div>
+        <span class="code-hierarchy-item-content">${rdr(citem.detail)}</span>
+    </div>
 </div>`;
+            }
         }
         code_hierarchy_content += sqzhtml`
 </div>`; // .code-hierarchy-items

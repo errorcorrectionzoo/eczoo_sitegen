@@ -511,7 +511,7 @@ export class EcZooDb extends ZooDb
         return root_for_kingdom[0].kingdom;
     }
 
-    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
+    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation, return_relation_info } = {})
     {
         let predicate_relation = null;
         if (only_primary_parent_relation ?? false) {
@@ -523,8 +523,12 @@ export class EcZooDb extends ZooDb
         let family_tree_codes = [];
         this.code_visit_relations(root_code, {
             relation_properties: ['parent_of'],
-            callback: (code) => {
-                family_tree_codes.push(code);
+            callback: (code, relation_info) => {
+                if (return_relation_info) {
+                    family_tree_codes.push(relation_info);
+                } else {
+                    family_tree_codes.push(code);
+                }
             },
             predicate_relation,
         });
@@ -534,7 +538,19 @@ export class EcZooDb extends ZooDb
             // parent always appears before any of its children in the list.
             // Simple BFS doesn't always enforce this on its own
             // (cf. https://stackoverflow.com/a/35458168/1694896)
-            return this.code_parent_child_sort(family_tree_codes);
+            if (return_relation_info) {
+                // remember, if return_relation_info==true, then the elements of
+                // `ancestor_codes` are objects with info with a field 'code'
+                // containing the code object
+                const family_tree_code_objects = family_tree_codes.map( (x) => x.code );
+                const info_by_code_id = Object.fromEntries(
+                    family_tree_codes.map( (x) => [x.code.code_id, x] )
+                );
+                const sorted = this.code_parent_child_sort(family_tree_code_objects);
+                return sorted.map( (c) => info_by_code_id[c.code_id] );
+            } else {
+                return this.code_parent_child_sort(family_tree_codes);
+            }
         }
 
         return family_tree_codes;
@@ -543,13 +559,19 @@ export class EcZooDb extends ZooDb
     code_get_ancestors(code, {
         parent_child_sort,
         only_primary_parent_relation,
+        skip_first_primary_parent_relation,
         return_relation_info,
     } = {})
     {
         let predicate_relation = null;
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) =>
-                this.code_is_primary_parent(relation.code, code)
+            predicate_relation = (c, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, c)
+                ;
+        }
+        if (skip_first_primary_parent_relation ?? false) {
+            predicate_relation = (c, relation, relation_property_) =>
+                (c !== code) || !this.code_is_primary_parent(relation.code, c)
                 ;
         }
 
