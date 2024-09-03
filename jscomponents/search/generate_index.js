@@ -11,10 +11,19 @@ export function generate_search_index({ eczoodb })
 {
     //const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
+    const searchable_text_fieldset = eczoodb.searchable_text_fieldset;
+
     const search_index = SearchIndex.create(
         eczoodb,
-        eczoodb.searchable_text_fieldset,
-        {}
+        searchable_text_fieldset,
+        {
+            fields_options: {
+                boost: {
+                    [searchable_text_fieldset.field_name_id]: 100, // boost matching the object ID --- A LOT
+                    [searchable_text_fieldset.field_name_title]: 40,
+                },
+            },
+        },
     );
 
     const indexLunrCustomOptions = getLunrCustomOptionsAdvancedSetup(lunrAdvancedOptions);
