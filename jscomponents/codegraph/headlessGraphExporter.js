@@ -92,6 +92,10 @@ export class CodeGraphSvgExporter
 
         this.browser = await puppeteer.launch({
             headless: "new",
+            args: [
+              `--no-sandbox`,
+              `--disable-setuid-sandbox`,
+            ],
         });
         this.page = await this.browser.newPage();
 
