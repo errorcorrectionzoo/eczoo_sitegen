@@ -18,7 +18,7 @@ const render = async (data) => {
 
     const { kingdom, eczoodb } = data;
 
-    const eczoo_code_graph_svg_exporter = eczoodb.custom_headless_graph_exporter_instance;
+    const eczoo_code_graph_svg_exporter = eczoodb.site_custom_headless_graph_exporter_instance;
 
     if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder

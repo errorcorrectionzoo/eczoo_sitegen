@@ -191,6 +191,57 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@citation-js/core@npm:^0.7.14":
+  version: 0.7.14
+  resolution: "@citation-js/core@npm:0.7.14"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    "@citation-js/name": ^0.4.2
+    fetch-ponyfill: ^7.1.0
+    sync-fetch: ^0.4.1
+  checksum: 02d4d8f80ecde19d6f44701278efc82b9341713b278c604b75c2edd1ae1711ff9e93317d29b5827124afe7b18beab313819476c3371dd182d78b92b1ec8fbc6c
+  languageName: node
+  linkType: hard
+
+"@citation-js/date@npm:^0.5.0":
+  version: 0.5.1
+  resolution: "@citation-js/date@npm:0.5.1"
+  checksum: d3f71fd8cc933d7b51f3aec3a529729a13617680b310aba72c1adb3c0b9756c418219d30a85e9a495b1f8202fd6c751ade117b64e5a95ac95a3c94014448e56f
+  languageName: node
+  linkType: hard
+
+"@citation-js/name@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@citation-js/name@npm:0.4.2"
+  checksum: 35556499a6a8a77189ee29b2ec15ee06366d0d0d79b5a896dfb617b94c1f4cf8423a0db022c294ee144a5a0f382fec6cce7b8064b71aaf001574095064b1586b
+  languageName: node
+  linkType: hard
+
+"@citation-js/plugin-bibtex@npm:^0.7.16":
+  version: 0.7.16
+  resolution: "@citation-js/plugin-bibtex@npm:0.7.16"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    "@citation-js/name": ^0.4.2
+    moo: ^0.5.1
+  peerDependencies:
+    "@citation-js/core": ^0.7.0
+  checksum: 2ac87b0f59cdcfbc6b8666136526ed1c18a8f7149048d02649745caff30f7b7919c7234ef39ae85afb11f6ba97800a415d8b0f46263b9fa70e5635c6930ee98c
+  languageName: node
+  linkType: hard
+
+"@citation-js/plugin-csl@npm:^0.7.14":
+  version: 0.7.14
+  resolution: "@citation-js/plugin-csl@npm:0.7.14"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    citeproc: ^2.4.6
+  peerDependencies:
+    "@citation-js/core": ^0.7.0
+  checksum: 76fa54d70944ec0b304c156d6aae1335476e308710b17c0bc523db74740da985c5c441e9068aa8eb65dfb4c449d43718a7b6f30cf63c903ff3d359765d4c20e9
+  languageName: node
+  linkType: hard
+
 "@codemirror/autocomplete@npm:^6.0.0":
   version: 6.15.0
   resolution: "@codemirror/autocomplete@npm:6.15.0"
@@ -526,6 +577,9 @@ __metadata:
   resolution: "@errorcorrectionzoo/site@workspace:site"
   dependencies:
     "@11ty/eleventy": ^2.0.0
+    "@citation-js/core": ^0.7.14
+    "@citation-js/plugin-bibtex": ^0.7.16
+    "@citation-js/plugin-csl": ^0.7.14
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@errorcorrectionzoo/jscomponents": ">=0.0.1"
     "@errorcorrectionzoo/parcel-namer-own-folder-hashes": ">=0.0.0"
@@ -1815,7 +1869,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#main":
   version: 0.1.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=7754a98e253f7da2b691b006a3714828ec175ae9"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=298c82ae1701cc3dc49325ef07ef627c5c160941"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^10.1.0
     base32-encode: ^2.0.0
@@ -1835,7 +1889,7 @@ __metadata:
     sax: ^1.2.4
     stream-parser: ^0.3.1
     url: ^0.11.0
-  checksum: c7f4559bc1a65b0868ffc45250cb4e225f37abfd83cb797d8abea10c2a3a852d95474bc66d4fe81fccf0896fb67481bd9296848a75df318f4b8052fd01c483f8
+  checksum: 3681b0281c249af45e85c1a8d4e31a3c745c6bf2f4631803a273046690a705567895ad9be9164d4fad074e53acc6253d3668cabdbfa385d195f12d1ca9c8c820
   languageName: node
   linkType: hard
 
@@ -3178,7 +3232,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.2.1, buffer@npm:^5.5.0":
+"buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.7.1":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -3386,7 +3440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"citeproc@npm:^2.4.62":
+"citeproc@npm:^2.4.6, citeproc@npm:^2.4.62":
   version: 2.4.63
   resolution: "citeproc@npm:2.4.63"
   checksum: 15a22d857cabca6e28b79d52cff094949031145b3ff223ec17cb1b7f1be68b9ad63e8fcaa8621685f10c3c09daf72be58f9e9d20ef322e70e2b60dfbade27dc7
@@ -4977,6 +5031,15 @@ __metadata:
     node-domexception: ^1.0.0
     web-streams-polyfill: ^3.0.3
   checksum: f19bc28a2a0b9626e69fd7cf3a05798706db7f6c7548da657cbf5026a570945f5eeaedff52007ea35c8bcd3d237c58a20bf1543bc568ab2422411d762dd3d5bf
+  languageName: node
+  linkType: hard
+
+"fetch-ponyfill@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "fetch-ponyfill@npm:7.1.0"
+  dependencies:
+    node-fetch: ~2.6.1
+  checksum: 7fd497dd5f7db890e80193de5bc1cd0115a62400272cd9a992849288e66886fcdb0724ea1ed161be7b8db2daeafda8c58d0259acdda42d6561155dbcdbb0720a
   languageName: node
   linkType: hard
 
@@ -8072,7 +8135,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moo@npm:^0.5.2":
+"moo@npm:^0.5.1, moo@npm:^0.5.2":
   version: 0.5.2
   resolution: "moo@npm:0.5.2"
   checksum: 5a41ddf1059fd0feb674d917c4774e41c877f1ca980253be4d3aae1a37f4bc513f88815041243f36f5cf67a62fb39324f3f997cf7fb17b6cb00767c165e7c499
@@ -8271,6 +8334,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-fetch@npm:^2.6.1":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
+  languageName: node
+  linkType: hard
+
 "node-fetch@npm:^3.2.10":
   version: 3.3.2
   resolution: "node-fetch@npm:3.3.2"
@@ -8279,6 +8356,20 @@ __metadata:
     fetch-blob: ^3.1.4
     formdata-polyfill: ^4.0.10
   checksum: 06a04095a2ddf05b0830a0d5302699704d59bda3102894ea64c7b9d4c865ecdff2d90fd042df7f5bc40337266961cb6183dcc808ea4f3000d024f422b462da92
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:~2.6.1":
+  version: 2.6.13
+  resolution: "node-fetch@npm:2.6.13"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 055845ae5b4796c78c7053564745345025cf959563b3568b43c385f67d311779e6b00e5fef6ed1b79f86ba4048e4b4b722e1aa948305521b9353eb7e788912c9
   languageName: node
   linkType: hard
 
@@ -10710,6 +10801,16 @@ __metadata:
   bin:
     svgo: bin/svgo
   checksum: b92f71a8541468ffd0b81b8cdb36b1e242eea320bf3c1a9b2c8809945853e9d8c80c19744267eb91cabf06ae9d5fff3592d677df85a31be4ed59ff78534fa420
+  languageName: node
+  linkType: hard
+
+"sync-fetch@npm:^0.4.1":
+  version: 0.4.5
+  resolution: "sync-fetch@npm:0.4.5"
+  dependencies:
+    buffer: ^5.7.1
+    node-fetch: ^2.6.1
+  checksum: 84aa2bf85b1a6558b7c75716d7b7c3bd787f02602993a08bdfdd69384afa7d6dc54e94b006a6362277334edf92940e0f4de57801166c52854912443fbbe78e00
   languageName: node
   linkType: hard
 

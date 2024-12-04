@@ -17,10 +17,6 @@ Error.stackTraceLimit = 999;
 
 
 
-let _eczoo_code_graph_svg_exporter_instance = null;
-
-
-
 module.exports = (eleventyConfig) => {
 
     const eczoo_run_options = {
@@ -85,7 +81,7 @@ module.exports = (eleventyConfig) => {
 
         // save the exporter (whether or not it is null) directly as an attribute of the eczoodb
         // object. This is how domain-graph and kingdom-graph pages access the instance.
-        eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+        eczoodb.site_custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
 
         if (_eczoo_code_graph_svg_exporter_instance != null) {
             
@@ -95,7 +91,18 @@ module.exports = (eleventyConfig) => {
                 console.error(`Problem initializing code graph exporter!`);
                 process.exit(1);
             }
+
         }
+
+        //
+        // Prepare bibliography references. Compile list of used citations, etc.
+        // Here we put the code that is used in common between the "/references" page
+        // and the "/dat/bibreferences*" pages (Bibtex/CSL-JSON)
+        //
+        const { prepareEczooBibReferences } =
+            await import('./sitelib/prepare_eczoo_bibreferences.js');
+        eczoodb.site_bibrefsdata = prepareEczooBibReferences(eczoodb);
+
         return eczoodb;
     });
     if ( eczoo_config.generate_code_graph_svg_exports ) {
