@@ -25,7 +25,7 @@ const render = async (data) => {
 
     const bibrefsdata = eczoodb.site_bibrefsdata;
 
-    debug('dumping csl-json data', bibrefsdata.bibdb_csl_json);
+    //debug('dumping csl-json data', bibrefsdata.bibdb_csl_json);
 
     return JSON.stringify(bibrefsdata.bibdb_csl_json);
 };
