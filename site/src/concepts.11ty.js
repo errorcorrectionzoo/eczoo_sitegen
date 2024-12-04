@@ -74,23 +74,29 @@ const render = async (data) => {
                     encountered_referenceable.referenceable_info.labels
                 );
             let concept_referenced_in_list = '';
-            if (concept_encountered_references.length) {
-                concept_referenced_in_list =
-                    `<div class="glossary-referenced-in-list">Referenced in: `;
-                let concept_referenced_in_list_items = []
-                for (const encountered_reference of concept_encountered_references) {
-                    const ri = encountered_reference.resource_info;
-                    if (ri.object_type === object_type && ri.object_id === object_id) {
-                        // skip the object that defines the concept ("defined in")
-                        continue;
-                    }
-                    concept_referenced_in_list_items.push(
-                        `<span class="glossary-referenced-in-item">${
+            let concept_referenced_dict = {};
+            for (const encountered_reference of concept_encountered_references) {
+                const ri = encountered_reference.resource_info;
+                if (ri.object_type === object_type && ri.object_id === object_id) {
+                    // skip the object that defines the concept ("defined in")
+                    continue;
+                }
+                const key = `${ri.object_type}:${ri.object_id}`;
+                if (Object.hasOwn(concept_referenced_dict, key)) {
+                    continue;
+                }
+                concept_referenced_dict[key] = ri;
+            }
+            if (Object.keys(concept_referenced_dict).length) {
+                concept_referenced_in_list = 
+                    `<div class="glossary-referenced-in-list">Referenced in: <!-- ${JSON.stringify(concept_referenced_dict)} -->`;
+                concept_referenced_in_list += Object.entries(concept_referenced_dict).map(
+                    ([k_,ri]) => {
+                        return `<span class="glossary-referenced-in-item">${
                             ref(ri.object_type, ri.object_id)
                         }</span>`
-                    );
-                }
-                concept_referenced_in_list += concept_referenced_in_list_items.join(', ');
+                    }
+                ) .join(', ');
                 concept_referenced_in_list += `</div>`;
             }
 
