@@ -8,7 +8,7 @@
 
     "transformers": {
         "*.{pdf,jpg,jpeg,png}": ["@parcel/transformer-raw"],
-        "*.{json,ico}": ["@parcel/transformer-raw"],
+        "*.{json,ico,bib}": ["@parcel/transformer-raw"],
         "*.{xml,txt}": ["@parcel/transformer-raw"],
         "*.html": ["...", "@errorcorrectionzoo/parcel-transformer-ogimage-phf"],
     },

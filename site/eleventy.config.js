@@ -17,10 +17,6 @@ Error.stackTraceLimit = 999;
 
 
 
-let _eczoo_code_graph_svg_exporter_instance = null;
-
-
-
 module.exports = (eleventyConfig) => {
 
     const eczoo_run_options = {
@@ -60,19 +56,6 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addGlobalData("eczoodb", async () => {
 
         //
-        // Prepare a code graph SVG generator instance (use single instance across
-        // all generated graphs because an instance spins up a Chrome puppeteer
-        // instance!)  
-        //
-        // TODO: Don't wait until this is finished before starting to load the EcZoo.
-        //
-        if ( eczoo_config.generate_code_graph_svg_exports ) {
-            const { init_headless_graph_exporter } =
-                await import('./sitelib/init_headless_graph_exporter.js');
-            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
-        }
-
-        //
         // (Re)load the EC Zoo Database.
         //
         const { load_or_reload_eczoodb } = await import('./sitelib/build_eczoo.js');
@@ -83,9 +66,21 @@ module.exports = (eleventyConfig) => {
         const eczoodbData = await eczoodb.data_dump({});
         eczoodb.cached_data_dump = eczoodbData;
 
+        //
+        // Prepare a code graph SVG generator instance (use single instance across
+        // all generated graphs because an instance spins up a Chrome puppeteer
+        // instance!)  
+        //
+        //
+        if ( eczoo_config.generate_code_graph_svg_exports ) {
+            const { init_headless_graph_exporter } =
+                await import('./sitelib/init_headless_graph_exporter.js');
+            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
+        }
+
         // save the exporter (whether or not it is null) directly as an attribute of the eczoodb
         // object. This is how domain-graph and kingdom-graph pages access the instance.
-        eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+        eczoodb.site_custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
 
         if (_eczoo_code_graph_svg_exporter_instance != null) {
             
@@ -95,7 +90,18 @@ module.exports = (eleventyConfig) => {
                 console.error(`Problem initializing code graph exporter!`);
                 process.exit(1);
             }
+
         }
+
+        //
+        // Prepare bibliography references. Compile list of used citations, etc.
+        // Here we put the code that is used in common between the "/references" page
+        // and the "/dat/bibreferences*" pages (Bibtex/CSL-JSON)
+        //
+        const { prepareEczooBibReferences } =
+            await import('./sitelib/prepare_eczoo_bibreferences.js');
+        eczoodb.site_bibrefsdata = prepareEczooBibReferences(eczoodb);
+
         return eczoodb;
     });
     if ( eczoo_config.generate_code_graph_svg_exports ) {

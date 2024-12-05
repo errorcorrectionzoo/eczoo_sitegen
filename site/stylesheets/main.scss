@@ -787,11 +787,15 @@ ul.bibliography-list {
     .glossary-defterm-body {
         grid-column: 1 / 3;
         display: block;
-        font-style: italic;
+        //font-style: italic;
         //margin-left: 3em;
-        margin-bottom: 2*$parskip-half-length;
+        margin-bottom: 3*$parskip-half-length;
 
-        
+        .glossary-referenced-in-list, .glossary-defined-in {
+            font-style: italic;
+            font-size: $small-font-size;
+            margin-bottom: $parskip-half-length;
+        }
     }
 }
 

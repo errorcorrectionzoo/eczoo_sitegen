@@ -8,12 +8,16 @@
       "**/*.html",
       "schemas/*.json",
       "dat/*.json",
+      "dat/*.bib",
       "sitemap.xml"
     ]
   },
   "private": true,
   "dependencies": {
     "@11ty/eleventy": "^2.0.0",
+    "@citation-js/core": "^0.7.14",
+    "@citation-js/plugin-bibtex": "^0.7.16",
+    "@citation-js/plugin-csl": "^0.7.14",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@errorcorrectionzoo/jscomponents": ">=0.0.1",
     "@kitschpatrol/eleventy-plugin-parcel": "^1.0.0",
