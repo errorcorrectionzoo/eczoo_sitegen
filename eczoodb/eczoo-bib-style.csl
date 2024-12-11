@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
+<!--
+  IMPORTANT: AFTER EDITING THIS FILE, RECOMPILE `eczoo-bib-style.json` BY RUNNING
+
+      eczoo_sitegen/eczoodb> yarn package-csl-json
+
+  -->
   <info>
     <title>Citation Style for Error Correction Zoo (adapted from styles/american-physics-society-et-al)</title>
     <title-short>eczoo</title-short>
