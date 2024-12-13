@@ -6,7 +6,6 @@ const debug = debug_module('eczoo_jscomponents.codegraph.subgraphselector');
 import { PrelayoutRadialTree } from './prelayout.js';
 
 
-// for: "all" mode, "isolate" mode.
 // Selects the relevant nodes & edges and sets layout-parent-edges.
 /**
  * Needs to set/unset the following properties on all nodes and edges:
@@ -180,6 +179,66 @@ export class EczCodeGraphSubgraphSelectorAll extends EczCodeGraphSubgraphSelecto
             let graphRootNode = this.cy.getElementById(graphRootNodeId);
             graphRootNode.addClass('layoutRoot');
         }
+
+        debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph() done.`);
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+
+export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSelector
+{
+    installSubgraph()
+    {
+        debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph()`);
+        let { codeIds, includeConnectedKingdomAndDomains } = this.options;
+        includeConnectedKingdomAndDomains ??= false;
+
+        const allElements = this.cy.elements();
+        const subsetCodeNodes = this.cy.collection().union( codeIds.map(
+            (codeId) => this.cy.getElementById(this.eczCodeGraph.getNodeIdCode(codeId))
+        ) );
+        let subsetElements = subsetCodeNodes.union(
+            subsetCodeNodes.connectedEdges()
+        );
+        if (includeConnectedKingdomAndDomains) {
+            // Run two iterations of picking adjascent kingdoms and domains.
+            for (let repeat = 0; repeat < 2; ++repeat) {
+                subsetElements = subsetElements.union(
+                    subsetElements.outgoers( (ele) => {
+                        return (
+                            (ele.isEdge() && ele.target().data()._isKingdom)
+                            || (ele.isNode() && ele.data()._isKingdom)
+                            || (ele.isEdge() && ele.target().data()._isDomain)
+                            || (ele.isNode() && ele.data()._isDomain)
+                        );
+                    } )
+                );
+            }
+        }
+
+        debug(`codeIds=${codeIds.join(',')};`, { subsetCodeNodes, subsetElements } );
+
+        allElements.removeClass('layoutVisible');
+        allElements.removeClass('layoutParent');
+
+        subsetElements.addClass('layoutVisible');
+        subsetElements.edges('[_primaryParent=1]').addClass('layoutParent');
+
+        // find root nodes for the layout
+        subsetElements.forEach( (ele) => {
+            if (!ele.isNode()) {
+                return;
+            }
+            const eleVisOutgoers = ele.outgoers('node.layoutVisible');
+            debug(`Inspecting node for root: `, {ele, eleVisOutgoers})
+            if (eleVisOutgoers.length == 0) {
+                // this one is a root node.
+                ele.addClass('layoutRoot');
+            }
+        } );
+        //debug(`Number of root codes for layout: `, this.cy.elements('.layoutRoot').length);
 
         debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph() done.`);
     }

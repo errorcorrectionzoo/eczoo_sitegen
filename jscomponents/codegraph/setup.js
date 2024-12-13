@@ -23,6 +23,13 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 {
     let nodeId = null;
 
+    // matches a JSON object?
+    const rxJsonDisplayOptions = /^#J(.*)$/.exec(hrefFragment);
+    if (rxJsonDisplayOptions != null) {
+        const jsonDisplayOptions = decodeURIComponent(rxJsonDisplayOptions[1]);
+        return JSON.parse(jsonDisplayOptions);
+    }
+
     // matches a code?
     const nodeRxMatchCode = /^#code_(.*)$/.exec(hrefFragment);
     if (nodeRxMatchCode != null) {

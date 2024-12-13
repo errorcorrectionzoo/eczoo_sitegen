@@ -7,6 +7,7 @@ import { zoo_permalinks } from './permalinks.js';
 
 import { ZooDb } from '@phfaist/zoodb';
 import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
+import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
 
 import { schema_root_dir_default } from './dirs_defaults.js';
 
@@ -77,63 +78,78 @@ const default_config = {
 
 
 
-
-
-export class EcZooDb extends ZooDb
-{
-    constructor(options)
-    {
-        super(options);
-    }
-
-
+const _EcZooDbComputedData = {
     //
     // Object computed properties
     //
 
-    user_earliest_contribution(user)
-    {
-        if (!user.zoo_contributions || !user.zoo_contributions.code) {
-            return null;
-        }
-        let earliest_date = null;
-        for (const code_contrib of user.zoo_contributions.code) {
-            const d = new Date(code_contrib.date);
-            if (earliest_date === null || (d - earliest_date < 0)) {
-                earliest_date = d;
-            }
-        }
-        return earliest_date;
-    }
+    // In these methods, ‘this’ refers to the EcZooDb instance
 
-    code_short_name(code)
+    user: {
+        earliest_contribution: {
+            fn: function (user) {
+                if (!user.zoo_contributions || !user.zoo_contributions.code) {
+                    return null;
+                }
+                let earliest_date = null;
+                for (const code_contrib of user.zoo_contributions.code) {
+                    const d = new Date(code_contrib.date);
+                    if (earliest_date === null || (d - earliest_date < 0)) {
+                        earliest_date = d;
+                    }
+                }
+                return earliest_date;
+            },
+        },
+    },
+
+    code: {
+        short_name: {
+            fn: function (code) { // capture "this"
+                
+                const eczoodb = this;
+                debug(`computed_data_spec: code.short_name.fn():`, { eczoodb });
+
+                if (code.short_name != null && code.short_name !== '') {
+                    return code.short_name;
+                }
+                let name = code.name;
+                let short_name = null;
+                if (eczoodb.config.use_flm_processor) {
+                    name = name.flm_text;
+                }
+                if (name.endsWith(" code")) {
+                    short_name = name.slice(0, -(" code".length));
+                }
+                if (short_name !== null) {
+                    if (eczoodb.config.use_flm_processor) {
+                        return eczoodb.zoo_flm_environment.make_fragment(
+                            short_name,
+                            eczoodb.$$kw({
+                                what: `${code.name.what} (short)`,
+                                resource_info: code._zoodb.resource_info,
+                                standalone_mode: true,
+                            })
+                        );
+                    } else {
+                        return short_name;
+                    }
+                }
+
+                return code.name;
+            },
+        },
+    },
+};
+
+
+export class EcZooDb extends ZooDb
+{
+    static EcZooDbComputedData = _EcZooDbComputedData;
+
+    constructor(options)
     {
-        if (code.short_name != null && code.short_name !== '') {
-            return code.short_name;
-        }
-        let name = code.name;
-        let short_name = null;
-        if (this.config.use_flm_processor) {
-            name = name.flm_text;
-        }
-        if (name.endsWith(" code")) {
-            short_name = name.slice(0, -(" code".length));
-        }
-        if (short_name !== null) {
-            if (this.config.use_flm_processor) {
-                return this.zoo_flm_environment.make_fragment(
-                    short_name,
-                    this.$$kw({
-                        what: `${code.name.what} (short)`,
-                        resource_info: code._zoodb.resource_info,
-                        standalone_mode: true,
-                    })
-                );
-            } else {
-                return short_name;
-            }
-        }
-        return code.name;
+        super(options);
     }
 
     //
@@ -780,6 +796,13 @@ export class EcZooDb extends ZooDb
 
 
 
+//
+// ----------------------------------------------------------------------------
+//
+// createEcZooDb()
+//
+
+
 export async function createEcZooDb(
     config = {},
     { use_schemas_loader, schema_root, schema_add_extension }={}
@@ -803,6 +826,15 @@ export async function createEcZooDb(
     config = loMerge(
         {
             ZooDbClass: EcZooDb,
+
+            extra_db_processors: {
+                computed_data: {
+                    priority: 10,
+                    instance: new ComputedDataProcessor({
+                        computed_data: EcZooDb.EcZooDbComputedData,
+                    })
+                },
+            },
 
             //
             // specify where to find schemas

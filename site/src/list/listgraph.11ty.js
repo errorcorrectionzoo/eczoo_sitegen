@@ -2,25 +2,23 @@ const debug = require('debug')('eczoo_sitegen.src.list.listgraph');
 
 const data = {
     pagination: {
-        data: 'eczoodb.objects.list',
+        data: 'eczoodb.objects.codelist',
         size: 1,
         resolve: 'values',
         addAllPagesToCollections: false,
-        alias: 'list',
+        alias: 'codelist',
     },
     eleventyComputed: {
-        permalink: (data) => `/list/lgraph_${data.list.list_id}.svg`,
+        permalink: (data) => `/list/lgraph_${data.codelist.list_id}.svg`,
     },
     layout: null,
 };
 
-.......................
-
 const render = async (data) => {
 
-    const { kingdom, eczoodb } = data;
+    const { codelist, eczoodb } = data;
 
-    const eczoo_code_graph_svg_exporter = eczoodb.custom_headless_graph_exporter_instance;
+    const eczoo_code_graph_svg_exporter = eczoodb.site_custom_headless_graph_exporter_instance;
 
     if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder
@@ -28,29 +26,17 @@ const render = async (data) => {
         return placeholdersSvg.notBuiltInDevelMode;
     }
 
-    debug(`Rendering kingdom graph for kingdom ‘${kingdom.kingdom_id}’`);
+    debug(`Rendering graph for list ‘${codelist.list_id}’`);
 
-    const { EczCodeGraph } =
-        await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
+    // const { EczCodeGraph } =
+    //     await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
+
+    const code_list = eczoodb.codelist_compiled_code_list(codelist);
 
     const displayOptions = {
-        displayMode: 'isolate-nodes',
-        modeIsolateNodesOptions: {
-            nodeIds: [
-                EczCodeGraph.getNodeIdKingdom( kingdom.kingdom_id )
-            ],
-            range: {
-                parents: {
-                    primary: 5,
-                    secondary: 3,
-                    extra: 0,
-                },
-                children: {
-                    primary: 2,
-                    secondary: 2,
-                    extra: 0,
-                },
-            },
+        displayMode: 'subset',
+        modeSubsetOptions: {
+            codeIds: code_list.map( (c) => c.code_id ),
         },
         highlightImportantNodes: {
             highlightImportantNodes: false,
@@ -58,25 +44,6 @@ const render = async (data) => {
             highlightRootConnectingEdges: false,
         },
     };
-
-    // let eczCodeGraph = new EczCodeGraph({
-    //     eczoodb,
-    // });
-    // await eczCodeGraph.initialize();
-
-    // let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
-    // await eczCodeGraphViewController.initialize();
-
-    // await eczCodeGraph.updateLayout({ animate: false });
-
-    // // now, export to SVG:
-
-    // let svgData = await eczoo_code_graph_svg_exporter.compile(
-    //     eczCodeGraph,
-    //     {
-    //         fitWidth: 620,
-    //     }
-    // );
 
     const svgData = await eczoo_code_graph_svg_exporter.compileLoadedEczCodeGraph({
         displayOptions,

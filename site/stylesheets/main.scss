@@ -267,6 +267,11 @@ $header-min-height-mobile: 100px;
     }
 }
 
+.codelist-jump-to-code-graph-excerpt {
+    font-style: italic;
+    font-size: $small-font-size;
+    margin: 2*$parskip-half-length  0pt;
+}
 
 //
 // Code list page with style=index

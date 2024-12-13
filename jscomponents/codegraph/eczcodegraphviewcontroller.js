@@ -2,8 +2,13 @@ import loMerge from 'lodash/merge.js';
 
 //import { EczCodeGraph } from './eczcodegraph.js';
 
-import { EczCodeGraphSubgraphSelectorAll } from './subgraphselector.js';
-import { EczCodeGraphSubgraphSelectorIsolateFamilyTree } from './subgraphselectorisolatemode.js';
+import {
+    EczCodeGraphSubgraphSelectorAll,
+    EczCodeGraphSubgraphSelectorSubset,
+} from './subgraphselector.js';
+import {
+    EczCodeGraphSubgraphSelectorIsolateFamilyTree
+} from './subgraphselectorisolatemode.js';
 import {
     EczCodeGraphFilterDomainColors,
     EczCodeGraphFilterHideSecondaryEdges,
@@ -14,7 +19,8 @@ import {
 
 
 const defaultDisplayOptions = {
-    displayMode: 'all', // 'all' | 'isolate-nodes'
+    displayMode: 'all', // 'all' | 'isolate-nodes' | 'subset'
+
     modeIsolateNodesOptions: {
         nodeIds: null,
         range: {
@@ -31,6 +37,10 @@ const defaultDisplayOptions = {
         },
         reusePreviousLayoutPositions: true,
         extraRelationSelector: 'edge',
+    },
+
+    modeSubsetOptions: {
+        codeIds: [],
     },
 
     domainColoring: true,
@@ -82,7 +92,10 @@ export class EczCodeGraphViewController
     {
         this.subgraphSelectorInstances = {
             'all': new EczCodeGraphSubgraphSelectorAll(this.eczCodeGraph),
-            'isolate-nodes': new EczCodeGraphSubgraphSelectorIsolateFamilyTree(this.eczCodeGraph),
+            'isolate-nodes': new EczCodeGraphSubgraphSelectorIsolateFamilyTree(
+                this.eczCodeGraph
+            ),
+            'subset': new EczCodeGraphSubgraphSelectorSubset(this.eczCodeGraph),
         }
 
         this.eczCodeGraph.installSubgraphSelector(
@@ -112,6 +125,9 @@ export class EczCodeGraphViewController
         } else if (this.displayOptions.displayMode === 'isolate-nodes') {
             subgraphSelector = this.subgraphSelectorInstances['isolate-nodes'];
             subgraphSelectorOptions = this.displayOptions.modeIsolateNodesOptions;
+        } else if (this.displayOptions.displayMode === 'subset') {
+            subgraphSelector = this.subgraphSelectorInstances['subset'];
+            subgraphSelectorOptions = this.displayOptions.modeSubsetOptions;
         } else {
             throw new Error(`Invalid display mode: ${this.displayOptions.displayMode}`);
         }        
@@ -155,6 +171,15 @@ export class EczCodeGraphViewController
         );
     }
 
+    /**
+     * Update the display options for this graph view controller.
+     * 
+     * Don't forget to check if the graph requires an updateLayout. E.g.::
+     * 
+     *      if (eczCodeGraph.isPendingUpdateLayout()) {
+     *          await eczCodeGraph.updateLayout();
+     *      }
+     */
     setDisplayOptions(displayOptions)
     {
         this.displayOptions = this.getMergedDisplayOptions(

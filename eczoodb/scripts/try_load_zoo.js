@@ -4,56 +4,118 @@ const debug = debug_mod('eczoodbjs.try_load_zoo');
 import fs from 'fs';
 import path from 'path';
 
-import { createEcZooDb, load_eczoo } from '../eczoodbjs.js';
-
-
 import {fileURLToPath} from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import readlinePromises from 'readline/promises';
 
-async function run({data_dir})
+import _ from 'lodash';
+
+import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
+import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
+import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
+
+import { zoo_permalinks } from '@errorcorrectionzoo/eczoodb/permalinks.js';
+
+import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
+
+
+Error.stackTraceLimit = 999;
+
+
+const eczoo_sitegen_dir = path.join(__dirname, '..', '..');
+const eczoo_root_dir = path.join(eczoo_sitegen_dir, '..');
+
+
+async function runmain({
+    dataDir,
+    wait,
+} = {})
 {
-    debug(`run(), data_dir=${data_dir}`);
+    debug(`runmain(), dataDir=${dataDir}`);
 
-    const eczoo = await createEcZooDb({
-        fs,
-        flm_processor_graphics_resources_fs_data_dir: data_dir,    
-        flm_processor_citations_override_arxiv_dois_file:
-            path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
-        flm_processor_citations_preset_bibliography_files: [
-            path.join(data_dir, 'code_extra', 'bib_preset.yml'),
-        ],
-    });
+    dataDir ??= path.join(eczoo_root_dir, 'eczoo_data');
 
-    ....... ### no, this is incorrect ......
-    eczoo.load_yamldb({
-        data_dir,
-    });
-};
+    const eczoodbopts = _.merge(
+        {
+            fs,
+            fs_data_dir: dataDir,
+        },
+        get_eczoo_full_options({
+            citationsinfo_cache_dir: path.join(eczoo_sitegen_dir, '_zoodb_citations_cache'),
+        }),
+        {
+            flm_options: {
+                resources: {
+                    rename_figure_template:
+                        (f) =>  `fig-${f.b32hash(24)}.pdf`,
+                },
+            },
+            zoo_permalinks: {
+                object: (object_type, object_id) => {
+                    return 'https://errorcorrectionzoo.org'
+                        + zoo_permalinks.object(object_type, object_id);
+                },
+                graphics_resource: (graphics_resource) =>
+                    `_figpdf/${graphics_resource.src_url}`
+            },
+        },
+    );
+
+    let eczoodb = await createEcZooDb(eczoodbopts);
+    const yaml_loader = await createEcZooYamlDbDataLoader(eczoodb);
+    const loader_handler = new ZooDbDataLoaderHandler(
+        yaml_loader,
+        {
+            throw_reload_errors: false, // for when in devel mode with eleventy
+        }
+    );
+    await eczoodb.install_zoo_loader_handler(loader_handler);
+
+    
+    await eczoodb.load();
+
+    // Zoo is loaded.  ...
+    if (wait) {
+        const rl = readlinePromises.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
+        const answer_ = await rl.question('Type ENTER to exit.');
+        // ignore answer
+    }
+
+    debug("Done!");
+}
 
 
 
-async function run2({data_dir})
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+
+async function main()
 {
-    debug(`run2(), data_dir=${data_dir}`);
+    const args = yargs(hideBin(process.argv))
+        .scriptName('@errorcorrectionzoo/scripts/try_load_zoo')
+        .usage('Usage: $0 [options] code_id [code_id ...]')
+        .options({
+            'data-dir': {
+                alias: 'd',
+                default: null,
+                describe: "Data repository folder (defaults to sibling `eczoo_data` folder)",
+            },
+            'wait': {
+                default: false,
+                type: 'boolean',
+                describe: "Pause after loading the zoo and wait for user input",
+            }
+        })
+        .strictOptions()
+        .argv
+    ;
 
-    const eczoodb = await load_eczoo({data_dir, fs});
+    await runmain(args);
+}
 
-    debug('by the way, eczoodb.objects.domain=', eczoodb.objects.domain);
-
-    debug('by the way, eczoodb.objects.domain.quantum_domain.kingdoms=',
-          eczoodb.objects.domain.quantum_domain.kingdoms);
-
-    debug('by the way, eczoodb.code_short_name(eczoodb.objects.code.css)=',
-          eczoodb.code_short_name(eczoodb.objects.code.css));
-
-
-};
-
-
-const data_dir = path.join(__dirname, '..', 'test_data');
-//const data_dir = path.join(__dirname, '..', '..', 'eczoo_data');
-
-//await run({ data_dir, });
-await run2({ data_dir, });
+await main();

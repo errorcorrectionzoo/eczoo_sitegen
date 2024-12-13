@@ -72,4 +72,13 @@ describe('EcZooDb', function () {
 
     });
 
+    it('should have corrected computed property values', function () {
+        
+        assert.strictEqual(
+            eczoodb.code_short_name(eczoodb.objects.code.css),
+            'Calderbank-Shor-Steane (CSS) stabilizer'
+        )
+
+    });
+
 });

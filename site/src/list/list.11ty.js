@@ -59,7 +59,25 @@ const render = async (data) => {
 
     debug(`Rendering list ‘${codelist.list_id}’ ...`);
 
-    const run = () => render_codelist_page(codelist, {eczoodb, doc_metadata});
+    const ecgDisplayOptions = {
+        displayMode: 'subset',
+        modeSubsetOptions: {
+            codeIds: eczoodb.codelist_compiled_code_list(codelist).map( (c) => c.code_id ),
+        },
+    };
+
+    const run = () => render_codelist_page(
+        codelist,
+        {
+            eczoodb,
+            doc_metadata,
+            include_code_graph_excerpt: {
+                href: `/code_graph#J${encodeURIComponent(JSON.stringify(ecgDisplayOptions))}`,
+                graphic_url: `/list/lgraph_${codelist.list_id}.svg`,
+            }
+            
+        }
+    );
 
     // if (codelist.list_id === 'good_qldpc') { // profile this specific list which is slow
     //     const { run_and_dump_profile } = await import('../../sitelib/run_profiler.js');
