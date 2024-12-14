@@ -238,12 +238,12 @@ export function get_list_data({codelist, eczoodb})
 
 const _EcZooDbCodeListComputedData = {
     codelist: {
-        compiled_code_list: {
+        compiled_code_id_list: {
             fn: function (codelist) { // capture "this"
                 const eczoodb = this;
                 debug(`Compiling code list ${codelist.list_id} ...`);
                 const code_list = get_list_data({codelist, eczoodb});
-                return code_list;
+                return code_list.map( (c) => c.code_id );
             },
         },
     },

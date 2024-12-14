@@ -831,7 +831,7 @@ export async function createEcZooDb(
                 computed_data: {
                     priority: 10,
                     instance: new ComputedDataProcessor({
-                        computed_data: EcZooDb.EcZooDbComputedData,
+                       computed_data: EcZooDb.EcZooDbComputedData,
                     })
                 },
             },

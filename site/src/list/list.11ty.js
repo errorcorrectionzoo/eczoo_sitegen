@@ -62,7 +62,7 @@ const render = async (data) => {
     const ecgDisplayOptions = {
         displayMode: 'subset',
         modeSubsetOptions: {
-            codeIds: eczoodb.codelist_compiled_code_list(codelist).map( (c) => c.code_id ),
+            codeIds: eczoodb.codelist_compiled_code_id_list(codelist),
         },
     };
 

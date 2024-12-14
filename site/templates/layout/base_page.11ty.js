@@ -94,7 +94,7 @@ const get_page_header_navigation_links_default = async (data) => {
 //                 // find currently installed package version in node_modules.
 //                 const pkgjson = (
 //                     await import(path.join(node_modules, `${depName}/package.json`),
-//                                  { assert: {type: 'json'} })
+//                                  { with: {type: 'json'} })
 //                 ).default;
 //                 unpkgVersion = pkgjson.version;
 //             }

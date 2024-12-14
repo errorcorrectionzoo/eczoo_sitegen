@@ -31,12 +31,12 @@ const render = async (data) => {
     // const { EczCodeGraph } =
     //     await import('@errorcorrectionzoo/jscomponents/codegraph/index.js');
 
-    const code_list = eczoodb.codelist_compiled_code_list(codelist);
+    const code_id_list = eczoodb.codelist_compiled_code_id_list(codelist);
 
     const displayOptions = {
         displayMode: 'subset',
         modeSubsetOptions: {
-            codeIds: code_list.map( (c) => c.code_id ),
+            codeIds: code_id_list,
         },
         highlightImportantNodes: {
             highlightImportantNodes: false,
