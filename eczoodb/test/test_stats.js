@@ -3,9 +3,9 @@ import * as assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
+
 const data_dir = path.join(__dirname, '..', 'test_data');
 
 

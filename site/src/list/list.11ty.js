@@ -1,5 +1,5 @@
-
-const debug = require('debug')('eczoo_sitegen.src.list')
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.list')
 
 
 // ---------------------------------------------------------
@@ -89,4 +89,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render };
+export default { data, render };

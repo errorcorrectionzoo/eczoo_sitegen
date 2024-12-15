@@ -7,9 +7,9 @@ import path from 'path';
 //import { load_eczoo } from '../load_yamldb.js';
 
 
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
+
 const data_dir = path.join(__dirname, '..', 'test_data');
 
 

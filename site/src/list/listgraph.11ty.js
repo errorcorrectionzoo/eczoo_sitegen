@@ -1,4 +1,5 @@
-const debug = require('debug')('eczoo_sitegen.src.list.listgraph');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.list.listgraph')
 
 const data = {
     pagination: {
@@ -60,4 +61,4 @@ const render = async (data) => {
     return svgData;
 };
 
-module.exports = { data, render, };
+export default { data, render, };

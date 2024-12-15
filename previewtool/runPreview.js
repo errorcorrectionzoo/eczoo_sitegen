@@ -5,9 +5,8 @@ import { PreviewAppServer } from '@phfaist/zoodbtools_previewremote/startRemoteP
 
 import { citationsinfo_cache_dir_default } from '../eczoodb/dirs_defaults.js';
 
-
-const __filename = (new URL('', import.meta.url)).pathname;
-const __dirname = (new URL('.', import.meta.url)).pathname;
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 
 

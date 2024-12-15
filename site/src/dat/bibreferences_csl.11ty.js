@@ -1,4 +1,5 @@
-const debug = require('debug')('eczoo_sitegen.src.bibreferences_csl');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.bibreferences_csl');
 
 const data = {
     layout: null,
@@ -31,4 +32,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render, }
+export default { data, render, };

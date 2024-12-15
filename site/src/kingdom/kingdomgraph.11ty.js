@@ -1,4 +1,5 @@
-const debug = require('debug')('eczoo_sitegen.src.kingdom.kingdomgraph');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.kingdom.kingdomgraph');
 
 const data = {
     pagination: {
@@ -91,4 +92,4 @@ const render = async (data) => {
     return svgData;
 };
 
-module.exports = { data, render, };
+export default { data, render, };

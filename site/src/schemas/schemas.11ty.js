@@ -1,7 +1,4 @@
 
-const debug = require('debug')('eczoo_sitegen.src.schemas')
-
-
 const data = {
     pagination: {
         data: 'eczoodb.schemas',
@@ -22,4 +19,4 @@ const render = async (data) => {
     return JSON.stringify(schemaData) ;
 };
 
-module.exports = { data, render };
+export default { data, render };

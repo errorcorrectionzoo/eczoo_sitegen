@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     layout: "base_page",
     date: "Git last modified",
     permalink: (data) => `${ data.page.filePathStem }.${ data.page.outputFileExtension }`,

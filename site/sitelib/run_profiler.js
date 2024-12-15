@@ -59,4 +59,4 @@ async function run_and_dump_profile(fn, file_name_prefix)
 }
 
 
-module.exports = { run_profiler, run_and_dump_profile };
+export default { run_profiler, run_and_dump_profile };

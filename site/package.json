@@ -2,6 +2,7 @@
   "name": "@errorcorrectionzoo/site",
   "version": "0.0.1",
   "packageManager": "yarn@3.3.0",
+  "type": "module",
   "config": {
     "siteLandingPaths": [
       "index.html",
@@ -14,7 +15,7 @@
   },
   "private": true,
   "dependencies": {
-    "@11ty/eleventy": "^2.0.0",
+    "@11ty/eleventy": "^3.0.0",
     "@citation-js/core": "^0.7.14",
     "@citation-js/plugin-bibtex": "^0.7.16",
     "@citation-js/plugin-csl": "^0.7.14",
@@ -23,6 +24,7 @@
     "@kitschpatrol/eleventy-plugin-parcel": "^1.0.0",
     "@parcel/config-default": "^2.13.2",
     "@parcel/core": "^2.13.2",
+    "@parcel/plugin": "^2.13.2",
     "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "debug": "^4.3.4",

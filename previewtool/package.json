@@ -6,6 +6,7 @@
   "type": "module",
   "dependencies": {
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+    "@parcel/plugin": "^2.13.2",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
     "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
     "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote",

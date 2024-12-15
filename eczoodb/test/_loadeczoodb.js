@@ -6,10 +6,10 @@ import { get_eczoo_full_options } from '../fullopts.js';
 import { createEcZooYamlDbDataLoader } from '../load_yamldb.js';
 
 
-import {fileURLToPath} from 'url';
 import path from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 const data_dir = path.join(__dirname, '..', 'test_data');
 

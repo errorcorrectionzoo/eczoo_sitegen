@@ -4,8 +4,8 @@ const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter
 //import fs from 'fs';
 import path from 'path';
 
-//const __filename = (new URL(import.meta.url)).pathname;
-const __dirname = (new URL('.', import.meta.url)).pathname;
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 
 import loMerge from 'lodash/merge.js';

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 
     popular_code_id_list: [
         'binary_linear',
@@ -23,8 +23,6 @@ module.exports = {
         'gkp',
         'cat',
     ],
-
-
 
     max_display_box_codelists: 20, //16,
 
