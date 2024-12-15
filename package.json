@@ -39,5 +39,11 @@
   },
   "dependencies": {
     "eslint": "^8.46.0"
+  },
+  "@phfaist/parcel-resolver-root": {
+    "prefixPaths": {
+      "~": "/",
+      "/": "/site/_site"
+    }
   }
 }
