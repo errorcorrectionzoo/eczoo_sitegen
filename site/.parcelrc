@@ -16,6 +16,10 @@
 
     "optimizers": {
         "*.html": ["parcel-optimizer-nohtmlsuffix", "..."],
+
+        // Problems with the code-graph/FLM stuff when using the default @parcel/optimizer-swc
+        // optimizer.  Works again when using Parcel's traditional "terser" optimizer.
+        "*.js": [ "@parcel/optimizer-terser" ],
     },
 
     "namers": [ "@errorcorrectionzoo/parcel-namer-own-folder-hashes", "..." ],

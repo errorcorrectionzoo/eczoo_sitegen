@@ -6,8 +6,8 @@
     "type": "module",
     "dependencies": {
         "@errorcorrectionzoo/eczoodb": ">=0.0.1",
-        "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
-        "debug": "^4.3.4",
+        "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#commit=70af42fb679c0b187f2a0a98272bd7c5069d4cac",
+        "debug": "^4.4.0",
         "lodash": "^4.17.21",
         "yargs": "^17.7.2"
     },

@@ -18,6 +18,6 @@
   "author": "takeokunn <bararararatty@gmail.com>; patched by Philippe Faist",
   "license": "MIT",
   "dependencies": {
-    "@parcel/plugin": "*"
+    "@parcel/plugin": "^2.13.3"
   }
 }

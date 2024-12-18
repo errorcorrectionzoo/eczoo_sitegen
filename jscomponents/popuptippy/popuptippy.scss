@@ -6,16 +6,16 @@
 
 $popup-info-button-accent-color: var(--popup-info-button-accent-color);
 
+$popup-info-button-icon-size: 22px;
+$popup-info-button-v-padding: 4px;
+$popup-info-button-h-padding: 4px;
+$popup-info-button-icon-text-gap: 8px;
+
 
 
 .info-popup-button-container > div {
     display: inline-block;
 }
-
-$popup-info-button-icon-size: 22px;
-$popup-info-button-v-padding: 4px;
-$popup-info-button-h-padding: 4px;
-$popup-info-button-icon-text-gap: 8px;
 
 a.popup-info-button {
     display: inline-block;

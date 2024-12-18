@@ -1,3 +1,5 @@
+@use './variables.scss' as *;
+
 @media print {
 
     #header-bg-decoration {
@@ -15,7 +17,7 @@
 
         // make logo appear in print
         -webkit-print-color-adjust: exact !important; // Chrome, Safari
-        color-adjust: exact !important;  // Firefox
+        print-color-adjust: exact !important;  // Firefox
     }
     
     #header:empty {
@@ -71,7 +73,7 @@
     .tile-person {
         // make profile pics on the "team" page appear in print too
         -webkit-print-color-adjust: exact !important; // Chrome, Safari
-        color-adjust: exact !important;  // Firefox
+        print-color-adjust: exact !important;  // Firefox
     }
 }
 

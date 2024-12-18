@@ -46,6 +46,8 @@ const render = async (data) => {
         },
     };
 
+    debug(`Setting list's graph's displayOptions to`, displayOptions);
+
     const svgData = await eczoo_code_graph_svg_exporter.compileLoadedEczCodeGraph({
         displayOptions,
         //updateLayoutOptions: ...,

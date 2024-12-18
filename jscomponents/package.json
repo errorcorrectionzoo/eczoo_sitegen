@@ -7,16 +7,16 @@
     "@codemirror/language": "^6.0.0",
     "@codemirror/legacy-modes": "^6.0.0",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
-    "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_gitpreview",
-    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
-    "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_search",
+    "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_gitpreview&commit=6862f97e39f4db835adbbae889d43efc8da50e24",
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_preview&commit=6862f97e39f4db835adbbae889d43efc8da50e24",
+    "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_search&commit=6862f97e39f4db835adbbae889d43efc8da50e24",
     "@popperjs/core": "^2.11.6",
     "@uiw/react-codemirror": "^4.15.1",
     "cytoscape": "^3.28.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-fcose": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable",
     "cytoscape-svg": "^0.4.0",
-    "debug": "^4.3.4",
+    "debug": "^4.4.0",
     "escape-html": "^1.0.3",
     "history": "^5.3.0",
     "js-yaml": "^4.1.0",
@@ -33,9 +33,11 @@
     "yaml": "^2.0.0-10"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.13.2",
-    "parcel": "^2.13.2",
-    "path-browserify": "^1.0.0",
+    "@parcel/optimizer-terser": "^2.13.3",
+    "@parcel/transformer-sass": "2.13.3",
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f",
+    "parcel": "^2.13.3",
+    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "sirv-cli": "^2.0.2"
   },
@@ -55,7 +57,10 @@
     },
     "dev-codegraph": {
       "distDir": "dev-dist",
-      "source": "./dev/codegraph/codegraphdev.html"
+      "source": "./dev/codegraph/codegraphdev.html",
+      "engines": {
+        "browsers": "> 2%, last 2 versions, not dead"
+      }
     }
   },
   "scripts": {
@@ -63,8 +68,10 @@
     "dev-codegraph-build": "rm -rf .parcel-cache dev-dist && parcel build --no-cache --no-scope-hoist --no-optimize --target dev-codegraph && yarn private-dist-add-use-strict",
     "private-dist-add-use-strict": "bash -c 'for i in codegraph/_headless_exporter_browser_code_dist/*.js dist/*/*.js dev-dist/*.js; do if [ -e \"$i\" ]; then mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\"; fi; done'"
   },
-  "@mischnic/parcel-resolver-root": {
-    "~": ".."
+  "@phfaist/parcel-resolver-root": {
+    "paths": {
+      "~": ".."
+    }
   },
   "@parcel/resolver-default": {
     "packageExports": true

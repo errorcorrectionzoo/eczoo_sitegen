@@ -1,0 +1,79 @@
+@use './variables.scss' as *;
+
+
+body, html {
+    font-family: $base-font-family;
+    font-size: $base-font-size;
+    line-height: 1.3em;
+    color: $main-text-color;
+    background-color: $main-background-color;
+}
+
+a, a:link, a:hover, a:active, a:visited {
+    color: $page-link-color;
+    text-decoration: none;
+}
+a:hover {
+    color: $page-link-highlight-color;
+    text-shadow: rgba($page-link-color,0.25) 2px 1px 5px;
+}
+
+h1 {
+    font-size: 30px;
+    font-weight: 350;
+    line-height: 1.6em;
+
+    // default heading margins
+    margin: 0.7em 0px 0.7em 0pxn;
+}
+h2 {
+    font-size: 20px;
+    font-weight: 550;
+    line-height: 1.6em;
+
+    // default heading margins
+    margin: 0.7em 0px 0.7em 0pxn;
+}
+
+p, ul, ol, pre {
+    // remember, top margin of next element overlaps with bottom margin of previous one
+    margin-top: 2*$parskip-half-length;
+    margin-bottom: 2*$parskip-half-length;
+}
+p:first-child, ul:first-child, ol:first-child, pre:first-child {
+    margin-top: 0px !important;
+}
+p:last-child, ul:last-child, ol:last-child, pre:last-child {
+    margin-bottom: 0px !important;
+}
+
+
+
+// definition lists with "terms" (<dt>) on the left and "definitions" (<dd>) on
+// the right
+dl {
+    display: grid;
+    grid-template-columns: max-content auto;
+}
+dt {
+    grid-column-start: 1;
+    /*font-weight: bold;*/
+    font-style: italic;
+}
+dd {
+    grid-column-start: 2;
+    //margin-left: 25px;
+    margin-left: 1rem;
+}
+
+
+pre, code {
+    font-family: monospace;
+    font-size: .8em; //12px;
+    line-height: 1.3em;
+}
+
+
+details > summary > span {
+    cursor: pointer;
+}
