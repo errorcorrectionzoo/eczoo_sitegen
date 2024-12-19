@@ -63,7 +63,12 @@ const render = async (data) => {
         displayMode: 'subset',
         modeSubsetOptions: {
             codeIds: eczoodb.codelist_compiled_code_id_list(codelist),
+            connectingNodesMaxDepth: 12,
+            connectingNodesMaxExtraDepth: 1,
+            connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
         },
+        cousinEdgesShown: true,
+        secondaryParentEdgesShown: true,
     };
 
     const run = () => render_codelist_page(

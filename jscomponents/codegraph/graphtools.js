@@ -119,21 +119,21 @@ export function connectingPathsComponents({
         pathLength,
         buildPath,
     }) => {
-        debug(`processConnectingPath: `,
-                {componentIndex,otherComponentIndex,pathLength});
-        debug(`at this point, connectedPaths: `);
-        for (let i = 0; i < numComponents; ++i) {
-            for (let j = 0; j < numComponents; ++j) {
-                const cinfo = connectingPaths[i][j];
-                debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
-                      + cinfo.paths.map(
-                            ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
-                        ).join('\n') );
-            }
-        }
+        // debug(`processConnectingPath: `,
+        //       {componentIndex,otherComponentIndex,pathLength});
+        // debug(`at this point, connectedPaths: `);
+        // for (let i = 0; i < numComponents; ++i) {
+        //     for (let j = 0; j < numComponents; ++j) {
+        //         const cinfo = connectingPaths[i][j];
+        //         debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
+        //               + cinfo.paths.map(
+        //                     ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
+        //                 ).join('\n') );
+        //     }
+        // }
 
         if (componentIndex === otherComponentIndex) {
-            debug(`called processConnectedPath() with twice the same component!`);
+            //debug(`called processConnectedPath() with twice the same component!`);
             return;
         }
 
@@ -154,7 +154,7 @@ export function connectingPathsComponents({
             return;
         }
 
-        debug(`building path...`);
+        //debug(`building path...`);
         const path = buildPath();
         connectingPathsInfo.paths.push({ path, pathLength });
         let revPath = [...path].reverse();
@@ -162,11 +162,11 @@ export function connectingPathsComponents({
             connectingPaths[otherComponentIndex][componentIndex];
         revConnectingPathsInfo.paths.push({ path: revPath, pathLength });
 
-        debug(`built path & saved it: ${dispCollection(path)}`);
+        //debug(`built path & saved it: ${dispCollection(path)}`);
 
         if (connectingPathsInfo.shortestLength == null
             || pathLength < connectingPathsInfo.shortestLength) {
-            debug(`Registering new path as being shortest for this connection.`);
+            //debug(`Registering new path as being shortest for this connection.`);
             connectingPathsInfo.shortestLength = pathLength;
             revConnectingPathsInfo.shortestLength = pathLength;
             connectingPathsInfo.shortestPath = path;
@@ -174,7 +174,7 @@ export function connectingPathsComponents({
             // prune any paths that are too long.
             let newLengthLimit = pathLength
                 + connectingNodesOnlyKeepPathsWithAdditionalLength ;
-            debug(`Cleaning up existing paths, new length limit = ${newLengthLimit}.`);
+            //debug(`Cleaning up existing paths, new length limit = ${newLengthLimit}.`);
             for (let i = 0; i < connectingPathsInfo.paths.length; ++i) {
                 if (connectingPathsInfo.paths[i].pathLength > newLengthLimit) {
                     connectingPathsInfo.paths.splice(i, 1);
@@ -195,8 +195,8 @@ export function connectingPathsComponents({
                 || thirdComponentIndex === otherComponentIndex) {
                 continue;
             }
-            debug(`Checking for connections to third component ${thirdComponentIndex} `
-                + `that are mediated through ${componentIndex}->${otherComponentIndex}`);
+            //debug(`Checking for connections to third component ${thirdComponentIndex} `
+            //    + `that are mediated through ${componentIndex}->${otherComponentIndex}`);
             // if third component is connected to the first (resp. other)
             // component, then we've potentially discovered a path connecting
             // the third component to the other (resp. first) component. Process it.
@@ -209,7 +209,7 @@ export function connectingPathsComponents({
                     ...thirdConnectionPath,
                     ...path.slice(1),
                 ];
-                debug(`Registering new path for third component ${thirdComponentIndex}->${otherComponentIndex} mediated through ${componentIndex}`);
+                //debug(`Registering new path for third component ${thirdComponentIndex}->${otherComponentIndex} mediated through ${componentIndex}`);
                 processConnectingPath({
                     componentIndex: thirdComponentIndex,
                     otherComponentIndex: otherComponentIndex,
@@ -228,7 +228,7 @@ export function connectingPathsComponents({
                     ...path,
                     ...thirdConnectionPath.slice(1),
                 ];
-                debug(`Registering another path for third component ${componentIndex}->${thirdComponentIndex} mediated through ${otherComponentIndex}`);
+                //debug(`Registering another path for third component ${componentIndex}->${thirdComponentIndex} mediated through ${otherComponentIndex}`);
                 processConnectingPath({
                     componentIndex: componentIndex,
                     otherComponentIndex: thirdComponentIndex,
@@ -247,19 +247,19 @@ export function connectingPathsComponents({
         directed: false,
         visit: function (curNode, edgeToCurNode, prevNode, visitIndex, depth) {
             if (depth > connectingNodesMaxDepth) {
-                debug(`Maximum depth ${depth} reached after ${visitIndex} `
-                        + `iterations, stopping BFS search here`);
+                //debug(`Maximum depth ${depth} reached after ${visitIndex} `
+                //        + `iterations, stopping BFS search here`);
                 return false; // stop here.
             }
             if (depth > allComponentsConnectedAtDepth + connectingNodesMaxExtraDepth) {
-                debug(`Completed ${connectingNodesMaxExtraDepth} additional rounds `
-                    + `of BFS after connecting the full graph, stopping here.`);
+                //debug(`Completed ${connectingNodesMaxExtraDepth} additional rounds `
+                //    + `of BFS after connecting the full graph, stopping here.`);
                 return false; // stop here.
             }
             const curNodeId = curNode.id();
-            debug(`Visiting ${curNodeId} from ${prevNode?.id()} via `
-                  + `${dispElement(edgeToCurNode)} @depth=${depth}`,
-                  { nodeDistanceToComponent });
+            //debug(`Visiting ${curNodeId} from ${prevNode?.id()} via `
+            //      + `${dispElement(edgeToCurNode)} @depth=${depth}`,
+             //     { nodeDistanceToComponent });
             if (nodeDistanceToComponent[curNodeId] != null) {
                 // okay, this happens when we're visiting the initial root nodes.
                 // Next.
@@ -281,7 +281,7 @@ export function connectingPathsComponents({
             };
             nodeDistanceToComponent[curNodeId] = nodeDistanceInfo;
 
-            debug({ prevDistanceInfo, nodeDistanceInfo, distance });
+            //debug({ prevDistanceInfo, nodeDistanceInfo, distance });
 
             // Is this node connected to a node attached to another component?
             const connectedEdges = curNode.connectedEdges().filter(
@@ -304,20 +304,20 @@ export function connectingPathsComponents({
                     && otherComponentIndex !== componentIndex) {
                     // the nextNode is connected to a different component, maybe we
                     // can register a new path between these components!
-                    debug(`Detected path to other component!`, {otherNodeDistanceInfo});
+                    //debug(`Detected path to other component!`, {otherNodeDistanceInfo});
                     processConnectingPath({
                         componentIndex,
                         otherComponentIndex,
                         pathLength: distance + otherNodeDistanceInfo.distance + 1,
                         buildPath: () => {
-                            debug(`building node chain with curNodeId=${curNodeId} / nextNodeId=${nextNodeId}`);
+                            //debug(`building node chain with curNodeId=${curNodeId} / nextNodeId=${nextNodeId}`);
                             let path = [];
                             let n, e;
                             // nodes from [componentIndex] up to the connecting node
                             e = edgeToCurNode;
                             n = prevNode;
                             while (n != null) {
-                                debug(`Building path (1): `, {e, n});
+                                //debug(`Building path (1): `, {e, n});
                                 path.unshift(e);
                                 path.unshift(n);
                                 let nid = n.id();
@@ -325,20 +325,20 @@ export function connectingPathsComponents({
                                 n = nodeDistanceToComponent[nid].previousNode;
                             }
                             // the current node - we connect prevNode to nextNode
-                            debug(`Building path (1.5): `, {curNode});
+                            //debug(`Building path (1.5): `, {curNode});
                             path.push(curNode);
                             // & nodes from the next connecting node to [otherComponentIndex]
                             e = connectedEdge;
                             n = nextNode;
                             while (n != null) {
-                                debug(`Building path (2): `, {e, n});
+                                //debug(`Building path (2): `, {e, n});
                                 path.push(e);
                                 path.push(n);
                                 let nid = n.id();
                                 e = nodeDistanceToComponent[nid].previousEdge;
                                 n = nodeDistanceToComponent[nid].previousNode;
                             }
-                            debug(`path=${dispCollection(path)}`);
+                            //debug(`path=${dispCollection(path)}`);
                             return path;
                         }
                     });
@@ -357,19 +357,19 @@ export function connectingPathsComponents({
                     }
                 }
                 if (checkAllConnected) {
-                    debug(`Now all components are connected!`);
+                    //debug(`Now all components are connected!`);
                     allComponentsNowConnected = true;
                     allComponentsConnectedAtDepth = depth;
                 }
             }
-            debug(`Node visit completed`, { connectingPaths });
+            //debug(`Node visit completed`, { connectingPaths });
         }
     });
     
     // Do something with the paths that we found that connect the different
     // components.
-    debug(`Finally figured out the paths between connected components!`,
-          connectingPaths);
+    //debug(`Finally figured out the paths between connected components!`,
+    //      connectingPaths);
 
     return { connectingPaths, numComponents };
 }

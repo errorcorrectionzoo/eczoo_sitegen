@@ -108,7 +108,7 @@ const _EcZooDbComputedData = {
             fn: function (code) { // capture "this"
                 
                 const eczoodb = this;
-                debug(`computed_data_spec: code.short_name.fn():`, { eczoodb });
+                //debug(`computed_data_spec: code.short_name.fn():`, { eczoodb });
 
                 if (code.short_name != null && code.short_name !== '') {
                     return code.short_name;

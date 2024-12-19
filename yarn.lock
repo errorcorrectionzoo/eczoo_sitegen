@@ -586,7 +586,7 @@ __metadata:
     "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_search&commit=6862f97e39f4db835adbbae889d43efc8da50e24"
     "@popperjs/core": ^2.11.8
     "@uiw/react-codemirror": ^4.23.7
-    cytoscape: ^3.30.4
+    cytoscape: 3.28.1
     cytoscape-cose-bilkent: ^4.1.0
     cytoscape-fcose: "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable"
     cytoscape-svg: ^0.4.0
@@ -3989,10 +3989,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cytoscape@npm:^3.30.4":
-  version: 3.30.4
-  resolution: "cytoscape@npm:3.30.4"
-  checksum: a6b33f018456766c3e49a34fd5860716a2008c29b804b105a8409520d81c778a747ef90a9eba877001c770a077c5b4d87f7cbef0b9d3686aaffc4fd1a86b051e
+"cytoscape@npm:3.28.1":
+  version: 3.28.1
+  resolution: "cytoscape@npm:3.28.1"
+  dependencies:
+    heap: ^0.2.6
+    lodash: ^4.17.21
+  checksum: d9fcb14e909931ebead0fffaf230be7302156166372b7f0d446fea96bc5dfed2c36024842a8d80cd8817d6120125422beaee4a1e9ece4ba53a9addc880116afd
   languageName: node
   linkType: hard
 
@@ -5841,6 +5844,13 @@ __metadata:
   bin:
     he: bin/he
   checksum: 3d4d6babccccd79c5c5a3f929a68af33360d6445587d628087f39a965079d84f18ce9c3d3f917ee1e3978916fc833bb8b29377c3b403f919426f91bc6965e7a7
+  languageName: node
+  linkType: hard
+
+"heap@npm:^0.2.6":
+  version: 0.2.7
+  resolution: "heap@npm:0.2.7"
+  checksum: b0f3963a799e02173f994c452921a777f2b895b710119df999736bfed7477235c2860c423d9aea18a9f3b3d065cb1114d605c208cfcb8d0ac550f97ec5d28cb0
   languageName: node
   linkType: hard
 

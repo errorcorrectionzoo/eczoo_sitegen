@@ -38,7 +38,14 @@ const render = async (data) => {
         displayMode: 'subset',
         modeSubsetOptions: {
             codeIds: code_id_list,
+            connectingNodesMaxDepth: 12,
+            connectingNodesMaxExtraDepth: 1,
+            connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
         },
+        
+        cousinEdgesShown: true,
+        secondaryParentEdgesShown: true,
+
         highlightImportantNodes: {
             highlightImportantNodes: false,
             highlightPrimaryParents: false,

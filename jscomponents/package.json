@@ -12,7 +12,7 @@
     "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_search&commit=6862f97e39f4db835adbbae889d43efc8da50e24",
     "@popperjs/core": "^2.11.8",
     "@uiw/react-codemirror": "^4.23.7",
-    "cytoscape": "^3.30.4",
+    "cytoscape": "3.28.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-fcose": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose#unstable",
     "cytoscape-svg": "^0.4.0",
