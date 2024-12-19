@@ -21,7 +21,9 @@ export async function load_eczoo_cached({ eczoodb_options }={})
     let eczoodb = await createEcZooDb({
         fs,
         fs_data_dir: data_dir,
-        ... get_eczoo_full_options(),
+        ... get_eczoo_full_options({
+            citationsinfo_cache_dir: '_TEST_zoodb_citations_cache',
+        }),
         ... (eczoodb_options ?? {}),
     });
     let loader = await createEcZooYamlDbDataLoader(eczoodb);

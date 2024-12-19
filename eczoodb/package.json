@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#commit=70af42fb679c0b187f2a0a98272bd7c5069d4cac",
-    "mocha": "^10.2.0"
+    "mocha": "^11.0.1"
   },
   "alias": {
     "./eczoo-bib-style.js": "./eczoo-bib-style.json"

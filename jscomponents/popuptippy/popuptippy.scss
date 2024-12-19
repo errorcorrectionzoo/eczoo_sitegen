@@ -1,16 +1,4 @@
-
-
-// not sure if there is a clever way to recover the value set in variables.scss
-// of the main site (...?) -- YES, through CSS variables !!!
-
-
-$popup-info-button-accent-color: var(--popup-info-button-accent-color);
-
-$popup-info-button-icon-size: 22px;
-$popup-info-button-v-padding: 4px;
-$popup-info-button-h-padding: 4px;
-$popup-info-button-icon-text-gap: 8px;
-
+@use '~/site/stylesheets/variables.scss' as *;
 
 
 .info-popup-button-container > div {

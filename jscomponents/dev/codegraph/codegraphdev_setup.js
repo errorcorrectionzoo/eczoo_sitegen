@@ -35,6 +35,8 @@ debug('Running code graph dev setup ...');
 console.log("Running code graph dev setup. If you don't see debug messages run localStorage.debug='*'");
 
 import eczoodbData from './eczoodata.json';
+//import eczoodbData from './eczoodata-test.json';
+
 window.eczData = { eczoodbData };
 
 import * as codegraphsetup from '../../codegraph/setup.js';

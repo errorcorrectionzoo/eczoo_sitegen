@@ -54,9 +54,10 @@ class _BrowserCodeSourceServer {
     }
     async close()
     {
-        debug(`Closing internal headless browser code server`);
+        debug(`Closing internal headless browser code server ...`);
         await new Promise( (resolve) => {
             this.server.close(resolve);
+            debug(`Internal headless browser code server shut down.`);
         } );
 
     }
@@ -136,6 +137,7 @@ export class CodeGraphSvgExporter
         if (this.browser != null) {
             await this.browser.close();
             this.browser = null;
+            debug(`Internal headless puppeteer browser instance shut down.`);
         }
     }
 

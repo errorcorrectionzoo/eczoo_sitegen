@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const __dirname = import.meta.dirname;
-const __filename = import.meta.filename;
+//const __filename = import.meta.filename;
 
 import readlinePromises from 'readline/promises';
 
