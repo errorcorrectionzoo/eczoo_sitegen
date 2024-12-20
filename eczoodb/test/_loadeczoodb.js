@@ -16,7 +16,7 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 
 
-export async function load_eczoo_cached({ eczoodb_options }={})
+export async function load_eczoo({ eczoodb_options }={})
 {
     let eczoodb = await createEcZooDb({
         fs,

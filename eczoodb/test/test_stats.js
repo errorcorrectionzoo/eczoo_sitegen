@@ -9,7 +9,7 @@ const __dirname = import.meta.dirname;
 const data_dir = path.join(__dirname, '..', 'test_data');
 
 
-import { load_eczoo_cached } from './_loadeczoodb.js';
+import { load_eczoo } from './_loadeczoodb.js';
 
 // import { zoo_generate_stats } from '../stats.js';
 
@@ -22,7 +22,7 @@ describe('stats', function () {
     it.skip('can generate some stats', async function () {
 
         console.log('loading zoo!');
-        const eczoodb = await load_eczoo_cached({
+        const eczoodb = await load_eczoo({
             eczoodb_options: {
                 flm_allow_unresolved_citations: true,
                 flm_allow_unresolved_references: true,

@@ -3,7 +3,7 @@ const debug = debug_module('eczoo_sitegen.eczoodb.test_eczoodb');
 
 import * as assert from 'assert';
 
-import { load_eczoo_cached } from './_loadeczoodb.js';
+import { load_eczoo } from './_loadeczoodb.js';
 
 //import fs from 'fs';
 //import path from 'path';
@@ -17,7 +17,7 @@ describe('EcZooDb', async function () {
 
         it('should find that the CSS code is descendant of the stabilier code', async function () {
             
-            const eczoodb = await load_eczoo_cached();
+            const eczoodb = await load_eczoo();
 
             assert.ok(
                 eczoodb.code_is_descendant_of(eczoodb.objects.code.css, 'stabilizer')
@@ -31,7 +31,7 @@ describe('EcZooDb', async function () {
 
         it('finds children of the CSS code', async function() {
 
-            const eczoodb = await load_eczoo_cached();
+            const eczoodb = await load_eczoo();
 
             let css_family_tree = eczoodb.code_get_family_tree( eczoodb.objects.code.css );
             let css_family_tree_ids = css_family_tree.map( (c) => c.code_id );
@@ -44,7 +44,7 @@ describe('EcZooDb', async function () {
         });
 
         it('finds children of the binary_linear incl. as secondary parent relationship', async function() {
-            const eczoodb = await load_eczoo_cached();
+            const eczoodb = await load_eczoo();
 
             let binary_linear_family_tree = eczoodb.code_get_family_tree(
                 eczoodb.objects.code.binary_linear,
@@ -61,7 +61,7 @@ describe('EcZooDb', async function () {
         
         it('finds children of the binary_linear w/ only primary parent relationship', async function() {
 
-            const eczoodb = await load_eczoo_cached();
+            const eczoodb = await load_eczoo();
 
             let binary_linear_family_tree = eczoodb.code_get_family_tree(
                 eczoodb.objects.code.binary_linear,
@@ -80,7 +80,7 @@ describe('EcZooDb', async function () {
 
     it('should have corrected computed property values', async function () {
 
-        const eczoodb = await load_eczoo_cached();
+        const eczoodb = await load_eczoo();
 
         debug(`about to call eczoodb.code_short_name...`);
         const short_name = eczoodb.code_short_name(eczoodb.objects.code.css);

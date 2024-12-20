@@ -9,7 +9,7 @@ import * as zooflm from '@phfaist/zoodb/zooflm';
 const { $$kw, repr } = zooflm;
 
 
-import { load_eczoo_cached } from './_loadeczoodb.js';
+import { load_eczoo } from './_loadeczoodb.js';
 
 //import { mkutils } from '../render_utils.js';
 
@@ -30,7 +30,7 @@ describe('render_code', function () {
 
     it('should return HTML code starting with <div … >', async function () {
 
-        const eczoodb = await load_eczoo_cached({
+        const eczoodb = await load_eczoo({
             data_dir,
             fs,
             eczoodb_options: {
@@ -61,7 +61,7 @@ describe('render_codelist', function () {
 
     it('should return HTML code starting with <article … >', async function () {
 
-        const eczoodb = await load_eczoo_cached({
+        const eczoodb = await load_eczoo({
             data_dir,
             fs,
             eczoodb_options: {
