@@ -1,15 +1,26 @@
+//
+// The main stylesheet simply imports the relevant sub-stylesheets.
+//
 
-@import 'variables.scss';
+
+// sub-stylesheets will want to use something like:
+//@use './variables.scss' as *;
+
 
 //
-// Import fonts here, not in variables.scss, because we might include
-// variables.scss in other SCSS files.
-//
-// import "Source Sans 3" from google fonts ->
+// Import "Source Sans 3" from google fonts ->
 //@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap');
 // ### CHANGED (2023/03/13): import this in our base page layout to reduce
 // ### request chain lengths.  See base_page.11ty.js
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Define base colors as CSS custom variables
+//
+////////////////////////////////////////////////////////////////////////////////
+
+@use './var-install-html-colors.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +29,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'pagegrid.scss';
+@use './pagegrid.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,82 +38,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-body, html {
-    font-family: $base-font-family;
-    font-size: $base-font-size;
-    line-height: 1.3em;
-    color: $main-text-color;
-    background-color: $main-background-color;
-}
-
-a, a:link, a:hover, a:active, a:visited {
-    color: $page-link-color;
-    text-decoration: none;
-}
-a:hover {
-    color: $page-link-highlight-color;
-    text-shadow: rgba($page-link-color,0.25) 2px 1px 5px;
-}
-
-h1 {
-    font-size: 30px;
-    font-weight: 350;
-    line-height: 1.6em;
-
-    // default heading margins
-    margin: 0.7em 0px 0.7em 0pxn;
-}
-h2 {
-    font-size: 20px;
-    font-weight: 550;
-    line-height: 1.6em;
-
-    // default heading margins
-    margin: 0.7em 0px 0.7em 0pxn;
-}
-
-p, ul, ol, pre {
-    // remember, top margin of next element overlaps with bottom margin of previous one
-    margin-top: 2*$parskip-half-length;
-    margin-bottom: 2*$parskip-half-length;
-}
-p:first-child, ul:first-child, ol:first-child, pre:first-child {
-    margin-top: 0px !important;
-}
-p:last-child, ul:last-child, ol:last-child, pre:last-child {
-    margin-bottom: 0px !important;
-}
-
-
-
-// definition lists with "terms" (<dt>) on the left and "definitions" (<dd>) on
-// the right
-dl {
-    display: grid;
-    grid-template-columns: max-content auto;
-}
-dt {
-    grid-column-start: 1;
-    /*font-weight: bold;*/
-    font-style: italic;
-}
-dd {
-    grid-column-start: 2;
-    //margin-left: 25px;
-    margin-left: 1rem;
-}
-
-
-pre, code {
-    font-family: monospace;
-    font-size: .8em; //12px;
-    line-height: 1.3em;
-}
-
-
-details > summary > span {
-    cursor: pointer;
-}
+@use './fonts-basic-appearance.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,93 +47,7 @@ details > summary > span {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-$header-padding: 3px;
-$header-bgimage-horizontal-gap: 23px;
-$header-bgimage-width: 150px;
-$header-bgimage-width-mobile: 80px;
-$header-min-height: 80px;
-$header-min-height-mobile: 100px;
-
-#header-bg-decoration {
-    background-color: $pageheader-background-color;
-    color: $pageheader-text-color;
-
-    min-height: $header-min-height;
-
-    padding: $header-padding ($page-header-bleed+$header-padding);
-
-    margin-top: 0px;
-    margin-left: -$page-header-bleed;
-    margin-right: -$page-header-bleed;
-    margin-bottom: $page-header-gap;
-
-    z-index: 70;
-    box-shadow: $pageheader-background-shadow-color 5px 5px 10px;
-}
-// remove bleed for full-width pages
-#bodycontents.app-full-width  #header-bg-decoration {
-    margin-left: 0px;
-    margin-right: 0px;
-    padding-left: $header-padding;
-    padding-right: $header-padding;
-
-    box-shadow: none;
-}
-
-#logo, #header {
-    z-index: 80;
-
-    color: $pageheader-text-color;
-}
-#header {
-    display: flex; // ensures correct vertical centering of the h1 element
-
-    padding: 10px 0px;
-
-    > h1 {
-        margin: auto 0px;
-    }
-}
-
-//
-// Logo (use background-image) -- includes BETA marker in icon
-//
-#logo {
-    background-image: url('~/site/static/icons/eczoo-main-logo.svg');
-    background-repeat: no-repeat;
-
-    background-position-x: 0%;
-    background-position-y: center;
-    background-size: contain; //$header-bgimage-width auto;
-
-    width: $header-bgimage-width;
-
-    margin-right: $header-bgimage-horizontal-gap;
-}
-
-
-//
-// Collapse logo to a narrower form on narrow screens.  But only do that if
-// there is text in the header, as otherwise there is no need to save horizontal
-// space.
-//
-@media screen and (max-width: $page-collapse-layout-width) {
-#bodycontents:not(.app-full-width).page-header-has-text {
-    #header-bg-decoration {
-        min-height: $header-min-height-mobile;
-    }
-    #logo {
-        background-image: url('~/site/static/icons/eczoo-main-logo-mobile.svg');
-        width: $header-bgimage-width-mobile;
-        // it's set to 'contain'
-        //background-size: $header-bgimage-width-mobile auto;
-    }
-}
-}
-
-
-
-
+@use './heading-main-style.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,8 +56,7 @@ $header-min-height-mobile: 100px;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'navigation.scss';
-
+@use './navigation.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,16 +65,7 @@ $header-min-height-mobile: 100px;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#footer {
-    font-style: italic;
-    font-size: $tiny-fine-print-font-size;
-    //color: $text-dim-color;
-    padding: 4px;
-
-    margin-bottom: 20px;
-}
-
-
+@use './footer-style.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,22 +74,7 @@ $header-min-height-mobile: 100px;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'home-page.scss';
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// code collections "card" items
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-@mixin card-item {
-    margin: 1rem 0px 1rem;
-    padding: 10px;
-    border: solid 1px $discreet-border-color;
-}
-
+@use './home-page.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -258,135 +83,7 @@ $header-min-height-mobile: 100px;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-.ecc-code {
-    @include card-item;
-
-    p, ul, ol {
-        margin-top: 2*$inner-parskip-half-length;
-        margin-bottom: 2*$inner-parskip-half-length;
-    }
-}
-
-
-//
-// Code list page with style=index
-//
-ul.code-index, ol.code-index {
-    &, &:first-child {
-        margin: 1.5rem 0 2rem !important;
-    }
-
-    li {
-        margin-bottom: 0.7rem;
-    }
-
-    .code-name {
-        padding-right: 1em;
-        font-weight: bold;
-    }
-    .code-alternative-name {
-        font-style: italic;
-    }
-    //.code-description {
-    //}
-    .code-index-code-description-start-hidden {
-        display: none;
-    }
-}
-.code-index-control-display {
-    font-style: italic;
-    font-size: 0.9rem;
-    margin: 1rem 0px;
-}
-.code-index-ctrl-label-show {
-    display: inline;
-}
-.code-index-ctrl-label-hide {
-    display: none;
-}
-#main.code-index-with-descriptions {
-    .code-index-ctrl-label-show {
-        display: none;
-    }
-    .code-index-ctrl-label-hide {
-        display: inline;
-    }
-    .code-description.code-index-code-description-start-hidden {
-        display: block;
-    }
-}
-
-//
-// Code list page with style=table
-//
-
-table.codelistpage-table {
-    margin: 1.5rem 0rem 2rem;
-
-    border-top: solid .15rem var(--main-text-color);
-    border-bottom: solid .15rem var(--main-text-color);
-
-    width: 100%;
-    box-sizing: border-box;
-    border-collapse: collapse;
-
-    thead {
-        tr {
-            border-bottom: solid .1rem var(--main-text-color);
-
-            th {
-                //font-weight: normal;
-                font-weight: bold;
-                //font-style: italic;
-                font-size: $small-font-size;
-                
-                padding: 0.25rem 0.1rem;
-            }
-        }
-    }
-
-    &.hlines {
-        thead tr {
-            // turn the thin rule below header into a thick rule
-            border-bottom: solid .15rem var(--main-text-color);
-        }
-        tbody tr {
-            border-bottom: solid .1rem var(--main-text-color);
-        }
-    }
-
-    td {
-        padding: 0.15rem 0.25rem 0.15rem;
-    }
-
-    &.xtra-stretch td {
-        padding: 0.25rem 0.25rem 0.25rem;
-    }
-    &.xtra-xtra-stretch td {
-        padding: 0.5rem 0.25rem 0.5rem;
-    }
-
-
-
-    td.small {
-        font-size: $small-font-size;
-    }
-    td.left {
-        text-align: left;
-    }
-    td.center {
-        text-align: center;
-    }
-    td.right {
-        text-align: right;
-    }
-    td.top {
-        vertical-align: top;
-    }
-    td.bottom {
-        vertical-align: bottom;
-    }
-}
+@use './codelist-page.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -395,257 +92,17 @@ table.codelistpage-table {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// .ecc-code.ecc-code-page {
-//     border: none 0px;
-// }
+@use './ecc-code-page.scss';
 
+
+////////////////////////////////////////////////////////////////////////////////
 //
-// Code info page article appearance
-//
-
-@import 'ecc-code-page.scss';
-
-//
-// Elements displayed on the code info page
-//
-
-a.code-link-with-icon {
-    display: inline-block;
-
-    vertical-align: middle;
-
-    min-height: 12px;
-    margin-right: 1rem;
-    padding: 5px 5px 5px 17px;
-    background-size: 12px 12px;
-    background-position: 0% 50%;
-    background-repeat: no-repeat;
-}
-
-// .display-code-id {
-//     margin-top: 1.5rem;
-
-//     // font-size: $tiny-fine-print-font-size;
-//     color: $text-dim-color;
-
-// }
-
-
-// when displaying point lists in code properties
-
-.paragraph-in-list {
-    display: block;
-    margin-top: 2*$inner-parskip-half-length;
-    margin-bottom: 2*$inner-parskip-half-length;
-    margin-left: 1rem;
-}
-.paragraph-in-list:first-child {
-    margin-top: 0px;
-}
-.paragraph-in-list:last-child {
-    margin-bottom: 0px;
-}
-
-.paragraph-in-list::before {
-    content: '\25b9';  // triangle right
-    font-size: 0.65rem;
-    float: left;
-    margin-left: -0.8rem;
-    color: $text-dim-color;
-}
-
-// always show "bullet"
-//
-// .paragraph-in-list:only-child {
-//     margin-left: 0px;
-//     margin-top: 2*$inner-parskip-half-length;
-// }
-// .paragraph-in-list:only-child::before {
-//     display: none;
-// }
-
-
 // info popup frames & detail
-
-@import 'tippy-style.scss';
-
-
-a.code-self-permalink {
-    background-image: url('~/site/static/icons/permalink-logo.svg');
-}
-a.code-show-citation {
-    background-image: url('~/site/static/icons/cite-icon.svg');
-}
-.dark a.code-show-citation {
-    background-image: url('~/site/static/icons/cite-icon-dark.svg');
-}
-a.code-show-share {
-    background-image: url('~/site/static/icons/share-icon.svg');
-}
-.dark a.code-show-share {
-    background-image: url('~/site/static/icons/share-icon-dark.svg');
-}
-a.code-show-github {
-    background-image: url('~/site/static/icons/github-logo.svg');
-}
-.dark a.code-show-github {
-    background-image: url('~/site/static/icons/github-logo-dark.svg');
-}
-a.code-self-edit {
-    background-image: url('~/site/static/icons/edit-icon.svg');
-}
-.dark a.code-self-edit {
-    background-image: url('~/site/static/icons/edit-icon-dark.svg');
-}
-
-
-a.linkcodegraph {
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    background-image: url('~/site/static/icons/linkcodegraph.svg');
-    background-size: contain;
-    margin-left: 1em;
-    vertical-align: 0px;
-}
-a.linkcodegraph:hover {
-    filter: drop-shadow(2px 2px 5px $a-linkcodegraph-hover-shadow-color);
-}
-
-.boxedcontent {
-    
-    background-color: $boxedcontent-background-color;
-    padding: .5em;
-
-    border: solid .4pt var(--boxedcontent-border-color);
-
-    border-radius: 3px;
-
-    user-select: contain;
-}
-@mixin mixin-boxedcontent-pre {
-    font-family: monospace;
-    font-size: 12px;
-    white-space: pre-wrap;
-    line-height: 17px;
-}
-.bibtex {
-    @include mixin-boxedcontent-pre;
-}
-.boxedcontent-pre {
-    @include mixin-boxedcontent-pre;
-}
-
-.show-citation, .show-share-social {
-    display: block;
-    //min-width: 350px;
-
-    > dt {
-        display: block;
-    }
-    > dd {
-        display: block flow-root;
-        margin-left: 0px;
-        //padding: 0px;
-        
-        margin-bottom: 0.3rem;
-            
-        resize: none;
-        
-        box-sizing: border-box;
-        max-width: 100%;
-        min-width: 100%;
-
-    }
-}
-
-.code-popup-info-frame {
-
-    h2 {
-        font-size: inherit;
-        font-weight: bold;
-        margin-bottom: 0.7rem;
-    }
-
-    .zoo-code-id {
-        margin-top: 1rem;
-
-        code {
-            font-family: monospace;
-            font-size: 13px;
-            margin-left: 1em;
-            //display: inline-block;
-        }
-    }
-}
-
-
-.page-change-log {
-    font-style: italic;
-    font-size: $small-font-size;
-    opacity: 0.8;
-    
-    > summary {
-        margin-top: 1.3em;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Additional stuff for Domains & Kingdoms (eg. code graph excerpts)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-.code-graph-excerpt {
-    margin-top: 2rem;
-    overflow: auto;
+@use './tippy-style.scss';
 
-    text-align: center;
-
-    >a {
-        margin: auto;
-        display: inline-block;
-
-        >img {
-            max-width: 100%;
-            max-height: 80vh; // keep the graph excerpt not too tall
-
-            background-color: rgba(255, 236, 217, 0.9);
-        }
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// for bibliography page
-//
-////////////////////////////////////////////////////////////////////////////////
-
-ul.bibliography-list {
-
-    padding-left: 2em;
-
-    > li {
-        display: block;
-        list-style: none;
-        margin-top: 0.5em;
-        margin-left: 0px;
-        text-indent: -2em;
-    }
-
-    .bibliography-backref {
-        font-style: italic;
-        font-size: 0.85em;
-        
-        display: block;
-        margin-left: 0px;
-        text-indent: 0px;
-        margin-top: 0.2em;
-    }
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -653,7 +110,7 @@ ul.bibliography-list {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'visual-highlight.scss';
+@use './visual-highlight.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -662,8 +119,7 @@ ul.bibliography-list {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'boxedcontent-copy-link.scss';
-
+@use './boxedcontent-copy-link.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -672,140 +128,16 @@ ul.bibliography-list {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'flm-formatting.scss';
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// endnotes: citations and footnotes
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#endnotes {
-    // border: dotted 1px gray;
-    // padding: 3px;
-
-    font-size: $small-font-size;
-
-    margin-bottom: 20px;
-
-    dl {
-        margin-top: 0px;
-        margin-bottom: 0px;
-    }
-
-    dt {
-        font-style: normal;
-        text-align: right;
-    }
-
-    dd {
-        margin-left: 5px;
-        margin-bottom: 0.4em;
-    }
-
-    dt, dd {
-        transition: background-color 0.5s;
-    }
-
-    // superscript text for footnotes, not for citations
-    #footnotes {
-        dt {
-            @include fixbaseline-superscript-text;
-        }
-    }
-
-}
-
-
-
-.page_style_cards #endnotes {
-
-    @include card-item;
-
-    >h2 {
-        display: none;
-    }
-
-    opacity: 0.8;
-
-    dt {
-        min-width: 2em;
-    }
-}
+@use './flm-formatting.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// code info short version
+// Our tiles list layout for the "TEAM" page
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-.short-code-name {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-}
-.short-code-description {
-    font-style: italic;
-    display: block;
-    margin-bottom: 10px;
-}
-.short-code-info {
-    font-style: italic;
-    display: block;
-    margin-bottom: 10px;
-}
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// defterm glossary terms page
-//
-////////////////////////////////////////////////////////////////////////////////
-
-.glossary-defterm-list {
-
-    grid-template-columns: 1fr max-content;
-
-
-    .glossary-defterm-term-name {
-        grid-column: 1;
-        font-style: normal;
-        font-weight: bold;
-        display: block;
-        margin-bottom: $parskip-half-length;
-    }
-
-    .glossary-a-view-in-context {
-        grid-column: 2;
-    }
-
-    .glossary-defterm-body {
-        grid-column: 1 / 3;
-        display: block;
-        font-style: italic;
-        //margin-left: 3em;
-        margin-bottom: 2*$parskip-half-length;
-
-        
-    }
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Our tiles list layout (for the about page)
-//
-////////////////////////////////////////////////////////////////////////////////
-
-@import 'tiles.scss';
-
-@import 'tiles-persons.scss';
+@use './tiles-persons.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -814,11 +146,7 @@ ul.bibliography-list {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'search-page.scss';
-
-
-
-
+@use './search-page.scss';
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -827,4 +155,4 @@ ul.bibliography-list {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-@import 'print.scss';
+@use './print.scss';

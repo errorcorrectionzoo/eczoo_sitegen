@@ -4,8 +4,8 @@ const debug = debugm('eczoo_sitegen.jscomponents.codegraph.headlessGraphExporter
 //import fs from 'fs';
 import path from 'path';
 
-//const __filename = (new URL(import.meta.url)).pathname;
-const __dirname = (new URL('.', import.meta.url)).pathname;
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 
 import loMerge from 'lodash/merge.js';
@@ -54,9 +54,10 @@ class _BrowserCodeSourceServer {
     }
     async close()
     {
-        debug(`Closing internal headless browser code server`);
+        debug(`Closing internal headless browser code server ...`);
         await new Promise( (resolve) => {
             this.server.close(resolve);
+            debug(`Internal headless browser code server shut down.`);
         } );
 
     }
@@ -92,6 +93,10 @@ export class CodeGraphSvgExporter
 
         this.browser = await puppeteer.launch({
             headless: "new",
+            args: [
+              `--no-sandbox`,
+              `--disable-setuid-sandbox`,
+            ],
         });
         this.page = await this.browser.newPage();
 
@@ -132,6 +137,7 @@ export class CodeGraphSvgExporter
         if (this.browser != null) {
             await this.browser.close();
             this.browser = null;
+            debug(`Internal headless puppeteer browser instance shut down.`);
         }
     }
 

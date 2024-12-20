@@ -1,3 +1,4 @@
+@use './variables.scss' as *;
 
 article.ecc-code-page {
 
@@ -237,5 +238,112 @@ article.ecc-code-page {
             }
         }
 
+    }
+}
+
+
+
+//
+// Elements displayed on the code info page
+//
+
+a.code-link-with-icon {
+    display: inline-block;
+
+    vertical-align: middle;
+
+    min-height: 12px;
+    margin-right: 1rem;
+    padding: 5px 5px 5px 17px;
+    background-size: 12px 12px;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+}
+
+
+
+
+a.code-self-permalink {
+    background-image: url('~/site/static/icons/permalink-logo.svg');
+}
+a.code-show-citation {
+    background-image: url('~/site/static/icons/cite-icon.svg');
+}
+.dark a.code-show-citation {
+    background-image: url('~/site/static/icons/cite-icon-dark.svg');
+}
+a.code-show-share {
+    background-image: url('~/site/static/icons/share-icon.svg');
+}
+.dark a.code-show-share {
+    background-image: url('~/site/static/icons/share-icon-dark.svg');
+}
+a.code-show-github {
+    background-image: url('~/site/static/icons/github-logo.svg');
+}
+.dark a.code-show-github {
+    background-image: url('~/site/static/icons/github-logo-dark.svg');
+}
+a.code-self-edit {
+    background-image: url('~/site/static/icons/edit-icon.svg');
+}
+.dark a.code-self-edit {
+    background-image: url('~/site/static/icons/edit-icon-dark.svg');
+}
+
+
+a.linkcodegraph {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url('~/site/static/icons/linkcodegraph.svg');
+    background-size: contain;
+    margin-left: 1em;
+    vertical-align: 0px;
+}
+a.linkcodegraph:hover {
+    filter: drop-shadow(2px 2px 5px $a-linkcodegraph-hover-shadow-color);
+}
+
+.show-citation, .show-share-social {
+    display: block;
+    //min-width: 350px;
+
+    > dt {
+        display: block;
+    }
+    > dd {
+        display: block flow-root;
+        margin-left: 0px;
+        //padding: 0px;
+        
+        margin-bottom: 0.3rem;
+            
+        resize: none;
+        
+        box-sizing: border-box;
+        max-width: 100%;
+        min-width: 100%;
+
+    }
+}
+
+.code-popup-info-frame {
+
+    h2 {
+        font-size: inherit;
+        font-weight: bold;
+        margin-bottom: 0.7rem;
+    }
+
+    .zoo-code-id {
+        margin-top: 1rem;
+
+        code {
+            font-family: monospace;
+            font-size: 13px;
+            margin-left: 1em;
+            //display: inline-block;
+        }
     }
 }

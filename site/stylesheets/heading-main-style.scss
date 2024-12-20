@@ -1,0 +1,81 @@
+@use './variables.scss' as *;
+
+#header-bg-decoration {
+    background-color: $pageheader-background-color;
+    color: $pageheader-text-color;
+
+    min-height: $header-min-height;
+
+    padding: $header-padding ($page-header-bleed+$header-padding);
+
+    margin-top: 0px;
+    margin-left: -$page-header-bleed;
+    margin-right: -$page-header-bleed;
+    margin-bottom: $page-header-gap;
+
+    z-index: 70;
+    box-shadow: $pageheader-background-shadow-color 5px 5px 10px;
+}
+// remove bleed for full-width pages
+#bodycontents.app-full-width  #header-bg-decoration {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: $header-padding;
+    padding-right: $header-padding;
+
+    box-shadow: none;
+}
+
+#logo, #header {
+    z-index: 80;
+
+    color: $pageheader-text-color;
+}
+#header {
+    display: flex; // ensures correct vertical centering of the h1 element
+
+    padding: 10px 0px;
+
+    > h1 {
+        margin: auto 0px;
+    }
+}
+
+//
+// Logo (use background-image) -- includes BETA marker in icon
+//
+#logo {
+    background-image: url('~/site/static/icons/eczoo-main-logo.svg');
+    background-repeat: no-repeat;
+
+    background-position-x: 0%;
+    background-position-y: center;
+    background-size: contain; //$header-bgimage-width auto;
+
+    width: $header-bgimage-width;
+
+    margin-right: $header-bgimage-horizontal-gap;
+}
+
+
+//
+// Collapse logo to a narrower form on narrow screens.  But only do that if
+// there is text in the header, as otherwise there is no need to save horizontal
+// space.
+//
+@media screen and (max-width: $page-collapse-layout-width) {
+#bodycontents:not(.app-full-width).page-header-has-text {
+    #header-bg-decoration {
+        min-height: $header-min-height-mobile;
+    }
+    #logo {
+        background-image: url('~/site/static/icons/eczoo-main-logo-mobile.svg');
+        width: $header-bgimage-width-mobile;
+        // it's set to 'contain'
+        //background-size: $header-bgimage-width-mobile auto;
+    }
+}
+}
+
+
+

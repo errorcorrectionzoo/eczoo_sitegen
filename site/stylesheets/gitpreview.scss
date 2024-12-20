@@ -1,4 +1,5 @@
-@import '~/site/stylesheets/variables.scss';
+@use '~/site/stylesheets/variables.scss' as *;
+
 
 $preview-contents-h-margin: 25px;
 $preview-contents-v-margin: 25px;

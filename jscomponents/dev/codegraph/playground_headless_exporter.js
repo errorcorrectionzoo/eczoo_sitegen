@@ -8,7 +8,7 @@ import debugm from 'debug'; const debug = debugm('ecz_playground_headless_export
 import { CodeGraphSvgExporter } from '../../codegraph/headlessGraphExporter.js';
 
 
-import eczoodbData from './eczoodata.json' assert { type: 'json' };
+import eczoodbData from './eczoodata.json' with { type: 'json' };
 
 
 const displayOptions = {

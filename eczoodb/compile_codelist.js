@@ -4,7 +4,9 @@ const debug = debug_mod("eczoodbjs.compile_codelist");
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
+//const { $$kw, repr } = zooflm;
+
+import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
 
 
 
@@ -38,7 +40,6 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
     if (apply_any) {
         predicate_name = predicate_name.substring(4);
     }
-    
 
     if (predicate_name === 'property_set') {
         if (apply_any) {
@@ -231,3 +232,29 @@ export function get_list_data({codelist, eczoodb})
 }
 
 
+// ----------------------------------------------------------------------------
+
+
+const _EcZooDbCodeListComputedData = {
+    codelist: {
+        compiled_code_id_list: {
+            fn: function (codelist) { // capture "this"
+                const eczoodb = this;
+                debug(`Compiling code list ${codelist.list_id} ...`);
+                const code_list = get_list_data({codelist, eczoodb});
+                return code_list.map( (c) => c.code_id );
+            },
+        },
+    },
+};
+
+export class EczPopulateCodeListsDbProcessor extends ComputedDataProcessor
+{
+    constructor(options)
+    {
+        super(Object.assign({
+            computed_data: _EcZooDbCodeListComputedData,
+            keep_computed_data_in_data_dumps: false,
+        }, options));
+    }
+}

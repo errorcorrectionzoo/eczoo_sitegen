@@ -1,8 +1,8 @@
 import path from 'path';
 import process from 'process';
 
-const __filename = (new URL(import.meta.url)).pathname;
-const __dirname = (new URL('.', import.meta.url)).pathname;
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 
 export const citationsinfo_cache_dir_default =

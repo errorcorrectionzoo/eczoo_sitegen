@@ -2,19 +2,24 @@
     "extends": "@parcel/config-default",
 
     "resolvers": [
-        "@mischnic/parcel-resolver-root",
-        "...",
+        "@phfaist/parcel-resolver-root",
+        //"@mischnic/parcel-resolver-root",
+        //"...",
     ],
 
     "transformers": {
         "*.{pdf,jpg,jpeg,png}": ["@parcel/transformer-raw"],
-        "*.{json,ico}": ["@parcel/transformer-raw"],
+        "*.{json,ico,bib}": ["@parcel/transformer-raw"],
         "*.{xml,txt}": ["@parcel/transformer-raw"],
         "*.html": ["...", "@errorcorrectionzoo/parcel-transformer-ogimage-phf"],
     },
 
     "optimizers": {
         "*.html": ["parcel-optimizer-nohtmlsuffix", "..."],
+
+        // Problems with the code-graph/FLM stuff when using the default @parcel/optimizer-swc
+        // optimizer.  Works again when using Parcel's traditional "terser" optimizer.
+        "*.js": [ "@parcel/optimizer-terser" ],
     },
 
     "namers": [ "@errorcorrectionzoo/parcel-namer-own-folder-hashes", "..." ],

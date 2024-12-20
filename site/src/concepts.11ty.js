@@ -1,4 +1,6 @@
-const debug = require('debug')('eczoo_sitegen.src.concepts');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.concepts');
+
 
 const data = {
     title: 'Glossary of concepts',
@@ -20,7 +22,7 @@ const data = {
 const render = async (data) => {
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
     const {
-        make_render_shorthands, make_and_render_document
+        $$kw, make_render_shorthands, make_and_render_document
     } = await import('@phfaist/zoodb/zooflm');
 
     debug(`concepts.11ty.js -- render()`);
@@ -43,6 +45,8 @@ const render = async (data) => {
 
         let s = '';
 
+        const refsmgr = render_context.feature_render_manager('refs');
+
         s += sqzhtml`
 <h1>Glossary of concepts</h1>
 
@@ -60,6 +64,43 @@ const render = async (data) => {
             if (referenceable_info_target_id != null) {
                 href += '#' + referenceable_info_target_id;
             }
+            const defining_object_ref_instance = refsmgr.get_ref(object_type, object_id);
+            const defining_obj_name_flm = defining_object_ref_instance.formatted_ref_flm_text;
+            const defining_obj_name = render_context.doc.environment.make_fragment(
+                defining_obj_name_flm,
+                $$kw({ standalone_mode: true }),
+            );
+
+            let concept_encountered_references =
+                eczoodb.zoo_flm_processor.scanner.get_encountered_references_to_labels(
+                    encountered_referenceable.referenceable_info.labels
+                );
+            let concept_referenced_in_list = '';
+            let concept_referenced_dict = {};
+            for (const encountered_reference of concept_encountered_references) {
+                const ri = encountered_reference.resource_info;
+                if (ri.object_type === object_type && ri.object_id === object_id) {
+                    // skip the object that defines the concept ("defined in")
+                    continue;
+                }
+                const key = `${ri.object_type}:${ri.object_id}`;
+                if (Object.hasOwn(concept_referenced_dict, key)) {
+                    continue;
+                }
+                concept_referenced_dict[key] = ri;
+            }
+            if (Object.keys(concept_referenced_dict).length) {
+                concept_referenced_in_list = 
+                    `<div class="glossary-referenced-in-list">Referenced in: <!-- ${JSON.stringify(concept_referenced_dict)} -->`;
+                concept_referenced_in_list += Object.entries(concept_referenced_dict).map(
+                    ([k_,ri]) => {
+                        return `<span class="glossary-referenced-in-item">${
+                            ref(ri.object_type, ri.object_id)
+                        }</span>`
+                    }
+                ) .join(', ');
+                concept_referenced_in_list += `</div>`;
+            }
 
             s += sqzhtml`
   <dt class="glossary-defterm-term-name">
@@ -67,13 +108,18 @@ const render = async (data) => {
       ${ rdr(flm_text) }
     </a>
   </dt>
-    <a href="${ href }"
+    ${ /*<a href="${ href }"
        class="glossary-a-view-in-context"
-       >view in context&nbsp;→</a>
+       >view in context&nbsp;→</a> */ '' }
   <dd class="glossary-defterm-body">
     ${ rdr(flm_body) }
+    <div class="glossary-defined-in">Defined in: <a href="${href}">${
+        rdr(defining_obj_name)
+    }</a></div>
+    ${ concept_referenced_in_list }
   </dd>`;
-        }
+        } // end for
+
         s += sqzhtml`
 </dl>
 <RENDER_ENDNOTES/>`;
@@ -92,4 +138,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render, }
+export default { data, render, }

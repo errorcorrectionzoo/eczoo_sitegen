@@ -13,4 +13,4 @@ const render = async (data) => {
     return JSON.stringify(dbdump);
 }
 
-module.exports = { data, render, };
+export default { data, render, };

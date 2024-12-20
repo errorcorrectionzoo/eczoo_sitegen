@@ -2,27 +2,29 @@
 // Eleventy site configuration
 //
 
-const debug = require('debug')('eczoo_sitegen.eleventyConfigJs');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.eleventyConfigJs');
 
-const path = require('path');
+import path from 'path';
+import faviconPlugin from 'eleventy-favicon';
+import eleventyParcelPlugin from '@kitschpatrol/eleventy-plugin-parcel';
 
-const faviconPlugin = require("eleventy-favicon");
+import packageJson from './package.json' with { type: 'json' };
 
-const eleventyParcelPlugin = require("@kitschpatrol/eleventy-plugin-parcel");
+const __dirname = import.meta.dirname;
+const __filename = import.meta.filename;
 
-const packageJson = require('./package.json');
+
+import { load_or_reload_eczoodb } from './sitelib/build_eczoo.js';
+import { prepareEczooBibReferences } from './sitelib/prepare_eczoo_bibreferences.js';
 
 
 Error.stackTraceLimit = 999;
 
 
 
-//let _eczoo_code_graph_svg_exporter_instance = null;
-
-
-
-module.exports = (eleventyConfig) => {
-
+export default async function (eleventyConfig)
+{
     const eczoo_run_options = {
         // Use "!=" such that the string "0" also counts as false
         run_11ty_parcel: ((process.env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0),
@@ -36,6 +38,11 @@ module.exports = (eleventyConfig) => {
         data_dir: path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
         site_base_url_host_name: 'https://errorcorrectionzoo.org/',
+        citationsinfo_cache_dir: path.join(
+            __dirname,
+            '..',
+            (process.env.ECZOO_CITATIONS_CACHE_DIR ?? '_zoodb_citations_cache')
+        ),
     };
     if (eczoo_run_options.use_test_data) {
         eczoo_config.data_dir =
@@ -60,22 +67,8 @@ module.exports = (eleventyConfig) => {
     eleventyConfig.addGlobalData("eczoodb", async () => {
 
         //
-        // Prepare a code graph SVG generator instance (use single instance across
-        // all generated graphs because an instance spins up a Chrome puppeteer
-        // instance!)  
-        //
-        // TODO: Don't wait until this is finished before starting to load the EcZoo.
-        //
-        if ( eczoo_config.generate_code_graph_svg_exports ) {
-            const { init_headless_graph_exporter } =
-                await import('./sitelib/init_headless_graph_exporter.js');
-            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
-        }
-
-        //
         // (Re)load the EC Zoo Database.
         //
-        const { load_or_reload_eczoodb } = await import('./sitelib/build_eczoo.js');
         const eczoodb = await load_or_reload_eczoodb(eczoo_config);
         //
         // Prepare data dump of the EC Zoo.
@@ -83,9 +76,21 @@ module.exports = (eleventyConfig) => {
         const eczoodbData = await eczoodb.data_dump({});
         eczoodb.cached_data_dump = eczoodbData;
 
+        //
+        // Prepare a code graph SVG generator instance (use single instance across
+        // all generated graphs because an instance spins up a Chrome puppeteer
+        // instance!)  
+        //
+        //
+        if ( eczoo_config.generate_code_graph_svg_exports ) {
+            const { init_headless_graph_exporter } =
+                await import('./sitelib/init_headless_graph_exporter.js');
+            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
+        }
+
         // save the exporter (whether or not it is null) directly as an attribute of the eczoodb
         // object. This is how domain-graph and kingdom-graph pages access the instance.
-        eczoodb.custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
+        eczoodb.site_custom_headless_graph_exporter_instance = _eczoo_code_graph_svg_exporter_instance;
 
         if (_eczoo_code_graph_svg_exporter_instance != null) {
             
@@ -95,7 +100,16 @@ module.exports = (eleventyConfig) => {
                 console.error(`Problem initializing code graph exporter!`);
                 process.exit(1);
             }
+
         }
+
+        //
+        // Prepare bibliography references. Compile list of used citations, etc.
+        // Here we put the code that is used in common between the "/references" page
+        // and the "/dat/bibreferences*" pages (Bibtex/CSL-JSON)
+        //
+        eczoodb.site_bibrefsdata = prepareEczooBibReferences(eczoodb);
+
         return eczoodb;
     });
     if ( eczoo_config.generate_code_graph_svg_exports ) {
@@ -126,55 +140,6 @@ module.exports = (eleventyConfig) => {
         );
         return absoluteUrlObject.href;
     });
-
-
-    // //
-    // // Prepare a code graph SVG generator instance (use single instance across
-    // // all generated graphs because an instance spins up a Chrome puppeteer
-    // // instance!)
-    // //
-    // if ( eczoo_config.generate_code_graph_svg_exports ) {
-    //     debug('Setting up the code graph SVG exporter instance');
-    //     eleventyConfig.on('eleventy.before', async () => {
-    //         try {
-    //             const { CodeGraphSvgExporter } = await import(
-    //                 '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js'
-    //             );
-    //             if (_eczoo_code_graph_svg_exporter_instance != null) {
-    //                 throw new Error(
-    //                     `There is already an instance set in `
-    //                     + `_eczoo_code_graph_svg_exporter_instance!!`
-    //                 );
-    //             }
-    //             _eczoo_code_graph_svg_exporter_instance = new CodeGraphSvgExporter({
-    //                 autoCloseMs: 5 * 60 * 1000, // 5 minutes
-    //             });
-    //             await _eczoo_code_graph_svg_exporter_instance.setup();
-    //         } catch (error) {
-    //             console.error('Failed to initialize the SVG code graph exporter!');
-    //             console.error(error);
-    //             _eczoo_code_graph_svg_exporter_instance = null;
-    //             //throw new Error(`Failed to initialize the SVG code graph exporter.`);
-    //             console.error('process.exit now');
-    //             process.exit(101); // otherwise it looks like end up with pending promises ...
-    //         }
-    //     });
-    //     eleventyConfig.on('eleventy.after', async () => {
-    //         if (_eczoo_code_graph_svg_exporter_instance) {
-    //             await _eczoo_code_graph_svg_exporter_instance.done();
-    //             _eczoo_code_graph_svg_exporter_instance = null;
-    //         }
-    //     });
-    // }
-    // eleventyConfig.addGlobalData(
-    //     "get_eczoo_code_graph_svg_exporter", {
-    //         getInstance() {
-    //             return _eczoo_code_graph_svg_exporter_instance;
-    //         }
-    //     }
-    // );
-
-
 
     if (eczoo_run_options.run_11ty_parcel) {
 

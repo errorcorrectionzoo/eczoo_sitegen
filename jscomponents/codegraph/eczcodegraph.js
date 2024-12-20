@@ -68,7 +68,6 @@ export class EczCodeGraph
         this.getNodeIdCode = EczCodeGraph.getNodeIdCode;
         this.getNodeIdDomain = EczCodeGraph.getNodeIdDomain;
         this.getNodeIdKingdom = EczCodeGraph.getNodeIdKingdom;
-        //this.getMergedDisplayOptions = EczCodeGraph.getMergedDisplayOptions;
 
         // the eczoodb
         this.eczoodb = eczoodb;
@@ -278,6 +277,8 @@ export class EczCodeGraph
             // request new layout calculation with new subgraph selector.
             this._setPendingUpdateLayout();
         }
+
+        debug(`updateSubgraphSelectorAndSetGraphFilterOptions() done.`);
     }
 
     // --------------------------------
@@ -444,10 +445,14 @@ export class EczCodeGraph
             }
         );
 
-        // DEBUG
         const nodeIdsInLayout = this.cy.nodes('.layoutVisible').map( (n) => n.id() );
-        debug(`updateLayout(): ${nodeIdsInLayout.length} nodes participate in the layout (.layoutVisible):`,
-              nodeIdsInLayout);
+        const rootNodeIds = this.cy.nodes('.layoutRoot.layoutVisible').map( (n) => n.id() );
+
+        debug(
+            `updateLayout(): ${nodeIdsInLayout.length} nodes participate in the layout `
+            + `(.layoutVisible):`, nodeIdsInLayout, `; and ${rootNodeIds.length} nodes are `
+            + `listed as 'root' nodes (.layoutRoot.layoutVisible):`, rootNodeIds
+        );
 
         let shouldApplyPrelayout = true;
         let shouldApplyCoseLayout = true;
@@ -459,8 +464,6 @@ export class EczCodeGraph
         if (skipCoseLayout) {
             shouldApplyCoseLayout = false;
         }
-
-        const rootNodeIds = this.cy.nodes('.layoutRoot.layoutVisible').map( (node) => node.id() );
 
         if (shouldApplyPrelayout || shouldApplyCoseLayout) {
             // invalidate any currently laid out nodes

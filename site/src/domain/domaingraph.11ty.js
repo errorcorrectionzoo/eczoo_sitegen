@@ -1,4 +1,6 @@
-const debug = require('debug')('eczoo_sitegen.src.domain.domaingraph');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.domain.domaingraph')
+
 
 const data = {
     pagination: {
@@ -18,7 +20,7 @@ const render = async (data) => {
 
     const { domain, eczoodb } = data;
 
-    const eczoo_code_graph_svg_exporter = eczoodb.custom_headless_graph_exporter_instance;
+    const eczoo_code_graph_svg_exporter = eczoodb.site_custom_headless_graph_exporter_instance;
 
     if (eczoo_code_graph_svg_exporter == null) {
         // Skip full rendering in devel mode & render placeholder
@@ -91,4 +93,4 @@ const render = async (data) => {
     return svgData;
 };
 
-module.exports = { data, render, };
+export default { data, render, };

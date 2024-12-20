@@ -1,0 +1,137 @@
+@use './variables.scss' as *;
+@use './def-card-item.scss' as *;
+
+.ecc-code {
+    @include card-item;
+
+    p, ul, ol {
+        margin-top: 2*$inner-parskip-half-length;
+        margin-bottom: 2*$inner-parskip-half-length;
+    }
+}
+
+.codelist-jump-to-code-graph-excerpt {
+    font-style: italic;
+    font-size: $small-font-size;
+    margin: 2*$parskip-half-length  0pt;
+}
+
+//
+// Code list page with style=index
+//
+ul.code-index, ol.code-index {
+    &, &:first-child {
+        margin: 1.5rem 0 2rem !important;
+    }
+
+    li {
+        margin-bottom: 0.7rem;
+    }
+
+    .code-name {
+        padding-right: 1em;
+        font-weight: bold;
+    }
+    .code-alternative-name {
+        font-style: italic;
+    }
+    //.code-description {
+    //}
+    .code-index-code-description-start-hidden {
+        display: none;
+    }
+}
+.code-index-control-display {
+    font-style: italic;
+    font-size: 0.9rem;
+    margin: 1rem 0px;
+}
+.code-index-ctrl-label-show {
+    display: inline;
+}
+.code-index-ctrl-label-hide {
+    display: none;
+}
+#main.code-index-with-descriptions {
+    .code-index-ctrl-label-show {
+        display: none;
+    }
+    .code-index-ctrl-label-hide {
+        display: inline;
+    }
+    .code-description.code-index-code-description-start-hidden {
+        display: block;
+    }
+}
+
+//
+// Code list page with style=table
+//
+
+table.codelistpage-table {
+    margin: 1.5rem 0rem 2rem;
+
+    border-top: solid .15rem var(--main-text-color);
+    border-bottom: solid .15rem var(--main-text-color);
+
+    width: 100%;
+    box-sizing: border-box;
+    border-collapse: collapse;
+
+    thead {
+        tr {
+            border-bottom: solid .1rem var(--main-text-color);
+
+            th {
+                //font-weight: normal;
+                font-weight: bold;
+                //font-style: italic;
+                font-size: $small-font-size;
+                
+                padding: 0.25rem 0.1rem;
+            }
+        }
+    }
+
+    &.hlines {
+        thead tr {
+            // turn the thin rule below header into a thick rule
+            border-bottom: solid .15rem var(--main-text-color);
+        }
+        tbody tr {
+            border-bottom: solid .1rem var(--main-text-color);
+        }
+    }
+
+    td {
+        padding: 0.15rem 0.25rem 0.15rem;
+    }
+
+    &.xtra-stretch td {
+        padding: 0.25rem 0.25rem 0.25rem;
+    }
+    &.xtra-xtra-stretch td {
+        padding: 0.5rem 0.25rem 0.5rem;
+    }
+
+
+
+    td.small {
+        font-size: $small-font-size;
+    }
+    td.left {
+        text-align: left;
+    }
+    td.center {
+        text-align: center;
+    }
+    td.right {
+        text-align: right;
+    }
+    td.top {
+        vertical-align: top;
+    }
+    td.bottom {
+        vertical-align: bottom;
+    }
+}

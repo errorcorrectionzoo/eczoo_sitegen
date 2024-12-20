@@ -1,5 +1,19 @@
 
-const debug = require('debug')('eczoo_sitegen.src.c')
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.c')
+
+
+import * as zooflm from '@phfaist/zoodb/zooflm';
+import {
+    docrefs_placeholder_ref_resolver
+ } from '@errorcorrectionzoo/eczoodb/render_utils.js';
+
+//const { $$kw } = zooflm;
+import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
+
+import * as rendercodepage from '@errorcorrectionzoo/eczoodb/render_code.js';
+
+
 
 const show_max_rel_by_reltype = {
     parents: 4,
@@ -111,10 +125,6 @@ function get_code_citation_year(code)
 
 const data = async () => {
     
-    const zooflm = await import('@phfaist/zoodb/zooflm');
-    const { docrefs_placeholder_ref_resolver } =
-          await import('@errorcorrectionzoo/eczoodb/render_utils.js');
-
     let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
     let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
     let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
@@ -223,16 +233,10 @@ const render = async (data) => {
     const code = data.code;
     const eczoodb = data.eczoodb;
 
-    const zooflm = await import('@phfaist/zoodb/zooflm');
-    //const { $$kw } = zooflm;
-    const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
-
     let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
     let text_fragment_renderer = new zooflm.ZooTextFragmentRenderer();
     let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
     let flmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
-
-    const rendercodepage = await import('@errorcorrectionzoo/eczoodb/render_code.js');
 
     const doc_metadata = {};
     const zoo_flm_environment = eczoodb.zoo_flm_environment;
@@ -384,4 +388,4 @@ const render = async (data) => {
 
 };
 
-module.exports = { data, render };
+export default { data, render };

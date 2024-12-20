@@ -1,11 +1,12 @@
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.sitemap_xml');
+
+
 const data = {
     permalink: '/sitemap.xml',
     layout: false,
     eleventyExcludeFromCollections: true,
 };
-
-const debug = require('debug')('eczoo_sitegen.src.sitemap_xml');
-
 
 const render = async function (data)
 {
@@ -36,4 +37,4 @@ const render = async function (data)
     return xml;
 };
 
-module.exports = { data, render, };
+export default { data, render, };

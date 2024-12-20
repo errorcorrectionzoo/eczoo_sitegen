@@ -1,4 +1,6 @@
 
+import * as zooflm from '@phfaist/zoodb/zooflm';
+
 const data = {
     title: 'List of code lists',
     tags: ['sitePage'],
@@ -20,8 +22,6 @@ const data = {
 const render = async (data) => {
 
     const eczoodb = data.eczoodb;
-
-    const zooflm = await import('@phfaist/zoodb/zooflm');
 
     const html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
 
@@ -68,4 +68,4 @@ const render = async (data) => {
 }
 
 
-module.exports = { data, render, };
+export default { data, render, };

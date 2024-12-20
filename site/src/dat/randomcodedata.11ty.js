@@ -22,4 +22,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render, };
+export default { data, render, };

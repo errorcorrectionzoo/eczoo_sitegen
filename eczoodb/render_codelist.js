@@ -187,8 +187,11 @@ const styles = {
 
 export function render_codelist_page(
     codelist,
-    { eczoodb, doc_metadata, additional_setup_render_context,
-      render_meta_changelog_options  }
+    {
+        eczoodb, doc_metadata, additional_setup_render_context,
+        render_meta_changelog_options,
+        include_code_graph_excerpt,
+    }
 )
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
@@ -209,15 +212,31 @@ export function render_codelist_page(
 
         let html = '';
 
-        html += `
+        html += sqzhtml`
 <article class="ecc-codelist-page" id="codelist_${codelist.list_id}">` .trim();
 
         if (ne(codelist.intro)) {
-            html += `
+            html += sqzhtml`
 <div class="codelist-intro">${ rdr(codelist.intro) }</div>`;
         }
 
+        if (include_code_graph_excerpt) {
+            html += sqzhtml`
+<div class="codelist-jump-to-code-graph-excerpt"><p><a href="#idCodeGraphExcerpt">Jump to code graph excerpt</a></p></div>
+`;
+        }
+
         html += styles_render_fn( {codelist, list_data, R} );
+
+        if (include_code_graph_excerpt) {
+            html += sqzhtml`
+<div class="code-graph-excerpt" id="idCodeGraphExcerpt">
+  <a href="${include_code_graph_excerpt.href}">
+    <img src="${include_code_graph_excerpt.graphic_url}">
+  </a>
+</div>
+`;
+        }
 
         html += `
 

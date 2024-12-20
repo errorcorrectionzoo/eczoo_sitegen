@@ -157,7 +157,7 @@ notes:
       Note that the last cyclical permutation of \(S_1\) is not included, as it is
       given by \(S_1S_2S_3S_4\).
 
-      Yeah!
+      Yeah!  Also again the reference \term{Knill-Laflamme conditions}
 
       Use of the \textit{gather} environment:
       \begin{gather}

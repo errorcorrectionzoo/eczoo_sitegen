@@ -1,3 +1,6 @@
+
+import { render_person } from '@errorcorrectionzoo/eczoodb/render_person.js';
+
 const data = {
     title: 'Team',
     tags: ['sitePage'],
@@ -5,10 +8,7 @@ const data = {
 
 const zoo_roles_list = ['zookeeper', 'architect'];
 
-
 const render = async (data) => {
-
-    const { render_person } = await import('@errorcorrectionzoo/eczoodb/render_person.js');
 
     const { eczoodb } = data;
 
@@ -144,4 +144,4 @@ We thank:
 }
 
 
-module.exports = { data, render, };
+export default { data, render, };
