@@ -1,11 +1,10 @@
-import debug_mod from 'debug';
-const debug = debug_mod("eczoodbjs.compile_codelist");
+// import debug_mod from 'debug';
+// const debug = debug_mod("eczoodbjs.compile_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
-const { $$kw, repr } = zooflm;
-
+//const { $$kw, repr } = zooflm;
 
 
 function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
@@ -38,7 +37,6 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
     if (apply_any) {
         predicate_name = predicate_name.substring(4);
     }
-    
 
     if (predicate_name === 'property_set') {
         if (apply_any) {

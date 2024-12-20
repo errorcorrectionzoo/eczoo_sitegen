@@ -34,50 +34,61 @@ export const stats_code_family_trees_spec = [
 
     {
         key: 'classical',
-        code_id_list: ['ecc'], //['ecc', 'classical_into_quantum'],
+        domain_id: 'classical_domain',
+        //code_id_list: ['ecc'], //['ecc', 'classical_into_quantum'],
         label: 'classical codes',
+        only_primary_parent_relation: true,
         home: true,
     },
     {
         key: 'quantum',
-        code_id_list: ['quantum_into_quantum'],
+        domain_id: 'quantum_domain',
+        //code_id_list: ['quantum_into_quantum'],
         label: 'quantum codes',
+        only_primary_parent_relation: true,
         home: true,
     },
     {
         key: 'cq',
-        code_id_list: ['classical_into_quantum'],
+        domain_id: 'quantum_into_classical_domain',
+        //code_id_list: ['classical_into_quantum'],
         label: 'c-q codes',
+        only_primary_parent_relation: true,
         home: true,
     },
     {
         key: 'topological',
         code_id_list: ['topological'],
         label: 'topological codes',
+        only_primary_parent_relation: true,
         home: true,
     },
     {
         key: 'qldpc',
         code_id_list: ['qldpc'],
         label: 'quantum LDPC codes',
+        only_primary_parent_relation: false,
         home: true,
     },
     {
         key: 'dynamic_gen',
         code_id_list: ['dynamic_gen'],
         label: 'dynamically generated codes',
+        only_primary_parent_relation: false,
         home: true,
     },
     {
         key: 'css',
         code_id_list: ['css', 'qudit_css', 'galois_css'],
         label: 'CSS codes',
+        only_primary_parent_relation: false,
         home: true,
     },
     {
         key: 'oscillators',
         code_id_list: ['oscillators'],
         label: 'bosonic codes',
+        only_primary_parent_relation: true,
         home: true,
     },
 
@@ -151,7 +162,8 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
         stats.num_codes_per_kingdom = {};
         stats.num_codes_per_kingdom_root_code = {};
         for (const [kingdom_id,kingdom] of Object.entries(eczoodb.objects.kingdom)) {
-            const root_code_id_list = kingdom.root_codes?.map( (relObj) => relObj.code_id ) ?? [];
+            const root_code_id_list =
+                kingdom.root_codes?.map( (relObj) => relObj.code_id ) ?? [];
             const value = this.get_num_code_family_tree_members(
                 {
                     eczoodb,
@@ -183,9 +195,10 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
         // hard-coded code family tree sizes
         stats.code_family_trees = {};
-        for (const { key, code_id_list, label } of stats_code_family_trees_spec) {
+        for (const statspec of stats_code_family_trees_spec) {
+            const { key, label } = statspec;
             const value = this.get_num_code_family_tree_members(
-                { eczoodb, code_id_list }
+                { eczoodb, ...statspec }
             );
             if (value !== null) {
                 stats.code_family_trees[key] = {
@@ -208,9 +221,35 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
     // ---
 
-    get_num_code_family_tree_members({ eczoodb, code_id_list, only_primary_parent_relation })
+    get_num_code_family_tree_members({ eczoodb, domain_id, code_id_list, only_primary_parent_relation })
     {
         only_primary_parent_relation ??= false;
+
+        debug(`domain_id=${domain_id}  code_id_list=${code_id_list}`);
+
+        if (domain_id != null) {
+            if (code_id_list != null) {
+                throw new Error(`Cannot specify both 'domain_id' and 'code_id_list' here.`)
+            }
+            const domain = eczoodb.objects.domain[domain_id];
+            // skip if no such domain (eg, test data)
+            if (domain == null) {
+                return null;
+            }
+            let root_code_id_list = [];
+            // find all root codes for this domain and associated kingdoms,
+            // use those as code_id_list.
+            for (const { code_id } of domain.root_codes) {
+                root_code_id_list.push(code_id);
+            }
+            for (const { kingdom } of domain.kingdoms) {
+                for (const { code_id } of kingdom.root_codes) {
+                    root_code_id_list.push(code_id);;
+                }
+            }
+
+            code_id_list = root_code_id_list;
+        }
 
         let family_head_codes = [];
         for (const code_id of code_id_list) {
@@ -239,8 +278,9 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
         debug(`get_num_code_family_tree_members [${code_id_list}] -> `
               + `(${collected_code_ids.size}) ${Array.from(collected_code_ids)} `);
-
-        return collected_code_ids.size - family_head_codes.length + 1; // collective family heads = 1 code
+        
+        // collective family heads = 1 code
+        return collected_code_ids.size - family_head_codes.length + 1;
     }
 
 }

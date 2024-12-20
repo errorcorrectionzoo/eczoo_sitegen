@@ -7,7 +7,7 @@ description: |-
 
 relations:
   parents:
-    - code_id: quantum_code
+    - code_id: quantum_into_quantum
 
 
 _meta:

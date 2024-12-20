@@ -4,11 +4,11 @@
   description: >-
     codes for good ol' computers
   root_codes:
-    - code_id: classical_code
+    - code_id: ecc
 
 - domain_id: quantum_domain
   name: 'Quantum Domain'
   description: 'codes for quantum systems'
   root_codes:
-    - code_id: quantum_code
+    - code_id: quantum_into_quantum
 
