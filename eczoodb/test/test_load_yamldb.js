@@ -15,9 +15,9 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 describe('load_yamldb', function () {
 
-    describe('load_eczoo', function () {
+    this.timeout(0);
 
-        this.timeout(0);
+    describe('load_eczoo', function () {
 
         it.skip('should successfully load test data for the EC Zoo', async function () {
 

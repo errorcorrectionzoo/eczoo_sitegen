@@ -15,19 +15,20 @@ import { load_eczoo_cached } from './_loadeczoodb.js';
 
 
 
-describe('stats', async function () {
+describe('stats', function () {
 
-    console.log('loading zoo!');
-    const eczoodb = await load_eczoo_cached({
-        eczoodb_options: {
-            flm_allow_unresolved_citations: true,
-            flm_allow_unresolved_references: true,
-        }
-    });
+    this.timeout(0);
 
+    it.skip('can generate some stats', async function () {
 
-    it.skip('can generate some stats', function () {
-
+        console.log('loading zoo!');
+        const eczoodb = await load_eczoo_cached({
+            eczoodb_options: {
+                flm_allow_unresolved_citations: true,
+                flm_allow_unresolved_references: true,
+            }
+        });
+    
         // ... TODO ...
 
     })

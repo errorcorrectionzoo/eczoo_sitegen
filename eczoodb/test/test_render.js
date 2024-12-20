@@ -24,21 +24,21 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 
 
-const eczoodb = await load_eczoo_cached({
-    data_dir,
-    fs,
-    eczoodb_options: {
-        flm_allow_unresolved_citations: true,
-        flm_allow_unresolved_references: true,
-    }
-});
-
-const zoo_flm_environment = eczoodb.zoo_flm_environment;
-
-
 describe('render_code', function () {
 
+    this.timeout(0);
+
     it('should return HTML code starting with <div … >', async function () {
+
+        const eczoodb = await load_eczoo_cached({
+            data_dir,
+            fs,
+            eczoodb_options: {
+                flm_allow_unresolved_citations: true,
+                flm_allow_unresolved_references: true,
+            }
+        });
+        const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
         const result_css_html = render_code_page(
             eczoodb.objects.code.css,
@@ -57,7 +57,18 @@ describe('render_code', function () {
 
 describe('render_codelist', function () {
 
+    this.timeout(0);
+
     it('should return HTML code starting with <article … >', async function () {
+
+        const eczoodb = await load_eczoo_cached({
+            data_dir,
+            fs,
+            eczoodb_options: {
+                flm_allow_unresolved_citations: true,
+                flm_allow_unresolved_references: true,
+            }
+        });
 
         const result_all_html = render_codelist_page(
             eczoodb.objects.codelist.all,
