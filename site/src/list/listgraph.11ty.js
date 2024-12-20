@@ -1,6 +1,28 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.src.list.listgraph')
 
+export function listGraphMakeDisplayOptions(codeIds) {
+    return {
+        displayMode: 'subset',
+
+        modeSubsetOptions: {
+            codeIds,
+            connectingNodesMaxDepth: 12,
+            connectingNodesMaxExtraDepth: 1,
+            connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
+        },
+        
+        cousinEdgesShown: true,
+        secondaryParentEdgesShown: true,
+
+        highlightImportantNodes: {
+            highlightImportantNodes: true,
+            highlightPrimaryParents: true,
+            highlightRootConnectingEdges: false,
+        },
+    };
+}
+
 const data = {
     pagination: {
         data: 'eczoodb.objects.codelist',
@@ -34,24 +56,7 @@ const render = async (data) => {
 
     const code_id_list = eczoodb.codelist_compiled_code_id_list(codelist);
 
-    const displayOptions = {
-        displayMode: 'subset',
-        modeSubsetOptions: {
-            codeIds: code_id_list,
-            connectingNodesMaxDepth: 12,
-            connectingNodesMaxExtraDepth: 1,
-            connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
-        },
-        
-        cousinEdgesShown: true,
-        secondaryParentEdgesShown: true,
-
-        highlightImportantNodes: {
-            highlightImportantNodes: false,
-            highlightPrimaryParents: false,
-            highlightRootConnectingEdges: false,
-        },
-    };
+    const displayOptions = listGraphMakeDisplayOptions(code_id_list);
 
     debug(`Setting list's graph's displayOptions to`, displayOptions);
 
@@ -70,4 +75,4 @@ const render = async (data) => {
     return svgData;
 };
 
-export default { data, render, };
+export default { data, render };

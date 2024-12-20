@@ -1,5 +1,5 @@
-// import debug_mod from 'debug';
-// const debug = debug_mod("eczoodbjs.compile_codelist");
+import debug_mod from 'debug';
+const debug = debug_mod("eczoodbjs.compile_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 

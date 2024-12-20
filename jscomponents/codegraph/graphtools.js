@@ -16,7 +16,7 @@ export function dispElement(ele)
     if (ele.isEdge()) {
         return `[${ele.source().id()} → ${ele.target().id()}]`;
     }
-    return `UNKNOWN{${JSON.stringify(e)}}`;
+    return `UNKNOWN{${JSON.stringify(ele)}}`;
 }
 
 export function dispCollection(eles)
