@@ -179,8 +179,6 @@ article.ecc-code-page {
     }
 }
 
-@import './code-hierarchy-items.scss';
-
 
 // adjustments for screens that aren't large enough
 @media (max-width: ($page-min-text-column-width + 280px)) {

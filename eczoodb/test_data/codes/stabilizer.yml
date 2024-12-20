@@ -29,7 +29,7 @@ relations:
   parents:
     - code_id: qubits_into_qubits
       detail: ''
-    - code_id: quantum_code
+    - code_id: quantum_into_quantum
       detail: ''
   # cousins:
   #   - code_id: hamiltonian
