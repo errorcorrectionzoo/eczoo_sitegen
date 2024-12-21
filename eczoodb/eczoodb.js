@@ -42,6 +42,14 @@ const default_config = {
                 // ('code.name') so that it doesn't have to be recompiled.
                 formatted_ref_flm_text_fn: (codeid, code) => code.name.flm_text,
             },
+            codelist: {
+                // Keep 'code.name.flm_text' until we fix the issue in
+                // zoodb/src/zooflm/_environment.js dealing with JSON
+                // serialization of RefInstance's with FLMFragment instances.
+                // Otherwise it's better to keep the fragment instance here
+                // ('code.name') so that it doesn't have to be recompiled.
+                formatted_ref_flm_text_fn: (codelistid, codelist) => codelist.title.flm_text,
+            },
             user: {
                 formatted_ref_flm_text_fn: (userid, user) => user.name,
             },
@@ -150,6 +158,22 @@ export class EcZooDb extends ZooDb
     constructor(options)
     {
         super(options);
+    }
+
+    //
+    // Helpers for computed-data accessors -
+    //
+    codelist_compiled_code_id_list(code)
+    {
+        return this.codelist_compiled_codes_info(code).code_id_list;
+    }
+    codelist_compiled_code_list(code)
+    {
+        return this.codelist_compiled_codes_info(code).code_list;
+    }
+    codelist_compiled_code_id_set(code)
+    {
+        return this.codelist_compiled_codes_info(code).code_id_set;
     }
 
     //

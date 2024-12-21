@@ -9,10 +9,19 @@ import path from 'path';
 import faviconPlugin from 'eleventy-favicon';
 import eleventyParcelPlugin from '@kitschpatrol/eleventy-plugin-parcel';
 
+// NOTE: eleventy fails to enter dev (watch/serve) mode with the following line :/
+// Use the fs.readFileSync() version to make eleventy work.  But then parcel also
+// appears to fail to integrate correctly. TODO: debug, or wait until these issues
+// have been fixed upstream.
+//
 import packageJson from './package.json' with { type: 'json' };
+//
+//import fs from 'fs';
+//const packageJson = JSON.parse(fs.readFileSync('./package.json'));
+
 
 const __dirname = import.meta.dirname;
-const __filename = import.meta.filename;
+//const __filename = import.meta.filename;
 
 
 import { load_or_reload_eczoodb } from './sitelib/build_eczoo.js';
@@ -25,6 +34,8 @@ Error.stackTraceLimit = 999;
 
 export default async function (eleventyConfig)
 {
+    debug(`eleventyConfig main function running.`);
+
     const eczoo_run_options = {
         // Use "!=" such that the string "0" also counts as false
         run_11ty_parcel: ((process.env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0),

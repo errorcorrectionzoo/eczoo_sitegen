@@ -3,8 +3,12 @@ const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-//const { $$kw, repr } = zooflm;
+import {
+    // $$kw, repr
+    make_render_shorthands,
+    render_text_standalone,
+    make_and_render_document,
+} from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -222,7 +226,9 @@ export function render_code_page(
             eczoodb }
 )
 {
-    //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
+    const code_id = code.code_id;
+
+    debug(`render_code_page(): Rendering code page for ‘${code_id}’ ...`);
     
     const render_doc_fn = (render_context) => {
 
@@ -233,7 +239,7 @@ export function render_code_page(
             additional_setup_render_context(render_context);
         }
 
-        const R = zooflm.make_render_shorthands({render_context});
+        const R = make_render_shorthands({render_context});
         const { ne, rdr, //rdrblock,
              ref, refhref } = R;
 
@@ -318,7 +324,7 @@ export function render_code_page(
             const value = getfield(code, fieldname);
             if ( ! ne(value) ) {
                 // nothing to display
-                //debug(`Field ${fieldname} of ${code.code_id} is empty.`);
+                //debug(`Field ${fieldname} of ${code_id} is empty.`);
                 return ``;
             }
             const parts = fieldname.split('.');
@@ -420,7 +426,7 @@ ${rdr(value)}
 
         const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
 
-        const rdrtext = (fragment) => zooflm.render_text_standalone(fragment);
+        const rdrtext = (fragment) => render_text_standalone(fragment);
 
         let code_hierarchy_content = '';
 
@@ -604,6 +610,30 @@ ${code_hierarchy_content}`;
             ['Cousin', 'Cousins']
         );
 
+        // Also add information about which lists this code appears in.
+        let appears_in_codelists = Object.values(eczoodb.objects.codelist).filter(
+            (codelist) => eczoodb.codelist_compiled_code_id_set(codelist).has(code_id)
+        );
+        if (appears_in_codelists.length !== 0) {
+            appears_in_codelists.sort(
+                (a,b) => a.title.flm_text.localeCompare(b.title.flm_text)
+            );
+            debug(`${code_id} appears in code lists: ${
+                appears_in_codelists.map(l => l.list_id).join(', ') }`);
+            html += sqzhtml`
+<div class="sectioncontent code-codelist-membership">
+<h2 id="code_codelist_membership">Member of code lists</h2>
+<ul class="code-codelist-membership-list">`;
+            for (const codelist of appears_in_codelists) {
+                debug(`Including codelist:`, codelist);
+                html += sqzhtml`
+    <li>${ref('codelist', codelist.list_id)}</li>
+`;
+            }
+            html += `</ul></div>`;
+        }
+
+
         html += sqzhtml`
 </div>`;
 
@@ -612,7 +642,7 @@ ${code_hierarchy_content}`;
         return html;
     };
 
-    return zooflm.make_and_render_document({
+    return make_and_render_document({
         zoo_flm_environment,
         render_doc_fn,
         doc_metadata,
