@@ -9,10 +9,19 @@ const defaultPrelayoutOptions = {
 
     layoutParentEdgeSelector: '.layoutParent',
 
+    // if ignoreParentEdgeDirection is false, then all connected nodes of a 
+    // root node (through parental edges) are considered as children for
+    // layout purposes.  Parental relationship direction is anyways ignored
+    // for non-root nodes, those edges being viewed as those of an undirected
+    // tree graph.
+    ignoreParentRootEdgeDirection: false,
+
     // for automatic positioning of root nodes without an explicit position
     origin: {
         position: {x: 0, y: 0},
         radius: 50.0,
+        rootPositionXOffset: 500.0,
+        rootPositionYOffset: 0,
         angularSpread: 2*Math.PI, ///3, //2*Math.PI * 0.2,
         direction: Math.PI/2,
         useWeights: false,
@@ -68,10 +77,12 @@ export class PrelayoutRadialTree
         // position the root nodes & set branch "layouters" instances
         let rootNodePrelayoutInfo = {};
         let rootNodeIdsToBePositioned = [];
+        let numGivenPositionedRootNodes = 0;
         for (const rootNodeId of this.rootNodeIds) {
             let prelayoutInfo = this.rootNodesPrelayoutInfo[rootNodeId];
             if (prelayoutInfo != null) {
                 rootNodePrelayoutInfo[rootNodeId] = prelayoutInfo;
+                ++numGivenPositionedRootNodes;
             } else {
                 rootNodeIdsToBePositioned.push(rootNodeId);
             }
@@ -79,28 +90,38 @@ export class PrelayoutRadialTree
         // create "prelayoutInfo" for any root nodes that haven't been manually
         // positioned & directed
         const numJ = rootNodeIdsToBePositioned.length;
-        const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
+        //const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
         const origin = this.prelayoutOptions.origin;
+
+        if (numGivenPositionedRootNodes > 0 && rootNodeIdsToBePositioned.length > 0) {
+            throw new Error(`PrelayoutRadialTree.run(): If you position some of the `
+                + `root nodes, you should position all of them `
+                + `(in rootNodesPrelayoutInfo’)`);
+        }
 
         //debug(`Will need to auto position ${numJ} root nodes;`, { origin });
 
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
-            let angleFraction = j / maxJ;
-            if (maxJ === 1) { // special case if we're positioning a single node
-                angleFraction = 0.5;
-            }
-            const angle = origin.direction
-                  + (angleFraction - 0.5) * origin.angularSpread;
-            const R = origin.radius;
+            // let angleFraction = j / maxJ;
+            // if (maxJ === 1) { // special case if we're positioning a single node
+            //     angleFraction = 0.5;
+            // }
+            // const angle = origin.direction
+            //       + (angleFraction - 0.5) * origin.angularSpread;
+            // const R = origin.radius;
+            // const position = {
+            //     x:  origin.position.x + R * Math.cos(angle),
+            //     y:  origin.position.y + R * Math.sin(angle),
+            // };
             const position = {
-                x:  origin.position.x + R * Math.cos(angle),
-                y:  origin.position.y + R * Math.sin(angle),
+                x: origin.position.x + (j - numJ/2) * origin.rootPositionXOffset,
+                y: origin.position.y + (j - numJ/2) * origin.rootPositionYOffset,
             };
             rootNodePrelayoutInfo[rootNodeId] = {
                 position,
-                radiusOffset: R,
-                direction: angle,
-                angularSpread: origin.angularSpread / numJ,
+                radiusOffset: origin.radius, // R,
+                direction: origin.direction, //angle,
+                angularSpread: origin.angularSpread, // / numJ,
             };
         }
         
@@ -116,12 +137,20 @@ export class PrelayoutRadialTree
 
             const cyRootNode = this.cy.getElementById(rootNodeId);
 
-            const childrenEdges =
+            let childrenEdges = null;
+            let parentsEdges = null;
+
+            childrenEdges =
                 cyRootNode.incomers(this.prelayoutOptions.layoutParentEdgeSelector)
                 .edges('.layoutVisible');
-            const parentsEdges =
+            parentsEdges =
                 cyRootNode.outgoers(this.prelayoutOptions.layoutParentEdgeSelector)
                 .edges('.layoutVisible');
+
+            if (this.prelayoutOptions.ignoreParentEdgeDirection) {
+                childrenEdges = childrenEdges.union(parentsEdges);
+                parentsEdges = [];
+            }
 
             //debug(`root node children & parent edges are`, { childrenEdges, parentsEdges });
 
@@ -135,6 +164,7 @@ export class PrelayoutRadialTree
                         direction: prelayoutInfo.direction,
                         angularSpread: prelayoutInfo.angularSpread,
                         propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
+                        useWeights: origin.useWeights,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -153,6 +183,7 @@ export class PrelayoutRadialTree
                         direction: prelayoutInfo.direction + Math.PI, // opposite direction
                         angularSpread: prelayoutInfo.angularSpread,
                         propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
+                        useWeights: origin.useWeights,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -398,6 +429,7 @@ class _PrelayoutRadialTreeBranchSet
             level: 1,
             angularSpread: this.root.angularSpread,
             direction: direction,
+            useWeights: this.root.useWeights,
         });
     }
 
@@ -503,7 +535,9 @@ class _PrelayoutRadialTreeBranchSet
     }
 
     // how to position a non-root node -- in the right direction etc.
-    _positionNodeChildren({/*node,*/ nodePosition, nodeInfo, level, angularSpread, direction})
+    _positionNodeChildren({
+        nodePosition, nodeInfo, level, angularSpread, direction, useWeights
+    })
     {
         const options = this.prelayoutOptions;
 
@@ -529,7 +563,10 @@ class _PrelayoutRadialTreeBranchSet
         const positionedNodes = this._positionNodesRadially({
             nodeInfos: nodeInfo.connectedNodesInfos,
             referencePoint: this.root.position,
-            R, direction, angularSpread,
+            R,
+            direction,
+            angularSpread,
+            useWeights,
         });
 
         for (const N of positionedNodes) {
@@ -540,6 +577,7 @@ class _PrelayoutRadialTreeBranchSet
                 level: level+1,
                 angularSpread: N.angularSpread,
                 direction: N.direction,
+                useWeights,
             });
         }
     }

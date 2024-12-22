@@ -86,7 +86,7 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 //
 
 
-export async function load({ displayOptions }={})
+export async function load({ displayOptions, graphGlobalOptions }={})
 {
 
     debug('codegraph setup: load() called')
@@ -137,6 +137,7 @@ export async function load({ displayOptions }={})
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
+        graphGlobalOptions,
     });
 
     await eczCodeGraph.initialize();
