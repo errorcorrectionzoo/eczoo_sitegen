@@ -11,23 +11,38 @@ const initialDisplayOptions = {
   cousinEdgesShown: true,
   secondaryParentEdgesShown: true,
 
-  displayMode: 'isolate-nodes',
-  modeIsolateNodesOptions: {
-    nodeIds: [ 'c_css', 'c_stabilizer', 'c_surface' ],
-    reusePreviousLayoutPositions: false,
-    range: {
-      parents: {
-          primary: 2,
-          secondary: 1,
-          extra: 0,
-      },
-      children: {
-          primary: 2,
-          secondary: 1,
-          extra: 0,
-      },
+//   displayMode: 'isolate-nodes',
+//   modeIsolateNodesOptions: {
+//     nodeIds: [ 'c_css', 'c_stabilizer', 'c_surface' ],
+//     reusePreviousLayoutPositions: false,
+//     range: {
+//       parents: {
+//           primary: 2,
+//           secondary: 1,
+//           extra: 0,
+//       },
+//       children: {
+//           primary: 2,
+//           secondary: 1,
+//           extra: 0,
+//       },
+//     },
+//   },
+
+    displayMode: 'subset',
+    modeSubsetOptions: {
+        codeIds: [ 'css', 'stabilizer', 'surface', 'ecc' ],
+        //showIntermediateConnectingNodes: true,
+        connectingNodesMaxDepth: 12,
+        connectingNodesMaxExtraDepth: 1,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
     },
-  },
+
+    highlightImportantNodes: {
+        highlightImportantNodes: true,
+        highlightPrimaryParents: true,
+        highlightRootConnectingEdges: false,
+    },
 };
 
 const initialGraphGlobalOptions = {

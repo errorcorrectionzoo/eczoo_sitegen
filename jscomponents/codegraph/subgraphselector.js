@@ -220,7 +220,6 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
     installSubgraph()
     {
-        debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph()`);
         let {
             // A list of code IDs to include in the subgraph to display.
             codeIds,
@@ -246,9 +245,18 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             connectingNodesOnlyKeepPathsWithAdditionalLength,
         } = this.options;
 
+        debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph(), codeIds=${codeIds}`);
+
         const allElements = this.cy.elements();
         const subsetCodeNodes = this.cy.collection().union( codeIds.map(
-            (codeId) => this.cy.getElementById(this.eczCodeGraph.getNodeIdCode(codeId))
+            (codeId) => {
+                const e = this.cy.getElementById(this.eczCodeGraph.getNodeIdCode(codeId));
+                if (e == null || e?.length == 0) {
+                    console.warn(`No such code: ‘${codeId}’`);
+                    return null;
+                }
+                return e;
+            }
         ) );
         // include all internal edges
         let subsetElements = subsetCodeNodes.union(
@@ -260,6 +268,14 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
         let fadeExtraElements = this.cy.collection();
         let connectingComponentsElements = this.cy.collection();
+
+        if (subsetElements.length === 0) {
+            console.warn(`No code IDs set for subset graph layout.  (Set ‘codeIds={...}’ in `
+                + `the ‘modeSubsetOptions’.  Note it's ‘codeIds’ and not ‘nodeIds’ as for the `
+                + `‘isolate-nodes' mode.)`
+            );
+            
+        }
 
         if (includeConnectedKingdomAndDomains) {
             // Run two iterations of picking adjascent kingdoms and domains.
@@ -277,7 +293,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             }
         }
 
-        if (showIntermediateConnectingNodes) {
+        if (showIntermediateConnectingNodes && subsetElements.length) {
 
             const connectingPathsInfo = connectingPathsComponents({
                 rootElements: subsetElements,
