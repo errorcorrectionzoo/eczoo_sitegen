@@ -4,11 +4,13 @@ import loMerge from 'lodash/merge.js';
 
 import {
     EczCodeGraphSubgraphSelectorAll,
-    EczCodeGraphSubgraphSelectorSubset,
 } from './subgraphselector.js';
 import {
     EczCodeGraphSubgraphSelectorIsolateFamilyTree
 } from './subgraphselectorisolatemode.js';
+import {
+    EczCodeGraphSubgraphSelectorSubset,
+} from './subgraphselectorsubset.js';
 import {
     EczCodeGraphFilterDomainColors,
     EczCodeGraphFilterHideSecondaryEdges,

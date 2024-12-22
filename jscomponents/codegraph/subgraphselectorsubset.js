@@ -80,6 +80,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         let fadeExtraElements = this.cy.collection();
         let connectingComponentsElements = this.cy.collection();
 
+        let rootElements = this.cy.collection();
+
         if (subsetElements.length === 0) {
             console.warn(`No code IDs set for subset graph layout.  (Set ‘codeIds={...}’ in `
                 + `the ‘modeSubsetOptions’.  Note it's ‘codeIds’ and not ‘nodeIds’ as for the `
@@ -91,16 +93,18 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         if (includeConnectedKingdomAndDomains) {
             // Run two iterations of picking adjascent kingdoms and domains.
             for (let repeat = 0; repeat < 2; ++repeat) {
-                subsetElements = subsetElements.union(
-                    subsetElements.outgoers( (ele) => {
-                        return (
-                            (ele.isEdge() && ele.target().data()._isKingdom)
-                            || (ele.isNode() && ele.data()._isKingdom)
-                            || (ele.isEdge() && ele.target().data()._isDomain)
-                            || (ele.isNode() && ele.data()._isDomain)
-                        );
-                    } )
+                const parentDomainKingdoms = subsetElements.outgoers( (ele) => {
+                    return (
+                        (ele.isEdge() && ele.target().data()._isKingdom)
+                        || (ele.isNode() && ele.data()._isKingdom)
+                        || (ele.isEdge() && ele.target().data()._isDomain)
+                        || (ele.isNode() && ele.data()._isDomain)
+                    );
+                } );
+                layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(
+                    parentDomainKingdoms.edges()
                 );
+                subsetElements = subsetElements.union(parentDomainKingdoms);
             }
         }
 
@@ -154,6 +158,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                             pathLength: connectingPaths[i][j].shortestPathLength,
                             from: i,
                             to: j,
+                            otherPathInfos: connectingPaths[i][j].paths,
                         });
                     }
                 }
@@ -190,22 +195,67 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                     }
                 }
             };
-            //
+
+            // we need to make sure any added nodes all belong to some layout
+            // tree via layoutParent edges.
+            let nodesToInsertIntoLayoutTree =
+                this.cy.collection().union( connectingComponentsElements.nodes() );
+
             for (const shortestPathInfo of connectingShortestPaths) {
-                const { from, to, path } = shortestPathInfo;
-                if (isLayoutParentConnected[from][to]) {
+                const { from, to, path, otherPathInfos } = shortestPathInfo;
+                if ( ! isLayoutParentConnected[from][to] ) {
+                    const pathElements = this.cy.collection().union(path);
+                    const pathEdges = pathElements.edges();
+                    debug(`Adding path edges as layout-parents: ${dispCollection(pathEdges)}`);
+                    // add this path as layout-parent edges
+                    layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(pathEdges);
+                    nodesToInsertIntoLayoutTree = nodesToInsertIntoLayoutTree.difference(
+                        pathElements.nodes()
+                    );
+                    // now mark the corresponding components are connected, plus all
+                    // resulting additional connections.
+                    markConnected(from, to);
+                }
+                // Investigate the other paths connecting these components, since we
+                // need to make sure any added nodes all belong to some layout
+                // tree via layoutParent edges.
+                if (nodesToInsertIntoLayoutTree.length === 0) {
+                    // all good, we can skip, no other nodes to insert
                     continue;
                 }
-                const pathEdges = this.cy.collection().union(path).edges();
-                debug(`Adding path edges as layout-parents: ${dispCollection(pathEdges)}`);
-                // add this path as layout-parent edges
-                layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(pathEdges);
-                // now mark the corresponding components are connected, plus all
-                // resulting additional connections.
-                markConnected(from, to);
+                for (const { path } of otherPathInfos) {
+                    for (let pi = 1; pi+1 < path.length; pi += 2) {
+                        let e = path[pi];
+                        let n = path[pi+1]
+                        if (nodesToInsertIntoLayoutTree.has(n)) {
+                            layoutPrimaryParentEdges =
+                                layoutPrimaryParentEdges.union(e);
+                            nodesToInsertIntoLayoutTree =
+                                nodesToInsertIntoLayoutTree.difference(n);
+                        }
+                    }
+                    if (nodesToInsertIntoLayoutTree.length === 0) {
+                        break;
+                    }
+                }
             }
 
+
             fadeExtraElements = fadeExtraElements.union(connectingComponentsElements);
+
+        }
+
+        // We need to find the components and pick a root element in each component.
+        // We should do this *EVEN if we added INTERMEDIATE NODES* because we might
+        // have failed to fully connect the graph.
+        for (const component of subsetElements.components()) {
+            // pick any element of this component that is in subsetElements.
+            for (const e of subsetElements) {
+                if (component.has(e)) {
+                    rootElements = rootElements.union(e);
+                    break;
+                }
+            }
         }
 
         let visibleElements = subsetElements.union(fadeExtraElements);
@@ -226,19 +276,22 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         debug(`fadeExtraElements' classes -> `, fadeExtraElements.map( e => e._private?.classes ));
         fadeExtraElements.addClass('layoutVisible layoutFadeExtra');
 
-        // find root nodes for the layout
-        visibleElements.forEach( (ele) => {
-            if (!ele.isNode()) {
-                return;
-            }
-            const eleVisOutgoers = ele.outgoers('node.layoutVisible');
-            debug(`Inspecting node for root: `, {ele, eleVisOutgoers})
-            if (eleVisOutgoers.length == 0) {
-                // this one is a root node.
-                ele.addClass('layoutRoot');
-            }
-        } );
-        //debug(`Number of root codes for layout: `, this.cy.elements('.layoutRoot').length);
+        debug(`Layout root elements are: `, rootElements.map( e => e.id() ).join(', '))
+        rootElements.addClass('layoutRoot');
+
+        // // find root nodes for the layout
+        // visibleElements.forEach( (ele) => {
+        //     if (!ele.isNode()) {
+        //         return;
+        //     }
+        //     const eleVisOutgoers = ele.outgoers('node.layoutVisible');
+        //     debug(`Inspecting node for root: `, {ele, eleVisOutgoers})
+        //     if (eleVisOutgoers.length == 0) {
+        //         // this one is a root node.
+        //         ele.addClass('layoutRoot');
+        //     }
+        // } );
+        // //debug(`Number of root codes for layout: `, this.cy.elements('.layoutRoot').length);
 
         debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph() done.`);
     }

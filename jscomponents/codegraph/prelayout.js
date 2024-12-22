@@ -19,7 +19,7 @@ const defaultPrelayoutOptions = {
     // for automatic positioning of root nodes without an explicit position
     origin: {
         position: {x: 0, y: 0},
-        radius: 50.0,
+        radius: 200.0,
         rootPositionXOffset: 500.0,
         rootPositionYOffset: 0,
         angularSpread: 2*Math.PI, ///3, //2*Math.PI * 0.2,

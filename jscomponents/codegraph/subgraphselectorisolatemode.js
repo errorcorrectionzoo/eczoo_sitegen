@@ -187,7 +187,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
         this.radialPrelayoutOptions = {
             origin: {
                 direction: Math.PI/2,
-                angularSpread: Math.PI*.25,
+                angularSpread: Math.PI*.8,
+                useWeights: true,
             },
         };
 

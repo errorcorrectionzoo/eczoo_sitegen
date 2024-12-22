@@ -46,7 +46,7 @@ const initialDisplayOptions = {
 };
 
 const initialGraphGlobalOptions = {
-    alwaysSkipCoseLayout: true,
+    //alwaysSkipCoseLayout: true,
 };
 
 
