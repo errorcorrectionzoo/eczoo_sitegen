@@ -51,7 +51,7 @@ export function connectingPathsComponents({
     const components = rootElements.components();
     const numComponents = components.length;
 
-    debug(`Got components:`, components);
+    debug(`connectingPathsComponents(): Got graph components:`, components);
 
     if (!components.length) {
         // something wrong or empty graph
@@ -247,19 +247,20 @@ export function connectingPathsComponents({
         directed: false,
         visit: function (curNode, edgeToCurNode, prevNode, visitIndex, depth) {
             if (depth > connectingNodesMaxDepth) {
-                //debug(`Maximum depth ${depth} reached after ${visitIndex} `
-                //        + `iterations, stopping BFS search here`);
+                debug(`Maximum depth ${depth} reached after ${visitIndex} `
+                        + `iterations, stopping BFS search here`);
                 return false; // stop here.
             }
-            if (depth > allComponentsConnectedAtDepth + connectingNodesMaxExtraDepth) {
-                //debug(`Completed ${connectingNodesMaxExtraDepth} additional rounds `
-                //    + `of BFS after connecting the full graph, stopping here.`);
+            if (allComponentsNowConnected
+                && depth > allComponentsConnectedAtDepth + connectingNodesMaxExtraDepth) {
+                debug(`Completed ${connectingNodesMaxExtraDepth} additional rounds `
+                    + `of BFS after connecting the full graph, stopping here.`);
                 return false; // stop here.
             }
             const curNodeId = curNode.id();
-            //debug(`Visiting ${curNodeId} from ${prevNode?.id()} via `
-            //      + `${dispElement(edgeToCurNode)} @depth=${depth}`,
-             //     { nodeDistanceToComponent });
+            debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
+                  + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
+                  { nodeDistanceToComponent });
             if (nodeDistanceToComponent[curNodeId] != null) {
                 // okay, this happens when we're visiting the initial root nodes.
                 // Next.
@@ -345,6 +346,8 @@ export function connectingPathsComponents({
                 }
             }
 
+            debug({ connectingPaths });
+
             // Check - are all components finally connected?  This check makes us
             // stop searching for connecting paths earlier (see options).
             // It suffices to check that the component 0 is connected to all others.
@@ -357,7 +360,7 @@ export function connectingPathsComponents({
                     }
                 }
                 if (checkAllConnected) {
-                    //debug(`Now all components are connected!`);
+                    debug(`Now all components are connected!`);
                     allComponentsNowConnected = true;
                     allComponentsConnectedAtDepth = depth;
                 }
