@@ -1,6 +1,8 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.subgraphselector');
 
+import loIsEqual from 'lodash/isEqual.js';
+
 import { PrelayoutRadialTree } from './prelayout.js';
 
 
@@ -43,8 +45,15 @@ export class EczCodeGraphSubgraphSelector
         this.cy = eczCodeGraph.cy;
         this.options = options;
 
+        this.isCurrentlyInstalled = false;
+
         this.radialPrelayoutRootNodesPrelayoutInfo = {};
         this.radialPrelayoutOptions = {};
+    }
+
+    _markSubgraphInstalled(installed)
+    {
+        this.isCurrentlyInstalled = installed;
     }
 
     /**
@@ -52,6 +61,8 @@ export class EczCodeGraphSubgraphSelector
      * classes as appropriate.
      * Should not assume any prior state of these classes; i.e., should unset these
      * classes on all elements that shouldn't have them.
+     * 
+     * DO NOT FORGET to call `this._markSubgraphInstalled(true);`.
      *
      * This function may return an object of the form
      * `{ pendingUpdateLayout: true|false }`.
@@ -62,6 +73,8 @@ export class EczCodeGraphSubgraphSelector
      */
     installSubgraph()
     {
+        this._markSubgraphInstalled(true);
+
         const eles = this.cy.elements();
         eles.addClass('layoutVisible');
         eles.removeClass('layoutParent layoutFadeExtra');
@@ -79,10 +92,12 @@ export class EczCodeGraphSubgraphSelector
      * 
      * In this default implementation, after setting the options to `this.options`,
      * the `installSubgraph()` method is called again to recalculate the subgraph
-     * and/or layout.
+     * and/or layout (but only if this subgraph is currently marked as being
+     * installed).
      * 
      * In the default implementation, a check is made to see if the options object
-     * is the same as the currently set options object (comparison with `===`).  If
+     * is the same as the currently set options object (deep equality comparison
+     * using lodash's `_.isEqual(...)`).  If
      * so, nothing is done and the function returns immediately, and no graph
      * layout update is requested.
      * 
@@ -95,10 +110,15 @@ export class EczCodeGraphSubgraphSelector
      */
     setOptions(options)
     {
-        if (options === this.options) {
+        if (loIsEqual(options, this.options)) {
             return { pendingUpdateLayout: false };
         }
+        debug(`EczCodeGraphSubgraphSelector.setOptions(): setting new options`,
+              { options, thisOptions: this.options });
         this.options = Object.assign({}, this.options, options);
+        if (!this.isCurrentlyInstalled) {
+            return null;
+        }
         return this.installSubgraph();
     }
 
@@ -109,9 +129,12 @@ export class EczCodeGraphSubgraphSelector
      * to clean up the classes 'layoutVisible', 'layoutParent', or 'layoutRoot',
      * as they are automatically removed as necessary when the subgraph selector
      * is uninstalled.
+     * 
+     * DO NOT FORGET to call `this._markSubgraphInstalled(false);`
      */
     uninstallSubgraph()
     {
+        this._markSubgraphInstalled(false);
     }
 
     /**

@@ -17,7 +17,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                 // defaults
                 reusePreviousLayoutPositions: false,
                 codeIds: [],
-                //includeConnectedKingdomAndDomains: true,
+
                 showIntermediateConnectingNodes: true,
                 // use algorithm defaults for these by default -
                 connectingNodesMaxDepth: null,
@@ -32,11 +32,11 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
     installSubgraph()
     {
+        this._markSubgraphInstalled(true);
+
         let {
             // A list of code IDs to include in the subgraph to display.
             codeIds,
-
-            //includeConnectedKingdomAndDomains,
 
             showIntermediateConnectingNodes,
 
@@ -93,33 +93,53 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             
         }
 
-        // if (includeConnectedKingdomAndDomains) {
-        //     // Run two iterations of picking adjascent kingdoms and domains.
-        //     for (let repeat = 0; repeat < 2; ++repeat) {
-        //         const parentDomainKingdoms = subsetElements.outgoers( (ele) => {
-        //             return (
-        //                 (ele.isEdge() && ele.target().data()._isKingdom)
-        //                 || (ele.isNode() && ele.data()._isKingdom)
-        //                 || (ele.isEdge() && ele.target().data()._isDomain)
-        //                 || (ele.isNode() && ele.data()._isDomain)
-        //             );
-        //         } );
-        //         layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(
-        //             parentDomainKingdoms.edges()
-        //         );
-        //         subsetElements = subsetElements.union(parentDomainKingdoms);
-        //     }
-        // }
+        // allComponentElements is the subsetElements augmented by additional nodes
+        // we find important so should pretty much count as in the original subset (domains
+        // and kingdoms).  They are important for the purposes of the layout and finding
+        // connecting nodes.  But they will still be displayed as faded.
+        let allComponentElements = subsetElements;
+        let additionalComponentElements = this.cy.collection();
+        if (connectingNodesToDomainsAndKingdoms) {
+            let domainsAndKingdomNodes = this.cy.collection();
+            // Add all domains and kingdoms as elements we want to show.
+            // Check the domains and kingdoms of all elements we selected.
+            let nextNodes = subsetElements;
+            let seenNodes = this.cy.collection();
+            while (nextNodes.length) {
+                seenNodes = seenNodes.union(nextNodes);
+                let upwardsEdges = nextNodes.connectedEdges(
+                    '[_relType="parent"]'
+                ).filter(
+                    (e) => nextNodes.has(e.source())
+                );
+                nextNodes = upwardsEdges.connectedNodes().filter(
+                    (n) => !seenNodes.has(n)
+                );
+                const foundKingdomsAndDomains =
+                    nextNodes.filter('node[_isDomain=1], node[_isKingdom=1]');
+                domainsAndKingdomNodes = domainsAndKingdomNodes.union(
+                    foundKingdomsAndDomains
+                );
+                debug(`Found ${foundKingdomsAndDomains.length} kingdoms/domains at `
+                      + `this level - `, foundKingdomsAndDomains);
+            }
+            const internalEdges = domainsAndKingdomNodes.connectedEdges().filter(
+                e => domainsAndKingdomNodes.has(e.source())
+                     && domainsAndKingdomNodes.has(e.target())
+            );
+            additionalComponentElements = domainsAndKingdomNodes.union(internalEdges);
+            // internal edges should be use for layout parent relationships
+            layoutPrimaryParentEdges =
+                layoutPrimaryParentEdges.union(internalEdges);
+        }
+        allComponentElements = allComponentElements.union(additionalComponentElements);
+
+        fadeExtraElements = fadeExtraElements.union(additionalComponentElements);
 
         if (showIntermediateConnectingNodes && subsetElements.length) {
 
-            // if (connectingNodesToDomainsAndKingdoms) {
-            //     // add all domains and kingdoms as elements we want to show.
-            //     ...
-            // }
-
             const connectingPathsInfo = connectingPathsComponents({
-                rootElements: subsetElements,
+                rootElements: allComponentElements,
                 allElements,
                 connectingNodesMaxDepth,
                 connectingNodesMaxExtraDepth,
@@ -147,10 +167,11 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                     }
                 }
             }
-            let participatingElements = Object.values(participatingElementIds);
-            connectingComponentsElements = this.cy.collection().union( participatingElements );
-            debug(`Found ${participatingElements.length} connecting path elements:`,
-                dispCollection(participatingElements));
+            let participatingElementsArray = Object.values(participatingElementIds);
+            connectingComponentsElements =
+                this.cy.collection().union( participatingElementsArray );
+            debug(`Found ${participatingElementsArray.length} connecting path elements:`,
+                dispCollection(participatingElementsArray));
 
             // edges of some of the connecting paths between connecting components need
             // to be promoted to layout-primary-parent edges to ensure a smooth layout.
@@ -248,17 +269,35 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                 }
             }
 
-
             fadeExtraElements = fadeExtraElements.union(connectingComponentsElements);
-
         }
 
+        let visibleElements = subsetElements.union(fadeExtraElements);
+
         // We need to find the components and pick a root element in each component.
-        // We should do this *EVEN if we added INTERMEDIATE NODES* because we might
+        // We should do this *even if we added intermediate nodes* because we might
         // have failed to fully connect the graph.
-        for (const component of subsetElements.components()) {
+        for (const component of visibleElements.components()) {
             // pick any element of this component that is in subsetElements.
-            for (const e of subsetElements) {
+
+            // if there's a domain in the component, then pick that.  Otherwise, pick
+            // a kingdom.  Otherwise, just pick any code we can find from our original
+            // subset element list.
+
+            debug(`Picking a root element in the component:`, dispCollection(component));
+
+            const domainNodes = component.nodes('[_isDomain=1]');
+            if (domainNodes.length) {
+                rootElements = rootElements.union(domainNodes[0]);
+                continue;
+            }
+            const kingdomNodes = component.nodes('[_isKingdom=1]');
+            if (kingdomNodes.length) {
+                rootElements = rootElements.union(kingdomNodes[0]);
+                continue;
+            }
+
+            for (const e of subsetElements.nodes()) {
                 if (component.has(e)) {
                     rootElements = rootElements.union(e);
                     break;
@@ -266,26 +305,22 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             }
         }
 
-        let visibleElements = subsetElements.union(fadeExtraElements);
-
         debug(`codeIds=${codeIds.join(',')}`);
         debug(`subsetCodeNodes=${dispCollection(subsetCodeNodes)}`);
         debug(`subsetElements=${dispCollection(subsetElements)}`);
         debug(`connectingComponentsElements=${dispCollection(connectingComponentsElements)}`);
         debug(`fadeExtraElements=${dispCollection(fadeExtraElements)}`);
         debug(`visibleElements=${dispCollection(visibleElements)}`);
+        debug(`rootElements=${dispCollection(rootElements)}`);
 
-        allElements.removeClass('layoutVisible layoutParent');
+        this.cy.batch( () => {
+            allElements.removeClass('layoutVisible layoutParent');
 
-        subsetElements.addClass('layoutVisible');
-        layoutPrimaryParentEdges.addClass('layoutParent');
-
-        debug(`about to fadeExtraElements...`, {fadeExtraElements});
-        debug(`fadeExtraElements' classes -> `, fadeExtraElements.map( e => e._private?.classes ));
-        fadeExtraElements.addClass('layoutVisible layoutFadeExtra');
-
-        debug(`Layout root elements are: `, rootElements.map( e => e.id() ).join(', '))
-        rootElements.addClass('layoutRoot');
+            subsetElements.addClass('layoutVisible');
+            layoutPrimaryParentEdges.addClass('layoutParent');
+            fadeExtraElements.addClass('layoutVisible layoutFadeExtra');
+            rootElements.addClass('layoutRoot');
+        } );
 
         // // find root nodes for the layout
         // visibleElements.forEach( (ele) => {
@@ -301,7 +336,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         // } );
         // //debug(`Number of root codes for layout: `, this.cy.elements('.layoutRoot').length);
 
-        debug(`EczCodeGraphSubgraphSelectorAll: installSubgraph() done.`);
+        debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph() done.`);
     }
 
 }

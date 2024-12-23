@@ -35,6 +35,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
     installSubgraph()
     {
+        this._markSubgraphInstalled(true);
+
         const {
             nodeIds,
             range,
@@ -226,6 +228,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
     uninstallSubgraph()
     {
+        this._markSubgraphInstalled(false);
+
         this.cy.elements().removeClass([
             'layoutFadeExtra', 'isolationRoot', 'isolationRootConnectingEdge',
         ]);

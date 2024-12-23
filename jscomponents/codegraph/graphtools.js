@@ -38,26 +38,9 @@ class _GraphComponentConnections
     {
         // return value of [cy eles].components()
         this.components = components;
-
-        this.options = options;
-
-        this.allComponentsNowConnected = false;
-        this.allComponentsConnectedAtDepth = -1;
-
         this.numComponents = components.length;
 
-        this.connectingPaths = null;
-
-        this.allComponentsNowConnected = null;
-        this.allComponentsConnectedAtDepth = null;
-
-        this.initializeConnectingPaths();
-    }
-
-    initializeConnectingPaths()
-    {
-        this.allComponentsNowConnected = false;
-        this.allComponentsConnectedAtDepth = null;
+        this.options = options;
 
         // connectingPaths[componentIndex1][componentIndex2] = {
         //   paths: ( ... Array of { path: (path), pathLength: (# of edges in path) } ... ),
@@ -68,19 +51,83 @@ class _GraphComponentConnections
         // Each path is itself an array of alternating node and edge objects of
         // connected nodes and edges, starting from a node in componentIndex1
         // and ending with a node in componentIndex2.
+        //
+        // this.connectingPaths is initialized within the helper
+        // function this._initializeConnectingPaths()
+        this.connectingPaths = null;
+
+        // Flag is set to true when in connectingPaths, all pairs of components have a
+        // connecting path.  The value of this flag is updated only upon explicit call to
+        // checkUpdateAllComponentsNowConnected() to check whether we've connected all
+        // components after some additional node visit and handling.
+        this.allComponentsNowConnected = null;
+        // Updated at the same time as `this.allComponentsNowConnected`.  Set to the visit
+        // depth of the point where we detected that all components are connected and when
+        // we set the flag `allComponentsNowConnected` to true.
+        this.allComponentsConnectedAtDepth = null;
+
+        this._initializeConnectingPaths();
+    }
+
+    _initializeConnectingPaths()
+    {
+        this.allComponentsNowConnected = false;
+        this.allComponentsConnectedAtDepth = null;
+
         this.connectingPaths = {};
         // initialize with empty objects
         for (let c1Index = 0; c1Index < this.numComponents; ++c1Index) {
             this.connectingPaths[c1Index] = {};
             for (let c2Index = 0; c2Index < this.numComponents; ++c2Index) {
-                this.connectingPaths[c1Index][c2Index] = {
-                    paths: [],
-                    shortestPath: (c1Index === c2Index) ? [] : null,
-                    shortestLength: (c1Index === c2Index) ? 0 : null,
-                }
+                this.connectingPaths[c1Index][c2Index] =
+                    this._mkEmptyConnectingPathsInfo( (c1Index === c2Index) );
             }
         }
     }
+    _mkEmptyConnectingPathsInfo( isSameComponentIndex ) {
+        return {
+            paths: [],
+            shortestPath: isSameComponentIndex ? [] : null,
+            shortestLength: isSameComponentIndex ? 0 : null,
+        }
+    }
+
+
+    // ### Intended for testRelatedNodeFn functionality below, which is dropped/not implemented.
+    //
+    // addOneMoreComponent(componentNodes)
+    // {
+    //     // make sure the nodes are not already included in an existing component
+    //     for (const cEls of this.components) {
+    //         if (cEls.intersect(componentNodes).length > 0) {
+    //             // Error: component has nontrivial intersection with a different
+    //             // component already.
+    //             throw new Error(`addOneMoreComponent(): Component is not independent!`);
+    //         }
+    //     }
+    //     const oldNumComponents = this.numComponents;
+    //     const newComponentIndex = oldNumComponents; // == this.components.length - 1
+    //     this.components = [...this.components, componentNodes];
+    //     this.numComponents = this.components.length;
+    //     // update the connectingPaths
+    //     for (let i = 0; i < this.numComponents; ++i) {
+    //         if (i >= oldNumComponents) {
+    //             this.connectingPaths[i] = {};
+    //         }
+    //         for (let j = 0; j < this.numComponents; ++j) {
+    //             if (j >= oldNumComponents) {
+    //                 this.connectingPaths[i][j] =
+    //                     this._mkEmptyConnectingPathsInfo( (i === j) );
+    //             }
+    //         }
+    //     }
+    //     // update all internal state variables
+    //     if (this.allComponentsNowConnected) {
+    //         this.allComponentsNowConnected = false;
+    //         this.allComponentsConnectedAtDepth = null;
+    //     }
+    //     return newComponentIndex;
+    // }
 
 
     processConnectingPath({
@@ -240,14 +287,10 @@ class _GraphComponentConnections
 
 
 /**
+ * Detects disconnected components in `rootElements`, then explores the graph described
+ * by `allElements` to find meaningful paths that connect these components.
  * 
- * This algorithm can also "discover" related nodes we want to connect
- * to (e.g., domains/kingdoms), as we perform our giant bfs search.  Specify
- * the argument `testRelatedNodeFn`, called on each visited node once, as:
- * 
- *   testRelatedNodeFn({curNode, edgeToCurNode, prevNode, visitIndex, depth, })
- *     -> null | { related: true, (... any custom info) }
- * 
+ * ...
  */
 export function connectingPathsComponents({
     rootElements,
@@ -255,12 +298,20 @@ export function connectingPathsComponents({
     connectingNodesMaxDepth,
     connectingNodesMaxExtraDepth,
     connectingNodesOnlyKeepPathsWithAdditionalLength,
-    testRelatedNodeFn,
+    //testRelatedNodeFn,
 })
 {
     connectingNodesMaxDepth ??= 15;
-    connectingNodesMaxExtraDepth ??= 2;
-    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 2;
+    connectingNodesMaxExtraDepth ??= 3;
+    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 4;
+
+    // ### Nope. see below.
+    // /* This algorithm can also "discover" related nodes we want to connect
+    //  * to (e.g., domains/kingdoms), as we perform our giant bfs search.  Specify
+    //  * the argument `testRelatedNodeFn`, called on each visited node once, as:
+    //  * 
+    //  *   testRelatedNodeFn({curNode, edgeToCurNode, prevNode, visitIndex, depth, })
+    //  *     -> null | { related: true, (... any custom info) } */
 
     const allNodes = allElements.nodes();
     const allEdges = allElements.edges();
@@ -315,8 +366,7 @@ export function connectingPathsComponents({
 
     let seenConnectingEdges = new Set();
 
-    let relatedNodes = {};
-
+    //let relatedNodes = {};
     // node_id: {
     //    relatedInfo: (whatever was returned by discoverRelatedNodesFn),
     //    pathsFromComponents: [
@@ -349,9 +399,9 @@ export function connectingPathsComponents({
                 maxVisitedDepth = depth;
             }
             const curNodeId = curNode.id();
-            debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
-                  + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
-                  { nodeDistanceToComponent });
+            // debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
+            //       + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
+            //       { nodeDistanceToComponent });
             if (nodeDistanceToComponent[curNodeId] != null) {
                 // okay, this happens when we're visiting the initial root nodes.
                 // Next.
@@ -373,26 +423,33 @@ export function connectingPathsComponents({
             };
             nodeDistanceToComponent[curNodeId] = nodeDistanceInfo;
 
-            if (testRelatedNodeFn != null) {
-                // let's see if this node is a related node we want to include in the returned
-                // information
-                const relatedNodeInfo = testRelatedNodeFn({
-                    curNode,
-                    edgeToCurNode,
-                    prevNode,
-                    visitIndex,
-                    depth
-                });
-                if (relatedNodeInfo != null && relatedNodeInfo.related) {
-                    // collect as related node
-                }
-            }
+            // ### NOPE, BAD IDEA. (HOW TO UPDATE ANY EXISTING DISTANCES IN nodeDistanceToComponent??? --> POOR DESIGN.  FIRST NEED TO DISCOVER ALL RELATED NODES (DOMAINS/KINGDOMS), THEN COMPUTE THE DISTANCES. NOT BOTH TOGETHER.  IT'LL BE A DEBUGGING NIGHTMARE.
+            // if (testRelatedNodeFn != null) {
+            //     // let's see if this node is a related node we want to include in the returned
+            //     // information
+            //     const relatedNodeInfo = testRelatedNodeFn({
+            //         curNode,
+            //         edgeToCurNode,
+            //         prevNode,
+            //         visitIndex,
+            //         depth
+            //     });
+            //     if (relatedNodeInfo != null && relatedNodeInfo.related) {
+            //         // collect as related node
+            //         nodeDistanceToComponent[curNodeId] = {
+            //             componentIndex,
+            //             distance: 0,
+            //             previousEdge: null,
+            //             previousNode: null,
+            //         };
+            //     }
+            // }
 
             // Is this node connected to a node attached to another component?
             const connectedEdges = curNode.connectedEdges().filter(
                 e => (allEdges.has(e) && e !== edgeToCurNode && !seenConnectingEdges.has(e))
             );
-            debug({ prevDistanceInfo, nodeDistanceInfo, distance, connectedEdges });
+            //debug({ prevDistanceInfo, nodeDistanceInfo, distance, connectedEdges });
             for (const connectedEdge of connectedEdges) {
                 seenConnectingEdges.add(connectedEdge);
                 const nextNodeList = connectedEdge.connectedNodes().filter(

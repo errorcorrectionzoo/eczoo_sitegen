@@ -2,6 +2,7 @@ import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.eczcodegraph');
 
 import loMerge from 'lodash/merge.js';
+import loIsEqual from 'lodash/isEqual.js';
 
 import cytoscape from 'cytoscape';
 //import cyNavigator from 'cytoscape-navigator';
@@ -252,6 +253,18 @@ export class EczCodeGraph
     {
         debug(`updateSubgraphSelectorAndSetGraphFilterOptions()`);
 
+        if (subgraphSelector === this.subgraphSelector
+            && loIsEqual(subgraphSelectorOptions, this.subgraphSelector.options)
+            && loIsEqual(filterOptionsDict, Object.fromEntries(
+                this.graphFilters.map(
+                    ({ graphFilterName, graphFilter }) =>
+                        [graphFilterName, graphFilter.filterOptions]
+                )
+            ))) {
+            debug(`... unchanged options, return early`);
+            return;
+        }
+
         this._unapplyGraphFilters();
 
         let subgraphSelectorReturnInfo = { pendingUpdateLayout: false };
@@ -262,10 +275,11 @@ export class EczCodeGraph
                 { skipGraphFilterUpdates: true }
             );
         } else {
-            // simply set options to the subgraphSelector
-            if (this.subgraphSelector.options !== subgraphSelectorOptions) {
-                subgraphSelectorReturnInfo = this.subgraphSelector.setOptions(subgraphSelectorOptions);
-            }
+            // simply set options to the subgraphSelector.
+            // NB: The setOptions() method should make sure the options are
+            // different before taking computationally-intensive action!
+            subgraphSelectorReturnInfo =
+                this.subgraphSelector.setOptions(subgraphSelectorOptions);
         }
         subgraphSelectorReturnInfo ??= {};
 

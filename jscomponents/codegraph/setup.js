@@ -88,7 +88,6 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 
 export async function load({ displayOptions, graphGlobalOptions }={})
 {
-
     debug('codegraph setup: load() called')
 
     const domContainer = window.document.getElementById('main');
@@ -127,7 +126,7 @@ export async function load({ displayOptions, graphGlobalOptions }={})
 
     // inspect htmlFragment for display options
     const hrefFragment = window.location.hash;
-    debug({hrefFragment});
+    debug({ hrefFragment });
     if (hrefFragment != null) {
         displayOptions = EczCodeGraphViewController.getMergedDisplayOptions(
             displayOptions,
@@ -142,7 +141,10 @@ export async function load({ displayOptions, graphGlobalOptions }={})
 
     await eczCodeGraph.initialize();
 
-    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    let eczCodeGraphViewController = new EczCodeGraphViewController(
+        eczCodeGraph,
+        displayOptions,
+    );
 
     await eczCodeGraphViewController.initialize();
 
