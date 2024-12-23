@@ -17,12 +17,13 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                 // defaults
                 reusePreviousLayoutPositions: false,
                 codeIds: [],
-                includeConnectedKingdomAndDomains: true,
+                //includeConnectedKingdomAndDomains: true,
                 showIntermediateConnectingNodes: true,
                 // use algorithm defaults for these by default -
                 connectingNodesMaxDepth: null,
                 connectingNodesMaxExtraDepth: null,
                 connectingNodesOnlyKeepPathsWithAdditionalLength: null,
+                connectingNodesToDomainsAndKingdoms: true,
             },
             options
         );
@@ -35,7 +36,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             // A list of code IDs to include in the subgraph to display.
             codeIds,
 
-            includeConnectedKingdomAndDomains,
+            //includeConnectedKingdomAndDomains,
 
             showIntermediateConnectingNodes,
 
@@ -54,6 +55,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             // `connectingNodesOnlyKeepPathsWithAdditionalLength` longer than
             // the shortest path connecting the given components.
             connectingNodesOnlyKeepPathsWithAdditionalLength,
+
+            connectingNodesToDomainsAndKingdoms,
         } = this.options;
 
         debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph(), codeIds=${codeIds}`);
@@ -90,25 +93,30 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             
         }
 
-        if (includeConnectedKingdomAndDomains) {
-            // Run two iterations of picking adjascent kingdoms and domains.
-            for (let repeat = 0; repeat < 2; ++repeat) {
-                const parentDomainKingdoms = subsetElements.outgoers( (ele) => {
-                    return (
-                        (ele.isEdge() && ele.target().data()._isKingdom)
-                        || (ele.isNode() && ele.data()._isKingdom)
-                        || (ele.isEdge() && ele.target().data()._isDomain)
-                        || (ele.isNode() && ele.data()._isDomain)
-                    );
-                } );
-                layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(
-                    parentDomainKingdoms.edges()
-                );
-                subsetElements = subsetElements.union(parentDomainKingdoms);
-            }
-        }
+        // if (includeConnectedKingdomAndDomains) {
+        //     // Run two iterations of picking adjascent kingdoms and domains.
+        //     for (let repeat = 0; repeat < 2; ++repeat) {
+        //         const parentDomainKingdoms = subsetElements.outgoers( (ele) => {
+        //             return (
+        //                 (ele.isEdge() && ele.target().data()._isKingdom)
+        //                 || (ele.isNode() && ele.data()._isKingdom)
+        //                 || (ele.isEdge() && ele.target().data()._isDomain)
+        //                 || (ele.isNode() && ele.data()._isDomain)
+        //             );
+        //         } );
+        //         layoutPrimaryParentEdges = layoutPrimaryParentEdges.union(
+        //             parentDomainKingdoms.edges()
+        //         );
+        //         subsetElements = subsetElements.union(parentDomainKingdoms);
+        //     }
+        // }
 
         if (showIntermediateConnectingNodes && subsetElements.length) {
+
+            // if (connectingNodesToDomainsAndKingdoms) {
+            //     // add all domains and kingdoms as elements we want to show.
+            //     ...
+            // }
 
             const connectingPathsInfo = connectingPathsComponents({
                 rootElements: subsetElements,

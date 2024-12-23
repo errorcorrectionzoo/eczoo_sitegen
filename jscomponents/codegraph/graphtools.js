@@ -31,94 +31,65 @@ export function dispCollection(eles)
 }
 
 
-export function connectingPathsComponents({
-    rootElements,
-    allElements,
-    connectingNodesMaxDepth,
-    connectingNodesMaxExtraDepth,
-    connectingNodesOnlyKeepPathsWithAdditionalLength,
-})
+
+class _GraphComponentConnections
 {
-    connectingNodesMaxDepth ??= 15;
-    connectingNodesMaxExtraDepth ??= 2;
-    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 2;
+    constructor(components, options)
+    {
+        // return value of [cy eles].components()
+        this.components = components;
 
-    const allNodes = allElements.nodes();
-    const allEdges = allElements.edges();
+        this.options = options;
 
-    // Identify the connected components of the displayed nodes and find paths
-    // that connect the disconnected clusters
-    const components = rootElements.components();
-    const numComponents = components.length;
+        this.allComponentsNowConnected = false;
+        this.allComponentsConnectedAtDepth = -1;
 
-    debug(`connectingPathsComponents(): Got graph components:`, components);
+        this.numComponents = components.length;
 
-    if (!components.length) {
-        // something wrong or empty graph
-        return null;
+        this.connectingPaths = null;
+
+        this.allComponentsNowConnected = null;
+        this.allComponentsConnectedAtDepth = null;
+
+        this.initializeConnectingPaths();
     }
 
-    if (components.length === 1) {
-        // empty graph or a single component -- nothing to be done
-        return { connectingPaths: { 0: { 0: {
-            paths: [], shortestPath: [], shortestLength: 0,
-        } } } };
-    }
+    initializeConnectingPaths()
+    {
+        this.allComponentsNowConnected = false;
+        this.allComponentsConnectedAtDepth = null;
 
-    // Do a big, breadth-first search starting from all the nodes we have
-    // (yes, Cytoscape appears to be happy to do a mega-BFS starting from
-    // multiple root nodes), and compute for each node its distance to a
-    // a connected component.  Stop when we have paths between all pairs of
-    // components, or if obtain a single connected component when when add
-    // the paths that we discovered and reached a depth threshold.
-
-    // nodeDistanceToComponent[nodeId] = { componentIndex, distance, previousNode }
-    let nodeDistanceToComponent = {};
-    for (const [componentIndex, componentCollection] of components.entries()) {
-        for (const node of componentCollection.nodes()) {
-            const nodeId = node.id();
-            nodeDistanceToComponent[nodeId] = {
-                componentIndex,
-                distance: 0,
-                previousEdge: null,
-                previousNode: null,
-            };
-        }
-    }
-
-    // connectingPaths[componentIndex1][componentIndex2] = {
-    //   paths: ( ... Array of { path: (path), pathLength: (# of edges in path) } ... ),
-    //   shortestPath: (path in paths[].path that has shortest length),
-    //   shortestLength: (length of shortest path),
-    // }
-    //
-    // Each path is itself an array of alternating node and edge objects of
-    // connected nodes and edges, starting from a node in componentIndex1
-    // and ending with a node in componentIndex2.
-    let connectingPaths = {};
-    // initialize with empty objects
-    for (let c1Index = 0; c1Index < numComponents; ++c1Index) {
-        connectingPaths[c1Index] = {};
-        for (let c2Index = 0; c2Index < numComponents; ++c2Index) {
-            connectingPaths[c1Index][c2Index] = {
-                paths: [],
-                shortestPath: (c1Index === c2Index) ? [] : null,
-                shortestLength: (c1Index === c2Index) ? 0 : null,
+        // connectingPaths[componentIndex1][componentIndex2] = {
+        //   paths: ( ... Array of { path: (path), pathLength: (# of edges in path) } ... ),
+        //   shortestPath: (path in paths[].path that has shortest length),
+        //   shortestLength: (length of shortest path),
+        // }
+        //
+        // Each path is itself an array of alternating node and edge objects of
+        // connected nodes and edges, starting from a node in componentIndex1
+        // and ending with a node in componentIndex2.
+        this.connectingPaths = {};
+        // initialize with empty objects
+        for (let c1Index = 0; c1Index < this.numComponents; ++c1Index) {
+            this.connectingPaths[c1Index] = {};
+            for (let c2Index = 0; c2Index < this.numComponents; ++c2Index) {
+                this.connectingPaths[c1Index][c2Index] = {
+                    paths: [],
+                    shortestPath: (c1Index === c2Index) ? [] : null,
+                    shortestLength: (c1Index === c2Index) ? 0 : null,
+                }
             }
         }
     }
 
-    let seenConnectingEdges = new Set();
 
-    let allComponentsNowConnected = false;
-    let allComponentsConnectedAtDepth = null;
-
-    let processConnectingPath = ({
+    processConnectingPath({
         componentIndex,
         otherComponentIndex,
         pathLength,
-        buildPath,
-    }) => {
+        buildPathFn,
+    })
+    {
         // debug(`processConnectingPath: `,
         //       {componentIndex,otherComponentIndex,pathLength});
         // debug(`at this point, connectedPaths: `);
@@ -138,14 +109,14 @@ export function connectingPathsComponents({
         }
 
         let connectingPathsInfo =
-            connectingPaths[componentIndex][otherComponentIndex];
+            this.connectingPaths[componentIndex][otherComponentIndex];
         let keepPath = false;
         if (connectingPathsInfo.shortestLength == null) {
             // we don't have any other path, keep this path for sure
             keepPath = true;
         } else if (
             pathLength <= connectingPathsInfo.shortestLength +
-                connectingNodesOnlyKeepPathsWithAdditionalLength
+                this.options.connectingNodesOnlyKeepPathsWithAdditionalLength
         ) {
             keepPath = true;
         }
@@ -155,11 +126,11 @@ export function connectingPathsComponents({
         }
 
         //debug(`building path...`);
-        const path = buildPath();
+        const path = buildPathFn();
         connectingPathsInfo.paths.push({ path, pathLength });
         let revPath = [...path].reverse();
         let revConnectingPathsInfo =
-            connectingPaths[otherComponentIndex][componentIndex];
+            this.connectingPaths[otherComponentIndex][componentIndex];
         revConnectingPathsInfo.paths.push({ path: revPath, pathLength });
 
         //debug(`built path & saved it: ${dispCollection(path)}`);
@@ -173,7 +144,7 @@ export function connectingPathsComponents({
             revConnectingPathsInfo.shortestPath = revPath;
             // prune any paths that are too long.
             let newLengthLimit = pathLength
-                + connectingNodesOnlyKeepPathsWithAdditionalLength ;
+                + this.options.connectingNodesOnlyKeepPathsWithAdditionalLength ;
             //debug(`Cleaning up existing paths, new length limit = ${newLengthLimit}.`);
             for (let i = 0; i < connectingPathsInfo.paths.length; ++i) {
                 if (connectingPathsInfo.paths[i].pathLength > newLengthLimit) {
@@ -189,7 +160,7 @@ export function connectingPathsComponents({
 
         // now, we also want to register paths between components that now become
         // connected mediated through the new connection we found.
-        for (let thirdComponentIndex = 0; thirdComponentIndex < numComponents;
+        for (let thirdComponentIndex = 0; thirdComponentIndex < this.numComponents;
              ++thirdComponentIndex) {
             if (thirdComponentIndex === componentIndex
                 || thirdComponentIndex === otherComponentIndex) {
@@ -201,7 +172,7 @@ export function connectingPathsComponents({
             // component, then we've potentially discovered a path connecting
             // the third component to the other (resp. first) component. Process it.
             const thirdConnectingToFirstInfo =
-                connectingPaths[thirdComponentIndex][componentIndex];
+                this.connectingPaths[thirdComponentIndex][componentIndex];
             if (thirdConnectingToFirstInfo.shortestLength != null) {
                 const thirdConnectionPath =
                     thirdConnectingToFirstInfo.shortestPath;
@@ -210,17 +181,17 @@ export function connectingPathsComponents({
                     ...path.slice(1),
                 ];
                 //debug(`Registering new path for third component ${thirdComponentIndex}->${otherComponentIndex} mediated through ${componentIndex}`);
-                processConnectingPath({
+                this.processConnectingPath({
                     componentIndex: thirdComponentIndex,
                     otherComponentIndex: otherComponentIndex,
                     pathLength: (
                         thirdConnectingToFirstInfo.shortestLength + pathLength
                     ),
-                    buildPath: () => fullThirdConnectionPath,
+                    buildPathFn: () => fullThirdConnectionPath,
                 });
             }
             const otherConnectingToThirdInfo =
-                connectingPaths[otherComponentIndex][thirdComponentIndex];
+                this.connectingPaths[otherComponentIndex][thirdComponentIndex];
             if (otherConnectingToThirdInfo.shortestLength != null) {
                 const thirdConnectionPath =
                     otherConnectingToThirdInfo.shortestPath;
@@ -229,18 +200,135 @@ export function connectingPathsComponents({
                     ...thirdConnectionPath.slice(1),
                 ];
                 //debug(`Registering another path for third component ${componentIndex}->${thirdComponentIndex} mediated through ${otherComponentIndex}`);
-                processConnectingPath({
+                this.processConnectingPath({
                     componentIndex: componentIndex,
                     otherComponentIndex: thirdComponentIndex,
                     pathLength: (
                         otherConnectingToThirdInfo.shortestLength + pathLength
                     ),
-                    buildPath: () => fullThirdConnectionPath,
+                    buildPathFn: () => fullThirdConnectionPath,
                 });
             }
         }
 
-    };
+    }
+
+    checkUpdateAllComponentsNowConnected({ curDepth })
+    {
+        if (this.allComponentsNowConnected) {
+            return true;
+        }
+        // Check - are all components finally connected?  This check makes us
+        // stop searching for connecting paths earlier (see options).
+        // It suffices to check that the component 0 is connected to all others.
+        let checkAllConnected = true;
+        for (let i = 1; i < this.numComponents; ++i) {
+            if (this.connectingPaths[0][i].shortestLength == null) {
+                checkAllConnected = false;
+                break;
+            }
+        }
+        if (checkAllConnected) {
+            debug(`Now all components are connected!`);
+            this.allComponentsNowConnected = true;
+            this.allComponentsConnectedAtDepth = curDepth;
+            return true;
+        }
+        return false;
+    }
+}
+
+
+/**
+ * 
+ * This algorithm can also "discover" related nodes we want to connect
+ * to (e.g., domains/kingdoms), as we perform our giant bfs search.  Specify
+ * the argument `testRelatedNodeFn`, called on each visited node once, as:
+ * 
+ *   testRelatedNodeFn({curNode, edgeToCurNode, prevNode, visitIndex, depth, })
+ *     -> null | { related: true, (... any custom info) }
+ * 
+ */
+export function connectingPathsComponents({
+    rootElements,
+    allElements,
+    connectingNodesMaxDepth,
+    connectingNodesMaxExtraDepth,
+    connectingNodesOnlyKeepPathsWithAdditionalLength,
+    testRelatedNodeFn,
+})
+{
+    connectingNodesMaxDepth ??= 15;
+    connectingNodesMaxExtraDepth ??= 2;
+    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 2;
+
+    const allNodes = allElements.nodes();
+    const allEdges = allElements.edges();
+
+    // Identify the connected components of the displayed nodes and find paths
+    // that connect the disconnected clusters
+    const components = rootElements.components();
+
+    if (!components.length) {
+        // something wrong or empty graph
+        return null;
+    }
+
+    let C = new _GraphComponentConnections(
+        components,
+        {
+            connectingNodesMaxDepth,
+            connectingNodesMaxExtraDepth,
+            connectingNodesOnlyKeepPathsWithAdditionalLength,
+        }
+    );
+
+    debug(`connectingPathsComponents(): Got graph components:`, C.components);
+
+    if (C.numComponents === 1) {
+        // empty graph or a single component -- nothing to be done
+        return { connectingPaths: { 0: { 0: {
+            paths: [], shortestPath: [], shortestLength: 0,
+        } } } };
+    }
+
+    // Do a big, breadth-first search starting from all the nodes we have
+    // (yes, Cytoscape appears to be happy to do a mega-BFS starting from
+    // multiple root nodes), and compute for each node its distance to a
+    // a connected component.  Stop when we have paths between all pairs of
+    // components, or if obtain a single connected component when when add
+    // the paths that we discovered and reached a depth threshold.
+
+    // nodeDistanceToComponent[nodeId] = { componentIndex, distance, previousNode }
+    let nodeDistanceToComponent = {};
+    for (const [componentIndex, componentCollection] of C.components.entries()) {
+        for (const node of componentCollection.nodes()) {
+            const nodeId = node.id();
+            nodeDistanceToComponent[nodeId] = {
+                componentIndex,
+                distance: 0,
+                previousEdge: null,
+                previousNode: null,
+            };
+        }
+    }
+
+    let seenConnectingEdges = new Set();
+
+    let relatedNodes = {};
+
+    // node_id: {
+    //    relatedInfo: (whatever was returned by discoverRelatedNodesFn),
+    //    pathsFromComponents: [
+    //       { componentIndex: <which component index we connected to>
+    //         path: <Array of alternating node & edge elements>,
+    //         pathLength: <...> },
+    //       ...
+    //    ]
+    //    shortestPathFromComponent: (element of pathsFromComponents with shortest pathLength)
+    // }
+
+    let maxVisitedDepth = null;
 
     allElements.bfs({
         root: rootElements,
@@ -251,11 +339,14 @@ export function connectingPathsComponents({
                         + `iterations, stopping BFS search here`);
                 return false; // stop here.
             }
-            if (allComponentsNowConnected
-                && depth > allComponentsConnectedAtDepth + connectingNodesMaxExtraDepth) {
+            if (C.allComponentsNowConnected
+                && depth > C.allComponentsConnectedAtDepth + connectingNodesMaxExtraDepth) {
                 debug(`Completed ${connectingNodesMaxExtraDepth} additional rounds `
                     + `of BFS after connecting the full graph, stopping here.`);
                 return false; // stop here.
+            }
+            if (maxVisitedDepth == null || depth > maxVisitedDepth) {
+                maxVisitedDepth = depth;
             }
             const curNodeId = curNode.id();
             debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
@@ -282,12 +373,26 @@ export function connectingPathsComponents({
             };
             nodeDistanceToComponent[curNodeId] = nodeDistanceInfo;
 
-            //debug({ prevDistanceInfo, nodeDistanceInfo, distance });
+            if (testRelatedNodeFn != null) {
+                // let's see if this node is a related node we want to include in the returned
+                // information
+                const relatedNodeInfo = testRelatedNodeFn({
+                    curNode,
+                    edgeToCurNode,
+                    prevNode,
+                    visitIndex,
+                    depth
+                });
+                if (relatedNodeInfo != null && relatedNodeInfo.related) {
+                    // collect as related node
+                }
+            }
 
             // Is this node connected to a node attached to another component?
             const connectedEdges = curNode.connectedEdges().filter(
                 e => (allEdges.has(e) && e !== edgeToCurNode && !seenConnectingEdges.has(e))
             );
+            debug({ prevDistanceInfo, nodeDistanceInfo, distance, connectedEdges });
             for (const connectedEdge of connectedEdges) {
                 seenConnectingEdges.add(connectedEdge);
                 const nextNodeList = connectedEdge.connectedNodes().filter(
@@ -306,11 +411,11 @@ export function connectingPathsComponents({
                     // the nextNode is connected to a different component, maybe we
                     // can register a new path between these components!
                     //debug(`Detected path to other component!`, {otherNodeDistanceInfo});
-                    processConnectingPath({
+                    C.processConnectingPath({
                         componentIndex,
                         otherComponentIndex,
                         pathLength: distance + otherNodeDistanceInfo.distance + 1,
-                        buildPath: () => {
+                        buildPathFn: () => {
                             //debug(`building node chain with curNodeId=${curNodeId} / nextNodeId=${nextNodeId}`);
                             let path = [];
                             let n, e;
@@ -346,25 +451,10 @@ export function connectingPathsComponents({
                 }
             }
 
-            debug({ connectingPaths });
+            //debug({ connectingPaths });
 
-            // Check - are all components finally connected?  This check makes us
-            // stop searching for connecting paths earlier (see options).
-            // It suffices to check that the component 0 is connected to all others.
-            if (!allComponentsNowConnected) {
-                let checkAllConnected = true;
-                for (let i = 1; i < numComponents; ++i) {
-                    if (connectingPaths[0][i].shortestLength == null) {
-                        checkAllConnected = false;
-                        break;
-                    }
-                }
-                if (checkAllConnected) {
-                    debug(`Now all components are connected!`);
-                    allComponentsNowConnected = true;
-                    allComponentsConnectedAtDepth = depth;
-                }
-            }
+            C.checkUpdateAllComponentsNowConnected({ curDepth: depth });
+
             //debug(`Node visit completed`, { connectingPaths });
         }
     });
@@ -374,5 +464,11 @@ export function connectingPathsComponents({
     //debug(`Finally figured out the paths between connected components!`,
     //      connectingPaths);
 
-    return { connectingPaths, numComponents };
+    return {
+        connectingPaths: C.connectingPaths,
+        numComponents: C.numComponents,
+        allComponentsNowConnected: C.allComponentsNowConnected,
+        allComponentsConnectedAtDepth: C.allComponentsConnectedAtDepth,
+        maxVisitedDepth,
+    };
 }

@@ -31,7 +31,10 @@ const initialDisplayOptions = {
 
     displayMode: 'subset',
     modeSubsetOptions: {
-        codeIds: [ 'css', 'stabilizer', 'surface', 'ecc' ],
+        codeIds: [
+            // 'css', 'stabilizer', 'surface', 'heavy_hex', 'ecc'
+            'css', 'qubits_into_qubits', 'surface'
+        ],
         //showIntermediateConnectingNodes: true,
         connectingNodesMaxDepth: 12,
         connectingNodesMaxExtraDepth: 1,
