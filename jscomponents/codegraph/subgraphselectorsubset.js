@@ -121,12 +121,19 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                     foundKingdomsAndDomains
                 );
                 debug(`Found ${foundKingdomsAndDomains.length} kingdoms/domains at `
-                      + `this level - `, foundKingdomsAndDomains);
+                      + `this level - ${dispCollection(foundKingdomsAndDomains)}`);
             }
             const internalEdges = domainsAndKingdomNodes.connectedEdges().filter(
-                e => domainsAndKingdomNodes.has(e.source())
-                     && domainsAndKingdomNodes.has(e.target())
+                e => {
+                    const src = e.source();
+                    const tgt = e.target();
+                    return domainsAndKingdomNodes.has(tgt) && (
+                        domainsAndKingdomNodes.has(src)
+                        || allComponentElements.has(src)
+                    );
+                }                    
             );
+            debug(`Adding internal edges = ${dispCollection(internalEdges)}`);
             additionalComponentElements = domainsAndKingdomNodes.union(internalEdges);
             // internal edges should be use for layout parent relationships
             layoutPrimaryParentEdges =

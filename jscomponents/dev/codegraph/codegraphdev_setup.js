@@ -8,8 +8,8 @@ if (!isStrict()) {
 
 
 const initialDisplayOptions = {
-  cousinEdgesShown: true,
-  secondaryParentEdgesShown: true,
+  //cousinEdgesShown: true,
+  //secondaryParentEdgesShown: true,
 
 //   displayMode: 'isolate-nodes',
 //   modeIsolateNodesOptions: {
@@ -32,13 +32,13 @@ const initialDisplayOptions = {
     displayMode: 'subset',
     modeSubsetOptions: {
         codeIds: [
-            'css', 'stabilizer', 'surface', 'heavy_hex', 'ecc'
-            // 'css', 'qubits_into_qubits', 'surface'
+            //'css', 'stabilizer', 'surface', 'heavy_hex', 'ecc'
+            'css', 'qubits_into_qubits', 'surface'
         ],
         //showIntermediateConnectingNodes: true,
         connectingNodesMaxDepth: 15,
         connectingNodesMaxExtraDepth: 3,
-        connectingNodesOnlyKeepPathsWithAdditionalLength: 4,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
     },
 
     highlightImportantNodes: {
@@ -49,7 +49,7 @@ const initialDisplayOptions = {
 };
 
 const initialGraphGlobalOptions = {
-    //alwaysSkipCoseLayout: true,
+    alwaysSkipCoseLayout: true,
 };
 
 

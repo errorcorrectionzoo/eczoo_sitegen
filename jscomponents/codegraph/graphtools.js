@@ -137,18 +137,18 @@ class _GraphComponentConnections
         buildPathFn,
     })
     {
-        // debug(`processConnectingPath: `,
-        //       {componentIndex,otherComponentIndex,pathLength});
-        // debug(`at this point, connectedPaths: `);
-        // for (let i = 0; i < numComponents; ++i) {
-        //     for (let j = 0; j < numComponents; ++j) {
-        //         const cinfo = connectingPaths[i][j];
-        //         debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
-        //               + cinfo.paths.map(
-        //                     ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
-        //                 ).join('\n') );
-        //     }
-        // }
+        debug(`processConnectingPath: `,
+              {componentIndex,otherComponentIndex,pathLength});
+        debug(`at this point, connectedPaths: `);
+        for (let i = 0; i < this.numComponents; ++i) {
+            for (let j = 0; j < this.numComponents; ++j) {
+                const cinfo = this.connectingPaths[i][j];
+                debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
+                      + cinfo.paths.map(
+                            ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
+                        ).join('\n') );
+            }
+        }
 
         if (componentIndex === otherComponentIndex) {
             //debug(`called processConnectedPath() with twice the same component!`);
@@ -286,6 +286,24 @@ class _GraphComponentConnections
 }
 
 
+
+
+
+//TODO --
+//
+// MAIN TODO POINTS:
+//
+// - DEBUG the prelayout. It looks buggy.
+//
+// - Different weights ("lengths") for different types of parental relationship edges.
+//   A primal-parent relationships should count as shorter than a secondary-parent
+//   relationship.  E.g. weights: { primaryParent: 1, secondaryParent: 2, cousin: 4 }  ?
+//
+// - subset subgraph selector: Only pick domains & kingdoms accessible through
+//   primary parents.
+//
+
+
 /**
  * Detects disconnected components in `rootElements`, then explores the graph described
  * by `allElements` to find meaningful paths that connect these components.
@@ -298,20 +316,11 @@ export function connectingPathsComponents({
     connectingNodesMaxDepth,
     connectingNodesMaxExtraDepth,
     connectingNodesOnlyKeepPathsWithAdditionalLength,
-    //testRelatedNodeFn,
 })
 {
     connectingNodesMaxDepth ??= 15;
     connectingNodesMaxExtraDepth ??= 3;
     connectingNodesOnlyKeepPathsWithAdditionalLength ??= 4;
-
-    // ### Nope. see below.
-    // /* This algorithm can also "discover" related nodes we want to connect
-    //  * to (e.g., domains/kingdoms), as we perform our giant bfs search.  Specify
-    //  * the argument `testRelatedNodeFn`, called on each visited node once, as:
-    //  * 
-    //  *   testRelatedNodeFn({curNode, edgeToCurNode, prevNode, visitIndex, depth, })
-    //  *     -> null | { related: true, (... any custom info) } */
 
     const allNodes = allElements.nodes();
     const allEdges = allElements.edges();
@@ -360,23 +369,12 @@ export function connectingPathsComponents({
                 distance: 0,
                 previousEdge: null,
                 previousNode: null,
+                previousNodeIdChain: [],
             };
         }
     }
 
-    let seenConnectingEdges = new Set();
-
-    //let relatedNodes = {};
-    // node_id: {
-    //    relatedInfo: (whatever was returned by discoverRelatedNodesFn),
-    //    pathsFromComponents: [
-    //       { componentIndex: <which component index we connected to>
-    //         path: <Array of alternating node & edge elements>,
-    //         pathLength: <...> },
-    //       ...
-    //    ]
-    //    shortestPathFromComponent: (element of pathsFromComponents with shortest pathLength)
-    // }
+    let visitedNodes = new Set();
 
     let maxVisitedDepth = null;
 
@@ -399,70 +397,68 @@ export function connectingPathsComponents({
                 maxVisitedDepth = depth;
             }
             const curNodeId = curNode.id();
-            // debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
-            //       + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
-            //       { nodeDistanceToComponent });
-            if (nodeDistanceToComponent[curNodeId] != null) {
-                // okay, this happens when we're visiting the initial root nodes.
-                // Next.
-                return;
-            }
-            // curNode hasn't been seen yet, record its distance information:
-            const prevNodeId = prevNode.id();
-            const prevDistanceInfo = nodeDistanceToComponent[prevNodeId];
-            if (prevDistanceInfo == null) {
-                throw new Error(`Error: prevDistanceInfo is null/undefined!`);
-            }
-            const componentIndex = prevDistanceInfo.componentIndex;
-            const distance = prevDistanceInfo.distance + 1;
-            const nodeDistanceInfo = {
-                componentIndex,
-                distance,
-                previousEdge: edgeToCurNode,
-                previousNode: prevNode,
-            };
-            nodeDistanceToComponent[curNodeId] = nodeDistanceInfo;
+            debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
+                  + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
+                  { nodeDistanceToComponent });
 
-            // ### NOPE, BAD IDEA. (HOW TO UPDATE ANY EXISTING DISTANCES IN nodeDistanceToComponent??? --> POOR DESIGN.  FIRST NEED TO DISCOVER ALL RELATED NODES (DOMAINS/KINGDOMS), THEN COMPUTE THE DISTANCES. NOT BOTH TOGETHER.  IT'LL BE A DEBUGGING NIGHTMARE.
-            // if (testRelatedNodeFn != null) {
-            //     // let's see if this node is a related node we want to include in the returned
-            //     // information
-            //     const relatedNodeInfo = testRelatedNodeFn({
-            //         curNode,
-            //         edgeToCurNode,
-            //         prevNode,
-            //         visitIndex,
-            //         depth
-            //     });
-            //     if (relatedNodeInfo != null && relatedNodeInfo.related) {
-            //         // collect as related node
-            //         nodeDistanceToComponent[curNodeId] = {
-            //             componentIndex,
-            //             distance: 0,
-            //             previousEdge: null,
-            //             previousNode: null,
-            //         };
-            //     }
-            // }
+            visitedNodes.add(curNode);
+
+            // haven't been here yet.  This happens most of the time, it is only skipped
+            // for root nodes.
+            let nodeDistanceInfo = nodeDistanceToComponent[curNodeId];
+            if (nodeDistanceInfo == null) {
+                // curNode hasn't been seen yet, record its distance information:
+                const prevNodeId = prevNode.id();
+                const prevDistanceInfo = nodeDistanceToComponent[prevNodeId];
+                if (prevDistanceInfo == null) {
+                    throw new Error(`Error: prevDistanceInfo is null/undefined!`);
+                }
+                nodeDistanceInfo = {
+                    componentIndex: prevDistanceInfo.componentIndex,
+                    distance: prevDistanceInfo.distance + 1,
+                    previousEdge: edgeToCurNode,
+                    previousNode: prevNode,
+                    previousNodeIdChain: [prevNodeId, ...prevDistanceInfo.previousNodeIdChain],
+                };
+                nodeDistanceToComponent[curNodeId] = nodeDistanceInfo;
+            }
+            const componentIndex = nodeDistanceInfo.componentIndex;
+            const distance = nodeDistanceInfo.distance;
 
             // Is this node connected to a node attached to another component?
-            const connectedEdges = curNode.connectedEdges().filter(
-                e => (allEdges.has(e) && e !== edgeToCurNode && !seenConnectingEdges.has(e))
-            );
-            //debug({ prevDistanceInfo, nodeDistanceInfo, distance, connectedEdges });
+            const connectedEdges = curNode.connectedEdges();
+            //debug({ nodeDistanceInfo, distance, connectedEdges });
             for (const connectedEdge of connectedEdges) {
-                seenConnectingEdges.add(connectedEdge);
+                if (!allEdges.has(connectedEdge) || connectedEdge.same(edgeToCurNode)) {
+                    continue;
+                }
+                debug(`Exploring connecting edge ${dispElement(connectedEdge)}`);
                 const nextNodeList = connectedEdge.connectedNodes().filter(
                     n => !n.same(curNode) && allNodes.has(n)
                 );
                 if (nextNodeList.length === 0) {
+                    debug(`Connecting edge ${dispElement(connectedEdge)} has no valid other node!!?`);
                     continue;
                 }
                 const nextNode = nextNodeList[0];
+                // if (visitedNodes.has(nextNode)) {
+                //     debug(`Skipping edge ${dispElement(connectedEdge)}, already visited ${nextNode.id()}`);
+                //     continue;
+                // }
+
                 const nextNodeId = nextNode.id();
                 const otherNodeDistanceInfo =
                     nodeDistanceToComponent[nextNodeId];
                 const otherComponentIndex = otherNodeDistanceInfo?.componentIndex ;
+
+                const _showNDI = (ndi) => (ndi != null) ? `{componentIndex:${ndi.componentIndex}, distance:${ndi.distance}, previousEdge:${dispElement(ndi.previousEdge)}, previousNode:${dispElement(ndi.previousNode)}, previousNodeIdChain:${ndi.previousNodeIdChain}}` : `(null/undef)`;
+                debug(` ... ${dispElement(connectedEdge)}, next node has info ${_showNDI(otherNodeDistanceInfo)}, we have ${_showNDI(nodeDistanceInfo)}`);
+
+                // prohibit cycles in the "previous node chain"
+                if (nodeDistanceInfo.previousNodeIdChain.includes(nextNodeId)) {
+                    debug(`... skipping ${dispElement(connectedEdge)} as our previous node chain already includes next node ${nextNodeId}`);
+                }
+
                 if (otherComponentIndex != null
                     && otherComponentIndex !== componentIndex) {
                     // the nextNode is connected to a different component, maybe we
