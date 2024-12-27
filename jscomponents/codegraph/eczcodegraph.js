@@ -104,10 +104,14 @@ export class EczCodeGraph
                     classical_domain: -100,
                     quantum_domain: 100,
                 },
+                useCodeShortNamesForLabels: false, //true,
                 alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
             },
             graphGlobalOptions
         );
+
+        debug(`EczCodeGraph(): using graphGlobalOptions = ${
+                JSON.stringify(this.graphGlobalOptions, undefined, 4) }`);
 
         // whether we should update the layout at the next opportunity.
         this._pendingUpdateLayout = false;
@@ -718,10 +722,12 @@ export class EczCodeGraph
 
             //debug(`adding code =`, code);
 
-            const codeShortName = contentToText(this.eczoodb.code_short_name(code));
             const codeName = contentToText(code.name);
+            const codeShortName = contentToText(this.eczoodb.code_short_name(code));
 
-            let label = contentToNodeLabel(codeShortName);
+            const label = contentToNodeLabel(
+                this.graphGlobalOptions.useCodeShortNamesForLabels ? codeShortName : codeName
+            );
 
             const thisCodeNodeId = this.getNodeIdCode(codeId);
 
@@ -733,6 +739,7 @@ export class EczCodeGraph
                 _codeId: codeId,
                 _isCode: 1,
                 _objectName: codeName,
+                _codeShortName: codeShortName,
             };
 
             // debug(`Searching for ${codeId}'s primary-parent root code`);

@@ -159,7 +159,7 @@ export class EczCodeGraphFilterSearchHighlight extends EczCodeGraphFilter
 
         const textEsc = JSON.stringify(searchText);
         const matchEles = eles.nodes(
-            `[label @*= ${textEsc}], [_objectName @*= ${textEsc}]`
+            `[label @*= ${textEsc}], [_objectName @*= ${textEsc}], [id @*= ${textEsc}]`
         );
 
         debug(`Applying search graph filter for ${JSON.stringify(searchText)}; `

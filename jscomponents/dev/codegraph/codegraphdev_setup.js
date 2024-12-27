@@ -66,6 +66,7 @@ const initialDisplayOptions = {
 };
 
 const initialGraphGlobalOptions = {
+    useCodeShortNamesForLabels: false,
     //alwaysSkipCoseLayout: true,
 };
 

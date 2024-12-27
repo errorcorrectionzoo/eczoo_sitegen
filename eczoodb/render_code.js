@@ -618,14 +618,13 @@ ${code_hierarchy_content}`;
             appears_in_codelists.sort(
                 (a,b) => a.title.flm_text.localeCompare(b.title.flm_text)
             );
-            debug(`${code_id} appears in code lists: ${
-                appears_in_codelists.map(l => l.list_id).join(', ') }`);
+            //debug(`${code_id} appears in code lists: ${ appears_in_codelists.map(l => l.list_id).join(', ') }`);
             html += sqzhtml`
 <div class="sectioncontent code-codelist-membership">
 <h2 id="code_codelist_membership">Member of code lists</h2>
 <ul class="code-codelist-membership-list">`;
             for (const codelist of appears_in_codelists) {
-                debug(`Including codelist:`, codelist);
+                //debug(`Including codelist:`, codelist);
                 html += sqzhtml`
     <li>${ref('codelist', codelist.list_id)}</li>
 `;
