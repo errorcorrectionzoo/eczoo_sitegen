@@ -49,9 +49,15 @@ const defaultDisplayOptions = {
         reusePreviousLayoutPositions: false,
         showIntermediateConnectingNodes: true,
         connectingNodesMaxDepth: 15,
+        connectingNodesPathMaxLength: 20, 
         connectingNodesMaxExtraDepth: 3,
-        connectingNodesOnlyKeepPathsWithAdditionalLength: 4,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
         connectingNodesToDomainsAndKingdoms: true,
+        connectingNodesEdgeLengthsByType: {
+            primaryParent: 1,
+            secondaryParent: 4,
+            cousin: 6,
+        },
     },
 
     domainColoring: true,

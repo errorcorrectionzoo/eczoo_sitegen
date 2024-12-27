@@ -7,9 +7,9 @@ export function listGraphMakeDisplayOptions(codeIds) {
 
         modeSubsetOptions: {
             codeIds,
-            connectingNodesMaxDepth: 12,
-            connectingNodesMaxExtraDepth: 1,
-            connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
+            connectingNodesMaxDepth: 1152,
+            connectingNodesMaxExtraDepth: 3,
+            connectingNodesOnlyKeepPathsWithAdditionalLength: 4,
         },
         
         cousinEdgesShown: true,

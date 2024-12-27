@@ -3,7 +3,7 @@ const debug = debug_module('eczoo_jscomponents.codegraph.subgraphselectorsubset'
 
 import loMerge from 'lodash/merge.js';
 
-import { connectingPathsComponents, dispCollection } from './graphtools.js';
+import { connectingPathsComponents, dispCollection, dispElement } from './graphtools.js';
 
 import { EczCodeGraphSubgraphSelector } from './subgraphselector.js';
 
@@ -21,9 +21,15 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                 showIntermediateConnectingNodes: true,
                 // use algorithm defaults for these by default -
                 connectingNodesMaxDepth: null,
+                connectingNodesPathMaxLength: null,
                 connectingNodesMaxExtraDepth: null,
                 connectingNodesOnlyKeepPathsWithAdditionalLength: null,
                 connectingNodesToDomainsAndKingdoms: true,
+                connectingNodesEdgeLengthsByType: {
+                    primaryParent: null,
+                    secondaryParent: null,
+                    cousin: null,
+                },
             },
             options
         );
@@ -44,6 +50,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             // try and find connecting paths.
             connectingNodesMaxDepth,
 
+            connectingNodesPathMaxLength,
+
             // Once the components have been connected by paths, we continue for
             // at most `connectingNodesMaxExtraDepth` many rounds to see if some
             // other paths with similar lengths can also connect the existing
@@ -57,6 +65,9 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             connectingNodesOnlyKeepPathsWithAdditionalLength,
 
             connectingNodesToDomainsAndKingdoms,
+
+            // eg. { primaryParent: 1, secondaryParent: 5, cousin: 10 }
+            connectingNodesEdgeLengthsByType,
         } = this.options;
 
         debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph(), codeIds=${codeIds}`);
@@ -108,7 +119,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             while (nextNodes.length) {
                 seenNodes = seenNodes.union(nextNodes);
                 let upwardsEdges = nextNodes.connectedEdges(
-                    '[_relType="parent"]'
+                    '[_relType="parent"][_primaryParent=1]'
                 ).filter(
                     (e) => nextNodes.has(e.source())
                 );
@@ -148,9 +159,31 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             const connectingPathsInfo = connectingPathsComponents({
                 rootElements: allComponentElements,
                 allElements,
+                pathSearchElements:
+                    // keep only primary-parent relationship edges
+                    allElements.filter('node, edge[_primaryParent=1]'),
                 connectingNodesMaxDepth,
+                connectingNodesPathMaxLength,
                 connectingNodesMaxExtraDepth,
                 connectingNodesOnlyKeepPathsWithAdditionalLength,
+
+                // NOTE: NEED TO FIX MY ALGORITHM ! See ./graphtools.js
+                edgeLengthFn: (edge) => {
+                    const d = edge.data();
+                    if (d._primaryParent) {
+                        //debug(`Edge ${dispElement(edge)} is primary parent`);
+                        return connectingNodesEdgeLengthsByType.primaryParent ?? 1;
+                    }
+                    if (d._relType === 'parent') {
+                        //debug(`Edge ${dispElement(edge)} is secondary parent`);
+                        return connectingNodesEdgeLengthsByType.secondaryParent ?? 4;
+                    }
+                    if (d._relType === 'cousin') {
+                        //debug(`Edge ${dispElement(edge)} is cousin`);
+                        return connectingNodesEdgeLengthsByType.cousin ?? 6;
+                    }
+                    throw new Error(`Unknown edge relationship in graph: ${dispElement(edge)}`);
+                },
             })
 
             const { connectingPaths, numComponents } = connectingPathsInfo;

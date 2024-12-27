@@ -137,18 +137,18 @@ class _GraphComponentConnections
         buildPathFn,
     })
     {
-        debug(`processConnectingPath: `,
-              {componentIndex,otherComponentIndex,pathLength});
-        debug(`at this point, connectedPaths: `);
-        for (let i = 0; i < this.numComponents; ++i) {
-            for (let j = 0; j < this.numComponents; ++j) {
-                const cinfo = this.connectingPaths[i][j];
-                debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
-                      + cinfo.paths.map(
-                            ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
-                        ).join('\n') );
-            }
-        }
+        // debug(`processConnectingPath: `,
+        //       {componentIndex,otherComponentIndex,pathLength});
+        // debug(`at this point, connectedPaths: `);
+        // for (let i = 0; i < this.numComponents; ++i) {
+        //     for (let j = 0; j < this.numComponents; ++j) {
+        //         const cinfo = this.connectingPaths[i][j];
+        //         debug(`  ${i}->${j}:  ${cinfo.shortestLength}  :  ${dispCollection(cinfo.shortestPath)}; \n   `
+        //               + cinfo.paths.map(
+        //                     ({path,pathLength}, i) => `  #${i} [${pathLength}:]-- `+dispCollection(path)
+        //                 ).join('\n') );
+        //     }
+        // }
 
         if (componentIndex === otherComponentIndex) {
             //debug(`called processConnectedPath() with twice the same component!`);
@@ -158,7 +158,10 @@ class _GraphComponentConnections
         let connectingPathsInfo =
             this.connectingPaths[componentIndex][otherComponentIndex];
         let keepPath = false;
-        if (connectingPathsInfo.shortestLength == null) {
+        if (pathLength > this.options.connectingNodesPathMaxLength) {
+            // path is simply too long.
+            keepPath = false;
+        } else if (connectingPathsInfo.shortestLength == null) {
             // we don't have any other path, keep this path for sure
             keepPath = true;
         } else if (
@@ -293,14 +296,11 @@ class _GraphComponentConnections
 //
 // MAIN TODO POINTS:
 //
-// - DEBUG the prelayout. It looks buggy.
-//
 // - Different weights ("lengths") for different types of parental relationship edges.
 //   A primal-parent relationships should count as shorter than a secondary-parent
 //   relationship.  E.g. weights: { primaryParent: 1, secondaryParent: 2, cousin: 4 }  ?
 //
-// - subset subgraph selector: Only pick domains & kingdoms accessible through
-//   primary parents.
+//   PROBLEM: Need to fix our algorithm, see below.
 //
 
 
@@ -313,14 +313,20 @@ class _GraphComponentConnections
 export function connectingPathsComponents({
     rootElements,
     allElements,
+    pathSearchElements, // patchwork ... set of nodes on which to run bfs
     connectingNodesMaxDepth,
+    connectingNodesPathMaxLength,
     connectingNodesMaxExtraDepth,
     connectingNodesOnlyKeepPathsWithAdditionalLength,
+    edgeLengthFn,
 })
 {
     connectingNodesMaxDepth ??= 15;
+    connectingNodesPathMaxLength ??= 20;
     connectingNodesMaxExtraDepth ??= 3;
-    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 4;
+    connectingNodesOnlyKeepPathsWithAdditionalLength ??= 1;
+
+    edgeLengthFn ??= (edge_) => 1;
 
     const allNodes = allElements.nodes();
     const allEdges = allElements.edges();
@@ -340,10 +346,12 @@ export function connectingPathsComponents({
             connectingNodesMaxDepth,
             connectingNodesMaxExtraDepth,
             connectingNodesOnlyKeepPathsWithAdditionalLength,
+            connectingNodesPathMaxLength,
         }
     );
 
-    debug(`connectingPathsComponents(): Got graph components:`, C.components);
+    debug(`connectingPathsComponents(): Got graph components:`, C.components,
+        ` by the way, options are = `, { connectingNodesMaxDepth, connectingNodesMaxExtraDepth, connectingNodesOnlyKeepPathsWithAdditionalLength, connectingNodesPathMaxLength });
 
     if (C.numComponents === 1) {
         // empty graph or a single component -- nothing to be done
@@ -378,7 +386,18 @@ export function connectingPathsComponents({
 
     let maxVisitedDepth = null;
 
-    allElements.bfs({
+
+    //
+    // PROBLEM: BFS ISN'T THE RIGHT ALGORITHM TO USE HERE IF WE WANT TO HAVE EDGES
+    // OF DIFFERENT WEIGHTS!!
+    //
+    // TEMPORARY HACK: Only perform the BFS search by walking through a selected set
+    // of nodes (e.g. the primary-parent relationships).  Additional paths *might*
+    // pass through one extra non-primary-path node.  This might be sufficient for
+    // our purposes.
+    //
+
+    pathSearchElements.bfs({
         root: rootElements,
         directed: false,
         visit: function (curNode, edgeToCurNode, prevNode, visitIndex, depth) {
@@ -397,8 +416,13 @@ export function connectingPathsComponents({
                 maxVisitedDepth = depth;
             }
             const curNodeId = curNode.id();
+
+            const edgeToCurNodeLength =
+                edgeToCurNode != null ? edgeLengthFn(edgeToCurNode) : null;
+
             debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
-                  + `${dispElement(edgeToCurNode)} @ depth=${depth}`,
+                  + `${dispElement(edgeToCurNode)} of length ${edgeToCurNodeLength} `
+                  + ` @ depth=${depth}`,
                   { nodeDistanceToComponent });
 
             visitedNodes.add(curNode);
@@ -415,7 +439,7 @@ export function connectingPathsComponents({
                 }
                 nodeDistanceInfo = {
                     componentIndex: prevDistanceInfo.componentIndex,
-                    distance: prevDistanceInfo.distance + 1,
+                    distance: prevDistanceInfo.distance + edgeToCurNodeLength,
                     previousEdge: edgeToCurNode,
                     previousNode: prevNode,
                     previousNodeIdChain: [prevNodeId, ...prevDistanceInfo.previousNodeIdChain],
@@ -432,7 +456,7 @@ export function connectingPathsComponents({
                 if (!allEdges.has(connectedEdge) || connectedEdge.same(edgeToCurNode)) {
                     continue;
                 }
-                debug(`Exploring connecting edge ${dispElement(connectedEdge)}`);
+                //debug(`Exploring connecting edge ${dispElement(connectedEdge)}`);
                 const nextNodeList = connectedEdge.connectedNodes().filter(
                     n => !n.same(curNode) && allNodes.has(n)
                 );
@@ -451,8 +475,8 @@ export function connectingPathsComponents({
                     nodeDistanceToComponent[nextNodeId];
                 const otherComponentIndex = otherNodeDistanceInfo?.componentIndex ;
 
-                const _showNDI = (ndi) => (ndi != null) ? `{componentIndex:${ndi.componentIndex}, distance:${ndi.distance}, previousEdge:${dispElement(ndi.previousEdge)}, previousNode:${dispElement(ndi.previousNode)}, previousNodeIdChain:${ndi.previousNodeIdChain}}` : `(null/undef)`;
-                debug(` ... ${dispElement(connectedEdge)}, next node has info ${_showNDI(otherNodeDistanceInfo)}, we have ${_showNDI(nodeDistanceInfo)}`);
+                // const _showNDI = (ndi) => (ndi != null) ? `{componentIndex:${ndi.componentIndex}, distance:${ndi.distance}, previousEdge:${dispElement(ndi.previousEdge)}, previousNode:${dispElement(ndi.previousNode)}, previousNodeIdChain:${ndi.previousNodeIdChain}}` : `(null/undef)`;
+                // debug(` ... ${dispElement(connectedEdge)}, next node has info ${_showNDI(otherNodeDistanceInfo)}, we have ${_showNDI(nodeDistanceInfo)}`);
 
                 // prohibit cycles in the "previous node chain"
                 if (nodeDistanceInfo.previousNodeIdChain.includes(nextNodeId)) {
@@ -467,7 +491,8 @@ export function connectingPathsComponents({
                     C.processConnectingPath({
                         componentIndex,
                         otherComponentIndex,
-                        pathLength: distance + otherNodeDistanceInfo.distance + 1,
+                        pathLength: distance + otherNodeDistanceInfo.distance
+                            + edgeLengthFn(connectedEdge),
                         buildPathFn: () => {
                             //debug(`building node chain with curNodeId=${curNodeId} / nextNodeId=${nextNodeId}`);
                             let path = [];
