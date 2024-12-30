@@ -818,12 +818,14 @@ export class EcZooDb extends ZooDb
             Object.values(this.objects.code)
         );
 
+        let errors = [];
+
         // Check that all codes are at most root codes of a single domain/kingdom.
         for (const [code_id, code] of Object.entries(this.objects.code)) {
             const root_for_domain = code.relations?.root_for_domain ?? [];
             const root_for_kingdom = code.relations?.root_for_kingdom ?? [];
             if (root_for_domain.length + root_for_kingdom.length > 1) {
-                throw new Error(
+                errors.push(
                     `Code ‘${code_id}’ is root code for more than one domain/kingdom: `
                     + [
                         (root_for_domain.length
@@ -836,6 +838,35 @@ export class EcZooDb extends ZooDb
                     ].join(' and ')
                 );
             }
+
+            // detect & forbid duplicate cousins.  As we explore cousin relationships,
+            // we save a set of all pairs of code ID's (concatenated with ':') with
+            // cousin relationships and in which one of the codes is the present
+            // code.  Code ID's around the ':' symbol are ordered alphabetically.
+            // If we encounter a relation we've already seen, it's an error.
+            let all_cousin_rels = new Set();
+            const process_cousin_rel = (rel) => {
+                if (rel.code_id === code_id) {
+                    errors.push(`Invalid cousin relationship to self: ${code_id}`);
+                }
+                const key = [code_id, rel.code_id].sort().join(':');
+                if (all_cousin_rels.has(key)) {
+                    errors.push(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
+                }
+            };
+            for (const rel of code.relations?.cousins ?? []) {
+                process_cousin_rel(rel);
+            }
+            for (const rel of code.relations?.cousin_of ?? []) {
+                process_cousin_rel(rel);
+            }
+        }
+
+        if (errors.length) {
+            for (const errmsg of errors) {
+                console.error(errmsg);
+            }
+            throw new Error(`Zoo validation error(s)!\n` + errors.join('\n'));
         }
     }
 }

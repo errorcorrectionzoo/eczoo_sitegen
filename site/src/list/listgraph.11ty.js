@@ -1,5 +1,5 @@
 import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.src.list.listgraph')
+const debug = debugm('eczoo_sitegen.src.list.listgraph');
 
 export function listGraphMakeDisplayOptions(codeIds) {
     return {
