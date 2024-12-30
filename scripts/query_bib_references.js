@@ -13,7 +13,7 @@ import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { loadEcZoo } from './helperEcZooLoader.js';
+import { loadEcZoo } from './_helpers/helperEcZooLoader.js';
 
 //
 // Core script function. Loads the zoo and performs the desired analysis.

@@ -199,7 +199,7 @@ export function get_list_data({codelist, eczoodb})
     const text_fragment_renderer = new zooflm.ZooTextFragmentRenderer;
 
     const normalize_sort_value = (value) => {
-        if ('render_standalone' in value) { // e.g., flmfragment
+        if (typeof value === 'object' && 'render_standalone' in value) { // e.g., flmfragment
             return value.render_standalone(text_fragment_renderer)
         }
         let nvalue = ''+value;

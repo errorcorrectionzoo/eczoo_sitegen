@@ -13,7 +13,7 @@ import { iter_object_fields_recursive } from '@phfaist/zoodb/util/objectinspecto
 //import { get_field_schema, getfield, setfield } from '@phfaist/zoodb/util/getfield';
 import { parse_schema_flm_options } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
-import { loadEcZoo } from '../helperEcZooLoader.js';
+import { loadEcZoo } from '../_helpers/helperEcZooLoader.js';
 
 
 function date_from_csl(csld)

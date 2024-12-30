@@ -350,8 +350,8 @@ export function connectingPathsComponents({
         }
     );
 
-    debug(`connectingPathsComponents(): Got graph components:`, C.components,
-        ` by the way, options are = `, { connectingNodesMaxDepth, connectingNodesMaxExtraDepth, connectingNodesOnlyKeepPathsWithAdditionalLength, connectingNodesPathMaxLength });
+    //debug(`connectingPathsComponents(): Got graph components:`, C.components,
+    //    ` by the way, options are = `, { connectingNodesMaxDepth, connectingNodesMaxExtraDepth, connectingNodesOnlyKeepPathsWithAdditionalLength, connectingNodesPathMaxLength });
 
     if (C.numComponents === 1) {
         // empty graph or a single component -- nothing to be done
@@ -420,10 +420,10 @@ export function connectingPathsComponents({
             const edgeToCurNodeLength =
                 edgeToCurNode != null ? edgeLengthFn(edgeToCurNode) : null;
 
-            debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
-                  + `${dispElement(edgeToCurNode)} of length ${edgeToCurNodeLength} `
-                  + ` @ depth=${depth}`,
-                  { nodeDistanceToComponent });
+            // debug(`#${visitIndex}: Visiting ${curNodeId} from ${prevNode?.id()} via `
+            //       + `${dispElement(edgeToCurNode)} of length ${edgeToCurNodeLength} `
+            //       + ` @ depth=${depth}`,
+            //       { nodeDistanceToComponent });
 
             visitedNodes.add(curNode);
 
@@ -474,6 +474,7 @@ export function connectingPathsComponents({
                 const otherNodeDistanceInfo =
                     nodeDistanceToComponent[nextNodeId];
                 const otherComponentIndex = otherNodeDistanceInfo?.componentIndex ;
+                let shouldProcessConnectingPath = true;
 
                 // const _showNDI = (ndi) => (ndi != null) ? `{componentIndex:${ndi.componentIndex}, distance:${ndi.distance}, previousEdge:${dispElement(ndi.previousEdge)}, previousNode:${dispElement(ndi.previousNode)}, previousNodeIdChain:${ndi.previousNodeIdChain}}` : `(null/undef)`;
                 // debug(` ... ${dispElement(connectedEdge)}, next node has info ${_showNDI(otherNodeDistanceInfo)}, we have ${_showNDI(nodeDistanceInfo)}`);
@@ -481,9 +482,10 @@ export function connectingPathsComponents({
                 // prohibit cycles in the "previous node chain"
                 if (nodeDistanceInfo.previousNodeIdChain.includes(nextNodeId)) {
                     debug(`... skipping ${dispElement(connectedEdge)} as our previous node chain already includes next node ${nextNodeId}`);
+                    shouldProcessConnectingPath = false;
                 }
 
-                if (otherComponentIndex != null
+                if (shouldProcessConnectingPath && otherComponentIndex != null
                     && otherComponentIndex !== componentIndex) {
                     // the nextNode is connected to a different component, maybe we
                     // can register a new path between these components!

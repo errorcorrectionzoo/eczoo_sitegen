@@ -14,8 +14,8 @@ import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { helperSetDefaultLogs } from './helperLogs.js';
-import { loadEcZoo } from './helperEcZooLoader.js';
+import { helperSetDefaultLogs } from './_helpers/helperLogs.js';
+import { loadEcZoo } from './_helpers/helperEcZooLoader.js';
 
 
 //
