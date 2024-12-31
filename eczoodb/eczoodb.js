@@ -847,12 +847,15 @@ export class EcZooDb extends ZooDb
             let all_cousin_rels = new Set();
             const process_cousin_rel = (rel) => {
                 if (rel.code_id === code_id) {
+                    debug(`Invalid cousin relationship to self: ${code_id}`);
                     errors.push(`Invalid cousin relationship to self: ${code_id}`);
                 }
                 const key = [code_id, rel.code_id].sort().join(':');
                 if (all_cousin_rels.has(key)) {
+                    debug(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
                     errors.push(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
                 }
+                all_cousin_rels.add(key);
             };
             for (const rel of code.relations?.cousins ?? []) {
                 process_cousin_rel(rel);
@@ -863,10 +866,9 @@ export class EcZooDb extends ZooDb
         }
 
         if (errors.length) {
-            for (const errmsg of errors) {
-                console.error(errmsg);
-            }
-            throw new Error(`Zoo validation error(s)!\n` + errors.join('\n'));
+            console.error('🚨 ZOO VALIDATION ERROR(S) 🚨\n' + errors.join('\n'));
+            throw new Error(`Zoo validation error(s)!\n`
+                            + errors.map(e => '  ▶︎ '+e).join('\n'));
         }
     }
 }

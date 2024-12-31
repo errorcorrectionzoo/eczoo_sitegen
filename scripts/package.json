@@ -7,6 +7,7 @@
     "dependencies": {
         "@errorcorrectionzoo/eczoodb": ">=0.0.1",
         "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git",
+        "csv-stringify": "^6.5.2",
         "debug": "^4.4.0",
         "lodash": "^4.17.21",
         "yargs": "^17.7.2"
