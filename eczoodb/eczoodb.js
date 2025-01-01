@@ -200,7 +200,7 @@ export class EcZooDb extends ZooDb
      * (e.g. 'parent_of').  The predicate's return value, evaluated as a boolean
      * indicates whether or not to follow that relation.
      */
-    code_visit_relations(code, { relation_properties, callback, only_first_relation,
+    code_visit_relations(code, { relation_properties, callback,
                                  predicate_relation })
     {
         let Q = [ {
@@ -224,9 +224,6 @@ export class EcZooDb extends ZooDb
                     continue;
                 }
                 let code_neighbor_relations = visit_code.relations[relation_property];
-                if (only_first_relation) {
-                    code_neighbor_relations = code_neighbor_relations.slice(0,1);
-                }
                 for (const code_neighbor_relation of code_neighbor_relations) {
                     if (predicate_relation != null
                         && !predicate_relation(visit_code, code_neighbor_relation,
@@ -284,34 +281,43 @@ export class EcZooDb extends ZooDb
 
     code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
     {
-        let domains_by_dk_root_code_id = {};
-        for (const domain of Object.values(this.objects.domain)) {
-            for (const domainRootCodeRel of domain.root_codes) {
-                domains_by_dk_root_code_id[ domainRootCodeRel.code_id ] = domain;
-            }
-        }
-        for (const kingdom of Object.values(this.objects.kingdom)) {
-            for (const kingdomRootCodeRel of kingdom.root_codes) {
-                domains_by_dk_root_code_id[ kingdomRootCodeRel.code_id ] =
-                    kingdom.parent_domain;
-            }
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, code)
+                ;
         }
 
-        let domains = [];
+        let domains = new Set();
         this.code_visit_relations(code, {
             relation_properties: ['parents'],
             callback: (code_visit) => {
-                const domain = domains_by_dk_root_code_id[code_visit.code_id];
-                if (domain !== undefined) {
-                    domains.push(domain);
-                    if (find_domain_id != null && domain.domain_id === find_domain_id) {
-                        return true;
+                const codedomainrels = code_visit.relations?.root_for_domain;
+                const codekingdomrels = code_visit.relations?.root_for_kingdom;
+                //debug(`Visiting ${code_visit.code_id}, root_for_domain=${codedomainrels?.map( r => r.domain_id )}, root_for_kingdom=${codekingdomrels?.map( r => r.kingdom_id )}, domains from root_for_kingdoms = ${codekingdomrels?.map( r => r.kingdom.parent_domain?.domain_id )}`);
+                if (codedomainrels && codedomainrels.length) {
+                    for (const { domain_id, domain } of codedomainrels) {
+                        domains.add(domain);
+                        if (find_domain_id != null && domain_id === find_domain_id) {
+                            return true;
+                        }
+                    }
+                }
+                if (codekingdomrels && codekingdomrels.length) {
+                    for (const { kingdom } of codekingdomrels) {
+                        const { domain_id, domain } = kingdom.parent_domain;
+                        if (domain != null) {
+                            domains.add(domain);
+                            if (find_domain_id != null && domain_id === find_domain_id) {
+                                return true;
+                            }
+                        }
                     }
                 }
             },
-            only_first_relation: only_primary_parent_relation,
+            predicate_relation,
         });
-        return domains;
+        return Array.from(domains);
     }
 
     code_is_primary_parent(parent_code, child_code)
@@ -351,7 +357,7 @@ export class EcZooDb extends ZooDb
             if (root_for_domain.length > 1) {
                 throw new Error(
                     `Code ${code.code_id} is root code for multiple `
-                    + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                    + `domains: ` + root_for_domain.map((k) => k.domain_id).join(', ')
                 );
             }
             return {
@@ -469,7 +475,7 @@ export class EcZooDb extends ZooDb
                 if (root_for_domain.length > 1) {
                     throw new Error(
                         `Code ${primary_parent_root_code.code_id} is root code for multiple `
-                        + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                        + `domains: ` + root_for_domain.map((k) => k.domain_id).join(', ')
                     );
                 }
                 parent_domain = root_for_domain[0].domain;
@@ -511,7 +517,7 @@ export class EcZooDb extends ZooDb
             if (root_for_domain.length > 1) {
                 throw new Error(
                     `Code ${primary_parent_root_code.code_id} is root code for multiple domains: `
-                    + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                    + root_for_domain.map((k) => k.domain_id).join(', ')
                 );
             }
             return root_for_domain[0].domain;

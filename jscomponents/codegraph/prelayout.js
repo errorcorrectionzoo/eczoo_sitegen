@@ -71,9 +71,9 @@ export class PrelayoutRadialTree
 
     run()
     {
-        debug(`prelayout run() rootNodeIds =`, this.rootNodeIds,
-              ` rootNodesPrelayoutInfo =`, this.rootNodesPrelayoutInfo,
-              ` prelayoutOptions =`, this.prelayoutOptions,);
+        // debug(`prelayout run() rootNodeIds =`, this.rootNodeIds,
+        //       ` rootNodesPrelayoutInfo =`, this.rootNodesPrelayoutInfo,
+        //       ` prelayoutOptions =`, this.prelayoutOptions,);
 
         let pBranches = [];
 
@@ -435,7 +435,7 @@ class _PrelayoutRadialTreeBranchSet
             // this group
             for (let parentId of thisLevelParentIdList) {
                 let group = this.nodeOrderingInfoByParent[parentId];
-                debug(`group: `, { group } );
+                //debug(`group: `, { group } );
                 const totalGroupDescendantWeight = loSum(
                     group.nodeInfos.map( (nodeInfo) => nodeInfo._descendantWeight )
                 );
@@ -486,10 +486,9 @@ class _PrelayoutRadialTreeBranchSet
             }
             // replace nodeInfos by the ordered one !
             thisLevelParentIdList = nextLevelParentIdList;
-            debug(`Reordering nodes at level ${orderingInfoAtLevel.level}:`,
-                  { before: orderingInfoAtLevel.nodeInfos.map( (ni) => ni.nodeId ),
-                    after: orderedAllNodeInfos.map( (ni) => ni.nodeId ) }
-            );
+            // debug(`Reordering nodes at level ${orderingInfoAtLevel.level}:`,
+            //       { before: orderingInfoAtLevel.nodeInfos.map( (ni) => ni.nodeId ),
+            //         after: orderedAllNodeInfos.map( (ni) => ni.nodeId ) });
             orderingInfoAtLevel.nodeInfos = orderedAllNodeInfos;
         }
     }
@@ -550,7 +549,7 @@ class _PrelayoutRadialTreeBranchSet
             maxEvenHalfAngularSpread = Math.acos( r + u*ca );
         }
 
-        debug(`Distributing items=${items.map( item => `(weight ${item.weight} parent direction ${item.parentNodeAngleDirection*180/Math.PI}deg)`).join(', ')}.  maxEvenHalfAngularSpread=${maxEvenHalfAngularSpread*180/Math.PI}deg`, { items });
+        //debug(`Distributing items=${items.map( item => `(weight ${item.weight} parent direction ${item.parentNodeAngleDirection*180/Math.PI}deg)`).join(', ')}.  maxEvenHalfAngularSpread=${maxEvenHalfAngularSpread*180/Math.PI}deg`, { items });
 
         // now, let's distribute angles.
 
@@ -586,7 +585,7 @@ class _PrelayoutRadialTreeBranchSet
                     angleSpreadCompressionFactor =
                         angleSpreadUpdateCompressionFactor * angleSpreadCompressionFactor;
                     needNewIteration = true;
-                    debug(`Failure! curAngle=${curAngle*180/Math.PI}deg >= maxAngle=${maxAngle*180/Math.PI}deg, trying again with angleSpreadCompressionFactor=${angleSpreadCompressionFactor}`);
+                    //debug(`Failure! curAngle=${curAngle*180/Math.PI}deg >= maxAngle=${maxAngle*180/Math.PI}deg, trying again with angleSpreadCompressionFactor=${angleSpreadCompressionFactor}`);
                     break;
                 }
                 const beginAngle = Math.max(curAngle, minAngle)
@@ -597,7 +596,7 @@ class _PrelayoutRadialTreeBranchSet
                     ),
                     maxAngle
                 );
-                debug(`Computing item angles:`, {beginAngle, endAngle, curAngle, minAngle, maxAngle, parentNodeAngleDirection, globalStartAngle, globalEndAngle, parentR, R});
+                //debug(`Computing item angles:`, {beginAngle, endAngle, curAngle, minAngle, maxAngle, parentNodeAngleDirection, globalStartAngle, globalEndAngle, parentR, R});
                 curAngle = endAngle;
                 if (endAngle <= beginAngle) {
                     throw new Error(`Internal error, endAngle <= beginAngle !?!?`);
@@ -612,7 +611,7 @@ class _PrelayoutRadialTreeBranchSet
             }
         }
 
-        debug(`Got angles: ${itemAngles.map( (ia) => `${ia.midAngle*180/Math.PI}deg` ).join(', ')}`);
+        //debug(`Got angles: ${itemAngles.map( (ia) => `${ia.midAngle*180/Math.PI}deg` ).join(', ')}`);
 
         return itemAngles;
     }
@@ -675,11 +674,11 @@ class _PrelayoutRadialTreeBranchSet
             // fraction regardless of computed weight
             const useWeights = this.root.useWeights && !isFirstLevel;
 
-            debug(`nodeInfos =`, { nodeInfos });
+            //debug(`nodeInfos =`, { nodeInfos });
             const items = nodeInfos.map( (nodeInfo) => {
                 const { _descendantWeight, parentNodeId } = nodeInfo;
                 const weight = (useWeights ? _descendantWeight : 1);
-                debug(`Forming item: ${nodeInfo.nodeId} - weight=${weight}, parent's posInfo.midAngle=${this.nodePositioningInfo[parentNodeId].midAngle*180/Math.PI}deg`);
+                //debug(`Forming item: ${nodeInfo.nodeId} - weight=${weight}, parent's posInfo.midAngle=${this.nodePositioningInfo[parentNodeId].midAngle*180/Math.PI}deg`);
                 return {
                     weight,
                     parentNodeAngleDirection:
@@ -726,6 +725,11 @@ class _PrelayoutRadialTreeBranchSet
         // ----
 
         debug(`_PrelayoutRadialTreeBranchSet: branch nodes positioned.`);
+        //this._debugPrintPrelayoutTreeBranchPositioning()
+    }
+
+    _debugPrintPrelayoutTreeBranchPositioning()
+    {
         for (const [level, orderingInfos] of this.nodeOrderingInfoByLevel.entries()) {
             const { nodeInfos } = orderingInfos;
             debug(` * LEVEL ${level}:`);
@@ -767,7 +771,6 @@ class _PrelayoutRadialTreeBranchSet
             }
         }
     }
-
 
     _markNodePosition({ nodeId, isRoot, relatedAs, position, nodePositioningDebugInfo })
     {

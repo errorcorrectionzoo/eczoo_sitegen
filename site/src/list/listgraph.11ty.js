@@ -74,7 +74,7 @@ const render = async (data) => {
             fontSize: 18,
         },
         //svgOptions: ...,
-        fitWidth: 620,
+        fitWidth: 1200, // use wide page layout
         importSourceSansFonts: true,
     });
 

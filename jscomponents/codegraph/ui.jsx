@@ -315,7 +315,7 @@ export function EczCodeGraphControlsComponent(props)
             <fieldset className="controls-input-advanced-fieldset">
                 <legend>Isolation</legend>
                 <button
-                    disabled={displayOptionsState.displayMode !== 'isolate-nodes'}
+                    disabled={displayOptionsState.displayMode === 'all'}
                     onClick={doModeIsolateExit}>🏠</button>
                 <span className="controls-input-sep"></span>
                 {historyControls}

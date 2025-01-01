@@ -54,7 +54,9 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
     if (predicate_name === 'domain') {
         if (apply_any) {
             const domains = eczoodb.code_parent_domains(
-                code,
+                code, {
+                    only_primary_parent_relation: true
+                }
             );
             const domain_ids = domains.map( (d) => d.domain_id );
             let result = predicate_args.some( (arg) => domain_ids.includes(arg) );
@@ -62,7 +64,10 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
         }
         if (apply_all) {
             const domains = eczoodb.code_parent_domains(
-                code, // { find_domain_id: predicate_args }
+                code, {
+                    only_primary_parent_relation: true,
+                    // find_domain_id: predicate_args
+                }
             );
             const domain_ids = domains.map( (d) => d.domain_id );
             let result = predicate_args.every( (arg) => domain_ids.includes(arg) );
@@ -70,7 +75,10 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
         }
         // apply simple:
         const domains = eczoodb.code_parent_domains(
-            code, { find_domain_id: predicate_args }
+            code, {
+                only_primary_parent_relation: true,
+                find_domain_id: predicate_args,
+            }
         );
         let result = domains.some( (d) => d.domain_id === predicate_args );
         return do_apply_not( result );

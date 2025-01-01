@@ -78,6 +78,147 @@ describe('EcZooDb', async function () {
 
     });
 
+    describe('#code_parent_domain', function () {
+
+        it('identifies correct parent domain(s) of codes', async function () {
+            
+            const eczoodb = await load_eczoo();
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.css,
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.css, {
+                        find_domain_id: 'quantum_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.binary_linear,
+                ).map( d => d.domain_id ).sort(),
+                // quantum is found via classical_code -> quantum_code secondary parent rel
+                ['classical_domain', 'quantum_domain'].sort()
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.binary_linear, {
+                        find_domain_id: 'classical_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['classical_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.quantum_into_quantum,
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.quantum_into_quantum, {
+                        find_domain_id: 'quantum_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.ecc,
+                ).map( d => d.domain_id ).sort(),
+                ['quantum_domain', 'classical_domain'].sort()
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.ecc, {
+                        find_domain_id: 'classical_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['classical_domain']
+            );
+        });
+        it('identifies correct primary parent domain of codes', async function () {
+
+            const eczoodb = await load_eczoo();
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.css, {
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.css, {
+                        find_domain_id: 'quantum_domain',
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.binary_linear, {
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.domain_id ),
+                ['classical_domain']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.binary_linear, {
+                        find_domain_id: 'classical_domain',
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.domain_id ),
+                ['classical_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.quantum_into_quantum,
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.quantum_into_quantum, {
+                        find_domain_id: 'quantum_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['quantum_domain']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.ecc,
+                ).map( d => d.domain_id ).sort(),
+                ['quantum_domain', 'classical_domain'].sort()
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_domains(
+                    eczoodb.objects.code.ecc, {
+                        find_domain_id: 'classical_domain',
+                    }
+                ).map( d => d.domain_id ),
+                ['classical_domain']
+            );
+        });
+
+    });
+
+
     it('should have corrected computed property values', async function () {
 
         const eczoodb = await load_eczoo();

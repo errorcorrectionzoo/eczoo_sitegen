@@ -273,7 +273,7 @@ export function render_code_page(
                 .join(', ');
             html += sqzhtml`
 <div class="sectioncontent code-alternative-names">
-  Also known as ${alt_names_joined}.
+  Alternative names: ${alt_names_joined}.
 </div>
 `
         }
@@ -595,7 +595,7 @@ ${rdr(value)}
         
         html += sqzhtml`
 <div class="sectioncontent code-hierarchy">
-<h2 id="code_hierarchy" class="code-hierarchy">Code Hierarchy</h2>
+<h2 id="code_hierarchy" class="code-hierarchy">Primary Hierarchy</h2>
 ${code_hierarchy_content}`;
 
         const relations = code.relations ?? {};

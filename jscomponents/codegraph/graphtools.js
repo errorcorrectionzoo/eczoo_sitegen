@@ -481,7 +481,7 @@ export function connectingPathsComponents({
 
                 // prohibit cycles in the "previous node chain"
                 if (nodeDistanceInfo.previousNodeIdChain.includes(nextNodeId)) {
-                    debug(`... skipping ${dispElement(connectedEdge)} as our previous node chain already includes next node ${nextNodeId}`);
+                    //debug(`... skipping ${dispElement(connectedEdge)} as our previous node chain already includes next node ${nextNodeId}`);
                     shouldProcessConnectingPath = false;
                 }
 

@@ -45,10 +45,7 @@ const render = async (data) => {
             return -1;
         }
         // otherwise, sort lists alphabetically by their title
-        if (codelist_a.title.flm_text === codelist_b.title.flm_text) {
-            return 0;
-        }
-        return (codelist_a.title.flm_text < codelist_b.title.flm_text) ? -1 : +1;
+        return codelist_a.title.flm_text.localeCompare(codelist_b.title.flm_text);
     };
 
     codelists_kv.sort( sort_compare_fn );
