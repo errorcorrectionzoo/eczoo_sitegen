@@ -317,7 +317,10 @@ export function getCyStyleJson(options)
     debug(`getCyStyleJson: options are `, JSON.stringify(
         Object.fromEntries( Object.entries(options).map( ([k, v]) => {
             try { return [k, JSON.parse(JSON.stringify(v)) ]; }
-            catch (e) { return [k, '<cannot stringify value>'] }
+            catch (e) {
+                debug(`[Cannot stringify value!] - `, e);
+                return [k, '<cannot stringify value>']
+            }
         }) ) ));
 
     if (options.matchWebPageFonts) {

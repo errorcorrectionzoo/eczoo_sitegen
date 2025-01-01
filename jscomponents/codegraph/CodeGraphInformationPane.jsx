@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.CodeGraphInformationPane');
 

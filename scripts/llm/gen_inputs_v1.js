@@ -1,6 +1,7 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.scripts.llm.gen_inputs_v1');
 
+import process from 'node:process';
 import fs from 'fs';
 import path from 'path';
 
@@ -9,9 +10,9 @@ import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { iter_object_fields_recursive } from '@phfaist/zoodb/util/objectinspector';
+// import { iter_object_fields_recursive } from '@phfaist/zoodb/util/objectinspector';
 //import { get_field_schema, getfield, setfield } from '@phfaist/zoodb/util/getfield';
-import { parse_schema_flm_options } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
+// import { parse_schema_flm_options } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import { loadEcZoo } from '../_helpers/helperEcZooLoader.js';
 
@@ -86,7 +87,7 @@ async function runmain(args)
     // Zoo is loaded (eczoodb). Query anything we need from it at this point.
     //
 
-    let code_schema = eczoodb.schemas.code;
+    //let code_schema = eczoodb.schemas.code;
 
     let citation_manager = eczoodb.zoo_flm_processor.citation_manager;
 

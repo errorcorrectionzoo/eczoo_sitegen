@@ -1,9 +1,8 @@
 
-function encXml(x)
-{
-    return x.replace(/[&<>"']/g, (match) => `&#x${ match.charCodeAt(0).toString(16) };` );
-}
-
+// function encXml(x)
+// {
+//     return x.replace(/[&<>"']/g, (match) => `&#x${ match.charCodeAt(0).toString(16) };` );
+// }
 
 export function generatePlaceholderSvg({
     widthPx, heightPx, text, fontStyle, useLineHeight

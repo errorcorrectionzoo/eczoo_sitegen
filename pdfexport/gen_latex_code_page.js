@@ -29,7 +29,10 @@ export class EczLatexCodePageLatexRenderer
     flm_render_fn(render_context, R)
     {
         const code = this.code;
-        const { ne, rdr, rdrblock, ref } = R;
+        const {
+            ne, rdr, //rdrblock,
+            ref
+        } = R;
 
         debug(`flm_render_fn(): ${this.code?.code_id}`);
 

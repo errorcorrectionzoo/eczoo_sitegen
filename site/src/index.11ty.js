@@ -160,7 +160,7 @@ async function render(data)
     let codelist_entries = Object.entries(eczoodb.objects.codelist);
     const cmp = (a,b) => ( a === b ? 0 : (a < b ? -1 : +1) );
     codelist_entries.sort(
-        ([a_id, a], [b_id, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
+        ([a_id_, a], [b_id_, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
     );
 
     {

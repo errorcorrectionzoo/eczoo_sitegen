@@ -1,6 +1,7 @@
 //
 // Eleventy site configuration
 //
+import process from 'node:process';
 
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.eleventyConfigJs');
@@ -108,7 +109,7 @@ export default async function (eleventyConfig)
             try {
                 await _eczoo_code_graph_svg_exporter_instance.loadEcZooDbData(eczoodbData);
             } catch (err) {
-                console.error(`Problem initializing code graph exporter!`);
+                console.error(`Problem initializing code graph exporter!`, err);
                 process.exit(1);
             }
 

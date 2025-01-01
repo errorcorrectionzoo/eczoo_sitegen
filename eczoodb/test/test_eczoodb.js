@@ -9,7 +9,7 @@ import { load_eczoo } from './_loadeczoodb.js';
 //import path from 'path';
 
 
-describe('EcZooDb', async function () {
+describe('EcZooDb', function () {
 
     this.timeout(0);
 
@@ -115,6 +115,7 @@ describe('EcZooDb', async function () {
                 ['bits_into_bits']
             );
         });
+
         it('identifies correct primary parent kingdom of codes', async function () {
 
             const eczoodb = await load_eczoo();
@@ -224,6 +225,7 @@ describe('EcZooDb', async function () {
                 ['classical_domain']
             );
         });
+
         it('identifies correct primary parent domain of codes', async function () {
 
             const eczoodb = await load_eczoo();
@@ -297,7 +299,7 @@ describe('EcZooDb', async function () {
 
     });
 
-    describe('#code_is_property_code', async function () {
+    describe('#code_is_property_code', function () {
         it('identifies which codes are property codes', async function () {
 
             const eczoodb = await load_eczoo();

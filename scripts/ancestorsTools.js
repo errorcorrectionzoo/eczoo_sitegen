@@ -11,6 +11,7 @@ const debuglog = debugm('EczLog');
 
 import _ from 'lodash';
 
+import process from 'node:process';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 

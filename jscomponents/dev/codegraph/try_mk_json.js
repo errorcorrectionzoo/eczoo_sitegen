@@ -6,7 +6,7 @@ import { use_relations_populator } from '@errorcorrectionzoo/eczoodb/use_relatio
 import { use_flm_environment } from '@errorcorrectionzoo/eczoodb/use_flm_environment.js';
 import { EcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
-import eczoodbRefsData from './eczoodata_allrefs_test.json' with { type: 'json' };
+//import eczoodbRefsData from './eczoodata_allrefs_test.json' with { type: 'json' };
 import eczoodbData from './eczoodata_full_test.json' with { type: 'json' };
 
 

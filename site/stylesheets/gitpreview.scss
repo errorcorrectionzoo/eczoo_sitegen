@@ -93,10 +93,10 @@ $preview-contents-v-margin: 25px;
 // Set some dark mode colors
 //
 .dark {
-    .ZooDbPreviewComponent .zoodb-preview-content > article {
-        // same as light bg thanks to low alpha, no need for extra rule ---
-        //background-color: rgba(127,127,127,0.1);
-    }
+    // .ZooDbPreviewComponent .zoodb-preview-content > article {
+    //     // same as light bg thanks to low alpha, no need for extra rule ---
+    //     //background-color: rgba(127,127,127,0.1);
+    // }
 
     .ZooDbPreviewComponent .zoodb-preview-content > article div.ecz-preview-recommendation {
 

@@ -1,6 +1,7 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_pdfexport.main');
 
+import process from 'node:process';
 import fs from 'fs';
 import path from 'path';
 

@@ -1,16 +1,16 @@
-import * as assert from 'assert';
+//import * as assert from 'assert';
 
-import fs from 'fs';
-import path from 'path';
+//import fs from 'fs';
+//import path from 'path';
 
 //import { EcZooDb } from '../eczoodbjs.js';
 //import { load_eczoo } from '../load_yamldb.js';
 
 
-const __dirname = import.meta.dirname;
+//const __dirname = import.meta.dirname;
 //const __filename = import.meta.filename;
 
-const data_dir = path.join(__dirname, '..', 'test_data');
+//const data_dir = path.join(__dirname, '..', 'test_data');
 
 
 describe('load_yamldb', function () {

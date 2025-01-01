@@ -3,13 +3,14 @@
 // Try --help to get a list of options.
 //
 
-import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.scripts.query_bib_references');
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.scripts.query_bib_references');
 
 import fs from 'fs';
 
 import _ from 'lodash';
 
+import process from 'node:process';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 

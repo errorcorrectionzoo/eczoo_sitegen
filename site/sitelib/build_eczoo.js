@@ -26,6 +26,9 @@ function get_error_string(err)
             errstr = ''+err;
         }
     } catch (tostrerr) {
+        console.debug(
+            `[Additionally, we got an error while preparing the error string] - `, tostrerr
+        );
         errstr = Object.toString(err);
     }
     return errstr;

@@ -21,4 +21,4 @@ export function animateObnoxiousCookieBar()
 
     document.body.appendChild(element);
     element.classList.add('obnoxious-cookie-bar-shown')
-};
+}

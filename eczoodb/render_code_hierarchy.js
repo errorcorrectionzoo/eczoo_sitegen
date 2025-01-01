@@ -5,7 +5,9 @@ import {
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
-export function get_code_hierarchy_info(code, eczoodb, { notable_codes })
+export function get_code_hierarchy_info(code, eczoodb, {
+    notable_codes
+})
 {
     // produce an overview of the top-down code parents hierarchy
     let hierarchy_items = {
@@ -209,10 +211,11 @@ export function get_code_hierarchy_info(code, eczoodb, { notable_codes })
 
 
 export function render_code_hierarchy_content({
-    hierarchy_items, R, render_context
+    code, hierarchy_items, R, eczoodb,
+    //render_context
 })
 {
-    const { refhref, rdr, ref } = R;
+    const { refhref, rdr, ref, ne } = R;
     const rdrtext = (fragment) => render_text_standalone(fragment);
 
     let code_hierarchy_content = '';
@@ -380,5 +383,5 @@ export function render_code_hierarchy_content({
     code_hierarchy_content += sqzhtml`
 </div>`; // .code-hierarchy-items
 
-    return code_hiearrchy_content;
+    return code_hierarchy_content;
 }

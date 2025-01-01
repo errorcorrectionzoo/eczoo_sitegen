@@ -1,5 +1,5 @@
-import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.sitelib.prepare_eczoo_bibreferences');
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.sitelib.prepare_eczoo_bibreferences');
 
 import { Cite, plugins } from '@citation-js/core';
 import '@citation-js/plugin-bibtex';

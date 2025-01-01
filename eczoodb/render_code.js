@@ -6,7 +6,7 @@ import { getfield } from '@phfaist/zoodb/util';
 import {
     // $$kw, repr
     make_render_shorthands,
-    render_text_standalone,
+    //render_text_standalone,
     make_and_render_document,
 } from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
@@ -25,7 +25,7 @@ import {
 export function render_code_page(
     code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
             additional_setup_render_context, render_meta_changelog_options,
-            eczoodb }
+            eczoodb, notable_codes }
 )
 {
     const code_id = code.code_id;
@@ -228,10 +228,18 @@ ${rdr(value)}
         // FORMAT CODE HIERARCHY
         // ---------------------
 
-        const hierarchy_items = get_code_hierarchy_info(code, eczoodb);
+        const hierarchy_items = get_code_hierarchy_info(
+            code, eczoodb, {
+                notable_codes
+            }
+        );
 
-        const code_hiearrchy_content = render_code_hierarchy_content({
-            hierarchy_items, render_context, R
+        const code_hierarchy_content = render_code_hierarchy_content({
+            code,
+            hierarchy_items,
+            render_context,
+            eczoodb,
+            R
         });
 
         html += sqzhtml`

@@ -3,5 +3,5 @@ export default {
     date: "Git last modified",
     permalink: (data) => `${ data.page.filePathStem }.${ data.page.outputFileExtension }`,
 
-    get_current_year: (data) => (new Date().getFullYear())
+    get_current_year: (data_) => (new Date().getFullYear())
 };

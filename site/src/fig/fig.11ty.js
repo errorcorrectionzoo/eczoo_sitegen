@@ -1,5 +1,5 @@
-import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.src.fig')
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.src.fig');
 
 import fsPromises from 'fs/promises';
 

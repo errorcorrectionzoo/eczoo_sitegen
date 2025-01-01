@@ -7,6 +7,7 @@ import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.scripts.zooStats');
 const debuglog = debugm('EczLog');
 
+import process from 'node:process';
 import fs from 'fs';
 
 import _ from 'lodash';
@@ -198,7 +199,7 @@ TOTALS:
 
 
 
-let terminalWidth = null;
+//let terminalWidth = null;
 
 //
 // Main function. Parse command-line arguments and call runmain().
@@ -206,7 +207,7 @@ let terminalWidth = null;
 async function main()
 {
     let Y = yargs(hideBin(process.argv));
-    terminalWidth = Y.terminalWidth() ?? 80;
+    //terminalWidth = Y.terminalWidth() ?? 80;
     const argv = await Y
         .scriptName('zooStats')
         .options({

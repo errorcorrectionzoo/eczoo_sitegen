@@ -15,7 +15,7 @@ import {
     //ZooDbPreviewComponent,
     CitationSourceApiPlaceholder,
     //installFlmContentStyles,
-    simpleRenderObjectWithFlm,
+    //simpleRenderObjectWithFlm,
     installZooFlmEnvironmentLinksAndGraphicsHandlers,
 } from '@phfaist/zoodbtools_preview';
 

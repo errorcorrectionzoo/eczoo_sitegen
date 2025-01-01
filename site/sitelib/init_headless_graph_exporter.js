@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 import { CodeGraphSvgExporter } from '@errorcorrectionzoo/jscomponents/codegraph/headlessGraphExporter.js';
 
 

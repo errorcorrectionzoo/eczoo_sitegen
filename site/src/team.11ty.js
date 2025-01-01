@@ -18,7 +18,7 @@ const render = async (data) => {
         code_contributors: [],
     };
 
-    for (const [user_id, user] of Object.entries(eczoodb.objects.user)) {
+    for (const [user_id_, user] of Object.entries(eczoodb.objects.user)) {
 
         const zooteam = user.zooteam || 'code_contributors';
 

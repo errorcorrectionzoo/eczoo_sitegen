@@ -1,5 +1,5 @@
-import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.templates.layout.base_page');
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.templates.layout.base_page');
 
 import fs from 'fs';
 import path from 'path';
@@ -52,7 +52,7 @@ const get_page_header_navigation_links_default = async (data) => {
         },
     ];
 
-    for (const [domain_id, domain] of Object.entries(eczoodb.objects.domain)) {
+    for (const [domain_id_, domain] of Object.entries(eczoodb.objects.domain)) {
         page_header_navigation_links.push({
             heading: {
                 href: eczoodb.zoo_object_permalink('domain', domain.domain_id),

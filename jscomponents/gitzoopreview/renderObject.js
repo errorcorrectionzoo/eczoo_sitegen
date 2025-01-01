@@ -59,7 +59,7 @@ when read on its own.</p>
 
 
 
-async function getCodeRecommendationsHtml({ zoodb, objectType, objectId, object,
+async function getCodeRecommendationsHtml({ zoodb, objectType_, objectId_, object,
                                             additional_setup_render_context })
 {
     let recommendationsHtml = [];

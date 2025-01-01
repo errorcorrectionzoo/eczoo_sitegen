@@ -14,7 +14,7 @@ function getAncestor(node, tagName)
         node = node.parentNode;
     }
     return null;
-};
+}
 
 
 // It's apparently a good idea to minimize the number of event listeners, so
