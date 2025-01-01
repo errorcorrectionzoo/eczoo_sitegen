@@ -12,8 +12,6 @@ $preview-contents-v-margin: 25px;
         box-sizing: border-box;
 
         > article {
-            width: min(calc(2*$preview-contents-h-margin + $page-max-main-width), 100%);
-            max-width: calc(2*$preview-contents-h-margin + $page-max-main-width);
             margin: 0px auto;
             box-sizing: border-box;
             padding: $preview-contents-v-margin $preview-contents-h-margin;
@@ -58,7 +56,14 @@ $preview-contents-v-margin: 25px;
             }
         }
 
-        > article.ecc-codelist-page {
+
+        > article {
+            // default narrow-width pages.
+            width: min(calc(2*$preview-contents-h-margin + $page-max-main-width), 100%);
+            max-width: calc(2*$preview-contents-h-margin + $page-max-main-width);
+        }
+        > article.ecc-codelist-page, article.ecc-code-page {
+            // specific types of pages require wide layout.
             width: min(calc(2*$preview-contents-h-margin + $page-max-width), 100%);
             max-width: calc(2*$preview-contents-h-margin + $page-max-width);
         }

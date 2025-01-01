@@ -23,10 +23,14 @@
     "@phfaist/zoodb": "*"
   },
   "@mischnic/parcel-resolver-root": {
+    "CAUTION-NO-LONGER-USED": "NOT-USED",
     "/": "./_site",
     "~": ".."
   },
   "@parcel/resolver-default": {
     "packageExports": true
+  },
+  "devDependencies": {
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f"
   }
 }

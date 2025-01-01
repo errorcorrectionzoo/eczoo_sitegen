@@ -637,6 +637,7 @@ __metadata:
   dependencies:
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@parcel/plugin": ^2.13.3
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f"
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git"
     "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_preview&commit=6862f97e39f4db835adbbae889d43efc8da50e24"
     "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_previewremote&commit=6862f97e39f4db835adbbae889d43efc8da50e24"
