@@ -78,6 +78,85 @@ describe('EcZooDb', async function () {
 
     });
 
+
+    describe('#code_parent_kingdoms', function () {
+
+        it('identifies correct parent kingdom(s) of codes', async function () {
+            
+            const eczoodb = await load_eczoo();
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.css,
+                ).map( d => d.kingdom_id ),
+                ['qubits_into_qubits']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.css, {
+                        find_kingdom_id: 'qubits_into_qubits',
+                    }
+                ).map( d => d.kingdom_id ),
+                ['qubits_into_qubits']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.binary_linear,
+                ).map( d => d.kingdom_id ),
+                ['bits_into_bits']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.binary_linear, {
+                        find_kingdom_id: 'bits_into_bits',
+                    }
+                ).map( d => d.kingdom_id ),
+                ['bits_into_bits']
+            );
+        });
+        it('identifies correct primary parent kingdom of codes', async function () {
+
+            const eczoodb = await load_eczoo();
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.css, {
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.kingdom_id ),
+                ['qubits_into_qubits']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.css, {
+                        find_kingdom_id: 'qubits_into_qubits',
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.kingdom_id ),
+                ['qubits_into_qubits']
+            );
+
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.binary_linear, {
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.kingdom_id ),
+                ['bits_into_bits']
+            );
+            assert.deepStrictEqual(
+                eczoodb.code_parent_kingdoms(
+                    eczoodb.objects.code.binary_linear, {
+                        find_kingdom_id: 'bits_into_bits',
+                        only_primary_parent_relation: true,
+                    }
+                ).map( d => d.kingdom_id ),
+                ['bits_into_bits']
+            );
+        });
+    });
+
     describe('#code_parent_domain', function () {
 
         it('identifies correct parent domain(s) of codes', async function () {
@@ -218,8 +297,39 @@ describe('EcZooDb', async function () {
 
     });
 
+    describe('#code_is_property_code', async function () {
+        it('identifies which codes are property codes', async function () {
 
-    it('should have corrected computed property values', async function () {
+            const eczoodb = await load_eczoo();
+
+            assert.strictEqual(
+                eczoodb.code_is_property_code(eczoodb.objects.code.css),
+                false
+            );
+
+            assert.strictEqual(
+                eczoodb.code_is_property_code(eczoodb.objects.code.binary_linear),
+                false
+            );
+
+            assert.strictEqual(
+                eczoodb.code_is_property_code(eczoodb.objects.code.testcode),
+                false
+            );
+
+            assert.strictEqual(
+                eczoodb.code_is_property_code(eczoodb.objects.code.quantum_into_quantum),
+                true
+            );
+
+            assert.strictEqual(
+                eczoodb.code_is_property_code(eczoodb.objects.code.abstr),
+                true
+            );
+        });
+    });
+
+    it('should have correct computed property values', async function () {
 
         const eczoodb = await load_eczoo();
 

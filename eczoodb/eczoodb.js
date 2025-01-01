@@ -320,6 +320,48 @@ export class EcZooDb extends ZooDb
         return Array.from(domains);
     }
 
+    code_parent_kingdoms(code, { find_kingdom_id, only_primary_parent_relation } = {})
+    {
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, code)
+                ;
+        }
+
+        let found_kingdoms = new Set();
+        this.code_visit_relations(code, {
+            relation_properties: ['parents'],
+            callback: (code_visit) => {
+                const codekingdomrels = code_visit.relations?.root_for_kingdom;
+                if (codekingdomrels && codekingdomrels.length) {
+                    for (const { kingdom_id, kingdom } of codekingdomrels) {
+                        found_kingdoms.add(kingdom);
+                        if (find_kingdom_id != null && kingdom_id === find_kingdom_id) {
+                            return true;
+                        }
+                    }
+                }
+            },
+            predicate_relation,
+        });
+        return Array.from(found_kingdoms);
+    }
+
+    code_is_property_code(code)
+    {
+        // a code is defined as being a "property code" if it does not belong to any
+        // kingdom through a primary-parent relationship.
+        let primary_parent_kingdoms = this.code_parent_kingdoms(
+            code, { only_primary_parent_relation: true }
+        );
+        if (primary_parent_kingdoms && primary_parent_kingdoms.length) {
+            // this code belongs to a kingdom --- not a property code
+            return false;
+        }
+        return true;
+    }
+
     code_is_primary_parent(parent_code, child_code)
     {
         // if child_code is a kingdom root code, then it "the kingdom itself is
