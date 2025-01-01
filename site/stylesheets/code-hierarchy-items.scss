@@ -25,8 +25,8 @@ $code-hierarchy-item-primparent-parentchild-notch-size: 10pt;
     //
     // code hierarchy diagram
     //
-    .code-hierarchy-item {
-    }
+    // .code-hierarchy-item {
+    // }
 
     .code-hierarchy-item-row {
         box-sizing: border-box;
@@ -221,8 +221,8 @@ $code-hierarchy-item-primparent-parentchild-notch-size: 10pt;
     .code-hierarchy-item-inner-ancestors, 
     .code-hierarchy-item-inner-descendants {
         display: inline;
-        font-style: italic;
-        font-size: $small-font-size;
+        //font-style: italic;
+        font-size: $smaller-font-size;
         margin-left: 0pt;
 
         &::before {
@@ -237,6 +237,9 @@ $code-hierarchy-item-primparent-parentchild-notch-size: 10pt;
             border: solid .4pt;
             border-radius: 4pt;
             padding: 0pt 2pt;
+        }
+        .code-hierarchy-item-inner-ancdesc-propertycode {
+            font-style: italic;
             &::before { content: '#'; }
         }
     }

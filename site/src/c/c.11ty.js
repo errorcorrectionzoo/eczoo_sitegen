@@ -256,6 +256,7 @@ const render = async (data) => {
             doc_metadata,
             extra_html_after_title,
             eczoodb,
+            notable_codes: data.notable_codes_hierarchy.notable_codes,
         }
     );
 

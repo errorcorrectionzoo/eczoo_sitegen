@@ -93,22 +93,30 @@ article.ecc-code-page {
         }
     }
 
-    .code-root-code-kingdom-name,
-    .code-root-code-domain-name {
+    .code-root-code-kingdom,
+    .code-root-code-domain {
         font-size: 1rem;
         padding: 4px;
         border-radius: 2px;
 
+        .code-root-code-domain-name,
+        .code-root-code-kingdom-name {
+            font-weight: bold;
+        }
         .kingdom-name-label, .domain-name-label {
             font-weight: normal;
         }
-
-        font-weight: bold;
+        
+        .code-root-code-domain-description,
+        .code-root-code-kingdom-description {
+            margin-top: $parskip-half-length;
+            font-size: $small-font-size;
+        }
     }
-    .code-root-code-domain-name {
+    .code-root-code-domain {
         background-color: $ecc-page-domain-background-color;
     }
-    .code-root-code-kingdom-name {
+    .code-root-code-kingdom {
         background-color: $ecc-page-kingdom-background-color;
     }
 
@@ -158,9 +166,13 @@ article.ecc-code-page {
         margin: 0px;
     }
 
-    .sectioncontent.code-cousins,
-    .sectioncontent.code-codelist-membership {
-        margin-bottom: 1.5em;
+    .sectioncontent {
+        &.code-notes,
+        &.code-cousins,
+        &.code-codelist-membership,
+        &.code-href-references {
+            margin-bottom: 1.5em;
+        }
     }
 
     span.code-introduced {

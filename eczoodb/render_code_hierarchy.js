@@ -1,3 +1,5 @@
+// import debug_mod from 'debug';
+// const debug = debug_mod("eczoodbjs.render_code_hierarchy");
 
 import {
     render_text_standalone,
@@ -5,10 +7,17 @@ import {
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
-export function get_code_hierarchy_info(code, eczoodb, {
+export function get_code_hierarchy_info({
+    code,
+    eczoodb,
     notable_codes
 })
 {
+    const use_notable_codes = (notable_codes != null);
+    const notable_code_set = new Set(notable_codes ?? []);
+
+    //debug(`Using following set of notable codes:`, notable_code_set);
+
     // produce an overview of the top-down code parents hierarchy
     let hierarchy_items = {
         primary_parent_chain: [],
@@ -146,16 +155,33 @@ export function get_code_hierarchy_info(code, eczoodb, {
         if (pcode == null) {
             continue;
         }
+        const cur_parent_domain = eczoodb.code_get_parent_domain(pcode);
         const pancestors = eczoodb.code_get_ancestors(pcode, {
             return_relation_info: true,
-            skip_first_primary_parent_relation: primary_parent_item.ancestor_search_skip_primary_parent,
+            skip_first_primary_parent_relation:
+                primary_parent_item.ancestor_search_skip_primary_parent,
             //parent_child_sort: true,
+            predicate_relation: (code, relation, relation_property_) => {
+                // limit ancestors to those that belong to the same domain.
+                return (
+                    //eczoodb.code_is_primary_parent(relation.code, code) ||
+                    eczoodb.code_get_parent_domain(relation.code).domain_id
+                    === cur_parent_domain.domain_id
+                )
+            }
         });
         for (const pancestorcodeinfo of pancestors) {
             if (pancestorcodeinfo.code === pcode) {
                 continue; // skip the primary parent code itself
             }
             const pancestorcode = pancestorcodeinfo.code;
+
+            // skip any code that is not a "notable code", if applicable
+            if (use_notable_codes && !notable_code_set.has(pancestorcode.code_id)) {
+                // skip non-notable code
+                continue;
+            }
+
             let ancestor_relation_info_chain = [];
             let pintermediatecodeinfo = pancestorcodeinfo;
             while (pintermediatecodeinfo != null) {
@@ -168,6 +194,7 @@ export function get_code_hierarchy_info(code, eczoodb, {
                 name: pancestorcode.name,
                 object_type: 'code',
                 object_id: pancestorcode.code_id,
+                is_property_code: eczoodb.code_is_property_code(pancestorcode),
                 ancestor_relation_info_chain,
             });
         }
@@ -176,15 +203,31 @@ export function get_code_hierarchy_info(code, eczoodb, {
     // also, fetch descendants of children.
     for (let child_item of hierarchy_items.children) {
         const ccode = child_item.code;
+        const cur_child_domain = eczoodb.code_get_parent_domain(ccode);
         const cdescendants = eczoodb.code_get_family_tree(ccode, {
             return_relation_info: true,
             parent_child_sort: true,
+            predicate_relation: (code, relation, relation_property_) => {
+                // limit ancestors to those that belong to the same domain.
+                return (
+                    //eczoodb.code_is_primary_parent(code, relation.code) ||
+                    eczoodb.code_get_parent_domain(relation.code).domain_id
+                    === cur_child_domain.domain_id
+                )
+            }
         });
         for (const cdescendantinfo of cdescendants) {
             if (cdescendantinfo.code === ccode) {
                 continue; // skip the child code itself
             }
             const cdescendantcode = cdescendantinfo.code;
+
+            // skip any code that is not a "notable code", if applicable
+            if (use_notable_codes && !notable_code_set.has(cdescendantcode.code_id)) {
+                // skip non-notable code
+                continue;
+            }
+
             let descendant_relation_info_chain = [];
             let cintermediatecodeinfo = cdescendantinfo;
             while (cintermediatecodeinfo != null) {
@@ -197,6 +240,7 @@ export function get_code_hierarchy_info(code, eczoodb, {
                 name: cdescendantcode.name,
                 object_type: 'code',
                 object_id: cdescendantcode.code_id,
+                is_property_code: eczoodb.code_is_property_code(cdescendantcode),
                 descendant_relation_info_chain,
             });
         }
@@ -212,7 +256,6 @@ export function get_code_hierarchy_info(code, eczoodb, {
 
 export function render_code_hierarchy_content({
     code, hierarchy_items, R, eczoodb,
-    //render_context
 })
 {
     const { refhref, rdr, ref, ne } = R;
@@ -236,10 +279,12 @@ export function render_code_hierarchy_content({
         let s = sqzhtml`
 <span class="code-hierarchy-item-inner-ancestors">
     ${leftdecorationelements}`;
-        for (const spar of ppitemancestors) {
+        for (const spar of [...ppitemancestors].reverse()) {
             const sparcode = spar.code;
             s += sqzhtml`
-    <a class="code-hierarchy-item-inner-ancestor" href="${
+    <a class="code-hierarchy-item-inner-ancestor${
+        spar.is_property_code ? ' code-hierarchy-item-inner-ancdesc-propertycode' : ''
+    }" href="${
         refhref(spar.object_type, spar.object_id).replace('"', '&quot;')
     }" title="${
         (spar.ancestor_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )
@@ -261,7 +306,9 @@ export function render_code_hierarchy_content({
         for (const ccinfo of citemdescendants) {
             const ccode = ccinfo.code;
             s += sqzhtml`
-    <a class="code-hierarchy-item-inner-descendant" href="${
+    <a class="code-hierarchy-item-inner-descendant${
+        ccinfo.is_property_code ? ' code-hierarchy-item-inner-ancdesc-propertycode' : ''
+    }" href="${
         refhref(ccinfo.object_type, ccinfo.object_id).replace('"', '&quot;')
     }" title="${
         (ccinfo.descendant_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )

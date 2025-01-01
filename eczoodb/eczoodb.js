@@ -279,6 +279,8 @@ export class EcZooDb extends ZooDb
         return false;
     }
 
+    // see also code_get_parent_domain(), code_get_parent_kingdom() if you're only
+    // interested in primary-parent domain/kingdom root parent.
     code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
     {
         let predicate_relation = null;
@@ -320,6 +322,8 @@ export class EcZooDb extends ZooDb
         return Array.from(domains);
     }
 
+    // see also code_get_parent_domain(), code_get_parent_kingdom() if you're only
+    // interested in primary-parent domain/kingdom root parent.
     code_parent_kingdoms(code, { find_kingdom_id, only_primary_parent_relation } = {})
     {
         let predicate_relation = null;
@@ -600,13 +604,36 @@ export class EcZooDb extends ZooDb
         return root_for_kingdom[0].kingdom;
     }
 
-    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation, return_relation_info } = {})
+    code_get_family_tree(
+        root_code, {
+            parent_child_sort,
+            only_primary_parent_relation,
+            return_relation_info,
+            predicate_relation,
+        } = {}
+    )
     {
-        let predicate_relation = null;
+        let predicate_relation_list = [];
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) =>
-                this.code_is_primary_parent(code, relation.code)
-                ;
+            predicate_relation_list.push(
+                (code, relation, relation_property_) =>
+                    this.code_is_primary_parent(code, relation.code)
+            );
+        }
+        if (predicate_relation) {
+            predicate_relation_list.push(predicate_relation);
+        }
+
+        let predicate_relation_full = null;
+        if (predicate_relation_list.length) {
+            predicate_relation_full = (c, relation, relation_property) => {
+                for (const fn of predicate_relation_list) {
+                    if (!fn(c, relation, relation_property)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         let family_tree_codes = [];
@@ -619,7 +646,7 @@ export class EcZooDb extends ZooDb
                     family_tree_codes.push(code);
                 }
             },
-            predicate_relation,
+            predicate_relation: predicate_relation_full,
         });
         
         if (parent_child_sort ?? true) {
@@ -650,18 +677,36 @@ export class EcZooDb extends ZooDb
         only_primary_parent_relation,
         skip_first_primary_parent_relation,
         return_relation_info,
+        predicate_relation,
     } = {})
     {
-        let predicate_relation = null;
+        let predicate_relation_list = [];
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (c, relation, relation_property_) =>
-                this.code_is_primary_parent(relation.code, c)
-                ;
+            predicate_relation_list.push(
+                (c, relation, relation_property_) =>
+                    this.code_is_primary_parent(relation.code, c)
+            );
         }
         if (skip_first_primary_parent_relation ?? false) {
-            predicate_relation = (c, relation, relation_property_) =>
-                (c !== code) || !this.code_is_primary_parent(relation.code, c)
-                ;
+            predicate_relation_list.push(
+                (c, relation, relation_property_) =>
+                    (c !== code) || !this.code_is_primary_parent(relation.code, c)
+            );
+        }
+        if (predicate_relation) {
+            predicate_relation_list.push(predicate_relation);
+        }
+
+        let predicate_relation_full = null;
+        if (predicate_relation_list.length) {
+            predicate_relation_full = (c, relation, relation_property) => {
+                for (const fn of predicate_relation_list) {
+                    if (!fn(c, relation, relation_property)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         let ancestor_codes = [];
@@ -674,7 +719,7 @@ export class EcZooDb extends ZooDb
                     ancestor_codes.push(code);
                 }
             },
-            predicate_relation,
+            predicate_relation: predicate_relation_full,
         });
         
         if (parent_child_sort ?? true) {

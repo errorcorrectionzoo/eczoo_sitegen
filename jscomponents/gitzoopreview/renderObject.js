@@ -18,6 +18,12 @@ import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 import { simpleRenderObjectWithFlm } from '@phfaist/zoodbtools_preview';
 
 
+// site's idea of which codes are notable codes
+import site_notable_codes from '~/site/site_data/notable_codes_hierarchy.js';
+const { notable_codes } = site_notable_codes;
+//console.log(`Using following set of notable codes:`, notable_codes);
+
+
 const firstParaDescrExplain = `
 The first paragraph of a code’s description is used as a snippet in various
 places, e.g., as a short version of the code’s description
@@ -139,6 +145,12 @@ sorted chronologically, most recent first.</p>
 }
 
 
+
+//
+// ----------------------------------------------------------------------------
+//
+
+
 export async function renderObject({ zoodb, objectType, objectId, object,
                                      registerRenderPreviewCleanupCallback,
                                      includeRecommendations
@@ -164,6 +176,7 @@ export async function renderObject({ zoodb, objectType, objectId, object,
                     details_open: true
                 },
                 eczoodb: zoodb,
+                notable_codes,
             }
         );
 
@@ -196,8 +209,8 @@ the entry should be kept in this way!]</p>
         }
 
         htmlContent = sqzhtml`
-<article class="ecc-code-page">
 ${recommendationsJoinedHtml}
+<article class="ecc-code-page">
 ${codeHtmlContent}
 </article>
 `;
