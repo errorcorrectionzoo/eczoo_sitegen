@@ -1,26 +1,232 @@
-//import debug_mod from 'debug';
-//const debug = debug_mod("eczoodbjs.render_code");
+import debug_mod from 'debug';
+const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-//const { $$kw, repr } = zooflm;
+import {
+    // $$kw, repr
+    make_render_shorthands,
+    //render_text_standalone,
+    make_and_render_document,
+} from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
     render_meta_changelog
 } from './render_utils.js';
-    
 
-// ------
+import {
+    get_code_hierarchy_info,
+    render_code_hierarchy_content,
+} from './render_code_hierarchy.js';
+
+
+
+//
+// Code render helpers
+//
+
+function display_code_field(code, fieldname, title, { R })
+{
+    const { ne, rdr } = R;
+    const value = getfield(code, fieldname);
+    if ( ! ne(value) ) {
+        // nothing to display
+        //debug(`Field ${fieldname} of ${code_id} is empty.`);
+        return ``;
+    }
+    const parts = fieldname.split('.');
+    let classlist = [];
+    let clname = 'code';
+    for (const p of parts) {
+        clname += `-${p}`;
+        classlist.push(clname);
+    }
+    const classnames = classlist.join(' '); // eg. "code-feature code-feature-rate"
+    return sqzhtml`
+<div class="sectioncontent ${classnames}">
+<h2 id="${fieldname.replace('.', '_')}" class="${classnames}">${title}</h2>
+${rdr(value)}
+</div>
+`;
+};
+
+
+function display_code_relation(relation_fieldname, relation_list, [singular, plural], { R })
+{
+    const { ref, rdr, ne } = R;
+    if (!relation_list || !relation_list.length) {
+        return ``;
+    }
+
+    let result = sqzhtml`
+<div class="sectioncontent code-${relation_fieldname}">
+<h2 id="relations_${relation_fieldname}" class="code-${relation_fieldname}">
+${ (relation_list.length > 1) ? plural : singular }
+</h2>
+`;
+    // if (relation_list.length == 0) {
+    //     return `<span class="na">(none)</span>`;
+    // }
+    result += sqzhtml`
+<ul class="code-relations-list code-${relation_fieldname}-list">`;
+    for (const rel of relation_list) {
+        result += sqzhtml`
+<li class="paragraph-in-list">
+<span class="code-${relation_fieldname}}-1-code">${
+ref('code', rel.code_id)
+}</span>`;
+        if (ne(rel.detail)) {
+            result += sqzhtml`
+<span class="code-${relation_fieldname}-1-detail">${''
+}<!-- whitespace, em dash, no-break space -->${''
+}&#x2014;&nbsp;${rdr(rel.detail)}</span>`;
+        }
+        result += sqzhtml`
+</li>`;
+    }
+    result += sqzhtml`
+</ul>
+</div>`;
+    return result;
+};
+
+
+function display_code_list_memberships({ eczoodb, code, R })
+{
+    const code_id = code.code_id;
+    const { ref } = R;
+    let html = '';
+
+    // Display information about which lists this code appears in.
+    let appears_in_codelists = Object.values(eczoodb.objects.codelist).filter(
+        (codelist) => (
+            codelist.list_id !== 'all'
+            && eczoodb.codelist_compiled_code_id_set(codelist).has(code_id)
+        )
+    );
+    if (appears_in_codelists.length !== 0) {
+        appears_in_codelists.sort(
+            (a,b) => a.title.flm_text.localeCompare(b.title.flm_text)
+        );
+        //debug(`${code_id} appears in code lists: ${ appears_in_codelists.map(l => l.list_id).join(', ') }`);
+        html += sqzhtml`
+<div class="sectioncontent code-codelist-membership">
+<h2 id="code_codelist_membership">Member of code lists</h2>
+<ul class="code-codelist-membership-list">`;
+        for (const codelist of appears_in_codelists) {
+            //debug(`Including codelist:`, codelist);
+            html += sqzhtml`
+<li>${ref('codelist', codelist.list_id)}</li>
+`;
+        }
+        html += `</ul></div>`;
+    }
+    return html;
+}
+
+
+function makeLexicographicCompareFn(cmpArray, { cmpOps, cmpOpDefault }={})
+{
+    const iCmp = (a, b) => ( (a<b) ? -1 : ( (a === b) ? 0 : 1 ) );
+    const cmpOpsFull = {
+        auto: (a, b) => {
+            if (typeof a !== typeof b) {
+                console.warn(`Type mismatch in comparison`, a, b);
+            }
+            if (typeof a === 'number') {
+                return iCmp(a, parseInt(b));
+            }
+            if (typeof a === 'string') {
+                return a.localeCompare(b);
+            }
+            // stringify to JSON, hope for the best
+            return JSON.stringify(a).localeCompare(JSON.stringify(b));
+        },
+        string: (a, b) => (''+a).localeCompare(b),
+        int: (a, b) => iCmp(parseInt(a), parseInt(b)),
+        ...(cmpOps ?? {}),
+    };
+    const cmpFns = (cmpArray??[]).map( (x) => (typeof x === 'string' ? cmpOpsFull[x] : x) );
+    const cmpFnDefault = cmpOpsFull[cmpOpDefault ?? 'auto']
+
+    const lxCmp = (arr1, arr2) => {
+        const minLength = arr1.length < arr2.length ? arr1.length : arr2.length;
+        
+        for (let i = 0; i < minLength; i++) {
+            const val1 = arr1[i];
+            const val2 = arr2[i];
+            const cmp = (i < cmpFns.length) ? cmpFns[i] : cmpFnDefault;
+            const cmpValue = cmp(val1, val2);
+            if (cmpValue !== 0) {
+                return cmpValue;
+            }
+        }
+        
+        return arr1.length - arr2.length;
+    }
+    return lxCmp;
+};
+  
+
+
+function display_code_href_references({ eczoodb, code, R })
+{
+    const code_id = code.code_id;
+    const { ref } = R;
+    let html = '';
+
+    // Display information about which lists this code appears in.
+    let encountered_refs =
+        eczoodb.zoo_flm_processor.scanner.get_encountered_references_to_labels(
+        [ ['code', code_id] ]
+    );
+    if (encountered_refs.length !== 0) {
+        const lxCmp = makeLexicographicCompareFn();
+        encountered_refs.sort(
+            (a,b) => lxCmp(
+                [a.resource_info.object_type, a.resource_info.object_id],
+                [b.resource_info.object_type, b.resource_info.object_id],
+            )
+        );
+        html += sqzhtml`
+<div class="sectioncontent code-href-references">
+<h2 id="code_href_references">Hyperlinks to this code</h2>
+<ul class="code-href-references-list">`;
+        for (const { resource_info } of encountered_refs) {
+            const { object_type, object_id } = resource_info;
+            if (object_type === 'codelist') {
+                continue; // referring lists are already listed separately
+            }
+            html += sqzhtml`
+<li>${ref(object_type, object_id)}</li>
+`;
+        }
+        html += `</ul></div>`;
+    }
+    return html;
+}
+
+
+
+
+//
+// Main Code Page Rendering Routine
+//
 
 
 export function render_code_page(
-    code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
-            additional_setup_render_context, render_meta_changelog_options }
+    code, {
+        zoo_flm_environment, doc_metadata, extra_html_after_title,
+        include_code_graph_link,
+        additional_setup_render_context, render_meta_changelog_options,
+        eczoodb, notable_codes
+    }
 )
 {
-    //debug(`render_code_page(): Rendering code page for ‘${code.code_id}’ ...`);
+    const code_id = code.code_id;
+
+    debug(`render_code_page(): Rendering code page for ‘${code_id}’ ...`);
     
     const render_doc_fn = (render_context) => {
 
@@ -31,10 +237,16 @@ export function render_code_page(
             additional_setup_render_context(render_context);
         }
 
-        const R = zooflm.make_render_shorthands({render_context});
-        const { ne, rdr, ref } = R;
+        const R = make_render_shorthands({render_context});
+        const {
+            ne, rdr, //rdrblock,
+            ref
+        } = R;
 
         let html = '';
+
+        html += sqzhtml`
+<div class="code-main-section">`;
 
         html += sqzhtml`
 <div class="sectioncontent code-name">
@@ -45,6 +257,9 @@ export function render_code_page(
             html += sqzhtml`
       <span class="code-introduced">${rdr(code.introduced)}</span>
 `;
+        }
+        if (include_code_graph_link != null) {
+            html += `<a href="${include_code_graph_link}" class="linkcodegraph"></a>`;
         }
         if (extra_html_after_title != null) {
             html += extra_html_after_title;
@@ -61,7 +276,7 @@ export function render_code_page(
                 .join(', ');
             html += sqzhtml`
 <div class="sectioncontent code-alternative-names">
-  Also known as ${alt_names_joined}.
+  Alternative names: ${alt_names_joined}.
 </div>
 `
         }
@@ -70,13 +285,20 @@ export function render_code_page(
         if (domainRelList != null && domainRelList.length >= 1) {
             for (const { domain } of domainRelList) {
                 html += sqzhtml`
-<div class="sectioncontent code-root-code-domain-name">
-    <span class="domain-name-label">
+<div class="sectioncontent code-root-code-domain">
+    <div class="code-root-code-domain-name"><span class="domain-name-label">
       Root code for the
     </span> <!-- space -->${
    ref('domain', domain.domain_id)
-}</div>
-<div class="domain-description">${ rdr(domain.description) }</div>
+}</div>`;
+                if (ne(domain.description)) {
+                    html += sqzhtml`
+    <div class="code-root-code-domain-description">
+        ${ rdr(domain.description) }
+    </div>`;
+                }
+                html += sqzhtml`
+</div>
 `;
             }
         }
@@ -85,13 +307,20 @@ export function render_code_page(
         if (kingdomRelList != null && kingdomRelList.length >= 1) {
             for (const { kingdom } of kingdomRelList) {
                 html += sqzhtml`
-<div class="sectioncontent code-root-code-kingdom-name">
-    <span class="kingdom-name-label">
+<div class="sectioncontent code-root-code-kingdom">
+    <div class="code-root-code-kingdom-name"><span class="kingdom-name-label">
       Root code for the
     </span> <!-- space -->${
    ref('kingdom', kingdom.kingdom_id)
-}</div>
-<div class="kingdom-description">${ rdr(kingdom.description) }</div>
+}</div>`;
+                if (ne(kingdom.description)) {
+                    html += sqzhtml`
+    <div class="code-root-code-kingdom-description">
+        ${ rdr(kingdom.description) }
+    </div>`;
+                }
+                html += sqzhtml`
+</div>
 `;
             }
         }
@@ -108,26 +337,9 @@ export function render_code_page(
         }
 
 
-        const display_field = (fieldname, title) => {
-            const value = getfield(code, fieldname);
-            if ( ! ne(value) ) {
-                // nothing to display
-                //debug(`Field ${fieldname} of ${code.code_id} is empty.`);
-                return ``;
-            }
-            const parts = fieldname.split('.');
-            let classlist = [];
-            let clname = 'code';
-            for (const p of parts) {
-                clname += `-${p}`;
-                classlist.push(clname);
-            }
-            const classnames = classlist.join(' '); // eg. "code-feature code-feature-rate"
-            return `
-<h2 id="${fieldname.replace('.', '_')}" class="${classnames}">${title}</h2>
-<div class="sectioncontent ${classnames}">${rdr(value)}</div>`;
-        };
-
+        const display_field =
+            (fieldname, title) => display_code_field(code, fieldname, title, { R });
+        
         html += display_field('description', 'Description');
 
         html += display_field('protection', 'Protection');
@@ -138,7 +350,7 @@ export function render_code_page(
 
         html += display_field('features.encoders', 'Encoding');
 
-        html += display_field('features.transversal_gates', 'Transversal Gates');
+        html += display_field('features.transversal_gates', 'Transversal Gates');
 
         html += display_field('features.general_gates', 'Gates');
 
@@ -154,75 +366,84 @@ export function render_code_page(
 
         html += display_field('notes', 'Notes');
 
-        // Relationships to other codes
-
-        const display_code_relation = (relation_fieldname, relation_list, [singular, plural]) => {
-            if (!relation_list || !relation_list.length) {
-                return ``;
-            }
-
-            let result = `
-<h2 id="relations_${relation_fieldname}" class="code-${relation_fieldname}">
-  ${ (relation_list.length > 1) ? plural : singular }
-</h2>
-<div class="sectioncontent code-${relation_fieldname}">`;
-            // if (relation_list.length == 0) {
-            //     return `<span class="na">(none)</span>`;
-            // }
-            result += `
-  <ul class="code-relations-list code-${relation_fieldname}-list">`;
-            for (const rel of relation_list) {
-                result += `
-    <li class="paragraph-in-list">
-      <span class="code-${relation_fieldname}}-1-code">${
-        ref('code', rel.code_id)
-      }</span>`;
-                if (ne(rel.detail)) {
-                    result += `
-      <span class="code-${relation_fieldname}-1-detail">${''
-        }<!-- whitespace, em dash, no-break space -->${''
-        }&#x2014;&nbsp;${rdr(rel.detail)}</span>`;
-                }
-                result += `
-    </li>` .trim();
-            }
-            result += `
-  </ul>
-</div>` .trim();
-            return result;
-        };
 
         const relations = code.relations ?? {};
-
-        html += display_code_relation('parents', relations.parents ?? [],
-                                      ['Parent', 'Parents']);
-
-        html += display_code_relation('parent_of', relations.parent_of ?? [],
-                                      ['Child', 'Children']);
-
-
+        // ### parents & parent_of relations now displayed via "code hierarchy" tree
+        // html += display_code_relation('parents', relations.parents ?? [],
+        //                               ['Parent', 'Parents']);
+        // html += display_code_relation('parent_of', relations.parent_of ?? [],
+        //                               ['Child', 'Children']);
         html += display_code_relation(
             'cousins',
             [].concat(relations.cousins ?? [], relations.cousin_of ?? []),
-            ['Cousin', 'Cousins']
+            ['Cousin', 'Cousins'],
+            {
+                R
+            }
         );
+
+        html += display_code_list_memberships({
+            eczoodb,
+            code,
+            R
+        });
+
+        // ### Skip displaying hyperrefs (at least for now).  Important related codes
+        // ### should be listed as cousins anyway.
+        //
+        // html += display_code_href_references({
+        //     eczoodb,
+        //     code,
+        //     R
+        // });
 
 
         html += `
-
 <RENDER_ENDNOTES/>
-
 `;
-
         const changelog = code._meta?.changelog;
         if (changelog != null) {
             html += render_meta_changelog(changelog, R, render_meta_changelog_options);
         }
 
+        html += sqzhtml`
+</div>`; // .code-main-section
+
+
+
+        // ---------------------
+        // FORMAT CODE HIERARCHY
+        // ---------------------
+
+        const hierarchy_items = get_code_hierarchy_info(
+            {
+                code,
+                eczoodb,
+                notable_codes,
+            }
+        );
+
+        const code_hierarchy_content = render_code_hierarchy_content({
+            code,
+            hierarchy_items,
+            eczoodb,
+            R
+        });
+
+        html += sqzhtml`
+<div class="sectioncontent code-hierarchy">
+<h2 id="code_hierarchy" class="code-hierarchy">Primary Hierarchy</h2>
+${code_hierarchy_content}`;
+
+        html += sqzhtml`
+</div>`;
+
+        // ------------------
+
         return html;
     };
 
-    return zooflm.make_and_render_document({
+    return make_and_render_document({
         zoo_flm_environment,
         render_doc_fn,
         doc_metadata,

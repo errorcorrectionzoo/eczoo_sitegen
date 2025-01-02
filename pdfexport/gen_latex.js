@@ -3,7 +3,8 @@ const debug = debugm('eczoo_pdfexport.gen_latex');
 
 import * as flm_fragmentrenderer_latex from '@phfaist/zoodb/flm-js/flm.fragmentrenderer.latex';
 import {
-    $$kw, repr, make_render_shorthands, make_and_render_document,
+    //$$kw, repr,
+    make_render_shorthands, make_and_render_document,
 } from '@phfaist/zoodb/zooflm';
 
 

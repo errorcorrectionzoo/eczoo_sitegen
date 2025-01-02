@@ -26,7 +26,7 @@ export async function load()
     const params = Object.fromEntries(urlSearchParams.entries());
     let initial_search_query = params.q ?? null;
 
-    const resolve_href = (object_type, object_id, object_doc) => {
+    const resolve_href = (object_type, object_id, object_doc_) => {
         return zoo_object_permalink(object_type, object_id);
     };
 

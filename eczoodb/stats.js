@@ -244,7 +244,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
             }
             for (const { kingdom } of domain.kingdoms) {
                 for (const { code_id } of kingdom.root_codes) {
-                    root_code_id_list.push(code_id);;
+                    root_code_id_list.push(code_id);
                 }
             }
 

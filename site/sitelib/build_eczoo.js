@@ -26,6 +26,9 @@ function get_error_string(err)
             errstr = ''+err;
         }
     } catch (tostrerr) {
+        console.debug(
+            `[Additionally, we got an error while preparing the error string] - `, tostrerr
+        );
         errstr = Object.toString(err);
     }
     return errstr;
@@ -41,7 +44,9 @@ export async function load_or_reload_eczoodb(eczoo_config)
             cached_eczoodb = await createEcZooDb({
                 fs,
                 fs_data_dir: eczoo_config.data_dir,
-                ... get_eczoo_full_options()
+                ... get_eczoo_full_options({
+                    citationsinfo_cache_dir: eczoo_config.citationsinfo_cache_dir
+                })
             });
             const loader = await createEcZooYamlDbDataLoader(cached_eczoodb);
 

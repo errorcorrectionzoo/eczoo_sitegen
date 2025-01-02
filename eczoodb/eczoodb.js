@@ -7,10 +7,12 @@ import { zoo_permalinks } from './permalinks.js';
 
 import { ZooDb } from '@phfaist/zoodb';
 import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
+import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
 
 import { schema_root_dir_default } from './dirs_defaults.js';
 
 import { objects_config } from './objects_config.js';
+
 
 // -----------------------------------------------------------------------------
 
@@ -40,6 +42,14 @@ const default_config = {
                 // Otherwise it's better to keep the fragment instance here
                 // ('code.name') so that it doesn't have to be recompiled.
                 formatted_ref_flm_text_fn: (codeid, code) => code.name.flm_text,
+            },
+            codelist: {
+                // Keep 'code.name.flm_text' until we fix the issue in
+                // zoodb/src/zooflm/_environment.js dealing with JSON
+                // serialization of RefInstance's with FLMFragment instances.
+                // Otherwise it's better to keep the fragment instance here
+                // ('code.name') so that it doesn't have to be recompiled.
+                formatted_ref_flm_text_fn: (codelistid, codelist) => codelist.title.flm_text,
             },
             user: {
                 formatted_ref_flm_text_fn: (userid, user) => user.name,
@@ -77,63 +87,94 @@ const default_config = {
 
 
 
+const _EcZooDbComputedData = {
+    //
+    // Object computed properties
+    //
+
+    // In these methods, ‘this’ refers to the EcZooDb instance
+
+    user: {
+        earliest_contribution: {
+            fn: function (user) {
+                if (!user.zoo_contributions || !user.zoo_contributions.code) {
+                    return null;
+                }
+                let earliest_date = null;
+                for (const code_contrib of user.zoo_contributions.code) {
+                    const d = new Date(code_contrib.date);
+                    if (earliest_date === null || (d - earliest_date < 0)) {
+                        earliest_date = d;
+                    }
+                }
+                return earliest_date;
+            },
+        },
+    },
+
+    code: {
+        short_name: {
+            fn: function (code) { // capture "this"
+                
+                const eczoodb = this;
+                //debug(`computed_data_spec: code.short_name.fn():`, { eczoodb });
+
+                if (code.short_name != null && code.short_name !== '') {
+                    return code.short_name;
+                }
+                let name = code.name;
+                let short_name = null;
+                if (eczoodb.config.use_flm_processor) {
+                    name = name.flm_text;
+                }
+                if (name.endsWith(" code")) {
+                    short_name = name.slice(0, -(" code".length));
+                }
+                if (short_name !== null) {
+                    if (eczoodb.config.use_flm_processor) {
+                        return eczoodb.zoo_flm_environment.make_fragment(
+                            short_name,
+                            eczoodb.$$kw({
+                                what: `${code.name.what} (short)`,
+                                resource_info: code._zoodb.resource_info,
+                                standalone_mode: true,
+                            })
+                        );
+                    } else {
+                        return short_name;
+                    }
+                }
+
+                return code.name;
+            },
+        },
+    },
+};
 
 
 export class EcZooDb extends ZooDb
 {
+    static EcZooDbComputedData = _EcZooDbComputedData;
+
     constructor(options)
     {
         super(options);
     }
 
-
     //
-    // Object computed properties
+    // Helpers for computed-data accessors -
     //
-
-    user_earliest_contribution(user)
+    codelist_compiled_code_id_list(code)
     {
-        if (!user.zoo_contributions || !user.zoo_contributions.code) {
-            return null;
-        }
-        let earliest_date = null;
-        for (const code_contrib of user.zoo_contributions.code) {
-            const d = new Date(code_contrib.date);
-            if (earliest_date === null || (d - earliest_date < 0)) {
-                earliest_date = d;
-            }
-        }
-        return earliest_date;
+        return this.codelist_compiled_codes_info(code).code_id_list;
     }
-
-    code_short_name(code)
+    codelist_compiled_code_list(code)
     {
-        if (code.short_name != null && code.short_name !== '') {
-            return code.short_name;
-        }
-        let name = code.name;
-        let short_name = null;
-        if (this.config.use_flm_processor) {
-            name = name.flm_text;
-        }
-        if (name.endsWith(" code")) {
-            short_name = name.slice(0, -(" code".length));
-        }
-        if (short_name !== null) {
-            if (this.config.use_flm_processor) {
-                return this.zoo_flm_environment.make_fragment(
-                    short_name,
-                    this.$$kw({
-                        what: `${code.name.what} (short)`,
-                        resource_info: code._zoodb.resource_info,
-                        standalone_mode: true,
-                    })
-                );
-            } else {
-                return short_name;
-            }
-        }
-        return code.name;
+        return this.codelist_compiled_codes_info(code).code_list;
+    }
+    codelist_compiled_code_id_set(code)
+    {
+        return this.codelist_compiled_codes_info(code).code_id_set;
     }
 
     //
@@ -159,7 +200,7 @@ export class EcZooDb extends ZooDb
      * (e.g. 'parent_of').  The predicate's return value, evaluated as a boolean
      * indicates whether or not to follow that relation.
      */
-    code_visit_relations(code, { relation_properties, callback, only_first_relation,
+    code_visit_relations(code, { relation_properties, callback,
                                  predicate_relation })
     {
         let Q = [ {
@@ -183,9 +224,6 @@ export class EcZooDb extends ZooDb
                     continue;
                 }
                 let code_neighbor_relations = visit_code.relations[relation_property];
-                if (only_first_relation) {
-                    code_neighbor_relations = code_neighbor_relations.slice(0,1);
-                }
                 for (const code_neighbor_relation of code_neighbor_relations) {
                     if (predicate_relation != null
                         && !predicate_relation(visit_code, code_neighbor_relation,
@@ -241,36 +279,91 @@ export class EcZooDb extends ZooDb
         return false;
     }
 
+    // see also code_get_parent_domain(), code_get_parent_kingdom() if you're only
+    // interested in primary-parent domain/kingdom root parent.
     code_parent_domains(code, { find_domain_id, only_primary_parent_relation } = {})
     {
-        let domains_by_dk_root_code_id = {};
-        for (const domain of Object.values(this.objects.domain)) {
-            for (const domainRootCodeRel of domain.root_codes) {
-                domains_by_dk_root_code_id[ domainRootCodeRel.code_id ] = domain;
-            }
-        }
-        for (const kingdom of Object.values(this.objects.kingdom)) {
-            for (const kingdomRootCodeRel of kingdom.root_codes) {
-                domains_by_dk_root_code_id[ kingdomRootCodeRel.code_id ] =
-                    kingdom.parent_domain;
-            }
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, code)
+                ;
         }
 
-        let domains = [];
+        let domains = new Set();
         this.code_visit_relations(code, {
             relation_properties: ['parents'],
             callback: (code_visit) => {
-                const domain = domains_by_dk_root_code_id[code_visit.code_id];
-                if (domain !== undefined) {
-                    domains.push(domain);
-                    if (find_domain_id != null && domain.domain_id === find_domain_id) {
-                        return true;
+                const codedomainrels = code_visit.relations?.root_for_domain;
+                const codekingdomrels = code_visit.relations?.root_for_kingdom;
+                //debug(`Visiting ${code_visit.code_id}, root_for_domain=${codedomainrels?.map( r => r.domain_id )}, root_for_kingdom=${codekingdomrels?.map( r => r.kingdom_id )}, domains from root_for_kingdoms = ${codekingdomrels?.map( r => r.kingdom.parent_domain?.domain_id )}`);
+                if (codedomainrels && codedomainrels.length) {
+                    for (const { domain_id, domain } of codedomainrels) {
+                        domains.add(domain);
+                        if (find_domain_id != null && domain_id === find_domain_id) {
+                            return true;
+                        }
+                    }
+                }
+                if (codekingdomrels && codekingdomrels.length) {
+                    for (const { kingdom } of codekingdomrels) {
+                        const { domain_id, domain } = kingdom.parent_domain;
+                        if (domain != null) {
+                            domains.add(domain);
+                            if (find_domain_id != null && domain_id === find_domain_id) {
+                                return true;
+                            }
+                        }
                     }
                 }
             },
-            only_first_relation: only_primary_parent_relation,
+            predicate_relation,
         });
-        return domains;
+        return Array.from(domains);
+    }
+
+    // see also code_get_parent_domain(), code_get_parent_kingdom() if you're only
+    // interested in primary-parent domain/kingdom root parent.
+    code_parent_kingdoms(code, { find_kingdom_id, only_primary_parent_relation } = {})
+    {
+        let predicate_relation = null;
+        if (only_primary_parent_relation ?? false) {
+            predicate_relation = (code, relation, relation_property_) =>
+                this.code_is_primary_parent(relation.code, code)
+                ;
+        }
+
+        let found_kingdoms = new Set();
+        this.code_visit_relations(code, {
+            relation_properties: ['parents'],
+            callback: (code_visit) => {
+                const codekingdomrels = code_visit.relations?.root_for_kingdom;
+                if (codekingdomrels && codekingdomrels.length) {
+                    for (const { kingdom_id, kingdom } of codekingdomrels) {
+                        found_kingdoms.add(kingdom);
+                        if (find_kingdom_id != null && kingdom_id === find_kingdom_id) {
+                            return true;
+                        }
+                    }
+                }
+            },
+            predicate_relation,
+        });
+        return Array.from(found_kingdoms);
+    }
+
+    code_is_property_code(code)
+    {
+        // a code is defined as being a "property code" if it does not belong to any
+        // kingdom through a primary-parent relationship.
+        let primary_parent_kingdoms = this.code_parent_kingdoms(
+            code, { only_primary_parent_relation: true }
+        );
+        if (primary_parent_kingdoms && primary_parent_kingdoms.length) {
+            // this code belongs to a kingdom --- not a property code
+            return false;
+        }
+        return true;
     }
 
     code_is_primary_parent(parent_code, child_code)
@@ -310,7 +403,7 @@ export class EcZooDb extends ZooDb
             if (root_for_domain.length > 1) {
                 throw new Error(
                     `Code ${code.code_id} is root code for multiple `
-                    + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                    + `domains: ` + root_for_domain.map((k) => k.domain_id).join(', ')
                 );
             }
             return {
@@ -428,7 +521,7 @@ export class EcZooDb extends ZooDb
                 if (root_for_domain.length > 1) {
                     throw new Error(
                         `Code ${primary_parent_root_code.code_id} is root code for multiple `
-                        + `domains: ` + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                        + `domains: ` + root_for_domain.map((k) => k.domain_id).join(', ')
                     );
                 }
                 parent_domain = root_for_domain[0].domain;
@@ -470,7 +563,7 @@ export class EcZooDb extends ZooDb
             if (root_for_domain.length > 1) {
                 throw new Error(
                     `Code ${primary_parent_root_code.code_id} is root code for multiple domains: `
-                    + root_for_domain.map((k) => k.kingdom_id).join(', ')
+                    + root_for_domain.map((k) => k.domain_id).join(', ')
                 );
             }
             return root_for_domain[0].domain;
@@ -511,22 +604,49 @@ export class EcZooDb extends ZooDb
         return root_for_kingdom[0].kingdom;
     }
 
-    code_get_family_tree(root_code, { parent_child_sort, only_primary_parent_relation } = {})
+    code_get_family_tree(
+        root_code, {
+            parent_child_sort,
+            only_primary_parent_relation,
+            return_relation_info,
+            predicate_relation,
+        } = {}
+    )
     {
-        let predicate_relation = null;
+        let predicate_relation_list = [];
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) =>
-                this.code_is_primary_parent(code, relation.code)
-                ;
+            predicate_relation_list.push(
+                (code, relation, relation_property_) =>
+                    this.code_is_primary_parent(code, relation.code)
+            );
+        }
+        if (predicate_relation) {
+            predicate_relation_list.push(predicate_relation);
+        }
+
+        let predicate_relation_full = null;
+        if (predicate_relation_list.length) {
+            predicate_relation_full = (c, relation, relation_property) => {
+                for (const fn of predicate_relation_list) {
+                    if (!fn(c, relation, relation_property)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         let family_tree_codes = [];
         this.code_visit_relations(root_code, {
             relation_properties: ['parent_of'],
-            callback: (code) => {
-                family_tree_codes.push(code);
+            callback: (code, relation_info) => {
+                if (return_relation_info) {
+                    family_tree_codes.push(relation_info);
+                } else {
+                    family_tree_codes.push(code);
+                }
             },
-            predicate_relation,
+            predicate_relation: predicate_relation_full,
         });
         
         if (parent_child_sort ?? true) {
@@ -534,7 +654,19 @@ export class EcZooDb extends ZooDb
             // parent always appears before any of its children in the list.
             // Simple BFS doesn't always enforce this on its own
             // (cf. https://stackoverflow.com/a/35458168/1694896)
-            return this.code_parent_child_sort(family_tree_codes);
+            if (return_relation_info) {
+                // remember, if return_relation_info==true, then the elements of
+                // `ancestor_codes` are objects with info with a field 'code'
+                // containing the code object
+                const family_tree_code_objects = family_tree_codes.map( (x) => x.code );
+                const info_by_code_id = Object.fromEntries(
+                    family_tree_codes.map( (x) => [x.code.code_id, x] )
+                );
+                const sorted = this.code_parent_child_sort(family_tree_code_objects);
+                return sorted.map( (c) => info_by_code_id[c.code_id] );
+            } else {
+                return this.code_parent_child_sort(family_tree_codes);
+            }
         }
 
         return family_tree_codes;
@@ -543,14 +675,38 @@ export class EcZooDb extends ZooDb
     code_get_ancestors(code, {
         parent_child_sort,
         only_primary_parent_relation,
+        skip_first_primary_parent_relation,
         return_relation_info,
+        predicate_relation,
     } = {})
     {
-        let predicate_relation = null;
+        let predicate_relation_list = [];
         if (only_primary_parent_relation ?? false) {
-            predicate_relation = (code, relation, relation_property_) =>
-                this.code_is_primary_parent(relation.code, code)
-                ;
+            predicate_relation_list.push(
+                (c, relation, relation_property_) =>
+                    this.code_is_primary_parent(relation.code, c)
+            );
+        }
+        if (skip_first_primary_parent_relation ?? false) {
+            predicate_relation_list.push(
+                (c, relation, relation_property_) =>
+                    (c !== code) || !this.code_is_primary_parent(relation.code, c)
+            );
+        }
+        if (predicate_relation) {
+            predicate_relation_list.push(predicate_relation);
+        }
+
+        let predicate_relation_full = null;
+        if (predicate_relation_list.length) {
+            predicate_relation_full = (c, relation, relation_property) => {
+                for (const fn of predicate_relation_list) {
+                    if (!fn(c, relation, relation_property)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         let ancestor_codes = [];
@@ -563,7 +719,7 @@ export class EcZooDb extends ZooDb
                     ancestor_codes.push(code);
                 }
             },
-            predicate_relation,
+            predicate_relation: predicate_relation_full,
         });
         
         if (parent_child_sort ?? true) {
@@ -755,12 +911,14 @@ export class EcZooDb extends ZooDb
             Object.values(this.objects.code)
         );
 
+        let errors = [];
+
         // Check that all codes are at most root codes of a single domain/kingdom.
         for (const [code_id, code] of Object.entries(this.objects.code)) {
             const root_for_domain = code.relations?.root_for_domain ?? [];
             const root_for_kingdom = code.relations?.root_for_kingdom ?? [];
             if (root_for_domain.length + root_for_kingdom.length > 1) {
-                throw new Error(
+                errors.push(
                     `Code ‘${code_id}’ is root code for more than one domain/kingdom: `
                     + [
                         (root_for_domain.length
@@ -773,11 +931,49 @@ export class EcZooDb extends ZooDb
                     ].join(' and ')
                 );
             }
+
+            // detect & forbid duplicate cousins.  As we explore cousin relationships,
+            // we save a set of all pairs of code ID's (concatenated with ':') with
+            // cousin relationships and in which one of the codes is the present
+            // code.  Code ID's around the ':' symbol are ordered alphabetically.
+            // If we encounter a relation we've already seen, it's an error.
+            let all_cousin_rels = new Set();
+            const process_cousin_rel = (rel) => {
+                if (rel.code_id === code_id) {
+                    debug(`Invalid cousin relationship to self: ${code_id}`);
+                    errors.push(`Invalid cousin relationship to self: ${code_id}`);
+                }
+                const key = [code_id, rel.code_id].sort().join(':');
+                if (all_cousin_rels.has(key)) {
+                    debug(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
+                    errors.push(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
+                }
+                all_cousin_rels.add(key);
+            };
+            for (const rel of code.relations?.cousins ?? []) {
+                process_cousin_rel(rel);
+            }
+            for (const rel of code.relations?.cousin_of ?? []) {
+                process_cousin_rel(rel);
+            }
+        }
+
+        if (errors.length) {
+            console.error('🚨 ZOO VALIDATION ERROR(S) 🚨\n' + errors.join('\n'));
+            throw new Error(`Zoo validation error(s)!\n`
+                            + errors.map(e => '  ▶︎ '+e).join('\n'));
         }
     }
 }
 
 
+
+
+//
+// ----------------------------------------------------------------------------
+//
+// createEcZooDb()
+//
 
 
 export async function createEcZooDb(
@@ -803,6 +999,15 @@ export async function createEcZooDb(
     config = loMerge(
         {
             ZooDbClass: EcZooDb,
+
+            extra_db_processors: {
+                computed_data: {
+                    priority: 10,
+                    instance: new ComputedDataProcessor({
+                       computed_data: EcZooDb.EcZooDbComputedData,
+                    })
+                },
+            },
 
             //
             // specify where to find schemas

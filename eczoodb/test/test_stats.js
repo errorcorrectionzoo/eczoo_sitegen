@@ -1,33 +1,34 @@
-import * as assert from 'assert';
+// import * as assert from 'assert';
 
-import fs from 'fs';
-import path from 'path';
+// import fs from 'fs';
+// import path from 'path';
 
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const data_dir = path.join(__dirname, '..', 'test_data');
+//const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
+
+//const data_dir = path.join(__dirname, '..', 'test_data');
 
 
-import { load_eczoo_cached } from './_loadeczoodb.js';
+import { load_eczoo } from './_loadeczoodb.js';
 
 // import { zoo_generate_stats } from '../stats.js';
 
 
 
-describe('stats', async function () {
+describe('stats', function () {
 
-    console.log('loading zoo!');
-    const eczoodb = await load_eczoo_cached({
-        eczoodb_options: {
-            flm_allow_unresolved_citations: true,
-            flm_allow_unresolved_references: true,
-        }
-    });
+    this.timeout(0);
 
+    it.skip('can generate some stats', async function () {
 
-    it.skip('can generate some stats', function () {
-
+        console.log('loading zoo!');
+        /*const eczoodb =*/ await load_eczoo({
+            eczoodb_options: {
+                flm_allow_unresolved_citations: true,
+                flm_allow_unresolved_references: true,
+            }
+        });
+    
         // ... TODO ...
 
     })

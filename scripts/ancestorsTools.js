@@ -11,11 +11,12 @@ const debuglog = debugm('EczLog');
 
 import _ from 'lodash';
 
+import process from 'node:process';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { helperSetDefaultLogs } from './helperLogs.js';
-import { loadEcZoo } from './helperEcZooLoader.js';
+import { helperSetDefaultLogs } from './_helpers/helperLogs.js';
+import { loadEcZoo } from './_helpers/helperEcZooLoader.js';
 
 
 //

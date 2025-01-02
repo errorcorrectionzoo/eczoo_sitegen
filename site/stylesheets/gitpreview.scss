@@ -1,4 +1,5 @@
-@import '~/site/stylesheets/variables.scss';
+@use '~/site/stylesheets/variables.scss' as *;
+
 
 $preview-contents-h-margin: 25px;
 $preview-contents-v-margin: 25px;
@@ -10,54 +11,62 @@ $preview-contents-v-margin: 25px;
 
         box-sizing: border-box;
 
-        > article {
-            width: min(calc(2*$preview-contents-h-margin + $page-max-main-width), 100%);
-            max-width: calc(2*$preview-contents-h-margin + $page-max-main-width);
+
+        div.ecz-preview-recommendation-list {
+            //grid-column-start: 1;
             margin: 0px auto;
+            min-width: 200px;
+            max-width: 800px;
             box-sizing: border-box;
             padding: $preview-contents-v-margin $preview-contents-h-margin;
-
             background-color: rgba(127,127,127,0.1);
+        }
+        div.ecz-preview-recommendation {
+            padding: 15px;
+            margin: 0px 0px 2px 0px;
+            border-radius: 8px;
 
-            div.ecz-preview-recommendation-list {
-                grid-column-start: 1;
-                margin: 1em 0px;
+            font-size: 0.9rem;
+            
+            background-color: rgba(255,255,127, 0.3);
+            color: $text-dim-color;
+
+            border: solid 0.4pt rgba(127,127,0,0.5);
+            font-style: italic;
+            
+            pre, code {
+                font-size: 0.9em;
+                font-style: normal;
+            }
+            .highlight {
+                text-shadow: 0px 0px 1px #aaa;
             }
 
-            div.ecz-preview-recommendation {
-                padding: 15px;
-                margin: 0px 0px 2px 0px;
-                border-radius: 8px;
-
-                font-size: 0.9rem;
-                
-                background-color: rgba(255,255,127, 0.3);
-                color: #777;
-
-                border: solid 0.4pt rgba(127,127,0,0.5);
-                font-style: italic;
-                
-                pre, code {
-                    font-size: 0.9em;
-                    font-style: normal;
-                }
-                .highlight {
-                    text-shadow: 0px 0px 1px #aaa;
-                }
-
-                &:first-child::before {
-                    content: 'recommendation(s)';
-                    display: block;
-                    margin-bottom: 5px;
-                    font-style: normal;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.3pt;
-                }
+            &:first-child::before {
+                content: 'recommendation(s)';
+                display: block;
+                margin-bottom: 5px;
+                font-style: normal;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.3pt;
             }
         }
 
-        > article.ecc-codelist-page {
+        > article {
+            margin: 0px auto;
+            box-sizing: border-box;
+            padding: $preview-contents-v-margin $preview-contents-h-margin;
+            background-color: rgba(127,127,127,0.1);
+        }
+
+        > article {
+            // default narrow-width pages.
+            width: min(calc(2*$preview-contents-h-margin + $page-max-main-width), 100%);
+            max-width: calc(2*$preview-contents-h-margin + $page-max-main-width);
+        }
+        > article.ecc-codelist-page, article.ecc-code-page {
+            // specific types of pages require wide layout.
             width: min(calc(2*$preview-contents-h-margin + $page-max-width), 100%);
             max-width: calc(2*$preview-contents-h-margin + $page-max-width);
         }
@@ -87,10 +96,10 @@ $preview-contents-v-margin: 25px;
 // Set some dark mode colors
 //
 .dark {
-    .ZooDbPreviewComponent .zoodb-preview-content > article {
-        // same as light bg thanks to low alpha, no need for extra rule ---
-        //background-color: rgba(127,127,127,0.1);
-    }
+    // .ZooDbPreviewComponent .zoodb-preview-content > article {
+    //     // same as light bg thanks to low alpha, no need for extra rule ---
+    //     //background-color: rgba(127,127,127,0.1);
+    // }
 
     .ZooDbPreviewComponent .zoodb-preview-content > article div.ecz-preview-recommendation {
 

@@ -1,5 +1,19 @@
 
-const debug = require('debug')('eczoo_sitegen.src.c')
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.c')
+
+
+import * as zooflm from '@phfaist/zoodb/zooflm';
+import {
+    docrefs_placeholder_ref_resolver
+ } from '@errorcorrectionzoo/eczoodb/render_utils.js';
+
+//const { $$kw } = zooflm;
+import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
+
+import * as rendercodepage from '@errorcorrectionzoo/eczoodb/render_code.js';
+
+
 
 const show_max_rel_by_reltype = {
     parents: 4,
@@ -111,10 +125,6 @@ function get_code_citation_year(code)
 
 const data = async () => {
     
-    const zooflm = await import('@phfaist/zoodb/zooflm');
-    const { docrefs_placeholder_ref_resolver } =
-          await import('@errorcorrectionzoo/eczoodb/render_utils.js');
-
     let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
     let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
     let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
@@ -148,6 +158,9 @@ const data = async () => {
                 header_navigation_links: generate_navigation_links({
                     code: data.code, eczoodb: data.eczoodb, flmrender
                 }),
+                // provide wide page layouts for code pages because we want to display the
+                // code hierarchy, too
+                wide_layout: true,
             }),
 
             page_description_text: (data) => {
@@ -220,31 +233,28 @@ const render = async (data) => {
     const code = data.code;
     const eczoodb = data.eczoodb;
 
-    const zooflm = await import('@phfaist/zoodb/zooflm');
-    const { $$kw } = zooflm;
-    const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
-
     let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
     let text_fragment_renderer = new zooflm.ZooTextFragmentRenderer();
     let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
     let flmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
-
-    const rendercodepage = await import('@errorcorrectionzoo/eczoodb/render_code.js');
 
     const doc_metadata = {};
     const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
     debug(`Rendering code page for ‘${code.code_id}’ ...`);
 
-    // link to code page
-    const extra_html_after_title = sqzhtml`
-    <a href="/code_graph#code_${code.code_id}" class="linkcodegraph">&nbsp;</a>
-`;
-
     // RENDER THE BULK OF THE CODE PAGE
-    const code_page_html =
-          rendercodepage.render_code_page(code, {zoo_flm_environment, doc_metadata,
-                                                 extra_html_after_title});
+    const code_page_html = rendercodepage.render_code_page(
+        code,
+        {
+            zoo_flm_environment,
+            doc_metadata,
+            //extra_html_after_title,
+            eczoodb,
+            include_code_graph_link: `/code_graph#code_${code.code_id}`,
+            notable_codes: data.notable_codes_hierarchy.notable_codes,
+        }
+    );
 
     // additional info for popups, etc.
 
@@ -288,6 +298,7 @@ const render = async (data) => {
 
     s += sqzhtml`
 <div class="sectioncontent info-popup-button-container"></div>
+<a class="sectioncontent code-easy-link-show-code-hierarchy" href="#code_hierarchy">[Jump to code hierarchy]</a>
 `;
 
     s += code_page_html;
@@ -374,4 +385,4 @@ const render = async (data) => {
 
 };
 
-module.exports = { data, render };
+export default { data, render };

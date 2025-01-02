@@ -1,10 +1,17 @@
 //
+// This stylesheet defines a bunch of variables. It emits no CSS and is safe to
+// include in any stylesheet anywhere.
+//
+
+
+//
 // Base dimensions
 //
 
-$page-max-width: 850px;
+$page-max-width: 1200px; //850px;
 $page-max-main-width: 625px;
 $page-collapse-layout-width: 600px;
+$page-min-text-column-width: 500px;
 
 $page-main-margins: 15px;
 
@@ -33,6 +40,7 @@ $base-font-size: 16px;
 // font "Source Sans 3" is @import'ed from google fonts in base_page.11ty.js
 
 $small-font-size: 0.9rem;
+$smaller-font-size: 0.92rem;
 
 // "em" instead of "rem" e.g. for citation marks in headings
 $endnote-superscript-font-size: 0.8em;
@@ -47,95 +55,15 @@ $inner-parskip-half-length: 0.3em;
 
 
 //
-// Base colors
+// Header-size related stuff
 //
 
-html {
-    --light-main-text-color: rgb(0,0,0);
-    --light-main-background-color: rgb(255,255,255);
-}
-
-@mixin site-color-mode-light {
-    --pageheader-background-color: rgb(0,0,127);
-    --pageheader-text-color: rgba(255,255,255,0.9);
-    --pageheader-background-shadow-color: rgba(0,0,0, 0.15);
-    --pageheader-navigation-text-color: rgb(255, 194, 164);
-    --pageheader-navigation-links-color: rgb(255, 194, 164);
-    --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
-    --main-text-color: var(--light-main-text-color);
-    --main-background-color: var(--light-main-background-color);
-    --page-link-color: rgba(50,50,200,1.0);
-    --page-link-highlight-color: rgba(80,80,255,1.0);
-    --text-dim-color: rgba(120, 120, 140, 1.0);
-    --inner-heading-color: rgb(40,40,80); //lighten(desaturate($pageheader-background-color, 70%), 20%);
-    --inner-heading-color-rule: rgba(40,40,80,0.4); //lighten(desaturate($pageheader-background-color, 70%), 20%);
-    --discreet-border-color: rgba(120, 120, 140, 0.15);
-    --a-linkcodegraph-hover-shadow-color: rgba(0,0,128,0.3);
-    --boxedcontent-border-color: rgba(120, 120, 140, 0.5);
-    --boxedcontent-background-color: rgba(240,240,255,.3);
-    --navigation-collapsed-panel-background-color: rgba(245,245,255,1.0);
-    --visual-highlight-color: rgba(255,230,70,0.8);
-    --tippy-box-shadow: 0 0 20px 4px rgba(154,161,177,.15), 0 4px 80px -8px rgba(36,40,47,.25), 0 4px 4px -2px rgba(91,94,105,.15);
-    --popup-info-button-accent-color: #3232c8;
-    --tile-background-color: rgba(245,245,252,1.0);
-    --tile-box-shadow-color: rgba(0,0,0,0.08);
-    --tile-person-highlight-box-shadow: rgba(0,50,180,0.4) 2px 2px 15px;
-    --ecc-page-domain-background-color: rgb(255, 233, 200);
-    --ecc-page-kingdom-background-color: rgb(200,255,230);
-}
-
-
-@mixin site-color-mode-dark {
-    --pageheader-background-color: rgb(0,0,70);
-    --pageheader-text-color: rgba(255,255,255,0.9);
-    --pageheader-background-shadow-color: rgba(130, 129, 129, 0.22);
-    --pageheader-navigation-text-color: rgb(255, 194, 164);
-    --pageheader-navigation-links-color: rgb(255, 194, 164);
-    --pageheader-navigation-links-highlight-color: #{lighten(rgb(255, 194, 164), 5%)};
-    --main-text-color: rgb(200, 202, 215); //rgb(255,255,255);
-    --main-background-color: #121212; //rgb(0,0,0);
-    --page-link-color: rgb(156, 156, 221);
-    --page-link-highlight-color: rgb(191, 191, 217);
-    --text-dim-color: rgba(120, 120, 140, 1.0);
-    --inner-heading-color: rgb(162, 162, 179);
-    --inner-heading-color-rule: rgba(162, 162, 179, 0.45);
-    --discreet-border-color: rgba(120, 120, 140, 0.15);
-    --a-linkcodegraph-hover-shadow-color: rgba(0,0,128,0.3);
-    --boxedcontent-border-color: rgba(120, 120, 140, 0.5);
-    --boxedcontent-background-color: rgba(125, 125, 125, 0.18); //rgba(240,240,255,0.5);
-    --navigation-collapsed-panel-background-color: rgb(36, 36, 55);
-    --visual-highlight-color: rgba(111, 96, 0, 0.44);//rgba(255,230,70,0.8);
-    --tippy-box-shadow: 0 0 20px 4px rgba(220,220,230,.35), 0 4px 80px -8px rgba(240,240,245,.25), 0 4px 4px -2px rgba(230,225,230,.15);
-    --popup-info-button-accent-color: rgb(123, 123, 221);
-    --tile-background-color: rgb(41, 41, 55);
-    --tile-box-shadow-color: rgba(134, 134, 134, 0.29);
-    --tile-person-highlight-box-shadow: rgba(128, 163, 255, 0.35) 5px 5px 25px;
-    --ecc-page-domain-background-color: rgb(56, 44, 28); //rgb(31, 68, 51);
-    --ecc-page-kingdom-background-color: rgb(22, 43, 33); //rgb(31, 68, 51);
-}
-
-// html {
-//   color-scheme: light dark; /* both supported */
-// }
-
-html {
-  @include site-color-mode-light;
-  color-scheme: light; // dark; /* both supported */
-}
-
-// don't enable dark mode in print
-@media screen {
-html.dark {
-  @include site-color-mode-dark;
-  color-scheme: dark;
-}
-}
-
-// A few lines of javascript code will set the '.dark' CSS class on <html> if
-// appropriate to trigger dark mode.
-
-
-
+$header-padding: 3px;
+$header-bgimage-horizontal-gap: 23px;
+$header-bgimage-width: 150px;
+$header-bgimage-width-mobile: 80px;
+$header-min-height: 80px;
+$header-min-height-mobile: 100px;
 
 
 // page header
@@ -182,3 +110,12 @@ $tile-person-highlight-box-shadow: var(--tile-person-highlight-box-shadow);
 
 $ecc-page-domain-background-color: var(--ecc-page-domain-background-color);
 $ecc-page-kingdom-background-color: var(--ecc-page-kingdom-background-color);
+
+
+// More stuff for our popup widgety thingy
+
+$popup-info-button-icon-size: 22px;
+$popup-info-button-v-padding: 4px;
+$popup-info-button-h-padding: 4px;
+$popup-info-button-icon-text-gap: 8px;
+

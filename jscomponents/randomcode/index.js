@@ -89,6 +89,6 @@ export class RandomCodeShower
             window.MathJax.typesetPromise([this.element_container]);
         }
     }
-};
+}
 
 

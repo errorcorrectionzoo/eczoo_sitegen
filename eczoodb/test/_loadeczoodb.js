@@ -6,22 +6,24 @@ import { get_eczoo_full_options } from '../fullopts.js';
 import { createEcZooYamlDbDataLoader } from '../load_yamldb.js';
 
 
-import {fileURLToPath} from 'url';
 import path from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
 const data_dir = path.join(__dirname, '..', 'test_data');
 
 
 
 
-export async function load_eczoo_cached({ eczoodb_options }={})
+export async function load_eczoo({ eczoodb_options }={})
 {
     let eczoodb = await createEcZooDb({
         fs,
         fs_data_dir: data_dir,
-        ... get_eczoo_full_options(),
+        ... get_eczoo_full_options({
+            citationsinfo_cache_dir: '_TEST_zoodb_citations_cache',
+        }),
         ... (eczoodb_options ?? {}),
     });
     let loader = await createEcZooYamlDbDataLoader(eczoodb);

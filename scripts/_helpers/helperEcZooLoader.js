@@ -1,6 +1,7 @@
 import debugm from 'debug';
-const debug = debugm('eczoo_sitegen.scripts.helperEcZooLoader');
+const debug = debugm('eczoo_sitegen.scripts.helpers.helperEcZooLoader');
 
+import process from 'node:process';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,10 +15,10 @@ import { zoo_permalinks } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
 import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
 
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
 
+const eczoo_sitegen_dir = path.join(__dirname, '..', '..');
 
 
 export async function loadEcZoo({
@@ -27,7 +28,7 @@ export async function loadEcZoo({
 {
     debug(`loadEcZoo(), dataDir=${dataDir}`);
 
-    dataDir ??= path.join(__dirname, '..', '..', 'eczoo_data');
+    dataDir ??= path.join(eczoo_sitegen_dir, '..', 'eczoo_data');
     useFlmProcessor ??= true;
 
     // make dataDir an absolute path
@@ -49,7 +50,7 @@ export async function loadEcZoo({
             fs_data_dir: dataDir,
         },
         get_eczoo_full_options({
-            citationsinfo_cache_dir: path.join(__dirname, '..', '_zoodb_citations_cache'),
+            citationsinfo_cache_dir: path.join(eczoo_sitegen_dir, '_zoodb_citations_cache'),
         }),
         {
             flm_options: {

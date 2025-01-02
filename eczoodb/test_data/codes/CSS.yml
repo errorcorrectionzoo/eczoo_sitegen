@@ -99,6 +99,10 @@ relations:
   parents:
     - code_id: stabilizer
       detail: 'Stabilizer generators can be expressed as either only \(X\)-type or only \(Z\)-type.'
+    - code_id: qubits_into_qubits
+      detail: 'test a redundant ancestor, because \ref{code:stabilizer} is already a child of qubit'
+    - code_id: quantum_into_quantum
+      detail: 'test a redundant ancestor, because \ref{code:quantum_into_quantum} is already a child of qubit'
 
   cousins:
     - code_id: binary_linear

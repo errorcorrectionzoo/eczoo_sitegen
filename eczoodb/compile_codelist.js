@@ -1,10 +1,13 @@
-// import debug_mod from 'debug';
-// const debug = debug_mod("eczoodbjs.compile_codelist");
+import debug_mod from 'debug';
+const debug = debug_mod("eczoodbjs.compile_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
 //const { $$kw, repr } = zooflm;
+
+import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
+
 
 
 function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
@@ -51,7 +54,9 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
     if (predicate_name === 'domain') {
         if (apply_any) {
             const domains = eczoodb.code_parent_domains(
-                code,
+                code, {
+                    only_primary_parent_relation: true
+                }
             );
             const domain_ids = domains.map( (d) => d.domain_id );
             let result = predicate_args.some( (arg) => domain_ids.includes(arg) );
@@ -59,7 +64,10 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
         }
         if (apply_all) {
             const domains = eczoodb.code_parent_domains(
-                code, // { find_domain_id: predicate_args }
+                code, {
+                    only_primary_parent_relation: true,
+                    // find_domain_id: predicate_args
+                }
             );
             const domain_ids = domains.map( (d) => d.domain_id );
             let result = predicate_args.every( (arg) => domain_ids.includes(arg) );
@@ -67,7 +75,10 @@ function run_predicate(predicate_name_raw, predicate_args, code, eczoodb)
         }
         // apply simple:
         const domains = eczoodb.code_parent_domains(
-            code, { find_domain_id: predicate_args }
+            code, {
+                only_primary_parent_relation: true,
+                find_domain_id: predicate_args,
+            }
         );
         let result = domains.some( (d) => d.domain_id === predicate_args );
         return do_apply_not( result );
@@ -196,7 +207,7 @@ export function get_list_data({codelist, eczoodb})
     const text_fragment_renderer = new zooflm.ZooTextFragmentRenderer;
 
     const normalize_sort_value = (value) => {
-        if ('render_standalone' in value) { // e.g., flmfragment
+        if (typeof value === 'object' && 'render_standalone' in value) { // e.g., flmfragment
             return value.render_standalone(text_fragment_renderer)
         }
         let nvalue = ''+value;
@@ -229,3 +240,35 @@ export function get_list_data({codelist, eczoodb})
 }
 
 
+// ----------------------------------------------------------------------------
+
+
+const _EcZooDbCodeListComputedData = {
+    codelist: {
+        compiled_codes_info: {
+            fn: function (codelist) { // capture "this"
+                const eczoodb = this;
+                debug(`Compiling code list ${codelist.list_id} ...`);
+                const code_list = get_list_data({codelist, eczoodb});
+                const code_id_list = code_list.map( (c) => c.code_id );
+                const code_id_set = new Set(code_id_list);
+                return {
+                    code_list,
+                    code_id_list,
+                    code_id_set,
+                };
+            },
+        },
+    },
+};
+
+export class EczPopulateCodeListsDbProcessor extends ComputedDataProcessor
+{
+    constructor(options)
+    {
+        super(Object.assign({
+            computed_data: _EcZooDbCodeListComputedData,
+            keep_computed_data_in_data_dumps: false,
+        }, options));
+    }
+}

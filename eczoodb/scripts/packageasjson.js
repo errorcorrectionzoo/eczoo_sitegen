@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 import fs from 'fs';
 
 let in_content = null;

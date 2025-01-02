@@ -35,6 +35,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
     installSubgraph()
     {
+        this._markSubgraphInstalled(true);
+
         const {
             nodeIds,
             range,
@@ -47,7 +49,9 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
             this.cy.elements().removeClass([
                 'layoutVisible', 'layoutRoot', 'layoutParent',
-                'isolationRoot', 'isolationExtra', 'isolationRootConnectingEdge',
+                'layoutFadeExtra',
+                'isolationRoot',
+                'isolationRootConnectingEdge',
             ]);
             //this.cy.edges('[_primaryParent=1]').addClass('layoutParent'); // not automatically!
             
@@ -171,7 +175,7 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
             // secondaryChildElements.addClass('layoutVisible');
             allElements.addClass('layoutVisible');
             const extraElements = allElements.not(mainNodes);
-            extraElements.addClass('isolationExtra');
+            extraElements.addClass('layoutFadeExtra');
 
             // facilitate highlighting of visible edges that connect to the isolated root nodes
             rootNodes.connectedEdges('edge.layoutVisible').addClass('isolationRootConnectingEdge');
@@ -185,7 +189,8 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
         this.radialPrelayoutOptions = {
             origin: {
                 direction: Math.PI/2,
-                angularSpread: Math.PI*.25,
+                angularSpread: Math.PI*.8,
+                useWeights: true,
             },
         };
 
@@ -223,8 +228,10 @@ export class EczCodeGraphSubgraphSelectorIsolateFamilyTree extends EczCodeGraphS
 
     uninstallSubgraph()
     {
+        this._markSubgraphInstalled(false);
+
         this.cy.elements().removeClass([
-            'isolationExtra', 'isolationRoot', 'isolationRootConnectingEdge',
+            'layoutFadeExtra', 'isolationRoot', 'isolationRootConnectingEdge',
         ]);
     }
 }

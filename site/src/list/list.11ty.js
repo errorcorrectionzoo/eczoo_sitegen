@@ -1,5 +1,7 @@
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.list')
 
-const debug = require('debug')('eczoo_sitegen.src.list')
+import { listGraphMakeDisplayOptions } from './listgraph.11ty.js';
 
 
 // ---------------------------------------------------------
@@ -59,7 +61,22 @@ const render = async (data) => {
 
     debug(`Rendering list ‘${codelist.list_id}’ ...`);
 
-    const run = () => render_codelist_page(codelist, {eczoodb, doc_metadata});
+    const ecgDisplayOptions = listGraphMakeDisplayOptions(
+        eczoodb.codelist_compiled_code_id_list(codelist)
+    );
+
+    const run = () => render_codelist_page(
+        codelist,
+        {
+            eczoodb,
+            doc_metadata,
+            include_code_graph_excerpt: {
+                href: `/code_graph#J${encodeURIComponent(JSON.stringify(ecgDisplayOptions))}`,
+                graphic_url: `/list/lgraph_${codelist.list_id}.svg`,
+            }
+            
+        }
+    );
 
     // if (codelist.list_id === 'good_qldpc') { // profile this specific list which is slow
     //     const { run_and_dump_profile } = await import('../../sitelib/run_profiler.js');
@@ -71,4 +88,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render };
+export default { data, render };

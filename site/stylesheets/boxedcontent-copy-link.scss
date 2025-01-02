@@ -1,3 +1,17 @@
+@use './variables.scss' as *;
+
+@use './def-boxedcontent.scss' as *;
+
+
+.bibtex {
+    @include mixin-boxedcontent-pre;
+}
+.boxedcontent-pre {
+    @include mixin-boxedcontent-pre;
+}
+
+
+
 
 .boxedcontent {
 

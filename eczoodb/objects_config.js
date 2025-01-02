@@ -2,8 +2,8 @@
 // Information about object types and how to load them in the YAML data tree.
 //
 
-import debugm from 'debug';
-const debug = debugm('eczoodb.objects_config');
+// import debugm from 'debug';
+// const debug = debugm('eczoodb.objects_config');
 
 
 export const objects_config = {

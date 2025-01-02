@@ -1,0 +1,15 @@
+@use './variables.scss' as *;
+
+@mixin fixbaseline-superscript-text {
+    font-size: $endnote-superscript-font-size;
+
+    // "vertical-align: super" shifts the entire baseline downwards, not nice
+    // vertical-align: top;
+
+    display: inline-block;
+    
+    // shift upwards to make superscript, without shifting the baseline
+    // downwards.
+    vertical-align: 0.3em;
+    margin-top: -0.3em;
+}

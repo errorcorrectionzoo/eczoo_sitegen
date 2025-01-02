@@ -1,22 +1,23 @@
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.templates.layout.base_page');
 
-const debug = require('debug')('eczoo_sitegen.templates.layout.base_page');
+import fs from 'fs';
+import path from 'path';
 
-const fs = require('fs');
-const path = require('path');
-//const child_process = require('child_process');
+import escape from 'escape-html';
 
-const escape = require('escape-html');
 
-//const sitePackageJson = require('../../package.json');
-//const node_modules = '../../../node_modules';
-//const jscomponentsPackageJson = require('../../../jscomponents/package.json');
+import footer_content from './base_page_footer.11ty.js';
+
+
+const __dirname = import.meta.dirname;
+//const __filename = import.meta.filename;
+
+const _eczpkgroot = path.join(__dirname, '..', '..', '..');
 
 
 const data = {
 };
-
-
-const _eczpkgroot = path.join(__dirname, '..', '..', '..');
 
 
 function read_source_file_contents(fileName) // relative to ~/
@@ -27,8 +28,7 @@ function read_source_file_contents(fileName) // relative to ~/
     const relativeFileName = fileName.slice(2);
     const fullFileName = path.join(_eczpkgroot, relativeFileName);
     return fs.readFileSync(fullFileName);
-};
-
+}
 
 
 const get_page_header_navigation_links_default = async (data) => {
@@ -52,7 +52,7 @@ const get_page_header_navigation_links_default = async (data) => {
         },
     ];
 
-    for (const [domain_id, domain] of Object.entries(eczoodb.objects.domain)) {
+    for (const [domain_id_, domain] of Object.entries(eczoodb.objects.domain)) {
         page_header_navigation_links.push({
             heading: {
                 href: eczoodb.zoo_object_permalink('domain', domain.domain_id),
@@ -77,42 +77,6 @@ const get_page_header_navigation_links_default = async (data) => {
 
     return page_header_navigation_links;
 };
-
-
-
-
-// const _getExternalDependenciesData = async () => {
-//     let deps = [];
-//
-//     for (const depSrcInfo of jscomponentsPackageJson.externalDependencies.src) {
-//         const depName = depSrcInfo.name;
-//
-//         let cdnUrl = null;
-//         if (depSrcInfo.cdn === 'unpkg') {
-//             let unpkgVersion = depSrcInfo.version;
-//             if (unpkgVersion == null) {
-//                 // find currently installed package version in node_modules.
-//                 const pkgjson = (
-//                     await import(path.join(node_modules, `${depName}/package.json`),
-//                                  { assert: {type: 'json'} })
-//                 ).default;
-//                 unpkgVersion = pkgjson.version;
-//             }
-//             const unpkgSrcPath = depSrcInfo.path ?? '';
-//             cdnUrl =
-//                 `https://unpkg.com/${depName}@${unpkgVersion}${unpkgSrcPath}`;
-//         } else {
-//             throw new Error(`Invalid/unknown CDN: ‘${depSrcInfo.cdn}’`);
-//         }
-//
-//         deps.push({
-//             name: depName,
-//             cdnUrl,
-//         });
-//     }
-//     return deps;
-// };
-//const jscomponentsExternalDependenciesDataPromise = _getExternalDependenciesData();
 
 
 const default_page_description_text =
@@ -401,8 +365,6 @@ ${navigation_links}
         // trigger navigation
     }
 
-    const footer_content = require('./base_page_footer.11ty.js');
-
     // hide footer on code graph page
     if (!page_layout_info.app_full_width) {
         s += `
@@ -428,7 +390,4 @@ ${navigation_links}
 }
 
 
-module.exports = {
-    data,
-    render,
-}
+export default { data, render, }

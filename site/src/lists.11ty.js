@@ -1,4 +1,6 @@
 
+import * as zooflm from '@phfaist/zoodb/zooflm';
+
 const data = {
     title: 'List of code lists',
     tags: ['sitePage'],
@@ -20,8 +22,6 @@ const data = {
 const render = async (data) => {
 
     const eczoodb = data.eczoodb;
-
-    const zooflm = await import('@phfaist/zoodb/zooflm');
 
     const html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
 
@@ -45,10 +45,7 @@ const render = async (data) => {
             return -1;
         }
         // otherwise, sort lists alphabetically by their title
-        if (codelist_a.title.flm_text === codelist_b.title.flm_text) {
-            return 0;
-        }
-        return (codelist_a.title.flm_text < codelist_b.title.flm_text) ? -1 : +1;
+        return codelist_a.title.flm_text.localeCompare(codelist_b.title.flm_text);
     };
 
     codelists_kv.sort( sort_compare_fn );
@@ -68,4 +65,4 @@ const render = async (data) => {
 }
 
 
-module.exports = { data, render, };
+export default { data, render, };

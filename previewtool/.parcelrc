@@ -2,8 +2,14 @@
     "extends": "@parcel/config-default",
 
     "resolvers": [
-        "@mischnic/parcel-resolver-root",
-        "...",
+        "@phfaist/parcel-resolver-root",
+        //"@mischnic/parcel-resolver-root",
+        //"...",
     ],
+
+
+    "optimizers": {
+        "*.js": [ "@parcel/optimizer-terser" ],
+    },
 
 }

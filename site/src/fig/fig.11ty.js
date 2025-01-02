@@ -1,7 +1,7 @@
+// import debugm from 'debug';
+// const debug = debugm('eczoo_sitegen.src.fig');
 
-const debug = require('debug')('eczoo_sitegen.src.fig');
-
-const fsPromises = require('fs/promises');
+import fsPromises from 'fs/promises';
 
 
 const data = async () => {
@@ -29,4 +29,4 @@ const render = async (data) => {
     return await fsPromises.readFile(full_source_path);
 };
 
-module.exports = { data, render, }
+export default { data, render, }

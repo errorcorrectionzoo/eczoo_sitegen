@@ -20,5 +20,8 @@ node_modules
 jscomponents/codegraph/_headless_exporter_browser_code_dist
 previewtool/dist
 _zoodb_citations_cache
+_TEST_zoodb_citations_cache
+
+output-eczoo-stats-codes-*
 
 scripts/output.*

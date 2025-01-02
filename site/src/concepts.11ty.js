@@ -1,4 +1,6 @@
-const debug = require('debug')('eczoo_sitegen.src.concepts');
+import debugm from 'debug';
+const debug = debugm('eczoo_sitegen.src.concepts');
+
 
 const data = {
     title: 'Glossary of concepts',
@@ -136,4 +138,4 @@ const render = async (data) => {
 };
 
 
-module.exports = { data, render, }
+export default { data, render, }

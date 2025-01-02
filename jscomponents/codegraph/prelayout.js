@@ -1,6 +1,9 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoo_jscomponents.codegraph.prelayout');
 
+// for debugging messages
+import { dispElement } from './graphtools.js';
+
 import loSum from 'lodash/sum.js';
 import loMerge from 'lodash/merge.js';
 
@@ -9,21 +12,32 @@ const defaultPrelayoutOptions = {
 
     layoutParentEdgeSelector: '.layoutParent',
 
+    // if ignoreParentEdgeDirection is false, then all connected nodes of a 
+    // root node (through parental edges) are considered as children for
+    // layout purposes.  Parental relationship direction is anyways ignored
+    // for non-root nodes, those edges being viewed as those of an undirected
+    // tree graph.
+    ignoreParentRootEdgeDirection: false,
+
     // for automatic positioning of root nodes without an explicit position
     origin: {
         position: {x: 0, y: 0},
-        radius: 50.0,
+        radius: 200.0,
+        rootPositionXOffset: 500.0,
+        rootPositionYOffset: 0,
         angularSpread: 2*Math.PI, ///3, //2*Math.PI * 0.2,
         direction: Math.PI/2,
         useWeights: false,
     },
 
-    radiusSegmentLevels: [200, 200, ],
+    radiusSegmentLevels: [400, 400, ],
     radiusSegmentLevelFactor: 1.1,
 
     weightCalcLevels: 6, // look at descendants over X levels for weights
-    weightCalcSecondaryFactor: 0.3,
+    weightCalcSecondaryFactor: 0.1, //0.3,
 };
+
+
 
 
 /**
@@ -57,9 +71,9 @@ export class PrelayoutRadialTree
 
     run()
     {
-        debug(`prelayout run() rootNodeIds =`, this.rootNodeIds,
-              ` rootNodesPrelayoutInfo =`, this.rootNodesPrelayoutInfo,
-              ` prelayoutOptions =`, this.prelayoutOptions,);
+        // debug(`prelayout run() rootNodeIds =`, this.rootNodeIds,
+        //       ` rootNodesPrelayoutInfo =`, this.rootNodesPrelayoutInfo,
+        //       ` prelayoutOptions =`, this.prelayoutOptions,);
 
         let pBranches = [];
 
@@ -68,10 +82,12 @@ export class PrelayoutRadialTree
         // position the root nodes & set branch "layouters" instances
         let rootNodePrelayoutInfo = {};
         let rootNodeIdsToBePositioned = [];
+        let numGivenPositionedRootNodes = 0;
         for (const rootNodeId of this.rootNodeIds) {
             let prelayoutInfo = this.rootNodesPrelayoutInfo[rootNodeId];
             if (prelayoutInfo != null) {
                 rootNodePrelayoutInfo[rootNodeId] = prelayoutInfo;
+                ++numGivenPositionedRootNodes;
             } else {
                 rootNodeIdsToBePositioned.push(rootNodeId);
             }
@@ -79,28 +95,27 @@ export class PrelayoutRadialTree
         // create "prelayoutInfo" for any root nodes that haven't been manually
         // positioned & directed
         const numJ = rootNodeIdsToBePositioned.length;
-        const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
+        //const maxJ = Math.max(rootNodeIdsToBePositioned.length - 1, 1);
         const origin = this.prelayoutOptions.origin;
+
+        if (numGivenPositionedRootNodes > 0 && rootNodeIdsToBePositioned.length > 0) {
+            throw new Error(`PrelayoutRadialTree.run(): If you position some of the `
+                + `root nodes, you should position all of them `
+                + `(in rootNodesPrelayoutInfo’)`);
+        }
 
         //debug(`Will need to auto position ${numJ} root nodes;`, { origin });
 
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
-            let angleFraction = j / maxJ;
-            if (maxJ === 1) { // special case if we're positioning a single node
-                angleFraction = 0.5;
-            }
-            const angle = origin.direction
-                  + (angleFraction - 0.5) * origin.angularSpread;
-            const R = origin.radius;
             const position = {
-                x:  origin.position.x + R * Math.cos(angle),
-                y:  origin.position.y + R * Math.sin(angle),
+                x: origin.position.x + (j - numJ/2) * origin.rootPositionXOffset,
+                y: origin.position.y + (j - numJ/2) * origin.rootPositionYOffset,
             };
             rootNodePrelayoutInfo[rootNodeId] = {
                 position,
-                radiusOffset: R,
-                direction: angle,
-                angularSpread: origin.angularSpread / numJ,
+                radiusOffset: origin.radius, // R,
+                direction: origin.direction, //angle,
+                angularSpread: origin.angularSpread, // / numJ,
             };
         }
         
@@ -116,12 +131,20 @@ export class PrelayoutRadialTree
 
             const cyRootNode = this.cy.getElementById(rootNodeId);
 
-            const childrenEdges =
+            let childrenEdges = null;
+            let parentsEdges = null;
+
+            childrenEdges =
                 cyRootNode.incomers(this.prelayoutOptions.layoutParentEdgeSelector)
                 .edges('.layoutVisible');
-            const parentsEdges =
+            parentsEdges =
                 cyRootNode.outgoers(this.prelayoutOptions.layoutParentEdgeSelector)
                 .edges('.layoutVisible');
+
+            if (this.prelayoutOptions.ignoreParentEdgeDirection) {
+                childrenEdges = childrenEdges.union(parentsEdges);
+                parentsEdges = [];
+            }
 
             //debug(`root node children & parent edges are`, { childrenEdges, parentsEdges });
 
@@ -135,6 +158,7 @@ export class PrelayoutRadialTree
                         direction: prelayoutInfo.direction,
                         angularSpread: prelayoutInfo.angularSpread,
                         propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
+                        useWeights: origin.useWeights,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -153,6 +177,7 @@ export class PrelayoutRadialTree
                         direction: prelayoutInfo.direction + Math.PI, // opposite direction
                         angularSpread: prelayoutInfo.angularSpread,
                         propertyCodesSortOrder: prelayoutInfo.propertyCodesSortOrder,
+                        useWeights: origin.useWeights,
                     },
                     prelayoutOptions: this.prelayoutOptions,
                     branchOptions: {
@@ -198,11 +223,11 @@ export class PrelayoutRadialTree
 
 class _PrelayoutRadialTreeBranchSet
 {
-    constructor({cy, root, prelayoutOptions, branchOptions, positionedNodesData})
+    constructor({ cy, root, prelayoutOptions, branchOptions, positionedNodesData })
     {
         this.cy = cy;
 
-        // { nodeId, position, direction, angularSprea, propertyCodesSortOrder }
+        // { nodeId, position, direction, angularSpread, propertyCodesSortOrder }
         this.root = root;
         this.rootNode = this.cy.getElementById(this.root.nodeId);
 
@@ -213,11 +238,17 @@ class _PrelayoutRadialTreeBranchSet
             propertyCodesSortOrder: 1,
         }, branchOptions);
 
+        // IMPORTANT: This object is shared between multiple different
+        // _PrelayoutRadialTreeBranchSet object instances.  The reference to
+        // the common object is what is provided to the argument to this
+        // constructor.
         this.positionedNodesData = positionedNodesData;
 
         this.propertyCodesSortOrder = root.propertyCodesSortOrder;
 
-        this.nodeOrderinginfoByLevel = null;
+        this.nodeOrderingInfoByLevel = null;
+        this.nodeOrderingInfoByParent = null;
+        this.nodePositioningInfo = null;
 
         //debug(`Initialized _PrelayoutRadialTreeBranchSet with root node ${this.rootNode.id()}`,
         //      { branchOptions: this.branchOptions, positionedNodesData });
@@ -228,10 +259,10 @@ class _PrelayoutRadialTreeBranchSet
     //
     _computeNodeInfos()
     {
-        let nodeOrderinginfoByLevel = [];
+        let nodeOrderingInfoByLevel = [];
+        let nodeOrderingInfoByParent = {};
         
         const layoutParentEdgeSelector = this.prelayoutOptions.layoutParentEdgeSelector;
-        const propertyCodesSortOrder = this.propertyCodesSortOrder;
 
         let seenNodes = new Set();
 
@@ -239,6 +270,7 @@ class _PrelayoutRadialTreeBranchSet
             nodeId: this.root.nodeId,
             nodeConnectingEdge: null,
             level: 0,
+            parentNodeId: null,
             parentNodeOrderingInfo: null,
             connectedNodesInfos: [],
             totalNumDescendants: 0,
@@ -257,10 +289,22 @@ class _PrelayoutRadialTreeBranchSet
             return src;
         };
 
-        nodeOrderinginfoByLevel.push(thisLevelNodes);
+        nodeOrderingInfoByLevel.push({
+            level: 0,
+            nodeInfos: thisLevelNodes,
+            // will be computed later
+            levelTotalDescendantWeight: null,
+        });
+        nodeOrderingInfoByParent[""] = {
+            level: 0,
+            nodeInfos: thisLevelNodes,
+        };
+
         let level = 0;
         while (thisLevelNodes.length) {
             let nextLevelNodes = [];
+
+            level += 1;
 
             //debug(`Getting layout-children of nodes at current layout level ${level}, current `
             //      + `level nodes are `, thisLevelNodes);
@@ -289,7 +333,7 @@ class _PrelayoutRadialTreeBranchSet
 
                 let cyNode = this.cy.getElementById(nodeId);
                 let connectedEdges = null;
-                if (level === 0) {
+                if (level === 1) {
                     connectedEdges = this.branchOptions.initialEdges;
                 }
                 if (connectedEdges == null) {
@@ -321,7 +365,8 @@ class _PrelayoutRadialTreeBranchSet
                     let newNodeInfo = {
                         nodeId: connectedNodeId,
                         nodeConnectingEdge: edge,
-                        level: level+1,
+                        level: level,
+                        parentNodeId: nodeOrderingInfo.nodeId,
                         parentNodeOrderingInfo: nodeOrderingInfo,
                         connectedNodesInfos: [],
                         totalNumDescendants: 0,
@@ -333,30 +378,37 @@ class _PrelayoutRadialTreeBranchSet
 
                     // debug(`Added layout-child node ${connectedNodeId} with info`, newNodeInfo);
                 }
-                // let's see if property codes should be on one side or the other - 
-                connectedNodesInfos.sort(
-                    (a, b) =>
-                        propertyCodesSortOrder*(b.isPropertyCode - a.isPropertyCode)
-                );
                 nodeOrderingInfo.connectedNodesInfos.push(...connectedNodesInfos);
                 nextLevelNodes.push(...connectedNodesInfos);
+                nodeOrderingInfoByParent[nodeId] = {
+                    level: level,
+                    nodeInfos: connectedNodesInfos,
+                };
             }
-            nodeOrderinginfoByLevel.push( nextLevelNodes );
+            nodeOrderingInfoByLevel.push( {
+                level,
+                nodeInfos: nextLevelNodes,
+                levelTotalDescendantWeight: null,
+            } );
             thisLevelNodes = nextLevelNodes;
-            level += 1;
         }
 
-        this.nodeOrderinginfoByLevel = nodeOrderinginfoByLevel;
+        this.nodeOrderingInfoByLevel = nodeOrderingInfoByLevel;
+        this.nodeOrderingInfoByParent = nodeOrderingInfoByParent;
     }
 
     //
     // Compute a "weight" for each node -- basically how much angular space the
     // tree is expected to occupy.
     //
-    _computeNodeWeights()
-    {    
-        for (const [/*level*/, orderinginfoList] of this.nodeOrderinginfoByLevel.entries()) {
-            orderinginfoList.forEach( (info) => {
+    _computeNodeDescendantWeightsAndSortNodes()
+    {
+        const propertyCodesSortOrder = this.propertyCodesSortOrder;
+
+        // compute total descendant weight of each node
+        for (let orderingInfoAtLevel of this.nodeOrderingInfoByLevel) {
+            let levelTotalDescendantWeight = 0;
+            for (let info of orderingInfoAtLevel.nodeInfos) {
                 let w = Math.max(
                     1,
                     loSum(info.numDescendants.slice(0, this.prelayoutOptions.weightCalcLevels))
@@ -365,14 +417,204 @@ class _PrelayoutRadialTreeBranchSet
                 if (info.relatedAs === 'secondary') {
                     w *= this.prelayoutOptions.weightCalcSecondaryFactor;
                 }
-                info._weight = w;
-            } );
+                info._descendantWeight = w;
+                levelTotalDescendantWeight += w;
+            }
+            orderingInfoAtLevel.levelTotalDescendantWeight = levelTotalDescendantWeight;
+        }
+
+        // At this point, we have the total descendant weights for each node.
+        
+        // Now, we sort the nodes to hopefully equalize the distribution of
+        // descendant weights within each group.
+        let thisLevelParentIdList = [ "" ];
+        for (let orderingInfoAtLevel of this.nodeOrderingInfoByLevel) {
+            let orderedAllNodeInfos = [];
+            let nextLevelParentIdList = [];
+            // compute, at this level, the maximal angular spread we can allocate to
+            // this group
+            for (let parentId of thisLevelParentIdList) {
+                let group = this.nodeOrderingInfoByParent[parentId];
+                //debug(`group: `, { group } );
+                const totalGroupDescendantWeight = loSum(
+                    group.nodeInfos.map( (nodeInfo) => nodeInfo._descendantWeight )
+                );
+                let cumulatedDescendantWeight = 0;
+                // node by node, we're going to pick the next node such that the
+                // cumulated descendant weight stays as closely as possible to the
+                // one we'd expect if all nodes had equal weight (uniform)
+                let nodeInfosToPick = [ ... group.nodeInfos ]; // copy array
+                //debug(`nodeInfosToPick =`, nodeInfosToPick, `; totalGroupDescendantWeight = `, totalGroupDescendantWeight);
+                let pickedNodeInfos = [];
+                const groupNumNodes = nodeInfosToPick.length;
+                while (nodeInfosToPick.length) {
+                    // as long as there are nodes to pick, find the one that best
+                    // makes the new cumulated descendant weight close to uniform
+                    let uniformNextCumulatedDescendantWeight =
+                        pickedNodeInfos.length * totalGroupDescendantWeight / groupNumNodes;
+                    // 
+                    let bestIdx = null;
+                    let bestValue = null;
+                    let bestPropertyCodeSortValue = null;
+                    for (let i = 0; i < nodeInfosToPick.length; ++i) {
+                        let nodeInfo = nodeInfosToPick[i]
+                        let delta = (cumulatedDescendantWeight + nodeInfo._descendantWeight)
+                            - uniformNextCumulatedDescendantWeight;
+                        let value = delta*delta; // we'll minimize the square of the delta
+                        let propertyCodeSortValue = 
+                            nodeInfo.isPropertyCode ? propertyCodesSortOrder : 0;
+                        if (bestValue == null
+                            || (propertyCodeSortValue < bestPropertyCodeSortValue)
+                            || (propertyCodeSortValue === bestPropertyCodeSortValue
+                                && value < bestValue)) {
+                            bestPropertyCodeSortValue = propertyCodeSortValue;
+                            bestValue = value;
+                            bestIdx = i;
+                        }
+                    }
+                    // pick node at index idx
+                    pickedNodeInfos.push( nodeInfosToPick[bestIdx] );
+                    nodeInfosToPick.splice(bestIdx, 1); // remove from "to-pick" list
+                }
+                //debug(`pickedNodeInfos =`, pickedNodeInfos);
+                // fix the group's children nodeInfos to ensure order is correct:
+                group.nodeInfos = pickedNodeInfos;
+
+                // continue preparing the level's flat node info list
+                orderedAllNodeInfos.push( ... pickedNodeInfos );
+                nextLevelParentIdList.push( ... pickedNodeInfos.map( (ni) => ni.nodeId ) );
+            }
+            // replace nodeInfos by the ordered one !
+            thisLevelParentIdList = nextLevelParentIdList;
+            // debug(`Reordering nodes at level ${orderingInfoAtLevel.level}:`,
+            //       { before: orderingInfoAtLevel.nodeInfos.map( (ni) => ni.nodeId ),
+            //         after: orderedAllNodeInfos.map( (ni) => ni.nodeId ) });
+            orderingInfoAtLevel.nodeInfos = orderedAllNodeInfos;
         }
     }
 
     //
     // Main POSITION & MARK routines.
     //
+
+    _distributeAngles({ items, R, parentR, direction, angularSpread, isFirstLevel })
+    {
+        // items are each { weight, parentNodeAngleDirection, nodeInfo }
+
+        const maxLocalHalfAngularSpread = 0.8*Math.PI / 2;
+
+        const angleSpreadTwistedCompressionFactor = 0.3;
+        const angleSpreadUpdateCompressionFactor = 0.75;
+
+        const globalStartAngle = direction - angularSpread/2;
+        const globalEndAngle = globalStartAngle + angularSpread;
+
+        // Start at point (parentR, 0) and send a ray at angle  alpha :=
+        // `maxLocalHalfAngularSpread` from the X-axis until reaching a point P
+        // at distance exactly R from the origin.
+        // Let phi := `maxEvenHalfAngularSpread` := atan2(P.x, P.y).
+        // 
+        // P is determined by the equation
+        //   R*cos(phi) = parentR + ell * cos(alpha)
+        //   R*sin(phi) = ell * sin(alpha)
+        //
+        // -> ell = R * sin(phi) / sin(alpha)
+        // -> R*cos(phi) = parentR + R*sin(phi)*cos(alpha)/sin(alpha)
+        // -> ...?
+        //
+        // Instead: solve both eqns for phi, then equate them ->
+        //
+        // -> arccos[ parentR/R + (ell/R) * cos(alpha) ]  =  arcsin[ (ell/R) * sin(alpha) ]
+        //
+        // Def:   r = parentR/R  ;  u = ell/R  .
+        //
+        // ->  1 - (r + u * cos(alpha))^2 = u^2 sin^2(alpha)
+        //
+        // ->  1 - r^2 - 2*u*r*cos(alpha) - u^2 cos^2(alpha) = u^2 sin^2(alpha)
+        //
+        // ->  u^2 + 2*r*cos(alpha)*u + r^2 - 1  = 0
+        //
+        // ->  u = -r*cos(alpha) + sqrt[ r^2 cos^2(alpha) - (r^2 - 1) ]   (with u>0)
+        //       = -r*cos(alpha) + sqrt[ 1 + r^2 (cos^2(alpha) - 1) ]
+        //
+        // ->   phi = arctan2(r + u*cos(alpha), u*sin(alpha))
+        // or:  phi = arccos( r + u * cos(alpha) )
+        //
+        let maxEvenHalfAngularSpread = 2*Math.PI; // no limit for first-level children
+        if (!isFirstLevel) {
+            const ca = Math.cos(maxLocalHalfAngularSpread);
+            const r = parentR/R;
+            const u = -r*ca + Math.sqrt( 1 + r*r * (ca*ca - 1) );
+
+            maxEvenHalfAngularSpread = Math.acos( r + u*ca );
+        }
+
+        //debug(`Distributing items=${items.map( item => `(weight ${item.weight} parent direction ${item.parentNodeAngleDirection*180/Math.PI}deg)`).join(', ')}.  maxEvenHalfAngularSpread=${maxEvenHalfAngularSpread*180/Math.PI}deg`, { items });
+
+        // now, let's distribute angles.
+
+        let totalWeight = loSum(items.map( ({weight}) => weight ));
+
+        let angleSpreadCompressionFactor = 1.0;
+        let needNewIteration = true;
+
+        let itemAngles = [];
+
+        while (needNewIteration) {
+            needNewIteration = false;
+
+            // start again.
+            itemAngles = [];
+
+            let curAngle = direction - angularSpread/2;
+            for (const {weight, parentNodeAngleDirection} of items) {
+
+                let useAngle = angleSpreadCompressionFactor *
+                    weight / totalWeight * angularSpread;
+
+                const minAngle = Math.max(
+                    parentNodeAngleDirection - maxEvenHalfAngularSpread,
+                    globalStartAngle
+                );
+                const maxAngle = Math.min(
+                    parentNodeAngleDirection + maxEvenHalfAngularSpread,
+                    globalEndAngle,
+                );
+
+                if (curAngle >= maxAngle) {
+                    angleSpreadCompressionFactor =
+                        angleSpreadUpdateCompressionFactor * angleSpreadCompressionFactor;
+                    needNewIteration = true;
+                    //debug(`Failure! curAngle=${curAngle*180/Math.PI}deg >= maxAngle=${maxAngle*180/Math.PI}deg, trying again with angleSpreadCompressionFactor=${angleSpreadCompressionFactor}`);
+                    break;
+                }
+                const beginAngle = Math.max(curAngle, minAngle)
+                const endAngle = Math.min(
+                    Math.max(
+                        beginAngle + useAngle*angleSpreadTwistedCompressionFactor,
+                        curAngle + useAngle
+                    ),
+                    maxAngle
+                );
+                //debug(`Computing item angles:`, {beginAngle, endAngle, curAngle, minAngle, maxAngle, parentNodeAngleDirection, globalStartAngle, globalEndAngle, parentR, R});
+                curAngle = endAngle;
+                if (endAngle <= beginAngle) {
+                    throw new Error(`Internal error, endAngle <= beginAngle !?!?`);
+                }
+
+                itemAngles.push({
+                    beginAngle,
+                    endAngle,
+                    midAngle: (endAngle + beginAngle)/2,
+                    useAngle, minAngle, maxAngle, angleSpreadCompressionFactor,
+                });
+            }
+        }
+
+        //debug(`Got angles: ${itemAngles.map( (ia) => `${ia.midAngle*180/Math.PI}deg` ).join(', ')}`);
+
+        return itemAngles;
+    }
 
     positionAndMarkNodesInData()
     {
@@ -381,167 +623,166 @@ class _PrelayoutRadialTreeBranchSet
         // belong to other subtrees.
 
         this._computeNodeInfos();
-        this._computeNodeWeights();
+        this._computeNodeDescendantWeightsAndSortNodes();
 
         // NOTE: We don't mark & position the root node itself; that is done by
         // our main Prelayout... class.
 
-        let direction = this.root.direction;
-        if (this.branchOptions.flipDirection) {
-            direction = -direction;
-        }
+        const direction = 
+            this.branchOptions.flipDirection ? -this.root.direction : this.root.direction;
+        const angularSpread = this.root.angularSpread;
 
-        this._positionNodeChildren({
-            node: this.rootNode,
-            nodePosition: this.root.position,
-            nodeInfo: this.nodeOrderinginfoByLevel[0][0],
-            level: 1,
-            angularSpread: this.root.angularSpread,
-            direction: direction,
-        });
-    }
+        this.nodePositioningInfo = {};
 
-
-    _markNodeAndSetRelativePosition({node, isRoot, referencePoint, relPos, relatedAs})
-    {
-        const computedPos = {
-            x:  referencePoint.x + relPos.x,
-            y:  referencePoint.y + relPos.y,
+        this.nodePositioningInfo[this.root.nodeId] = {
+            posRelative: { x: 0, y: 0 },
+            beginAngle: direction - angularSpread/2,
+            midAngle: direction,
+            endAngle: direction + angularSpread/2,
+            R: 0,
         };
 
-        const nodeId = node.id();
+        const {
+            radiusSegmentLevels,
+            radiusSegmentLevelFactor,
+        } = this.prelayoutOptions;
+        const radiusSegmentLevelsLength = radiusSegmentLevels.length;
 
+        let R = this.root.radius;
+
+        for (const levelOrderingInfos of this.nodeOrderingInfoByLevel) {
+            const { level, nodeInfos } = levelOrderingInfos;
+            if (level === 0) { // The ROOT node itself must already be positioned.
+                continue;
+            }
+
+            const parentR = (level === 1) ? 0 : R;
+
+            // compute the new radius
+            const segmentLevel = level - 1;
+            R += (
+                (segmentLevel < radiusSegmentLevelsLength)
+                ? radiusSegmentLevels[segmentLevel]
+                : (radiusSegmentLevels[radiusSegmentLevelsLength-1]
+                   * Math.pow(radiusSegmentLevelFactor, segmentLevel - radiusSegmentLevelsLength))
+            );
+
+            // position the nodes at this level
+
+            const isFirstLevel = (level === 1); // ROOT node's children
+            // special handling for ROOT's children - each child gets equal angular
+            // fraction regardless of computed weight
+            const useWeights = this.root.useWeights && !isFirstLevel;
+
+            //debug(`nodeInfos =`, { nodeInfos });
+            const items = nodeInfos.map( (nodeInfo) => {
+                const { _descendantWeight, parentNodeId } = nodeInfo;
+                const weight = (useWeights ? _descendantWeight : 1);
+                //debug(`Forming item: ${nodeInfo.nodeId} - weight=${weight}, parent's posInfo.midAngle=${this.nodePositioningInfo[parentNodeId].midAngle*180/Math.PI}deg`);
+                return {
+                    weight,
+                    parentNodeAngleDirection:
+                        this.nodePositioningInfo[parentNodeId].midAngle,
+                    nodeInfo,
+                };
+            } );
+            
+            const itemAngles = this._distributeAngles({
+                items, R, parentR, direction, angularSpread, isFirstLevel
+            });
+
+            for (const [j, nodeInfo] of nodeInfos.entries()) {
+
+                const { beginAngle, midAngle, endAngle } = itemAngles[j];
+
+                let posRelative = {
+                    x: R * Math.cos(midAngle),
+                    y: R * Math.sin(midAngle),
+                };
+                let position = {
+                    x: this.root.position.x + posRelative.x,
+                    y: this.root.position.y + posRelative.y,
+                };
+
+                const { nodeId, relatedAs, } = nodeInfo;
+
+                this._markNodePosition({
+                    nodeId,
+                    isRoot: false,
+                    relatedAs,
+                    position,
+                });
+                this.nodePositioningInfo[nodeId] = {
+                    posRelative,
+                    beginAngle,
+                    midAngle,
+                    endAngle,
+                    R,
+                };
+            }
+        }
+
+        // ----
+
+        debug(`_PrelayoutRadialTreeBranchSet: branch nodes positioned.`);
+        //this._debugPrintPrelayoutTreeBranchPositioning()
+    }
+
+    _debugPrintPrelayoutTreeBranchPositioning()
+    {
+        for (const [level, orderingInfos] of this.nodeOrderingInfoByLevel.entries()) {
+            const { nodeInfos } = orderingInfos;
+            debug(` * LEVEL ${level}:`);
+            for (const nodeOrderingInfo of nodeInfos) {
+                const {
+                    nodeId,
+                    nodeConnectingEdge,
+                    //level,
+                    //parentNodeOrderingInfo,
+                    //connectedNodesInfos,
+                    totalNumDescendants,
+                    numDescendants,
+                    isPropertyCode,
+                } = nodeOrderingInfo;
+                debug(`    → ${nodeId} from ${dispElement(nodeConnectingEdge)} totalNumDescendants=${totalNumDescendants} # of descendants by level=[${numDescendants.join(', ')}] isPropertyCode=${isPropertyCode}`);
+
+                if (nodeId === this.root.nodeId) {
+                    const {
+                        radius,
+                        position,
+                        direction,
+                        angularSpread,
+                        useWeights,
+                    } = this.root;
+                    debug(`      [ROOT] (${position.x},${position.y}) ∡${direction*180/Math.PI}deg ± ${angularSpread*180/Math.PI} radius=${radius} useWeights=${useWeights}`);
+                }
+                const nodePositioningInfo = this.nodePositioningInfo[nodeId];
+                if (nodePositioningInfo != null) {
+                    const {
+                        beginAngle,
+                        //midAngle,
+                        endAngle,
+                        //posDirection,
+                        posRelative,
+                        R,
+                    } = nodePositioningInfo;
+                    debug(`      @ root+(${posRelative.x},${posRelative.y}) ∡ ${beginAngle*180/Math.PI}--${endAngle*180/Math.PI}deg at R=${R})`);
+                }
+            }
+        }
+    }
+
+    _markNodePosition({ nodeId, isRoot, relatedAs, position, nodePositioningDebugInfo })
+    {
         if (Object.hasOwn(this.positionedNodesData, nodeId)) {
             throw new Error(`Node ${nodeId} is being positioned in two different subtrees!`);
         }
-
-        this.positionedNodesData[node.id()] = {
-            position: computedPos,
+        this.positionedNodesData[nodeId] = {
+            position,
             isRoot,
             relatedAs,
+            nodePositioningDebugInfo,
         };
-
-        return computedPos;
-    }
-
-
-    _positionNodesRadially({
-        nodeInfos, referencePoint, R, direction, angularSpread, isRoot, useWeights
-    })
-    {
-        isRoot ??= false;
-        useWeights ??= true;
-
-        let totalWeight = loSum( nodeInfos.map( (info) => info._weight ?? 1 ) );
-        let cumulWeight = 0;
-
-        let positionedNodes = [];
-
-        let numNodes = nodeInfos.length;
-
-        for (const [j, nodeInfo] of nodeInfos.entries()) {
-            
-            const { nodeId, _weight, relatedAs, } = nodeInfo;
-
-            let node = this.cy.getElementById(nodeId);
-
-            let angleFraction;
-            if (numNodes === 1) {
-                angleFraction = 0.5;
-            } else if (useWeights) {
-                angleFraction = cumulWeight / totalWeight;
-                if (isRoot && numNodes > 1) {
-                    // don't offset angles on root codes, so they align well on
-                    // the root circle
-                } else {
-                    // center on "weight quota"
-                    angleFraction += _weight / (2.0*totalWeight);
-                }
-            } else {
-                angleFraction = j / numNodes;
-                if (isRoot && numNodes > 1) {
-                    // don't offset angles on root codes, so they align well on
-                    // the root circle
-                } else {
-                    angleFraction += 0.5 / numNodes;
-                }
-            }
-
-            let angle = direction + (angleFraction - 0.5) * angularSpread;
-
-            let relPos = {
-                x:  R * Math.cos(angle),
-                y:  R * Math.sin(angle),
-            };
-
-            cumulWeight += _weight;
-
-            let nodePosition = this._markNodeAndSetRelativePosition({
-                node,
-                referencePoint,
-                relPos,
-                isRoot,
-                relatedAs,
-            });
-
-            // debug(`Positioning ${nodeId};`,
-            //       { direction, angularSpread,
-            //         _weight, angleFraction, angle, relPos, nodePosition });
-
-            // determine the angular spread that we can allocate to the children
-            let childAngularSpread =  _weight * angularSpread / totalWeight;
-
-            positionedNodes.push({
-                nodeId, node, nodePosition, nodeInfo,
-                angularSpread: childAngularSpread,
-                direction: angle,
-            });
-
-        }
-
-        return positionedNodes;
-    }
-
-    // how to position a non-root node -- in the right direction etc.
-    _positionNodeChildren({/*node,*/ nodePosition, nodeInfo, level, angularSpread, direction})
-    {
-        const options = this.prelayoutOptions;
-
-        if (direction == null) {
-            direction = Math.atan2(nodePosition.y - this.root.position.y,
-                                   nodePosition.x - this.root.position.x);
-        }
-
-        const orl = options.radiusSegmentLevels.length;
-        let R = this.root.radius;
-        for (let l = 0; l < level; ++l) {
-            R +=
-                (level < orl)
-                ? options.radiusSegmentLevels[level]
-                : (options.radiusSegmentLevels[orl-1]
-                   * Math.pow(options.radiusSegmentLevelFactor, level - orl))
-            ;
-        }
-
-        // if we don't use the origin as the center of the arc, then we would
-        // need to compute this correctly here.
-
-        const positionedNodes = this._positionNodesRadially({
-            nodeInfos: nodeInfo.connectedNodesInfos,
-            referencePoint: this.root.position,
-            R, direction, angularSpread,
-        });
-
-        for (const N of positionedNodes) {
-            this._positionNodeChildren({
-                node: N.node,
-                nodePosition: N.nodePosition,
-                nodeInfo: N.nodeInfo,
-                level: level+1,
-                angularSpread: N.angularSpread,
-                direction: N.direction,
-            });
-        }
     }
 
 }

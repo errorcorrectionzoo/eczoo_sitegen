@@ -13,17 +13,13 @@ properties:
     type: string
     pattern: '^[a-z0-9_.-]+$'
 
-  # No longer needed.
-  # list_id_root:
-  #   type: boolean
-
   title:
     type: string
     _flm: standalone
 
   intro:
     type: string
-    _flm: full
+    _flm: block_level
 
   display:
     type: object

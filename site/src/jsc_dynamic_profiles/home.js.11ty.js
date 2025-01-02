@@ -1,19 +1,19 @@
 
+import {
+    generate_random_code_data
+} from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
+
+
 const data = {
     layout: false,
     permalink: '/jsc_dynamic_profiles/home.js',
 };
 
-
 const render = async function (data)
 {
-    const { generate_random_code_data } =
-          await import('@errorcorrectionzoo/jscomponents/randomcode/generate_data.js');
-
     const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
 
     const randomCodeDataStr = JSON.stringify(random_code_data); //, undefined, 4);
-
 
     return `
 import * as mathjax from '@errorcorrectionzoo/jscomponents/mathjax/setup.js';
@@ -48,4 +48,4 @@ window.addEventListener('load', function () {
 };
 
 
-module.exports = {data, render};
+export default {data, render};

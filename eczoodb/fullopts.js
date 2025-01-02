@@ -7,6 +7,7 @@ import { use_flm_processor } from '@phfaist/zoodb/std/use_flm_processor';
 import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
 
 import { EczStatsDbProcessor } from './stats.js';
+import { EczPopulateCodeListsDbProcessor } from './compile_codelist.js';
 
 //
 // Note: "full options" includes options that require filesystem access and/or
@@ -17,15 +18,24 @@ import { citationsinfo_cache_dir_default } from './dirs_defaults.js';
 export { citationsinfo_cache_dir_default };
 
 
-export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}={}) {
+export function get_eczoo_full_options({
+    csl_style_data,
+    citationsinfo_cache_dir,
+    populate_code_lists,
+}={}) {
 
     csl_style_data ??= csl_style_json_data.data;
-
     citationsinfo_cache_dir ??= citationsinfo_cache_dir_default;
+    populate_code_lists ??= true;
 
     // console.log('cache file dir = ', citationsinfo_cache_dir);
 
     const ecz_stats_processor = new EczStatsDbProcessor();
+
+    let ecz_codelists_processor = null;
+    if (populate_code_lists) {
+        ecz_codelists_processor = new EczPopulateCodeListsDbProcessor();
+    }
 
     return {
         use_relations_populator,
@@ -34,9 +44,16 @@ export function get_eczoo_full_options({csl_style_data, citationsinfo_cache_dir}
         use_flm_processor,
         use_searchable_text_processor,
 
-        extra_db_processors: [
-            ecz_stats_processor
-        ],
+        extra_db_processors: {
+            stats: {
+                priority: 80,
+                instance: ecz_stats_processor,
+            },
+            codelists: {
+                priority: 30,
+                instance: ecz_codelists_processor,
+            },
+        },
 
         flm_options: {
             citations: {

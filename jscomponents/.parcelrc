@@ -2,8 +2,17 @@
     "extends": "@parcel/config-default",
 
     "resolvers": [
-        "@mischnic/parcel-resolver-root",
+        "@phfaist/parcel-resolver-root",
         "...",
     ],
+
+    "optimizers": {
+
+        // Problems with the code-graph/FLM stuff when using the default @parcel/optimizer-swc
+        // optimizer.  Works again when using Parcel's traditional "terser" optimizer.
+
+        //"**/codegraphdev*.js": [ "@parcel/optimizer-terser" ]
+        "*.js": [ "@parcel/optimizer-terser" ]
+    }
 
 }

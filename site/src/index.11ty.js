@@ -1,4 +1,7 @@
-const debug = require('debug')('eczoo_sitegen.src.index');
+
+import * as zooflm from '@phfaist/zoodb/zooflm';
+//import { get_home_page_stats } from '@errorcorrectionzoo/eczoodb/stats.js';
+
 
 const data = {
     title: 'Home',
@@ -65,10 +68,7 @@ async function render(data)
 {
     const {eczoodb, home_page_data} = data;
 
-    const zooflm = await import('@phfaist/zoodb/zooflm');
     const flm_html_renderer = new zooflm.ZooHtmlFragmentRenderer();
-
-    const { get_home_page_stats } = await import('@errorcorrectionzoo/eczoodb/stats.js');
 
     const flmrender = (fragment) => {
         if (zooflm.value_not_empty(fragment)) {
@@ -160,7 +160,7 @@ async function render(data)
     let codelist_entries = Object.entries(eczoodb.objects.codelist);
     const cmp = (a,b) => ( a === b ? 0 : (a < b ? -1 : +1) );
     codelist_entries.sort(
-        ([a_id, a], [b_id, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
+        ([a_id_, a], [b_id_, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
     );
 
     {
@@ -183,7 +183,6 @@ async function render(data)
     s += `
   </ul>
 </nav>`;
-
 
 
     //
@@ -253,7 +252,4 @@ async function render(data)
 }
 
 
-module.exports = {
-    data,
-    render
-};
+export default { data, render };

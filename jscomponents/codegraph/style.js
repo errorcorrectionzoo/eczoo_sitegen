@@ -168,21 +168,25 @@ export const cyBaseStyleJson = [
     },
     
 
-    // isolation style
+    // Class for nodes and edges that should appear faded because they are 
+    // "extra" elements in a layout (e.g. nodes that are cousins or secondary
+    // parents of the nodes we care about, etc.)
     {
-        selector: '.isolationExtra',
+        selector: '.layoutFadeExtra',
         style: {
             opacity: 0.3,
         }
     },
     {
-        selector: 'node.isolationExtra',
+        selector: 'node.layoutFadeExtra',
         style: {
             width: 10,
             height: 10,
         }
     },
 
+
+    
     // hide anything with the 'hidden' class
     {
         selector: '.hidden, .isolationHidden, .hiddenSecondaryEdge',
@@ -313,7 +317,10 @@ export function getCyStyleJson(options)
     debug(`getCyStyleJson: options are `, JSON.stringify(
         Object.fromEntries( Object.entries(options).map( ([k, v]) => {
             try { return [k, JSON.parse(JSON.stringify(v)) ]; }
-            catch (e) { return [k, '<cannot stringify value>'] }
+            catch (e) {
+                debug(`[Cannot stringify value!] - `, e);
+                return [k, '<cannot stringify value>']
+            }
         }) ) ));
 
     if (options.matchWebPageFonts) {

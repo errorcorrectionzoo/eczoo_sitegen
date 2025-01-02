@@ -7,7 +7,7 @@
   "author": "Philippe Faist",
   "license": "MIT",
   "dependencies": {
-    "debug": "^4.3.4",
+    "debug": "^4.4.0",
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
@@ -18,8 +18,8 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
-    "mocha": "^10.2.0"
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git",
+    "mocha": "^11.0.1"
   },
   "alias": {
     "./eczoo-bib-style.js": "./eczoo-bib-style.json"

@@ -1,7 +1,7 @@
 import debugm from 'debug';
 import process from 'node:process';
 
-//const debug = debugm('eczoo_sitegen.scripts.helperLogs');
+//const debug = debugm('eczoo_sitegen.scripts.helpers.helperLogs');
 
 const defaultEnableTargets = {
     0: "EczLog*",

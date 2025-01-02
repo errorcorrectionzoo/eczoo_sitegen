@@ -23,6 +23,13 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 {
     let nodeId = null;
 
+    // matches a JSON object?
+    const rxJsonDisplayOptions = /^#J(.*)$/.exec(hrefFragment);
+    if (rxJsonDisplayOptions != null) {
+        const jsonDisplayOptions = decodeURIComponent(rxJsonDisplayOptions[1]);
+        return JSON.parse(jsonDisplayOptions);
+    }
+
     // matches a code?
     const nodeRxMatchCode = /^#code_(.*)$/.exec(hrefFragment);
     if (nodeRxMatchCode != null) {
@@ -79,9 +86,8 @@ function getDisplayOptionsFromUrlFragment(hrefFragment)
 //
 
 
-export async function load({ displayOptions }={})
+export async function load({ displayOptions, graphGlobalOptions }={})
 {
-
     debug('codegraph setup: load() called')
 
     const domContainer = window.document.getElementById('main');
@@ -120,7 +126,7 @@ export async function load({ displayOptions }={})
 
     // inspect htmlFragment for display options
     const hrefFragment = window.location.hash;
-    debug({hrefFragment});
+    debug({ hrefFragment });
     if (hrefFragment != null) {
         displayOptions = EczCodeGraphViewController.getMergedDisplayOptions(
             displayOptions,
@@ -130,11 +136,15 @@ export async function load({ displayOptions }={})
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
+        graphGlobalOptions,
     });
 
     await eczCodeGraph.initialize();
 
-    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    let eczCodeGraphViewController = new EczCodeGraphViewController(
+        eczCodeGraph,
+        displayOptions,
+    );
 
     await eczCodeGraphViewController.initialize();
 

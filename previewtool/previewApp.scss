@@ -1,4 +1,6 @@
-@import '~/site/stylesheets/variables.scss';
+
+@use '~/site/stylesheets/gitpreview.scss';
+
 
 #AppContainer {
     width: 100vw;
@@ -24,5 +26,3 @@ html, body {
         font-style: normal;
     }
 }
-
-@import '~/site/stylesheets/gitpreview.scss';

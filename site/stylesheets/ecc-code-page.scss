@@ -1,29 +1,73 @@
+@use './variables.scss' as *;
 
 article.ecc-code-page {
 
+    // LAYOUT - CSS GRID
+
     display: grid;
-    grid-template-columns: 1fr auto;
+    //grid-template-columns: 1fr auto;
+    //grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+    //padding-left: 20px;
+    //padding-right: 20px;
+    grid-template-columns:
+        minmax(0px, 20px)
+        [code-main-sections] minmax($page-min-text-column-width, $page-max-main-width)
+        [code-infobox-buttons code-hierarchy-sections] minmax(250px, ($page-max-width - $page-max-main-width - 40px))
+        minmax(0px, 20px)
+        ;
+    grid-template-rows:
+        [code-info-buttons] 0fr
+        [code-hierarchy-sections] 1fr;
+    width: 100%;
+    grid-column-gap: 0pt;
+    grid-auto-flow: row dense;
+    justify-items: left;
+    align-items: start;
+
+    //columns: 450px auto;
+
+    .code-easy-link-show-code-hierarchy {
+        display: none;
+    }
+
+    .code-main-section {
+        grid-column: code-main-sections / span 1;
+        grid-row: span 2;
+        width: 100%;
+    }
+
+    >.sectioncontent.info-popup-button-container {
+        grid-column: code-infobox-buttons / span 1;
+        grid-row: code-info-buttons / span 1;
+        @media screen {
+            padding-left: 25px;
+        }
+    }
+    >.sectioncontent.code-hierarchy {
+        grid-column: code-hierarchy-sections / span 1;
+        grid-row: code-hierarchy-sections / span 1;
+        @media screen {
+            padding-left: 25px;
+        }
+        @media print {
+            margin-top: 2em;
+            margin-bottom: 2em;
+        }
+    }
+
 
     h2 {
-        grid-column-start: 1;
-        grid-column-end: 3;
         margin: 0px; // reset margin; margin will be set below
     }
 
     > .sectioncontent {
         margin-left: 0px;
-        grid-column-start: 1;
-        grid-column-end: 3;
 
         width: 100%;
         box-sizing: border-box;
     }
     
-    // > h2, > .sectioncontent
-    // {
-    //     padding: 2px 0px;
-    //     margin-bottom: 10px;
-    // }
     h2 {
         padding: 0px;
         margin-top: 0.5rem;
@@ -32,6 +76,8 @@ article.ecc-code-page {
     > .sectioncontent {
         padding: 0px;
         margin-top: 0px;
+    }
+    .sectioncontent {
         margin-bottom: .8rem;
     }
 
@@ -47,32 +93,36 @@ article.ecc-code-page {
         }
     }
 
-    > .code-root-code-kingdom-name, > .code-root-code-domain-name {
+    .code-root-code-kingdom,
+    .code-root-code-domain {
         font-size: 1rem;
         padding: 4px;
         border-radius: 2px;
 
+        .code-root-code-domain-name,
+        .code-root-code-kingdom-name {
+            font-weight: bold;
+        }
         .kingdom-name-label, .domain-name-label {
             font-weight: normal;
         }
-
-        font-weight: bold;
+        
+        .code-root-code-domain-description,
+        .code-root-code-kingdom-description {
+            margin-top: $parskip-half-length;
+            font-size: $small-font-size;
+        }
     }
-    > .code-root-code-domain-name {
+    .code-root-code-domain {
         background-color: $ecc-page-domain-background-color;
     }
-    > .code-root-code-kingdom-name {
+    .code-root-code-kingdom {
         background-color: $ecc-page-kingdom-background-color;
     }
 
     @media screen {
-        >.sectioncontent.code-name {
-            grid-column-end: 2;
-        }
         >.sectioncontent.info-popup-button-container {
             margin-top: 0px;
-            grid-column-start: 2;
-            grid-row-start: 1;
         }
     }
 
@@ -85,8 +135,6 @@ article.ecc-code-page {
     // style appearance:
 
     h2 {
-        // give these dt elements an inner header style -- we should probably
-        // have rendered these as <h2> elements... oh well...
         font-size: 1.1rem;
         font-style: normal;
         font-weight: normal;
@@ -100,11 +148,6 @@ article.ecc-code-page {
         font-style: italic;
         color: $text-dim-color;
     }
-
-    // .code-name {
-    //     font-size: 1.1rem;
-    //     font-weight: bold;
-    // }
 
     h1.code-name {
         margin: 0px 10px 0px 0px;
@@ -123,6 +166,15 @@ article.ecc-code-page {
         margin: 0px;
     }
 
+    .sectioncontent {
+        &.code-notes,
+        &.code-cousins,
+        &.code-codelist-membership,
+        &.code-href-references {
+            margin-bottom: 1.5em;
+        }
+    }
+
     span.code-introduced {
         display: inline-block;
         margin-left: 0.3em;
@@ -137,13 +189,37 @@ article.ecc-code-page {
         font-style: italic;
         opacity: .7;
     }
+
+    .code-hierarchy-items {
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
 }
 
-// adjustments for small screens
-@media (max-width: $page-collapse-layout-width) {
+
+// adjustments for screens that aren't large enough
+@media (max-width: ($page-min-text-column-width + 280px)) {
+// ...
+// }
+// // adjustments for small screens
+// @media (max-width: $page-collapse-layout-width) {
     article.ecc-code-page {
         display: block;
         margin-top: 0px;
+
+        .code-easy-link-show-code-hierarchy {
+            display: block;
+            font-size: $small-font-size;
+            font-style: italic;
+        }
+
+        .sectioncontent.code-hierarchy {
+            padding-left: 0px;
+            margin-top: 2em;
+        }
+        .sectioncontent.info-popup-button-container {
+            padding-left: 0px;
+        }
 
         h2 {
             display: block;
@@ -151,8 +227,12 @@ article.ecc-code-page {
             margin-bottom: 3px;
         }
         > .sectioncontent {
-            display: block;
+            //display: block;
             margin-left: 0px;
+        }
+
+        .code-main-section {
+            display: block;
         }
 
         // hide label "Name:" on narrow screens
@@ -173,5 +253,122 @@ article.ecc-code-page {
             }
         }
 
+    }
+}
+
+
+
+//
+// Elements displayed on the code info page
+//
+
+a.code-link-with-icon {
+    display: inline-block;
+
+    vertical-align: middle;
+
+    min-height: 12px;
+    margin-right: 1rem;
+    padding: 5px 5px 5px 17px;
+    background-size: 12px 12px;
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+}
+
+
+
+
+a.code-self-permalink {
+    background-image: url('~/site/static/icons/permalink-logo.svg');
+}
+a.code-show-citation {
+    background-image: url('~/site/static/icons/cite-icon.svg');
+}
+.dark a.code-show-citation {
+    background-image: url('~/site/static/icons/cite-icon-dark.svg');
+}
+a.code-show-share {
+    background-image: url('~/site/static/icons/share-icon.svg');
+}
+.dark a.code-show-share {
+    background-image: url('~/site/static/icons/share-icon-dark.svg');
+}
+a.code-show-github {
+    background-image: url('~/site/static/icons/github-logo.svg');
+}
+.dark a.code-show-github {
+    background-image: url('~/site/static/icons/github-logo-dark.svg');
+}
+a.code-self-edit {
+    background-image: url('~/site/static/icons/edit-icon.svg');
+}
+.dark a.code-self-edit {
+    background-image: url('~/site/static/icons/edit-icon-dark.svg');
+}
+
+
+a.linkcodegraph {
+    display: inline-block;
+    font-size: 1rem;
+    vertical-align: bottom;
+
+    margin-left: 1em;
+    height: 32px;
+    line-height: 32px;
+
+    padding: 5px 5px 5px 37px;
+
+    background-image: url('~/site/static/icons/linkcodegraph.svg');
+    background-size: 32px;
+    background-position: 5px 5px;
+    background-repeat: no-repeat;
+    
+    border: solid $discreet-border-color 0.8pt;
+    border-radius: 8px;    
+}
+a.linkcodegraph:hover {
+    filter: drop-shadow(2px 2px 5px $a-linkcodegraph-hover-shadow-color);
+}
+
+.show-citation, .show-share-social {
+    display: block;
+    //min-width: 350px;
+
+    > dt {
+        display: block;
+    }
+    > dd {
+        display: block flow-root;
+        margin-left: 0px;
+        //padding: 0px;
+        
+        margin-bottom: 0.3rem;
+            
+        resize: none;
+        
+        box-sizing: border-box;
+        max-width: 100%;
+        min-width: 100%;
+
+    }
+}
+
+.code-popup-info-frame {
+
+    h2 {
+        font-size: inherit;
+        font-weight: bold;
+        margin-bottom: 0.7rem;
+    }
+
+    .zoo-code-id {
+        margin-top: 1rem;
+
+        code {
+            font-family: monospace;
+            font-size: 13px;
+            margin-left: 1em;
+            //display: inline-block;
+        }
     }
 }

@@ -1,9 +1,19 @@
+import debug_module from 'debug';
+const debug = debug_module('eczoo_jscomponents.codegraph.eczcodegraphviewcontroller');
+
 import loMerge from 'lodash/merge.js';
 
 //import { EczCodeGraph } from './eczcodegraph.js';
 
-import { EczCodeGraphSubgraphSelectorAll } from './subgraphselector.js';
-import { EczCodeGraphSubgraphSelectorIsolateFamilyTree } from './subgraphselectorisolatemode.js';
+import {
+    EczCodeGraphSubgraphSelectorAll,
+} from './subgraphselector.js';
+import {
+    EczCodeGraphSubgraphSelectorIsolateFamilyTree
+} from './subgraphselectorisolatemode.js';
+import {
+    EczCodeGraphSubgraphSelectorSubset,
+} from './subgraphselectorsubset.js';
 import {
     EczCodeGraphFilterDomainColors,
     EczCodeGraphFilterHideSecondaryEdges,
@@ -14,7 +24,8 @@ import {
 
 
 const defaultDisplayOptions = {
-    displayMode: 'all', // 'all' | 'isolate-nodes'
+    displayMode: 'all', // 'all' | 'isolate-nodes' | 'subset'
+
     modeIsolateNodesOptions: {
         nodeIds: null,
         range: {
@@ -31,6 +42,22 @@ const defaultDisplayOptions = {
         },
         reusePreviousLayoutPositions: true,
         extraRelationSelector: 'edge',
+    },
+
+    modeSubsetOptions: {
+        codeIds: [],
+        reusePreviousLayoutPositions: false,
+        showIntermediateConnectingNodes: true,
+        connectingNodesMaxDepth: 15,
+        connectingNodesPathMaxLength: 20, 
+        connectingNodesMaxExtraDepth: 3,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
+        connectingNodesToDomainsAndKingdoms: true,
+        connectingNodesEdgeLengthsByType: {
+            primaryParent: 1,
+            secondaryParent: 4,
+            cousin: 6,
+        },
     },
 
     domainColoring: true,
@@ -80,14 +107,18 @@ export class EczCodeGraphViewController
 
     async initialize()
     {
+        debug(`EczCodeGraphViewController.initialize()`);
         this.subgraphSelectorInstances = {
             'all': new EczCodeGraphSubgraphSelectorAll(this.eczCodeGraph),
-            'isolate-nodes': new EczCodeGraphSubgraphSelectorIsolateFamilyTree(this.eczCodeGraph),
+            'isolate-nodes': new EczCodeGraphSubgraphSelectorIsolateFamilyTree(
+                this.eczCodeGraph
+            ),
+            'subset': new EczCodeGraphSubgraphSelectorSubset(this.eczCodeGraph),
         }
 
-        this.eczCodeGraph.installSubgraphSelector(
-            this.subgraphSelectorInstances.all
-        );
+        // this.eczCodeGraph.installSubgraphSelector(
+        //     this.subgraphSelectorInstances.all
+        // );
 
         const graphFilterInstances = {
             domainColors: new EczCodeGraphFilterDomainColors(this.eczCodeGraph),
@@ -100,10 +131,12 @@ export class EczCodeGraphViewController
         }
 
         this._setGraph();
+        debug(`EczCodeGraphViewController.initialize() finished!`);
     }
 
     _setGraph()
     {
+        debug(`EczCodeGraphViewController._setGraph(); displayOptions =`, this.displayOptions);
         let subgraphSelector = null;
         let subgraphSelectorOptions = {};
         if (this.displayOptions.displayMode === 'all') {
@@ -112,6 +145,9 @@ export class EczCodeGraphViewController
         } else if (this.displayOptions.displayMode === 'isolate-nodes') {
             subgraphSelector = this.subgraphSelectorInstances['isolate-nodes'];
             subgraphSelectorOptions = this.displayOptions.modeIsolateNodesOptions;
+        } else if (this.displayOptions.displayMode === 'subset') {
+            subgraphSelector = this.subgraphSelectorInstances['subset'];
+            subgraphSelectorOptions = this.displayOptions.modeSubsetOptions;
         } else {
             throw new Error(`Invalid display mode: ${this.displayOptions.displayMode}`);
         }        
@@ -136,6 +172,7 @@ export class EczCodeGraphViewController
             }
         );
 
+        debug(`EczCodeGraphViewController._setGraph() done.`);
     }
 
     static getMergedDisplayOptions(oldDisplayOptions, displayOptions)
@@ -147,6 +184,9 @@ export class EczCodeGraphViewController
         if (displayOptions.modeIsolateNodesOptions?.nodeIds != null) {
             mergeResetOptions.modeIsolateNodesOptions = { nodeIds: null };
         }
+        if (displayOptions.modeSubsetOptions?.codeIds != null) {
+            mergeResetOptions.modeSubsetOptions = { codeIds: null };
+        }
         return loMerge(
             {},
             oldDisplayOptions,
@@ -155,8 +195,18 @@ export class EczCodeGraphViewController
         );
     }
 
+    /**
+     * Update the display options for this graph view controller.
+     * 
+     * Don't forget to check if the graph requires an updateLayout. E.g.::
+     * 
+     *      if (eczCodeGraph.isPendingUpdateLayout()) {
+     *          await eczCodeGraph.updateLayout();
+     *      }
+     */
     setDisplayOptions(displayOptions)
     {
+        debug(`EczCodeGraphViewController.setDisplayOptions()`, displayOptions);
         this.displayOptions = this.getMergedDisplayOptions(
             this.displayOptions,
             displayOptions

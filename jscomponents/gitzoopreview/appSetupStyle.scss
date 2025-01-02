@@ -1,6 +1,7 @@
 
+@use '~/site/stylesheets/gitpreview.scss';
+
+
 #bodycontents.app-full-width {
     --header-height: 30px;
 }
-
-@import '~/site/stylesheets/gitpreview.scss';

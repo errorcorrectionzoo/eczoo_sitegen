@@ -6,22 +6,25 @@
   "type": "module",
   "dependencies": {
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
-    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git#main",
-    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_preview",
-    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#head=main&workspace=@phfaist/zoodbtools_previewremote",
-    "debug": "^4.3.4",
+    "@parcel/plugin": "^2.13.3",
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f",
+    "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git",
+    "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_preview",
+    "@phfaist/zoodbtools_previewremote": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_previewremote",
+    "debug": "^4.4.0",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
-    "parcel": "^2.9.3",
-    "parcel-optimizer-nohtmlsuffix": "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "parcel": "^2.13.3",
+    "parcel-optimizer-nohtmlsuffix": "https://github.com/phfaist/parcel-optimizer-nohtmlsuffix.git#commit=c32be4cd32c90dcf2fe64cf60d1186527897ef19",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "peerDependencies": {
     "@errorcorrectionzoo/eczoodb": "*",
     "@phfaist/zoodb": "*"
   },
   "@mischnic/parcel-resolver-root": {
+    "CAUTION-NO-LONGER-USED": "NOT-USED",
     "/": "./_site",
     "~": ".."
   },

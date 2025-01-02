@@ -2,6 +2,7 @@
   "name": "errorcorrectionzoo",
   "packageManager": "yarn@3.3.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "eczoodb",
     "jscomponents",
@@ -13,23 +14,27 @@
   ],
   "scripts": {
     "buildall": "(cd jscomponents && yarn build) && (cd site && yarn build)",
-    "lint": "eslint jscomponents/**/*.js jscomponents/**/*.jsx eczoodb/**/*.js previewtool/*.js previewtool/*.jsx",
+    "lint": "eslint",
     "serve": "(cd site && yarn serve)",
     "preview": "(cd previewtool && yarn node runPreview.js)"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
+    "@eslint/js": "^9.17.0",
+    "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "events": "^3.1.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-mocha": "^10.5.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "events": "^3.3.0",
     "https-browserify": "^1.0.0",
     "punycode": "^1.4.1",
     "querystring-es3": "^0.2.1",
     "s3-deploy": "1.4.0",
     "stream-browserify": "^3.0.0",
-    "stream-http": "^3.1.0",
-    "url": "^0.11.0"
+    "stream-http": "^3.2.0",
+    "svgo": "^3.3.2",
+    "url": "^0.11.4"
   },
   "@parcel/resolver-default": {
     "packageExports": true
@@ -37,7 +42,10 @@
   "staticFiles": {
     "staticPath": "./static_copy"
   },
-  "dependencies": {
-    "eslint": "^8.46.0"
+  "@phfaist/parcel-resolver-root": {
+    "prefixPaths": {
+      "~": "/",
+      "/": "/site/_site"
+    }
   }
 }

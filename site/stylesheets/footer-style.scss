@@ -1,0 +1,10 @@
+@use './variables.scss' as *;
+
+#footer {
+    font-style: italic;
+    font-size: $tiny-fine-print-font-size;
+    //color: $text-dim-color;
+    padding: 4px;
+
+    margin-bottom: 20px;
+}
