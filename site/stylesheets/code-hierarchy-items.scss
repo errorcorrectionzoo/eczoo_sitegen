@@ -222,7 +222,7 @@ $code-hierarchy-item-primparent-parentchild-notch-size: 10pt;
     .code-hierarchy-item-inner-descendants {
         display: inline;
         //font-style: italic;
-        font-size: $smaller-font-size;
+        font-size: $small-font-size;
         margin-left: 0pt;
 
         &::before {
