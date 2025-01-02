@@ -195,6 +195,9 @@ function display_code_href_references({ eczoodb, code, R })
 <ul class="code-href-references-list">`;
         for (const { resource_info } of encountered_refs) {
             const { object_type, object_id } = resource_info;
+            if (object_type === 'codelist') {
+                continue; // referring lists are already listed separately
+            }
             html += sqzhtml`
 <li>${ref(object_type, object_id)}</li>
 `;
