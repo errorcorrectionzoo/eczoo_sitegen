@@ -388,11 +388,14 @@ export function render_code_page(
             R
         });
 
-        html += display_code_href_references({
-            eczoodb,
-            code,
-            R
-        });
+        // ### Skip displaying hyperrefs (at least for now).  Important related codes
+        // ### should be listed as cousins anyway.
+        //
+        // html += display_code_href_references({
+        //     eczoodb,
+        //     code,
+        //     R
+        // });
 
 
         html += `
