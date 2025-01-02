@@ -50,7 +50,7 @@ export const stats_code_family_trees_spec = [
     },
     {
         key: 'cq',
-        domain_id: 'quantum_into_classical_domain',
+        domain_id: 'classical_into_quantum_domain',
         //code_id_list: ['classical_into_quantum'],
         label: 'c-q codes',
         only_primary_parent_relation: true,
