@@ -82,7 +82,7 @@ export default {
         'eacq',
         'qecc',
 
-        // some additions
+        // some additions (PhF)
         'quantum_into_quantum',
         'qubits_into_qubits',
         'surface',

@@ -309,12 +309,22 @@ a.code-self-edit {
 
 a.linkcodegraph {
     display: inline-block;
-    width: 32px;
-    height: 32px;
-    background-image: url('~/site/static/icons/linkcodegraph.svg');
-    background-size: contain;
+    font-size: 1rem;
+    vertical-align: bottom;
+
     margin-left: 1em;
-    vertical-align: 0px;
+    height: 32px;
+    line-height: 32px;
+
+    padding: 5px 5px 5px 37px;
+
+    background-image: url('~/site/static/icons/linkcodegraph.svg');
+    background-size: 32px;
+    background-position: 5px 5px;
+    background-repeat: no-repeat;
+    
+    border: solid $discreet-border-color 0.8pt;
+    border-radius: 8px;    
 }
 a.linkcodegraph:hover {
     filter: drop-shadow(2px 2px 5px $a-linkcodegraph-hover-shadow-color);

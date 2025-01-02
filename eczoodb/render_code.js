@@ -213,9 +213,12 @@ function display_code_href_references({ eczoodb, code, R })
 
 
 export function render_code_page(
-    code, { zoo_flm_environment, doc_metadata, extra_html_after_title,
-            additional_setup_render_context, render_meta_changelog_options,
-            eczoodb, notable_codes }
+    code, {
+        zoo_flm_environment, doc_metadata, extra_html_after_title,
+        include_code_graph_link,
+        additional_setup_render_context, render_meta_changelog_options,
+        eczoodb, notable_codes
+    }
 )
 {
     const code_id = code.code_id;
@@ -251,6 +254,9 @@ export function render_code_page(
             html += sqzhtml`
       <span class="code-introduced">${rdr(code.introduced)}</span>
 `;
+        }
+        if (include_code_graph_link != null) {
+            html += `<a href="${include_code_graph_link}" class="linkcodegraph"></a>`;
         }
         if (extra_html_after_title != null) {
             html += extra_html_after_title;

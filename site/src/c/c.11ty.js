@@ -243,19 +243,15 @@ const render = async (data) => {
 
     debug(`Rendering code page for ‘${code.code_id}’ ...`);
 
-    // link to code page
-    const extra_html_after_title = sqzhtml`
-    <a href="/code_graph#code_${code.code_id}" class="linkcodegraph">&nbsp;</a>
-`;
-
     // RENDER THE BULK OF THE CODE PAGE
     const code_page_html = rendercodepage.render_code_page(
         code,
         {
             zoo_flm_environment,
             doc_metadata,
-            extra_html_after_title,
+            //extra_html_after_title,
             eczoodb,
+            include_code_graph_link: `/code_graph#code_${code.code_id}`,
             notable_codes: data.notable_codes_hierarchy.notable_codes,
         }
     );

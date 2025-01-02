@@ -155,7 +155,7 @@ export function get_code_hierarchy_info({
         if (pcode == null) {
             continue;
         }
-        const cur_parent_domain = eczoodb.code_get_parent_domain(pcode);
+        const cur_parent_domain_id = eczoodb.code_get_parent_domain(pcode)?.domain_id;
         const pancestors = eczoodb.code_get_ancestors(pcode, {
             return_relation_info: true,
             skip_first_primary_parent_relation:
@@ -165,8 +165,8 @@ export function get_code_hierarchy_info({
                 // limit ancestors to those that belong to the same domain.
                 return (
                     //eczoodb.code_is_primary_parent(relation.code, code) ||
-                    eczoodb.code_get_parent_domain(relation.code).domain_id
-                    === cur_parent_domain.domain_id
+                    eczoodb.code_get_parent_domain(relation.code)?.domain_id
+                    === cur_parent_domain_id
                 )
             }
         });
@@ -203,7 +203,7 @@ export function get_code_hierarchy_info({
     // also, fetch descendants of children.
     for (let child_item of hierarchy_items.children) {
         const ccode = child_item.code;
-        const cur_child_domain = eczoodb.code_get_parent_domain(ccode);
+        const cur_child_domain_id = eczoodb.code_get_parent_domain(ccode)?.domain_id;
         const cdescendants = eczoodb.code_get_family_tree(ccode, {
             return_relation_info: true,
             parent_child_sort: true,
@@ -211,8 +211,8 @@ export function get_code_hierarchy_info({
                 // limit ancestors to those that belong to the same domain.
                 return (
                     //eczoodb.code_is_primary_parent(code, relation.code) ||
-                    eczoodb.code_get_parent_domain(relation.code).domain_id
-                    === cur_child_domain.domain_id
+                    eczoodb.code_get_parent_domain(relation.code)?.domain_id
+                    === cur_child_domain_id
                 )
             }
         });
