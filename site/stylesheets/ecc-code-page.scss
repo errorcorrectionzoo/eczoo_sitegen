@@ -5,20 +5,17 @@ article.ecc-code-page {
     // LAYOUT - CSS GRID
 
     display: grid;
-    //grid-template-columns: 1fr auto;
-    //grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 
-    //padding-left: 20px;
-    //padding-right: 20px;
     grid-template-columns:
         minmax(0px, 20px)
-        [code-main-sections] minmax($page-min-text-column-width, $page-max-main-width)
+        [code-main-sections code-bibliography] minmax($page-min-text-column-width, $page-max-main-width)
         [code-infobox-buttons code-hierarchy-sections] minmax(250px, ($page-max-width - $page-max-main-width - 40px))
         minmax(0px, 20px)
         ;
     grid-template-rows:
-        [code-info-buttons] 0fr
-        [code-hierarchy-sections] 1fr;
+        [code-main-sections code-info-buttons] 0fr
+        [code-hierarchy-sections] 1fr
+        [code-bibliography] 0fr;
     width: 100%;
     grid-column-gap: 0pt;
     grid-auto-flow: row dense;
@@ -31,9 +28,9 @@ article.ecc-code-page {
         display: none;
     }
 
-    .code-main-section {
+    .code-main-sections {
         grid-column: code-main-sections / span 1;
-        grid-row: span 2;
+        grid-row: code-main-sections / span 2;
         width: 100%;
     }
 
@@ -46,7 +43,7 @@ article.ecc-code-page {
     }
     >.sectioncontent.code-hierarchy {
         grid-column: code-hierarchy-sections / span 1;
-        grid-row: code-hierarchy-sections / span 1;
+        grid-row: code-hierarchy-sections / span 2;
         @media screen {
             padding-left: 25px;
         }
@@ -54,6 +51,11 @@ article.ecc-code-page {
             margin-top: 2em;
             margin-bottom: 2em;
         }
+    }
+
+    .code-bibliography {
+        grid-column: code-bibliography / span 1;
+        grid-row: code-bibliography / span 1;
     }
 
 
@@ -231,7 +233,7 @@ article.ecc-code-page {
             margin-left: 0px;
         }
 
-        .code-main-section {
+        .code-main-sections {
             display: block;
         }
 

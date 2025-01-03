@@ -246,7 +246,7 @@ export function render_code_page(
         let html = '';
 
         html += sqzhtml`
-<div class="code-main-section">`;
+<div class="code-main-sections">`;
 
         html += sqzhtml`
 <div class="sectioncontent code-name">
@@ -397,18 +397,8 @@ export function render_code_page(
         //     R
         // });
 
-
-        html += `
-<RENDER_ENDNOTES/>
-`;
-        const changelog = code._meta?.changelog;
-        if (changelog != null) {
-            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
-        }
-
         html += sqzhtml`
-</div>`; // .code-main-section
-
+</div>`; // .code-main-sections
 
 
         // ---------------------
@@ -437,6 +427,24 @@ ${code_hierarchy_content}`;
 
         html += sqzhtml`
 </div>`;
+
+
+        // -----------------------
+        // BIBLIOGRAPHY & ENDNOTES
+        // -----------------------
+
+        html += sqzhtml`
+<div class="code-bibliography">
+<RENDER_ENDNOTES/>
+`;
+        const changelog = code._meta?.changelog;
+        if (changelog != null) {
+            html += render_meta_changelog(changelog, R, render_meta_changelog_options);
+        }
+        html += sqzhtml`
+</div>`;
+
+
 
         // ------------------
 
