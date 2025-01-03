@@ -434,7 +434,7 @@ ${code_hierarchy_content}`;
         // -----------------------
 
         html += sqzhtml`
-<div class="code-bibliography">
+<div class="sectioncontent code-bibliography">
 <RENDER_ENDNOTES/>
 `;
         const changelog = code._meta?.changelog;

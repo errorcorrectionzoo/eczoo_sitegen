@@ -222,7 +222,7 @@ export function render_codelist_page(
 
         if (include_code_graph_excerpt) {
             html += sqzhtml`
-<div class="codelist-jump-to-code-graph-excerpt"><p><a href="#idCodeGraphExcerpt">Jump to code graph excerpt</a></p></div>
+<div class="codelist-jump-to-code-graph-excerpt"><p><a href="#idCodeGraphExcerpt">[Jump to code graph excerpt]</a></p></div>
 `;
         }
 

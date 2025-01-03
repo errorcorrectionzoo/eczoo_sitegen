@@ -9,13 +9,23 @@ article.ecc-code-page {
     grid-template-columns:
         minmax(0px, 20px)
         [code-main-sections code-bibliography] minmax($page-min-text-column-width, $page-max-main-width)
-        [code-infobox-buttons code-hierarchy-sections] minmax(250px, ($page-max-width - $page-max-main-width - 40px))
+        [code-infobox-buttons code-hierarchy] minmax(250px, ($page-max-width - $page-max-main-width - 40px))
         minmax(0px, 20px)
         ;
+    
     grid-template-rows:
-        [code-main-sections code-info-buttons] 0fr
-        [code-hierarchy-sections] 1fr
-        [code-bibliography] 0fr;
+        [code-main-sections-start code-info-buttons]
+        auto
+        [code-hierarchy-start]
+        auto
+        [code-main-sections-end code-bibliography-start]
+        1fr
+        [code-bibliography-end code-hierarchy-end];
+    // - auto = get size from contents
+    // - 1fr on last row so that bibliography section sticks with code sections and
+    //   isn't aligned on the bottom with a large gap, when the code hierarchy is
+    //   longer than the code sections.
+
     width: 100%;
     grid-column-gap: 0pt;
     grid-auto-flow: row dense;
@@ -30,7 +40,7 @@ article.ecc-code-page {
 
     .code-main-sections {
         grid-column: code-main-sections / span 1;
-        grid-row: code-main-sections / span 2;
+        grid-row: code-main-sections-start / code-main-sections-end;
         width: 100%;
     }
 
@@ -42,8 +52,8 @@ article.ecc-code-page {
         }
     }
     >.sectioncontent.code-hierarchy {
-        grid-column: code-hierarchy-sections / span 1;
-        grid-row: code-hierarchy-sections / span 2;
+        grid-column: code-hierarchy / span 1;
+        grid-row: code-hierarchy-start / code-hierarchy-end;
         @media screen {
             padding-left: 25px;
         }
@@ -55,7 +65,7 @@ article.ecc-code-page {
 
     .code-bibliography {
         grid-column: code-bibliography / span 1;
-        grid-row: code-bibliography / span 1;
+        grid-row: code-bibliography-start / code-bibliography-end;
     }
 
 
