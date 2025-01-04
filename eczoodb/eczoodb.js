@@ -932,23 +932,37 @@ export class EcZooDb extends ZooDb
                 );
             }
 
+            const get_rel_key = (relation) => {
+                return [code_id, relation.code_id].sort().join(':');
+            };
+            let all_parent_child_rel_keys = new Set(
+                [].concat(code.relations?.parents ?? [], code.relations?.parent_of ?? [])
+                .map( (relation_object) => get_rel_key(relation_object) )
+            );
+
             // detect & forbid duplicate cousins.  As we explore cousin relationships,
             // we save a set of all pairs of code ID's (concatenated with ':') with
             // cousin relationships and in which one of the codes is the present
             // code.  Code ID's around the ':' symbol are ordered alphabetically.
             // If we encounter a relation we've already seen, it's an error.
-            let all_cousin_rels = new Set();
+            let all_cousin_rel_keys = new Set();
             const process_cousin_rel = (rel) => {
                 if (rel.code_id === code_id) {
                     debug(`Invalid cousin relationship to self: ${code_id}`);
                     errors.push(`Invalid cousin relationship to self: ${code_id}`);
                 }
-                const key = [code_id, rel.code_id].sort().join(':');
-                if (all_cousin_rels.has(key)) {
+                const key = get_rel_key(rel);
+                if (all_parent_child_rel_keys.has(key)) {
+                    debug(`Detected same relationship as parent and as cousin: `
+                          + `‘${code_id}’↔‘${rel.code_id}`);
+                    errors.push(`Detected same relationship as parent and as cousin: `
+                                + `‘${code_id}’↔‘${rel.code_id}`);
+                }
+                if (all_cousin_rel_keys.has(key)) {
                     debug(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
                     errors.push(`Duplicate cousin relationship detected: ‘${code_id}’↔‘${rel.code_id}’`);
                 }
-                all_cousin_rels.add(key);
+                all_cousin_rel_keys.add(key);
             };
             for (const rel of code.relations?.cousins ?? []) {
                 process_cousin_rel(rel);
