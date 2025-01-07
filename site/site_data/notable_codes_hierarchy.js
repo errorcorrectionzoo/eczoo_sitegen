@@ -25,7 +25,7 @@ export default {
         'generalized_reed_muller',
         'generalized_reed_solomon',
         'self_dual_additive',
-        'self_dual'
+        'self_dual',
         'small_distance',
         'balanced',
         'divisible',
