@@ -12,7 +12,7 @@ const {
 import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
 
 
-const truncate_description_at_length = 360;
+const truncate_description_at_length = 500;
 
 const rx_stub = /^[ \t\n.;_-]*stub[ \t\n.;!_-]*$/i;
 
