@@ -60,7 +60,7 @@ export const stats_code_family_trees_spec = [
         key: 'topological',
         code_id_list: ['topological'],
         label: 'topological codes',
-        only_primary_parent_relation: true,
+        only_primary_parent_relation: false,
         home: true,
     },
     {
@@ -107,6 +107,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
         super();
 
         this.config = config ?? {};
+        this.stats_code_family_trees_spec = stats_code_family_trees_spec;
         this.stats = null;
     }
 
@@ -195,7 +196,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
 
         // hard-coded code family tree sizes
         stats.code_family_trees = {};
-        for (const statspec of stats_code_family_trees_spec) {
+        for (const statspec of this.stats_code_family_trees_spec) {
             const { key, label } = statspec;
             const value = this.get_num_code_family_tree_members(
                 { eczoodb, ...statspec }
@@ -207,7 +208,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
                 };
             }
         }
-        stats.home_code_family_trees = stats_code_family_trees_spec.filter(
+        stats.home_code_family_trees = this.stats_code_family_trees_spec.filter(
             ({ key, home }) => (!!home && Object.hasOwn(stats.code_family_trees, key))
         ).map(
             ({ key }) => stats.code_family_trees[key],

@@ -13,7 +13,7 @@ const window_fetch = window.fetch;
 
 export class RandomCodeShower
 {
-    constructor({container, random_codes_data, random_codes_data_url})
+    constructor({container, random_codes_data, random_codes_data_url,})
     {
         this.element_container = container;
 
@@ -86,6 +86,7 @@ export class RandomCodeShower
         this.element_container.appendChild(p_desc);
         
         if (window?.MathJax?.typesetPromise != null) {
+            window.MathJax.texReset();
             window.MathJax.typesetPromise([this.element_container]);
         }
     }

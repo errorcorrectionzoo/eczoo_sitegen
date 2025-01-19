@@ -12,7 +12,7 @@ const {
 import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
 
 
-//const truncate_description_at_length = 360;
+const truncate_description_at_length = 360;
 
 const rx_stub = /^[ \t\n.;_-]*stub[ \t\n.;!_-]*$/i;
 
@@ -54,7 +54,10 @@ export function generate_random_code_data({eczoodb})
         // const description_truncated = code.description.truncate_to(
         //     truncate_description_at_length
         // );
-        const description_truncated = code.description.get_first_paragraph();
+        const description_first_para = code.description.get_first_paragraph();
+        const description_truncated = description_first_para.truncate_to(
+            truncate_description_at_length
+        );
 
         let description_html = zooflm.make_and_render_document({
             zoo_flm_environment: eczoodb.zoo_flm_environment,
