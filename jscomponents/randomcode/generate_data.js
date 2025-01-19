@@ -12,7 +12,7 @@ const {
 import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
 
 
-const truncate_description_at_length = 360;
+//const truncate_description_at_length = 360;
 
 const rx_stub = /^[ \t\n.;_-]*stub[ \t\n.;!_-]*$/i;
 
@@ -51,9 +51,10 @@ export function generate_random_code_data({eczoodb})
 
         const name_html = code.name.render_standalone(html_fragment_renderer);
 
-        const description_truncated = code.description.truncate_to(
-            truncate_description_at_length
-        );
+        // const description_truncated = code.description.truncate_to(
+        //     truncate_description_at_length
+        // );
+        const description_truncated = code.description.get_first_paragraph();
 
         let description_html = zooflm.make_and_render_document({
             zoo_flm_environment: eczoodb.zoo_flm_environment,
@@ -61,9 +62,6 @@ export function generate_random_code_data({eczoodb})
             render_doc_fn: description_truncated.render,
             //doc_metadata,
             feature_document_options: {
-                // citations: {
-                //     use_endnotes: false,
-                // },
             },
             feature_render_options: {
                 endnotes: {
@@ -78,11 +76,6 @@ export function generate_random_code_data({eczoodb})
             },
             render_endnotes: false,
         });
-
-        // // Remove all the citations altogether. Define the regex HERE! It needs
-        // // the global, stateful flag to capture all matches.
-        // let rx_cite_foot = /<span[ ][^>]*class="citations"[^>]*>[^<]+<\/a>/g;
-        // description_html = description_html.replace(rx_cite_foot, '');
 
         codes[code_id] = {
             name_html,

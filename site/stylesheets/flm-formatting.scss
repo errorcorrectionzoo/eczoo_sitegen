@@ -33,6 +33,20 @@
 // FLM Base Style (adapted)
 // ------------------------------------
 
+
+.p-block {
+    // remember, top margin of next element overlaps with bottom margin of previous one
+    margin-top: 2*$parskip-half-length;
+    margin-bottom: 2*$parskip-half-length;
+}
+.p-block:first-child {
+    margin-top: 0px !important;
+}
+.p-block:last-child {
+    margin-bottom: 0px !important;
+}
+
+
 .emph, .textit {
     font-style: italic;
 }
