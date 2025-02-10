@@ -556,6 +556,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@errorcorrectionzoo/_zoodb_citations_cache@workspace:_zoodb_citations_cache":
+  version: 0.0.0-use.local
+  resolution: "@errorcorrectionzoo/_zoodb_citations_cache@workspace:_zoodb_citations_cache"
+  languageName: unknown
+  linkType: soft
+
 "@errorcorrectionzoo/eczoodb@>=0.0.1, @errorcorrectionzoo/eczoodb@workspace:eczoodb":
   version: 0.0.0-use.local
   resolution: "@errorcorrectionzoo/eczoodb@workspace:eczoodb"
