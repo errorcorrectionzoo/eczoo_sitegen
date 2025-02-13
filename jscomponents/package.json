@@ -6,7 +6,6 @@
   "dependencies": {
     "@codemirror/language": "^6.10.7",
     "@codemirror/legacy-modes": "^6.4.2",
-    "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@phfaist/zoodbtools_gitpreview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_gitpreview",
     "@phfaist/zoodbtools_preview": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_preview",
     "@phfaist/zoodbtools_search": "https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_search",
@@ -33,6 +32,7 @@
     "yaml": "^2.6.1"
   },
   "devDependencies": {
+    "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@parcel/optimizer-terser": "^2.13.3",
     "@parcel/transformer-sass": "2.13.3",
     "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f",
