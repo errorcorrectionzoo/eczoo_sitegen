@@ -126,86 +126,43 @@ function display_code_list_memberships({ eczoodb, code, R })
 }
 
 
-function makeLexicographicCompareFn(cmpArray, { cmpOps, cmpOpDefault }={})
-{
-    const iCmp = (a, b) => ( (a<b) ? -1 : ( (a === b) ? 0 : 1 ) );
-    const cmpOpsFull = {
-        auto: (a, b) => {
-            if (typeof a !== typeof b) {
-                console.warn(`Type mismatch in comparison`, a, b);
-            }
-            if (typeof a === 'number') {
-                return iCmp(a, parseInt(b));
-            }
-            if (typeof a === 'string') {
-                return a.localeCompare(b);
-            }
-            // stringify to JSON, hope for the best
-            return JSON.stringify(a).localeCompare(JSON.stringify(b));
-        },
-        string: (a, b) => (''+a).localeCompare(b),
-        int: (a, b) => iCmp(parseInt(a), parseInt(b)),
-        ...(cmpOps ?? {}),
-    };
-    const cmpFns = (cmpArray??[]).map( (x) => (typeof x === 'string' ? cmpOpsFull[x] : x) );
-    const cmpFnDefault = cmpOpsFull[cmpOpDefault ?? 'auto']
 
-    const lxCmp = (arr1, arr2) => {
-        const minLength = arr1.length < arr2.length ? arr1.length : arr2.length;
-        
-        for (let i = 0; i < minLength; i++) {
-            const val1 = arr1[i];
-            const val2 = arr2[i];
-            const cmp = (i < cmpFns.length) ? cmpFns[i] : cmpFnDefault;
-            const cmpValue = cmp(val1, val2);
-            if (cmpValue !== 0) {
-                return cmpValue;
-            }
-        }
-        
-        return arr1.length - arr2.length;
-    }
-    return lxCmp;
-};
-  
+// function display_code_href_references({ eczoodb, code, R })
+// {
+//     const code_id = code.code_id;
+//     const { ref } = R;
+//     let html = '';
 
-
-function display_code_href_references({ eczoodb, code, R })
-{
-    const code_id = code.code_id;
-    const { ref } = R;
-    let html = '';
-
-    // Display information about which lists this code appears in.
-    let encountered_refs =
-        eczoodb.zoo_flm_processor.scanner.get_encountered_references_to_labels(
-        [ ['code', code_id] ]
-    );
-    if (encountered_refs.length !== 0) {
-        const lxCmp = makeLexicographicCompareFn();
-        encountered_refs.sort(
-            (a,b) => lxCmp(
-                [a.resource_info.object_type, a.resource_info.object_id],
-                [b.resource_info.object_type, b.resource_info.object_id],
-            )
-        );
-        html += sqzhtml`
-<div class="sectioncontent code-href-references">
-<h2 id="code_href_references">Hyperlinks to this code</h2>
-<ul class="code-href-references-list">`;
-        for (const { resource_info } of encountered_refs) {
-            const { object_type, object_id } = resource_info;
-            if (object_type === 'codelist') {
-                continue; // referring lists are already listed separately
-            }
-            html += sqzhtml`
-<li>${ref(object_type, object_id)}</li>
-`;
-        }
-        html += `</ul></div>`;
-    }
-    return html;
-}
+//     // Display information about which lists this code appears in.
+//     let encountered_refs =
+//         eczoodb.zoo_flm_processor.scanner.get_encountered_references_to_labels(
+//         [ ['code', code_id] ]
+//     );
+//     if (encountered_refs.length !== 0) {
+//         const lxCmp = makeLexicographicCompareFn();
+//         encountered_refs.sort(
+//             (a,b) => lxCmp(
+//                 [a.resource_info.object_type, a.resource_info.object_id],
+//                 [b.resource_info.object_type, b.resource_info.object_id],
+//             )
+//         );
+//         html += sqzhtml`
+// <div class="sectioncontent code-href-references">
+// <h2 id="code_href_references">Hyperlinks to this code</h2>
+// <ul class="code-href-references-list">`;
+//         for (const { resource_info } of encountered_refs) {
+//             const { object_type, object_id } = resource_info;
+//             if (object_type === 'codelist') {
+//                 continue; // referring lists are already listed separately
+//             }
+//             html += sqzhtml`
+// <li>${ref(object_type, object_id)}</li>
+// `;
+//         }
+//         html += `</ul></div>`;
+//     }
+//     return html;
+// }
 
 
 
