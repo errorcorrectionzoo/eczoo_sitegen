@@ -133,12 +133,20 @@ export class CodeGraphSvgExporter
             await this.browser_code_server.close();
         }
 
+        // Close page.
+        if (this.page != null) {
+            debug(`Shutting down headless puppeteer browser page...`);
+            await this.page.close();
+            this.page = null;
+        }
+
         // Close browser.
         if (this.browser != null) {
+            debug(`Shutting down headless puppeteer browser...`);
             await this.browser.close();
             this.browser = null;
-            debug(`Internal headless puppeteer browser instance shut down.`);
         }
+        debug(`Internal headless puppeteer browser instance completely shut down.`);
     }
 
     // ------------
