@@ -244,6 +244,10 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
     var eczoodbData = window.eczoodbData;
     var svgOptions = ${ JSON.stringify(svgOptions || {}) };
 
+    if (!window.eczoodbData) {
+        throw new Error("Missing eczoodbData. Did you forget to call loadEcZooDbData() on your CodeGraphSvgExporter instance?");
+    }
+
     return window.loadAndCompileCodeGraphToSvgPromise(eczoodbData, prepareOptions, svgOptions);
 
 })();
