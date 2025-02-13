@@ -133,19 +133,30 @@ export class CodeGraphSvgExporter
             await this.browser_code_server.close();
         }
 
-        // Close page.
-        if (this.page != null) {
-            debug(`Shutting down headless puppeteer browser page...`);
-            await this.page.close();
-            this.page = null;
+        // .close() methods appear unreliable.
+        // cf. https://github.com/puppeteer/puppeteer/issues/7922
+        if (this.browser != null) {
+            debug(`Bye bye puppeteer browser page...`);
+            const childProcess = this.browser.process()
+            if (childProcess) {
+                childProcess.kill(9)
+            }
         }
 
-        // Close browser.
-        if (this.browser != null) {
-            debug(`Shutting down headless puppeteer browser...`);
-            await this.browser.close();
-            this.browser = null;
-        }
+        // // Close page.
+        // if (this.page != null) {
+        //     debug(`Shutting down headless puppeteer browser page...`);
+        //     await this.page.close();
+        //     this.page = null;
+        // }
+
+        // // Close browser.
+        // if (this.browser != null) {
+        //     debug(`Shutting down headless puppeteer browser...`);
+        //     await this.browser.close();
+        //     this.browser = null;
+        // }
+
         debug(`Internal headless puppeteer browser instance completely shut down.`);
     }
 
