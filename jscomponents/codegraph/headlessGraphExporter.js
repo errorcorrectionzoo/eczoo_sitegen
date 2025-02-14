@@ -43,9 +43,12 @@ class _BrowserCodeSourceServer {
     }
     async startServer()
     {
-        return await new Promise( (resolve) => {
+        return await new Promise( (resolve, reject) => {
             this.server.listen(this.port, this.hostname, (err) => {
-                if (err) throw err;
+                if (err) {
+                    reject(err);
+                    return;
+                }
                 debug(`Started internal headless browser code server!  Serving files in `
                       + `${browser_code_dir} on http://${this.hostname}:${this.port}/`);
                 resolve({ port: this.port, hostname: this.hostname });
@@ -54,12 +57,23 @@ class _BrowserCodeSourceServer {
     }
     async close()
     {
+        if (this.server == null) {
+            return;
+        }
         debug(`Closing internal headless browser code server ...`);
-        await new Promise( (resolve) => {
-            this.server.close(resolve);
-            debug(`Internal headless browser code server shut down.`);
+        await new Promise( (resolve, reject) => {
+            this.server.close( (err) => {
+                if (err) {
+                    reject(err);
+                }
+                debug(`Internal headless browser code server shut down.`);
+                resolve();
+            });
+            // run closeAllConnections immediately after close(), without waiting
+            // for close to call its callback
+            this.server.closeAllConnections();
+            this.server = null;
         } );
-
     }
 }
 
@@ -83,6 +97,10 @@ export class CodeGraphSvgExporter
 
     async setup()
     {
+        if (this.page != null) {
+            throw new Error(`Please do not call CodeGraphSvgExporter.setup() twice!`);
+        }
+
         //
         // Now, launch a fake browser to run cytoscape & generate svg (:/)
         //
@@ -133,29 +151,27 @@ export class CodeGraphSvgExporter
             await this.browser_code_server.close();
         }
 
-        // .close() methods appear unreliable.
-        // cf. https://github.com/puppeteer/puppeteer/issues/7922
         if (this.browser != null) {
-            debug(`Bye bye puppeteer browser page...`);
-            const childProcess = this.browser.process()
-            if (childProcess) {
-                childProcess.kill(9)
+            // // .close() methods appear unreliable.
+            // // cf. https://github.com/puppeteer/puppeteer/issues/7922
+            // debug(`Bye bye puppeteer browser page...`);
+            // const childProcess = this.browser.process()
+            // if (childProcess) {
+            //     childProcess.kill(9)
+            // }
+
+            // Close page, if applicable
+            if (this.page != null) {
+                debug(`Shutting down headless puppeteer browser page...`);
+                await this.page.close();
+                this.page = null;
             }
+
+            // Close browser.
+            debug(`Shutting down headless puppeteer browser...`);
+            await this.browser.close();
+            this.browser = null;
         }
-
-        // // Close page.
-        // if (this.page != null) {
-        //     debug(`Shutting down headless puppeteer browser page...`);
-        //     await this.page.close();
-        //     this.page = null;
-        // }
-
-        // // Close browser.
-        // if (this.browser != null) {
-        //     debug(`Shutting down headless puppeteer browser...`);
-        //     await this.browser.close();
-        //     this.browser = null;
-        // }
 
         debug(`Internal headless puppeteer browser instance completely shut down.`);
     }
@@ -244,7 +260,7 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
     }
 
     async compileLoadedEczCodeGraph({
-        displayOptions, updateLayoutOptions, cyStyleOptions,
+        graphGlobalOptions, displayOptions, updateLayoutOptions, cyStyleOptions,
         svgOptions,
         fitWidth, importSourceSansFonts,
     })
@@ -255,7 +271,7 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
 
         try {
             const prepareOptions = {
-                displayOptions, updateLayoutOptions, cyStyleOptions
+                graphGlobalOptions, displayOptions, updateLayoutOptions, cyStyleOptions
             };
             const jsCode = `
 (function() {

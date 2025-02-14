@@ -26,17 +26,19 @@ import cySvg from 'cytoscape-svg';
 cytoscape.use( cySvg );
 
 
-async function _loadCodeGraph(eczoodbData, displayOptions)
+async function _loadCodeGraph(eczoodbData, displayOptions, graphGlobalOptions)
 {
     const eczoodb = await load_eczoodb_from_data(eczoodbData);
 
     let eczCodeGraph = new EczCodeGraph({
         eczoodb,
+        graphGlobalOptions,
     });
 
     await eczCodeGraph.initialize();
 
-    let eczCodeGraphViewController = new EczCodeGraphViewController(eczCodeGraph, displayOptions);
+    let eczCodeGraphViewController =
+        new EczCodeGraphViewController(eczCodeGraph, displayOptions);
 
     await eczCodeGraphViewController.initialize();
 
@@ -44,14 +46,14 @@ async function _loadCodeGraph(eczoodbData, displayOptions)
 }
 
 async function _prepareCodeGraphAndLayout(
-    eczoodbData, { displayOptions, updateLayoutOptions, cyStyleOptions }
+    eczoodbData, { graphGlobalOptions, displayOptions, updateLayoutOptions, cyStyleOptions }
 )
 {
     const {
         eczoodb,
         eczCodeGraph,
         eczCodeGraphViewController,
-    } = await _loadCodeGraph(eczoodbData, displayOptions);
+    } = await _loadCodeGraph(eczoodbData, displayOptions, graphGlobalOptions);
 
     debug(`Code graph loaded.`);
 

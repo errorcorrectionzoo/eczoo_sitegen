@@ -106,6 +106,7 @@ export class EczCodeGraph
                 },
                 useCodeShortNamesForLabels: false, //true,
                 alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
+                overrideCoseLayoutOptions: null, // specify dict to override individual layout options for fcose
             },
             graphGlobalOptions
         );
@@ -556,7 +557,7 @@ export class EczCodeGraph
             // further constraints can be added here in the future
         );
 
-        const layoutOptions = {
+        let layoutOptions = {
             name: 'fcose', //'cose-bilkent',
             quality: 'proof',
             randomize: false,
@@ -611,6 +612,10 @@ export class EczCodeGraph
             // alignmentConstraint: {vertical: [], horizontal: []},
             // relativePlacementConstraint: [],
         };
+        if (this.graphGlobalOptions.overrideCoseLayoutOptions != null) {
+            layoutOptions =
+                loMerge(layoutOptions, this.graphGlobalOptions.overrideCoseLayoutOptions);
+        }
 
         let p = new Promise( (resolve) => {
             debug('in promise - creating and running layout');

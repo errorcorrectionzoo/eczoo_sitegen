@@ -3,3 +3,4 @@ jscomponents/dist/*/*.js                binary
 jscomponents/dist/*/*.js.map            binary
 jscomponents/dist/*/*.css               binary
 artwork/*                               binary
+jscomponents/codegraph/_headless_exporter_browser_code_dist/_headless_exporter_browser_page.*.js         binary
