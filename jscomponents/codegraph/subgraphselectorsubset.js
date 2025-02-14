@@ -30,6 +30,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                     secondaryParent: null,
                     cousin: null,
                 },
+
+                showNodeIds: [],
             },
             options
         );
@@ -68,6 +70,11 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
             // eg. { primaryParent: 1, secondaryParent: 5, cousin: 10 }
             connectingNodesEdgeLengthsByType,
+
+            // The following node ID's will be shown in addition to any
+            // selected codes.  They will be COMPLETELY IGNORED when
+            // calculating any connecting nodes.
+            showNodeIds,
         } = this.options;
 
         debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph(), codeIds=${codeIds}`);
@@ -345,6 +352,38 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             }
         }
 
+        let addExtraNodeElements = this.cy.collection();
+        let addExtraNodeFadeElements = this.cy.collection();
+
+        if (showNodeIds && showNodeIds.length) {
+            addExtraNodeElements = addExtraNodeElements.union( showNodeIds.map(
+                (nodeId) => {
+                    const e = this.cy.getElementById(nodeId);
+                    if (e == null || e?.length == 0) {
+                        console.warn(`No such node ID: ‘${nodeId}’`);
+                        return null;
+                    }
+                    return e;
+                }
+            ) );
+            // include all internal edges & edges connecting to a strongly visible element
+            addExtraNodeElements = addExtraNodeElements.union(
+                addExtraNodeElements.connectedEdges().filter( e => (
+                    (addExtraNodeElements.has(e.source())
+                        && addExtraNodeElements.has(e.target()))
+                    || (subsetElements.has(e.source())
+                        || subsetElements.has(e.target()))
+                ) )
+            );
+            // include all edges connecting to a visible element
+            addExtraNodeFadeElements = addExtraNodeFadeElements.union(
+                addExtraNodeElements.connectedEdges().filter(
+                    e => fadeExtraElements.has(e.source())
+                         || fadeExtraElements.has(e.target())
+                )
+            );
+        }
+
         debug(`codeIds=${codeIds.join(',')}`);
         debug(`subsetCodeNodes=${dispCollection(subsetCodeNodes)}`);
         debug(`subsetElements=${dispCollection(subsetElements)}`);
@@ -352,6 +391,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         debug(`fadeExtraElements=${dispCollection(fadeExtraElements)}`);
         debug(`visibleElements=${dispCollection(visibleElements)}`);
         debug(`rootElements=${dispCollection(rootElements)}`);
+        debug(`addExtraNodeElements=${dispCollection(addExtraNodeElements)}`);
+        debug(`addExtraNodeFadeElements=${dispCollection(addExtraNodeFadeElements)}`);
 
         this.cy.batch( () => {
             allElements.removeClass('layoutVisible layoutParent');
@@ -360,6 +401,8 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             layoutPrimaryParentEdges.addClass('layoutParent');
             fadeExtraElements.addClass('layoutVisible layoutFadeExtra');
             rootElements.addClass('layoutRoot');
+            addExtraNodeFadeElements.addClass('layoutVisible layoutFadeExtra');
+            addExtraNodeElements.addClass('layoutVisible').removeClass('layoutFadeExtra');
         } );
 
         // // find root nodes for the layout
