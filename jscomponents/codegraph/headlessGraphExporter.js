@@ -237,20 +237,6 @@ export class CodeGraphSvgExporter
     {
         debug(`loadEcZooDbData()`);
 
-        // // make sure we load the necessary browser code
-        // const scriptContent = fs.readFileSync(
-        //     path.join(
-        //         __dirname,
-        //         '_headless_exporter_browser_code_dist/_headless_exporter_browser_code.js',
-        //     ),
-        //     { encoding: 'utf-8' }
-        // );
-        // debug(`init script content = "${scriptContent.slice(0,100)}..."`);
-        // // this.page.addScriptTag({
-        // //     content: scriptContent
-        // // });
-        // await this.page.evaluate(scriptContent);
-
         const jsCode = `
 window.eczoodbData = ${JSON.stringify(eczoodbData)};
 `;

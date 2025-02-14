@@ -62,7 +62,8 @@ export const cyBaseStyleJson = [
     {
         selector: 'node[_hasParentKingdom=0]',
         style: {
-            'shape': 'round-diamond',
+            'shape': 'star',
+                // 'round-diamond', // round-* have bogous SVG rendering except round-rectangle
             color: 'rgb(136, 91, 7)',
             'background-color': 'rgb(136, 91, 7)',
             width: 20,
