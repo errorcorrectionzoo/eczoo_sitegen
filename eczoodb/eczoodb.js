@@ -26,13 +26,14 @@ const default_config = {
     use_gitlastmodified_processor: null,
 
     use_flm_environment: null,
-    zoo_flm_environment_options: null,
     flm_allow_unresolved_references: false,
     flm_allow_unresolved_citations: false,
 
     use_flm_processor: null,
 
     flm_options: {
+
+        environment_options: null,
 
         refs:  {
             code: {
