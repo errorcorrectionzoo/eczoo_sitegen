@@ -115,6 +115,7 @@ export class CodeGraphSvgExporter
               `--no-sandbox`,
               `--disable-setuid-sandbox`,
             ],
+            timeout: 0,
         });
         this.page = await this.browser.newPage();
 
