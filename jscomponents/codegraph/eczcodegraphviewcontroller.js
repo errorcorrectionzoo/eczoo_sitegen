@@ -53,6 +53,7 @@ const defaultDisplayOptions = {
         connectingNodesMaxExtraDepth: 3,
         connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
         connectingNodesToDomainsAndKingdoms: true,
+        connectingNodesToDomainsAndKingdomsMaxLength: 2,
         connectingNodesEdgeLengthsByType: {
             primaryParent: 1,
             secondaryParent: 4,

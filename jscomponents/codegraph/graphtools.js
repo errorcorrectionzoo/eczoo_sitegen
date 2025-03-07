@@ -331,6 +331,8 @@ export function connectingPathsComponents({
     const allNodes = allElements.nodes();
     const allEdges = allElements.edges();
 
+    debug(`connectingPathsComponents: root elements = ${dispCollection(rootElements)}`);
+
     // Identify the connected components of the displayed nodes and find paths
     // that connect the disconnected clusters
     const components = rootElements.components();

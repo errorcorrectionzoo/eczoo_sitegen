@@ -8,6 +8,9 @@ import { connectingPathsComponents, dispCollection, dispElement } from './grapht
 import { EczCodeGraphSubgraphSelector } from './subgraphselector.js';
 
 
+// ----------------------------------------------------------------------------
+
+
 export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSelector
 {
     constructor(eczCodeGraph, options={})
@@ -81,7 +84,9 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
         debug(`EczCodeGraphSubgraphSelectorSubset: installSubgraph(), codeIds=${codeIds}`);
 
+        // all elements of the code graph, visible or hidden.
         const allElements = this.cy.elements();
+
         const subsetCodeNodes = this.cy.collection().union( codeIds.map(
             (codeId) => {
                 const e = this.cy.getElementById(this.eczCodeGraph.getNodeIdCode(codeId));
@@ -91,13 +96,15 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                 }
                 return e;
             }
-        ) );
+        ).filter( ele => (ele != null) ) );
+
         // include all internal edges
         let subsetElements = subsetCodeNodes.union(
             subsetCodeNodes.connectedEdges().filter(
                 e => subsetCodeNodes.has(e.source()) && subsetCodeNodes.has(e.target())
             )
         );
+
         //let layoutPrimaryParentEdges = subsetElements.edges('[_primaryParent=1]');
 
         let fadeExtraElements = this.cy.collection();
@@ -161,15 +168,17 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                             // found domain/kingdom, include all connecting path elements
                             domainKingdomPathConnectingElements = 
                                 domainKingdomPathConnectingElements.union(
-                                    this.cy.collection(nodeChain)
+                                    this.cy.collection().union(nodeChain).filter(
+                                        (ele) => !subsetElements.has(ele)
+                                    )
                                 );
                         }
                     }
                 }
-                nextNodes = this.cy.collection(nextNodeList)
+                nextNodes = this.cy.collection().union(nextNodeList)
                 
                 const foundKingdomsAndDomains =
-                    this.cy.collection(foundKingdomsAndDomainsList);
+                    this.cy.collection().union(foundKingdomsAndDomainsList);
                 domainsAndKingdomNodes = domainsAndKingdomNodes.union(
                     foundKingdomsAndDomains
                 );
@@ -199,7 +208,11 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
 
         fadeExtraElements = fadeExtraElements.union(additionalComponentElements);
 
+        debug(`At this point:\nallComponentElements=${dispCollection(allComponentElements)}\nfadeExtraElements=${dispCollection(fadeExtraElements)}`);
+
         if (showIntermediateConnectingNodes && subsetElements.length) {
+
+            debug(`Determining connected components and connecting paths...`);
 
             const connectingPathsInfo = connectingPathsComponents({
                 rootElements: allComponentElements,
@@ -221,15 +234,17 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
                     }
                     if (d._relType === 'parent') {
                         //debug(`Edge ${dispElement(edge)} is secondary parent`);
-                        return connectingNodesEdgeLengthsByType.secondaryParent ?? 4;
+                        return connectingNodesEdgeLengthsByType.secondaryParent ?? 1.2;
                     }
                     if (d._relType === 'cousin') {
                         //debug(`Edge ${dispElement(edge)} is cousin`);
-                        return connectingNodesEdgeLengthsByType.cousin ?? 6;
+                        return connectingNodesEdgeLengthsByType.cousin ?? 1.2;
                     }
                     throw new Error(`Unknown edge relationship in graph: ${dispElement(edge)}`);
                 },
             })
+
+            debug(`Found ${connectingPathsInfo?.numComponents} connected components.`);
 
             const { connectingPaths, numComponents } = connectingPathsInfo;
 
@@ -568,7 +583,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
         debug(`addExtraNodeFadeElements=${dispCollection(addExtraNodeFadeElements)}`);
 
         this.cy.batch( () => {
-            allElements.removeClass('layoutVisible layoutParent');
+            allElements.removeClass('layoutRoot layoutVisible layoutParent');
 
             subsetElements.addClass('layoutVisible');
             fadeExtraElements.addClass('layoutVisible layoutFadeExtra');
@@ -610,3 +625,9 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
     }
 
 }
+
+
+
+// ----------------------------------------------------------------------------
+
+

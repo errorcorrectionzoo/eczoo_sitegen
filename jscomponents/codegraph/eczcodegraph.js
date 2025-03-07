@@ -576,7 +576,7 @@ export class EczCodeGraph
             // Ideal edge (non nested) length
             idealEdgeLength: (edge_) => {
                 //if (edge.is('.layoutParent')) {
-                return 100;
+                return 50; //100;
                 // } else {
                 //     return 300;
                 // }
@@ -584,7 +584,7 @@ export class EczCodeGraph
             // Divisor to compute edge forces
             edgeElasticity: (edge_) => {
                 //if (edge.is('.layoutParent')) {
-                return 0.3;
+                return 1.5; //0.3;
                 // } else {
                 //     return 0; //0.01;
                 // }

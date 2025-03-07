@@ -31,6 +31,8 @@
         >img {
             max-width: 100%;
             max-height: 80vh; // keep the graph excerpt not too tall
+            padding: 12pt;
+            box-sizing: border-box;
 
             background-color: rgba(255, 236, 217, 0.9);
         }
