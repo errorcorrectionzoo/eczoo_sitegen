@@ -20,7 +20,7 @@ const initialDisplayOptions = {
         "connectingNodesMaxExtraDepth": 3,
         "connectingNodesOnlyKeepPathsWithAdditionalLength":0,
         "connectingNodesToDomainsAndKingdoms": true,
-        "connectingNodesToDomainsAndKingdomsMaxLength": 1,
+        "connectingNodesToDomainsAndKingdomsMaxLength": 2,
         "connectingNodesEdgeLengthsByType": {
             "primaryParent": 1,
             "secondaryParent": 1.2,

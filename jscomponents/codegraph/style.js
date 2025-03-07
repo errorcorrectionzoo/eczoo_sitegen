@@ -300,8 +300,8 @@ export const cyBaseStyleJson = [
     {
         selector: '.DEBUG.prelayoutOutOfLayoutTree',
         style: {
-            color: 'rgb(120,0,50)',
-            'background-color': 'rgb(120,0,50)',
+            color: 'rgb(230, 6, 204)',
+            'background-color': 'rgb(230, 6, 204)',
             //opacity: 1,
         }
     },
