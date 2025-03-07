@@ -21,11 +21,21 @@ const defaultPrelayoutOptions = {
 
     // for automatic positioning of root nodes without an explicit position
     origin: {
+        // positioning of root nodes that do not have a predefined position
         position: {x: 0, y: 0},
-        radius: 200.0,
+        rootPositioning: 'linear', // 'linear' or 'circle'
+        // for linear positioning - offset for each root node
         rootPositionXOffset: 500.0,
         rootPositionYOffset: 0,
+        // for circle positioning.  Circle radius is computed automatically such that
+        // root nodes are spaced by `rootPositionCircleRootSpacing`
+        rootPositionCircleRootSpacing: 200.0,
+        rootPositionCircleDirection: Math.PI/2,
+        rootPositionCircleAngularSpread: 0.8*Math.PI,
+
+        // default settings for the subtrees attached to each root node
         angularSpread: 2*Math.PI, ///3, //2*Math.PI * 0.2,
+        radius: 200.0, // default radius for root nodes
         direction: Math.PI/2,
         useWeights: false,
     },
@@ -37,6 +47,44 @@ const defaultPrelayoutOptions = {
     weightCalcSecondaryFactor: 0.1, //0.3,
 };
 
+
+
+
+const rootPositioningFunctions = {
+    linear: ({ numRootNodes, origin }) => {
+        return (j) => ({
+            position: {
+                x: origin.position.x + (j - numRootNodes/2) * origin.rootPositionXOffset,
+                y: origin.position.y + (j - numRootNodes/2) * origin.rootPositionYOffset,
+            }
+        });
+    },
+    circle: ({ numRootNodes, origin }) => {
+        const numGaps = (numRootNodes - 1)
+        const circleRadius = numGaps
+            * origin.rootPositionCircleRootSpacing
+            / origin.rootPositionCircleAngularSpread
+            ;
+        const anglePerGap = (
+            (numGaps === 0)
+            ? 0
+            : (origin.rootPositionCircleAngularSpread / numGaps)
+        );
+        debug(`Preparing to position ${numRootNodes} root nodes...`);
+        return (j) => {
+            const jp = (j + 0.5 - numGaps/2); // if numGaps==0, jp is irrelevant below
+            const phi = origin.rootPositionCircleDirection  +  jp * anglePerGap ;
+            debug(`Position #${j}/${numRootNodes} at phi=${phi}; circleRadius=${circleRadius}, origin.position=${JSON.stringify(origin.position)}`);
+            return {
+                position: {
+                    x:  origin.position.x + circleRadius * Math.cos(phi),
+                    y:  origin.position.y + circleRadius * Math.sin(phi),
+                },
+                direction: phi,
+            };
+        };
+    },
+};
 
 
 
@@ -105,23 +153,31 @@ export class PrelayoutRadialTree
         }
 
         //debug(`Will need to auto position ${numJ} root nodes;`, { origin });
+        let rootPositioning = origin.rootPositioning;
+        let getRootPositioningFunc = rootPositioningFunctions[rootPositioning]
+        if (rootPositioning == null || getRootPositioningFunc == null) {
+            console.warn(`Invalid root node positioning strategy!  Picking linear.`);
+            rootPositioning = 'linear';
+        }
+        const getRootPosition = getRootPositioningFunc({
+            numRootNodes: numJ,
+            origin
+        });
 
         for (const [j, rootNodeId] of rootNodeIdsToBePositioned.entries()) {
-            const position = {
-                x: origin.position.x + (j - numJ/2) * origin.rootPositionXOffset,
-                y: origin.position.y + (j - numJ/2) * origin.rootPositionYOffset,
-            };
+            const positionOption = getRootPosition(j);
+            debug(`Root node ${j} is placed at ${JSON.stringify(positionOption)}`);
             rootNodePrelayoutInfo[rootNodeId] = {
-                position,
                 radiusOffset: origin.radius, // R,
                 direction: origin.direction, //angle,
                 angularSpread: origin.angularSpread, // / numJ,
+                ...positionOption,
             };
         }
         
         for (const [rootNodeId, prelayoutInfo] of Object.entries(rootNodePrelayoutInfo)) {
 
-            //debug(`Prelayout - Prepping root node ${rootNodeId}`, { prelayoutInfo });
+            debug(`Prelayout - Prepping root node ${rootNodeId}`, { prelayoutInfo });
 
             positionedNodesData[rootNodeId] = {
                 position: prelayoutInfo.position,
@@ -509,6 +565,13 @@ class _PrelayoutRadialTreeBranchSet
         const globalStartAngle = direction - angularSpread/2;
         const globalEndAngle = globalStartAngle + angularSpread;
 
+        if ( ! Number.isFinite(direction) || ! Number.isFinite(angularSpread)
+            || ! Number.isFinite(R) || ! Number.isFinite(parentR) ) {
+            throw new Error(`Invalid inputs to _distributeAngles()! ` + JSON.stringify({
+                direction, angularSpread, R, parentR
+            }));
+        }
+
         // Start at point (parentR, 0) and send a ray at angle  alpha :=
         // `maxLocalHalfAngularSpread` from the X-axis until reaching a point P
         // at distance exactly R from the origin.
@@ -567,7 +630,7 @@ class _PrelayoutRadialTreeBranchSet
             itemAngles = [];
 
             let curAngle = direction - angularSpread/2;
-            for (const {weight, parentNodeAngleDirection} of items) {
+            for (const { weight, parentNodeAngleDirection } of items) {
 
                 let useAngle = angleSpreadCompressionFactor *
                     weight / totalWeight * angularSpread;
@@ -582,10 +645,13 @@ class _PrelayoutRadialTreeBranchSet
                 );
 
                 if (curAngle >= maxAngle) {
+                    if (angleSpreadCompressionFactor < 1e-4) {
+                        throw new Error(`Something's wrong, cannot distribute angles!`);
+                    }
                     angleSpreadCompressionFactor =
                         angleSpreadUpdateCompressionFactor * angleSpreadCompressionFactor;
+                    debug(`Failure to distribute angles! curAngle=${curAngle*180/Math.PI}deg >= maxAngle=${maxAngle*180/Math.PI}deg, trying again with angleSpreadCompressionFactor=${angleSpreadCompressionFactor}`);
                     needNewIteration = true;
-                    //debug(`Failure! curAngle=${curAngle*180/Math.PI}deg >= maxAngle=${maxAngle*180/Math.PI}deg, trying again with angleSpreadCompressionFactor=${angleSpreadCompressionFactor}`);
                     break;
                 }
                 const beginAngle = Math.max(curAngle, minAngle)
