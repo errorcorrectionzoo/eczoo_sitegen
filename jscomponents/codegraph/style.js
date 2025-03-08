@@ -315,14 +315,16 @@ export function getCyStyleJson(options)
 
     options ??= {};
 
-    debug(`getCyStyleJson: options are `, JSON.stringify(
+    debug(
+        `getCyStyleJson: options are `, JSON.stringify(
         Object.fromEntries( Object.entries(options).map( ([k, v]) => {
             try { return [k, JSON.parse(JSON.stringify(v)) ]; }
             catch (e) {
-                debug(`[Cannot stringify value!] - `, e);
+                debug(`[Cannot stringify value for debug message!] - `, e);
                 return [k, '<cannot stringify value>']
             }
-        }) ) ));
+        }) ) )
+    );
 
     if (options.matchWebPageFonts) {
         let windowObject = (options.window ?? window);

@@ -81,6 +81,7 @@ const rootPositioningFunctions = {
                     y:  origin.position.y + circleRadius * Math.sin(phi),
                 },
                 direction: phi,
+                angularSpread: (origin.rootPositionCircleAngularSpread / numRootNodes),
             };
         };
     },

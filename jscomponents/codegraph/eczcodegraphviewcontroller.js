@@ -47,17 +47,16 @@ const defaultDisplayOptions = {
     modeSubsetOptions: {
         codeIds: [],
         reusePreviousLayoutPositions: false,
-        showIntermediateConnectingNodes: true,
-        connectingNodesMaxDepth: 15,
-        connectingNodesPathMaxLength: 20, 
-        connectingNodesMaxExtraDepth: 3,
-        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
         connectingNodesToDomainsAndKingdoms: true,
         connectingNodesToDomainsAndKingdomsMaxLength: 2,
+        showIntermediateConnectingNodes: true,
+        connectingNodesMaxPathLength: 3.5,
+        connectingNodesMaxNumPaths: 5,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 0,
         connectingNodesEdgeLengthsByType: {
             primaryParent: 1,
-            secondaryParent: 4,
-            cousin: 6,
+            secondaryParent: 1.3,
+            cousin: 2.1,
         },
     },
 

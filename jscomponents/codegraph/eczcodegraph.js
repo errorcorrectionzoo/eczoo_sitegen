@@ -575,19 +575,13 @@ export class EczCodeGraph
             nodeRepulsion: (/*node*/) => 100000,
             // Ideal edge (non nested) length
             idealEdgeLength: (edge_) => {
-                //if (edge.is('.layoutParent')) {
+                // layout only runs on the principal layoutRoot/layoutParent tree.
                 return 50; //100;
-                // } else {
-                //     return 300;
-                // }
             },
             // Divisor to compute edge forces
             edgeElasticity: (edge_) => {
-                //if (edge.is('.layoutParent')) {
-                return 1.5; //0.3;
-                // } else {
-                //     return 0; //0.01;
-                // }
+                // layout only runs on the principal layoutRoot/layoutParent tree.
+                return 1.5;
             },
 
             // Maximum number of iterations to perform - this is a suggested

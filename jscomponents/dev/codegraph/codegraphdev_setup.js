@@ -6,7 +6,7 @@ if (!isStrict()) {
     throw new Error(`Not strict mode!`);
 }
 
-const initialDisplayOptions = {
+const initialDisplayOptions_alt5 = {
     "displayMode": "subset",
     "modeSubsetOptions": {
         "codeIds": [
@@ -14,18 +14,9 @@ const initialDisplayOptions = {
             "combinatorial_design", "constant_weight", "hadamard", "one_hot", "one_vs_one","tetracode","weight_two","simplex","simplex734","q-ary_simplex"
         ],
         "reusePreviousLayoutPositions": false,
-        "showIntermediateConnectingNodes": false,
-        "connectingNodesMaxDepth": 25,
-        "connectingNodesPathMaxLength": 3.5,
-        "connectingNodesMaxExtraDepth": 3,
-        "connectingNodesOnlyKeepPathsWithAdditionalLength":0,
         "connectingNodesToDomainsAndKingdoms": true,
         "connectingNodesToDomainsAndKingdomsMaxLength": 2,
-        "connectingNodesEdgeLengthsByType": {
-            "primaryParent": 1,
-            "secondaryParent": 1.2,
-            "cousin": 1.2
-        }
+        "showIntermediateConnectingNodes": false,
     },
     "domainColoring": true,
     "cousinEdgesShown": true,
@@ -39,7 +30,7 @@ const initialDisplayOptions = {
     "searchHighlightText": null
 };
 
-const initialDisplayOptions_alt2 = {
+const initialDisplayOptions_alt3 = {
     "displayMode": "subset",
     "modeIsolateNodesOptions": {
         "nodeIds": null,
@@ -110,16 +101,7 @@ const initialDisplayOptions_alt2 = {
         ],
         "reusePreviousLayoutPositions": false,
         "showIntermediateConnectingNodes": true,
-        "connectingNodesMaxDepth": 25,
-        "connectingNodesPathMaxLength": 3.5,
-        "connectingNodesMaxExtraDepth": 3,
-        "connectingNodesOnlyKeepPathsWithAdditionalLength": 0,
         "connectingNodesToDomainsAndKingdoms": true,
-        "connectingNodesEdgeLengthsByType": {
-            "primaryParent": 1,
-            "secondaryParent": 1.2,
-            "cousin": 1.2
-        }
     },
     "domainColoring": true,
     "cousinEdgesShown": true,
@@ -134,7 +116,7 @@ const initialDisplayOptions_alt2 = {
 };
 
 
-const initialDisplayOptions_alt0 = {
+const initialDisplayOptions_alt4 = {
     "displayMode": "subset",
     "modeIsolateNodesOptions": {
         "nodeIds": null,
@@ -205,17 +187,8 @@ const initialDisplayOptions_alt0 = {
         ],
         "reusePreviousLayoutPositions": false,
         "showIntermediateConnectingNodes": true,
-        connectingNodesPathMaxLength: 2, //3.5,
-        connectingNodesMaxDepth: 15,
-        connectingNodesMaxExtraDepth: 3,
         connectingNodesToDomainsAndKingdoms: true,
         connectingNodesToDomainsAndKingdomsMaxLength: 1,
-        connectingNodesOnlyKeepPathsWithAdditionalLength: 0,
-        connectingNodesEdgeLengthsByType: {
-            primaryParent: 1,
-            secondaryParent: 1.2,
-            cousin: 1.2,
-        },
     },
     "domainColoring": true,
     "cousinEdgesShown": true,
@@ -230,7 +203,7 @@ const initialDisplayOptions_alt0 = {
 };
 
 
-const initialDisplayOptions_alt = {
+const initialDisplayOptions = {
   cousinEdgesShown: true,
   secondaryParentEdgesShown: true,
 
@@ -261,26 +234,8 @@ const initialDisplayOptions_alt = {
         ],
         //showIntermediateConnectingNodes: true,
         //
-        // connectingNodesPathMaxLength: 20,
-        // connectingNodesMaxDepth: 15,
-        // connectingNodesMaxExtraDepth: 3,
-        // connectingNodesOnlyKeepPathsWithAdditionalLength: 0,
-        // connectingNodesEdgeLengthsByType: {
-        //     primaryParent: 1,
-        //     secondaryParent: 4,
-        //     cousin: 15,
-        // },
-        //
-        connectingNodesPathMaxLength: 2, //3.5,
-        connectingNodesMaxDepth: 15,
-        connectingNodesMaxExtraDepth: 3,
-        connectingNodesOnlyKeepPathsWithAdditionalLength: 0, connectingNodesToDomainsAndKingdoms: true,
-        connectingNodesToDomainsAndKingdomsMaxLength: 0,
-        connectingNodesEdgeLengthsByType: {
-            primaryParent: 1,
-            secondaryParent: 1.2,
-            cousin: 1.2,
-        },
+        connectingNodesToDomainsAndKingdoms: false,
+        connectingNodesToDomainsAndKingdomsMaxLength: 2,
     },
 
     highlightImportantNodes: {
