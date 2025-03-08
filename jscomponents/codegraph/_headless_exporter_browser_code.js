@@ -117,7 +117,7 @@ async function _loadAndCompileCodeGraphToSvgPromise(eczoodbData, prepareOptions,
 
     var svgData = cy.svg(Object.assign(
         {
-            full: true
+            full: true,
         },
         svgOptions
     ));

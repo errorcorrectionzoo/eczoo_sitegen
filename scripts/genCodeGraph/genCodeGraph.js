@@ -99,7 +99,7 @@ async function genCodeGraph(argv)
 
             let userResponse = await rl.question(`
 Wrote graph to ${outputFileName}.
-If you'd like to update the graph, edit graph_options.js and hit ENTER.
+If you'd like to update the graph, edit ${graphOptionsJsFile} and hit ENTER.
 To quit, type ‘q’ and hit ENTER.
 `);
             if (userResponse.trim().toLowerCase() === 'q') {
@@ -147,7 +147,7 @@ async function main()
             //
             'graph-options-js-file': {
                 default: 'my_graph_options.js',
-                describe: `JS module containing the graph options to apply.  The module should provide an options object as default export. The object should at least contain the key 'displayOptions' with relevant options.  The object is passed as is to CodeGraphExporter.compileLoadedEczCodeGraph().`
+                describe: `JS module containing the graph options to apply.  The module should provide an options object as default export. The object should at least contain the key 'displayOptions' with relevant options.  The object is passed as is to CodeGraphExporter.compileLoadedEczCodeGraph().  Must specify a relative path.`
             },
             'output': {
                 alias: 'o',

@@ -1,13 +1,23 @@
 
-export default {"graphGlobalOptions":{"rootPositioning":{"rootNodesCircleXRadius":500,"rootNodesCircleYRadius":300},"customDomainIdsOrder":{"classical_domain":-100,"quantum_domain":100},"useCodeShortNamesForLabels":false,"alwaysSkipCoseLayout":false,"overrideCoseLayoutOptions": { idealEdgeLength: 50, edgeElasticity: 1.5, nodeRepulsion: 100000 }},
-"displayOptions":{"displayMode":"subset","modeSubsetOptions":{"codeIds":[
-    // "binomial","bosonic_q-ary_expansion","bosonic_rotation","cat","chebyshev","chuang-leung-yamamoto","dual_rail","fock_state","matrix_qm","number_phase","one_hot_quantum","constant_excitation_permutation_invariant","paircat","two-legged-cat","two-mode_binomial","very-small-logical-qubit","wasilewski-banaszek","chi2"
-    "balanced","combinatorial_design","constant_weight","hadamard","one_hot","one_vs_one","tetracode","weight_two","simplex","simplex734","q-ary_simplex"
-],"reusePreviousLayoutPositions":false,"showIntermediateConnectingNodes":true,"connectingNodesMaxPathLength":3.5,
-        connectingNodesMaxNumPaths: 8,"connectingNodesOnlyKeepPathsWithAdditionalLength":0,"connectingNodesToDomainsAndKingdoms":true,"connectingNodesEdgeLengthsByType":{"primaryParent":1,"secondaryParent":1.2,"cousin":1.2}},"domainColoring":true,"cousinEdgesShown":true,"secondaryParentEdgesShown":true,"highlightImportantNodes":{"highlightImportantNodes":true,"degreeThreshold":8,"highlightPrimaryParents":true,"highlightRootConnectingEdges":false},"searchHighlightText":null}}
+const _junk = {
+    "graphGlobalOptions":{
+        "rootPositioning":{"rootNodesCircleXRadius":500,"rootNodesCircleYRadius":300},"customDomainIdsOrder":{"classical_domain":-100,"quantum_domain":100},
+        "useCodeShortNamesForLabels":false,"alwaysSkipCoseLayout":false,
+        "overrideCoseLayoutOptions": {
+            idealEdgeLength: 50, edgeElasticity: 1.5, nodeRepulsion: 100000
+        }
+    },
+    "displayOptions":{
+        "displayMode":"subset","modeSubsetOptions":{"codeIds":[
+            "binomial","bosonic_q-ary_expansion","bosonic_rotation","cat","chebyshev","chuang-leung-yamamoto","dual_rail","fock_state","matrix_qm","number_phase","one_hot_quantum","constant_excitation_permutation_invariant","paircat","two-legged-cat","two-mode_binomial","very-small-logical-qubit","wasilewski-banaszek","chi2"
+            // "balanced","combinatorial_design","constant_weight","hadamard","one_hot","one_vs_one","tetracode","weight_two","simplex","simplex734","q-ary_simplex"
+        ],"reusePreviousLayoutPositions":false,"showIntermediateConnectingNodes":true,},"domainColoring":true,"cousinEdgesShown":true,"secondaryParentEdgesShown":true,"highlightImportantNodes":{"highlightImportantNodes":true,"degreeThreshold":8,"highlightPrimaryParents":true,"highlightRootConnectingEdges":false},"searchHighlightText":null
+    },
+    //fitWidth: 800,
+}
 ;
 
-const _junk = {
+export default {
     graphGlobalOptions: {
     //     "rootPositioning": {
     //         "rootNodesCircleXRadius": 500,
@@ -18,7 +28,7 @@ const _junk = {
     //         "quantum_domain": 100
     //     },
     //     "useCodeShortNamesForLabels": false,
-        "alwaysSkipCoseLayout": true,
+    //    "alwaysSkipCoseLayout": true,
     //     "overrideCoseLayoutOptions": {
     //         "quality": "proof",
     //         "nodeDimensionsIncludeLabels": true,
@@ -40,13 +50,6 @@ const _junk = {
             "codeIds": ["css","surface","testcode","stabilizer","qubits_into_qubits"],
             "reusePreviousLayoutPositions": false,
             "showIntermediateConnectingNodes": true,
-            "connectingNodesMaxPathLength": 20,
-            "connectingNodesMaxNumPaths": 8,
-            "connectingNodesOnlyKeepPathsWithAdditionalLength": 1,
-            "connectingNodesToDomainsAndKingdoms": false,
-            "connectingNodesEdgeLengthsByType": {
-                "primaryParent": 1, "secondaryParent": 4,"cousin": 6
-            },
             "nodeIds": []
         },
         cousinEdgesShown: true,

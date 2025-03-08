@@ -150,7 +150,7 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             debug(
                 `Found ${foundKingdomsAndDomainsSet.size} kingdoms/domains at `
                 + `this level - ${dispCollection([...foundKingdomsAndDomainsSet])}; next node set is`,
-                nextNodeSet
+                dispCollection([...nextNodeSet])
             );
         }
         debug(
@@ -166,8 +166,21 @@ export class EczCodeGraphSubgraphSelectorSubset extends EczCodeGraphSubgraphSele
             }
         }
 
-        const additionalConnectingElements = this.cy.collection().union(
+        let additionalConnectingElements = this.cy.collection().union(
             additionalConnectingElementsList
+        );
+
+        // Be sure to include any additional internal edges between the domain/kingdom nodes.
+        // These edges might still need to be included, for instance, if a DOMAIN-1 was
+        // found as a parent of CODE-1 at the same time as a KINGDOM-A was found as parent
+        // of CODE-2.  If we stop there and only include the node chains, then we might
+        // miss a parent-relation edge between KINGDOM-A and DOMAIN-1.
+        additionalConnectingElements = additionalConnectingElements.union(
+            domainsAndKingdomNodes.connectedEdges().filter( (edge) =>
+                domainsAndKingdomNodes.has(edge.source())
+                && domainsAndKingdomNodes.has(edge.target())
+                && !visibleElements.has(edge)
+            )
         );
     
         return {
