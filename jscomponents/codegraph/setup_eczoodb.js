@@ -18,8 +18,10 @@ export async function load_eczoodb_from_data(eczoodbData)
 
         // In the future, maybe use ecz stats processor? currently it's not needed.
 
-        use_flm_environment, // set up a standard FLM environment ...
-        use_flm_processor: false, // ... but not the full automatic FLM DB processing
+        // set up a standard FLM environment so we can at least render the code names to text ...
+        use_flm_environment,
+        // ... but not the full automatic FLM DB processing
+        use_flm_processor: false,
 
         // allow unresolved refs because e.g. a code description might contain a
         // reference to an equation/figure somewhere else on the code page
@@ -48,12 +50,14 @@ export async function load_eczoodb_from_data(eczoodbData)
     //
     // load refs & citations
     //
-    eczoodb.zoo_flm_environment.ref_resolver.load_database(
-        eczoodbRefsData.refs
-    );
-    eczoodb.zoo_flm_environment.citations_provider.load_database(
-        eczoodbRefsData.citations
-    );
+    if (eczoodbRefsData != null) {
+        eczoodb.zoo_flm_environment.ref_resolver.load_database(
+            eczoodbRefsData.refs
+        );
+        eczoodb.zoo_flm_environment.citations_provider.load_database(
+            eczoodbRefsData.citations
+        );
+    }
 
     debug(`Loaded refs & citations, loading data ...`);
 
