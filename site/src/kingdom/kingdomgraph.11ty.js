@@ -1,6 +1,11 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.src.kingdom.kingdomgraph');
 
+import {
+    suggestedGraphExtractGraphGlobalOptions
+} from '@errorcorrectionzoo/jscomponents/codegraph/eczcodegraph.js';
+
+
 const data = {
     pagination: {
         data: 'eczoodb.objects.kingdom',
@@ -79,6 +84,7 @@ const render = async (data) => {
 
     const svgData = await eczoo_code_graph_svg_exporter.compileLoadedEczCodeGraph({
         displayOptions,
+        graphGlobalOptions: suggestedGraphExtractGraphGlobalOptions,
         //updateLayoutOptions: ...,
         cyStyleOptions: {
             fontFamily: 'Source Sans Pro',

@@ -56,6 +56,39 @@ function contentToNodeLabel(content)
 
 
 
+
+const defaultGraphGlobalOptions = {
+    rootPositioning: {
+        
+        // rootAbstractCodesXSpacing: 750,
+        // rootAbstractCodesYPosition: 0,
+        // rootAbstractCodesYPositionSingleOffset: 150,
+        // domainNodesXSpacing: 750,
+        // domainNodesYPosition: 250,
+        // domainNodesYPositionSingleOffset: 150,
+
+        rootNodesCircleXRadius: 500,
+        rootNodesCircleYRadius: 300,
+    },
+    customDomainIdsOrder:  {
+        classical_domain: -100,
+        quantum_domain: 100,
+    },
+    useCodeShortNamesForLabels: false, //true,
+    alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
+    overrideCoseLayoutOptions: null, // specify dict to override individual layout options for fcose
+};
+
+
+export const suggestedGraphExtractGraphGlobalOptions = {
+    overrideCoseLayoutOptions: {
+        nodeRepulsion: 200000,
+        idealEdgeLength: 50,
+        edgeElasticity: 1.5,
+    },
+};
+
+
 /**
  * Contains subgraph and layout information? - YES via subgraph selector object.
  */
@@ -87,28 +120,9 @@ export class EczCodeGraph
 
         // global options for this code graph.
         this.graphGlobalOptions = loMerge(
-            {
-                rootPositioning: {
-                    
-                    // rootAbstractCodesXSpacing: 750,
-                    // rootAbstractCodesYPosition: 0,
-                    // rootAbstractCodesYPositionSingleOffset: 150,
-                    // domainNodesXSpacing: 750,
-                    // domainNodesYPosition: 250,
-                    // domainNodesYPositionSingleOffset: 150,
-
-                    rootNodesCircleXRadius: 500,
-                    rootNodesCircleYRadius: 300,
-                },
-                customDomainIdsOrder:  {
-                    classical_domain: -100,
-                    quantum_domain: 100,
-                },
-                useCodeShortNamesForLabels: false, //true,
-                alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
-                overrideCoseLayoutOptions: null, // specify dict to override individual layout options for fcose
-            },
-            graphGlobalOptions
+            {},
+            defaultGraphGlobalOptions,
+            graphGlobalOptions,
         );
 
         debug(`EczCodeGraph(): using graphGlobalOptions = ${
@@ -571,18 +585,37 @@ export class EczCodeGraph
             // Whether to include labels in node dimensions. Valid in "proof" quality
             nodeDimensionsIncludeLabels: true,
 
+
+            // Values of nodeRepulsion, idealEdgeLength, and edgeElasticity can also be
+            // provided directly as numerical values instead of as functions that calculate
+            // the value.  See e.g. https://github.com/iVis-at-Bilkent/cytoscape.js-fcose/blob/78afcf96512a409abc903699277ad616c02dfad9/src/fcose/cose.js#L143
+
+            // NOTE: CHANGING THE idealEdgeLength AND edgeElasticity PARAMETERS CAN
+            // SIGNIFICANTLY INCREASE PAGE LOAD/LAYOUT TIMES WHEN LAYING OUT THE ENTIRE
+            // GRAPH.  THESE VALUES ARE USED SO THE FULL GRAPH IS RENDERED IN DECENT TIME.
+            // FOR CODE GRAPH EXTRACTS, I'VE FOUND THAT AESTHETICALLY BETTER RESULTS ARE
+            // OBTAINED WITH
+            //   { nodeRepulsion: 200000, idealEdgeLength: 50, edgeElasticity: 1.5 }
+            // BUT THESE OPTIONS INCREASE THE FULL CODE GRAPH LOAD TIME ON MY LAPTOP
+            // FROM ~1-2s TO ~15-20s.
+            //
+            // The suggested settings for graph extracts can be applied by using the
+            // graphGlobalOptions given in the exported object
+            // `suggestedGraphExtractGraphGlobalOptions` in this module.
+
             // Node repulsion (non overlapping) multiplier
             nodeRepulsion: (/*node*/) => 200000,
             // Ideal edge (non nested) length
             idealEdgeLength: (edge_) => {
                 // layout only runs on the principal layoutRoot/layoutParent tree.
-                return 50; //100;
+                return 100;
             },
             // Divisor to compute edge forces
             edgeElasticity: (edge_) => {
                 // layout only runs on the principal layoutRoot/layoutParent tree.
-                return 1.5;
+                return 0.3;
             },
+
 
             // Maximum number of iterations to perform - this is a suggested
             // value and might be adjusted by the algorithm as required
