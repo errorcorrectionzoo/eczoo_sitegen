@@ -93,7 +93,7 @@ export async function load({ displayOptions, graphGlobalOptions }={})
     const domContainer = window.document.getElementById('main');
 
     //domContainer.classList.add('jsapp-loading');
-    domContainer.innerHTML = 'loading …'
+    domContainer.innerHTML = '<div style="padding: 20px"><i>loading, this might take a moment …</i></div>'
 
     const eczoodbDataUrl =
           domContainer.dataset.eczoodbDataUrl ?? '/dat/eczoodata.json';

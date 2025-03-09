@@ -572,7 +572,7 @@ export class EczCodeGraph
             nodeDimensionsIncludeLabels: true,
 
             // Node repulsion (non overlapping) multiplier
-            nodeRepulsion: (/*node*/) => 100000,
+            nodeRepulsion: (/*node*/) => 200000,
             // Ideal edge (non nested) length
             idealEdgeLength: (edge_) => {
                 // layout only runs on the principal layoutRoot/layoutParent tree.
