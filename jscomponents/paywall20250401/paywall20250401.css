@@ -31,7 +31,7 @@
     display: grid;
     align-items: center;
     grid-template-columns: 1fr max-content;
-    gap: 50px;
+    gap: 30px;
 }
 
 .Paywall20250401Root article {
@@ -49,14 +49,16 @@
 }
 
 .Paywall20250401-Banner > img {
-    min-width: 200px;
-    max-width: 200px;
+    min-width: 160px;
+    max-width: 160px;
 
     /*grid-column: 2 / span 1;*/
     /*margin-top: 30px;
     margin-right: 30px;*/
     /*margin: 30px;*/
 }
+
+
 
 
 .Paywall20250401-Button {
@@ -88,7 +90,7 @@
 .Paywall20250401-Plans {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    margin: 20px 10px 30px;
+    margin: 20px 5px 30px;
     gap: 2em;
 }
 
@@ -133,6 +135,39 @@
     align-self: center;
     margin: auto;
 }
+
+
+/* make some room for the plans */
+.Paywall20250401Root.Paywall20250401-Subscribe img {
+    display: none;
+}
+.Paywall20250401Root.Paywall20250401-Subscribe .Paywall20250401-Banner {
+    grid-template-columns: 1fr;
+}
+
+
+
+@media screen and (max-width: 950px) {
+
+    .Paywall20250401-Banner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 20px;
+    }
+
+    .Paywall20250401-Banner > img {
+        max-width: 100px;
+        min-width: 100px;
+        grid-column: 1 / span 1;
+    }
+
+    .Paywall20250401-Plans {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 
 .Paywall20250401Root.Paywall20250401-One  article.Paywall20250401-One {
