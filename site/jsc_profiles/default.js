@@ -7,6 +7,3 @@ window.addEventListener('load', async function() {
     linkanchorvisualhighlight.load();
     await mathjax.load();
 });
-
-// 😈😈😈
-import "@errorcorrectionzoo/jscomponents/paywall20250401/setup.js";
