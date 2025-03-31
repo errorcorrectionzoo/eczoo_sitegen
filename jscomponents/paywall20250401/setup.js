@@ -110,12 +110,14 @@ function animatePaywall20250401()
     }
 
     for (const e of element.querySelectorAll('.Paywall20250401-Do-Goto')) {
-        e.addEventListener('click', () => {
+        e.addEventListener('click', (ev) => {
+            ev.stopImmediatePropagation();
             gotoPage(e.dataset.goto);
         });
     }
     for (const e of element.querySelectorAll('.Paywall20250401-Do-Exit')) {
-        e.addEventListener('click', () => {
+        e.addEventListener('click', (ev) => {
+            ev.stopImmediatePropagation();
             gotoPage(null);
             element.style.display = 'none';
         });
@@ -124,7 +126,8 @@ function animatePaywall20250401()
     // if this is not the first time the paywall is displayed, then a click anywhere
     // will make the thing disappear.  People still have to be able to work!
     if (ecz20250401PaywallAlreadyShown) {
-        element.addEventListener('click', () => {
+        element.addEventListener('click', (ev) => {
+            ev.stopImmediatePropagation();
             element.style.display = 'none';
         });
     }
