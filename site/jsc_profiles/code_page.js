@@ -11,5 +11,7 @@ window.addEventListener('load', async function() {
 
 
 
-// 😈😈😈
-import "@errorcorrectionzoo/jscomponents/paywall20250401/setup.js";
+// No longer April 1, had our laughs
+//
+// // 😈😈😈
+// import "@errorcorrectionzoo/jscomponents/paywall20250401/setup.js";
