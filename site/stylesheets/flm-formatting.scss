@@ -23,9 +23,14 @@
 .paragraph-in-list::before {
     content: '\25b9';  // triangle right
     font-size: 0.65rem;
-    float: left;
     margin-left: -0.8rem;
     color: $text-dim-color;
+
+    float: left;
+    // !!! "float" appears to work better---With "display: inline-block" then
+    // the bullet appears too high if we have <p> children.
+    //display: inline-block;
+    //width: 0.8rem;
 }
 
 
