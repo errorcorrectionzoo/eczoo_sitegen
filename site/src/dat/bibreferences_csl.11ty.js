@@ -24,11 +24,11 @@ const render = async (data) => {
 
     const { eczoodb } = data;
 
-    const bibrefsdata = eczoodb.site_bibrefsdata;
+    const ecz_bibliorefs_collector = eczoodb.site_ecz_bibliorefs_collector;
 
     //debug('dumping csl-json data', bibrefsdata.bibdb_csl_json);
 
-    return JSON.stringify(bibrefsdata.bibdb_csl_json);
+    return JSON.stringify(ecz_bibliorefs_collector.generateCslJsonEntries());
 };
 
 

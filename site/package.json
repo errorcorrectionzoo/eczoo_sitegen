@@ -20,6 +20,7 @@
     "@citation-js/plugin-bibtex": "^0.7.16",
     "@citation-js/plugin-csl": "^0.7.14",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+    "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1",
     "@errorcorrectionzoo/jscomponents": ">=0.0.1",
     "@kitschpatrol/eleventy-plugin-parcel": "^1.0.8",
     "@parcel/config-default": "^2.13.3",
