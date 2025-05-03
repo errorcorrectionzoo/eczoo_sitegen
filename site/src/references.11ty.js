@@ -1,6 +1,8 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.src.references');
 
+import _ from 'lodash';
+
 const data = {
     title: 'References',
     tags: ['sitePage'],
@@ -53,8 +55,7 @@ const render = async (data) => {
                 return ref(object_type, object_id);
             });
             s += sqzhtml`
-<li>
-    <!-- Sort key is ${JSON.stringify(sort_key)} -->
+<li data-sort-key="${_.escape(sort_key)}">
     <span class="bibliography-ref">${rdr(compiled_flm)}</span>.<span> </span>
     <span class="bibliography-backref">Appears in: ${backrefs.join(', ')}</span>
 </li>

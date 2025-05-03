@@ -2,8 +2,8 @@ import debug_module from 'debug';
 const debug = debug_module('eczoohelpers_eczcollectbib.parseauthors');
 
 
-const rx_suffix = /^(Jr\.|Sr\.)|((I{1,3}|IV|V|VI{1,3}|IX|X)\b)\s*/u;
-
+const rx_suffix = /^(Jr\.|Sr\.)|((I{1,3}|IV|V|VI{1,3}|IX|X)\b(?!\.))\s*/u;
+const rx_etal = /^(et\s+al\.?)/iu;
 
 class _TokenConsumer
 {
@@ -117,15 +117,23 @@ class _TokenConsumer
 
     consumeInitial(toklist)
     {
+        if (this.s.match(rx_etal)) {
+            // never match "et al".
+            return false;
+        }
         return this._consume(
-            /^(\p{Lu}\p{M}*)(\p{L}\p{M}*)?(\.\s*|\s+|(?!\p{L}))/u,
+            /^(\p{Lu}\p{M}*)(\.\s*|(?![\p{L}'’\p{Dash_Punctuation}])\s*|(\p{L}\p{M}*)\.\s*)/u,
             toklist, 
             (m) => m[0].trim(),
         );
     }
     consumeNamePart(toklist)
     {
-        if (this.s.match(/^and\b/)) { // do not match bibtex-like separator "and"
+        if (this.s.match(/^and\b/u)) { // do not match bibtex-like separator "and"
+            return false;
+        }
+        if (this.s.match(rx_etal)) {
+            // never match "et al".
             return false;
         }
         return this._consume(
@@ -180,6 +188,14 @@ class _TokenConsumer
             (m_) => ';'
         );
     }
+    consumeEtAl(toklist)
+    {
+        return this._consume(
+            rx_etal,
+            toklist, 
+            (m) => m[1]
+        );
+    }
 
     consumeSpace()
     {
@@ -203,6 +219,7 @@ class _TokenConsumer
         assumeFirstLast,
         assumeMiddleNamesAlwaysInitials,
         assumeLastNamesNeverInitials,
+        assumeNoSequenceOfLowercaseWords,
     }={})
     {
         // assume that names are given as "Last, First" syntax.
@@ -228,6 +245,10 @@ class _TokenConsumer
         // TO MAKE!]
         assumeLastNamesNeverInitials ??= false;
 
+        // Assume that author names do not contain multiple long-ish lowercase words.  This
+        // is a useful trick to help avoid catching a publication title as an author name.
+        assumeNoSequenceOfLowercaseWords ??= false;
+
         // Furthermore, we assume that the sequence of last names never begins with an
         // initial.  This helps us immediately decide that "G. Bluhm, Google" as two authors
         // "G. Bluhm" and "Google", rather than an author with last names "G. Bluhm" and first
@@ -238,6 +259,18 @@ class _TokenConsumer
         let mkreturn = (info) =>
             Object.assign({}, this._make_consume_result(aCheckpoint), info)
         ;
+
+        const checkNoSequenceOfLowercaseWords = (v) => {
+            let lcwords = v.filter( (s) => s.match(/^\p{Lowercase_Letter}{5,}$/u) );
+            debug(`Checking: v=${v} lcwords=${lcwords}`);
+            if (lcwords.length >= 2) {
+                // more than this many lowercase words of big enough length, that's
+                // likely a title!
+                this._restore_state(aCheckpoint);
+                return false;
+            }
+            return true;
+        };
 
         let atoklist = [];
 
@@ -254,27 +287,36 @@ class _TokenConsumer
             // this logic branch should not be used if we know that authors are specified
             // as Last, First, because here we won't look for a comma.
 
-            // consume any remaining initials -- these are given names.
+            // consume any remaining initials -- these are likely given names.
             while (this.consumeInitial(atoklist))
                 ;
-
-            let author = {};
-            author.given = atoklist.join(' '); // certainly nonempty
 
             let btoklist = [];
             while (this.consumeInitialOrNamePartNotSuffix(btoklist))
                 ;
-            if (btoklist.length) {
-                author.family = btoklist.join(' ');
-            }
+
+            // if (btoklist.length === 0 && !atoklist[atoklist.length-1].endsWith('.')) {
+            //     // it's likely that a short last name (e.g. "Li", "Xu") was confused
+            //     // as an initial. 
+            // } // ### better: fix consumeInitial() to be less tolerant
 
             let ctoklist = [];
             while (this.consumeSuffix(ctoklist))
                 ;
+
+            let author = {};
+            author.given = atoklist.join(' '); // certainly nonempty
+            if (btoklist.length) {
+                author.family = btoklist.join(' ');
+            }
             if (ctoklist.length) {
                 author.suffix = ctoklist.join(' ');
             }
 
+            if (assumeNoSequenceOfLowercaseWords &&
+                !checkNoSequenceOfLowercaseWords([...atoklist, ...btoklist])) {
+                return false;
+            }
             toklist.push(author);
             return mkreturn({ rulesOutLastCommaFirstSyntax: true });
         }
@@ -352,20 +394,14 @@ class _TokenConsumer
                 authorIfFirstLast.suffix = suffixtoklist.join(' ');
             }
 
-            // if suffix...{
-            //     // Either "First [M ...] Last Jr." or "Last1 [Last2 ...] Jr., First1 [...]"
-            //     let xtoklist = [];
-            //     if (this.peek(this.consumeDefinitiveAuthorSeparator(xtoklist))) {
-            //         // great, we've established without a doubt that the author list is
-            //         // NOT formatted according to Last, First.
-            //         toklist.push({
-            //             ...authorIfFirstLast,
-            //             suffix: suffixtoklist.join(' '),
-            //         });
-            //         return mkreturn({ rulesOutLastCommaFirstSyntax: true });
-            //     }
-            // }
-
+            // If we've read too many lowercase words in this name, it's more likely a
+            // publication title rather than an author name, so we should stop here.
+            if (assumeNoSequenceOfLowercaseWords &&
+                !checkNoSequenceOfLowercaseWords([...atoklist, ...btoklist])) {
+                this._restore_state(aCheckpoint);
+                return false;
+            }
+            
             let septoklist;
             if (assumeFirstLast
                 || firstThingInitial
@@ -427,12 +463,21 @@ class _TokenConsumer
             if (authorIfFirstLast.suffix) {
                 author.suffix = authorIfFirstLast.suffix;
             }
+            if (assumeNoSequenceOfLowercaseWords &&
+                !checkNoSequenceOfLowercaseWords([...atoklist, ...btoklist, ...gtoklist])) {
+                return goBackToBeforeCommaAndReturnNameAsFirstLast();
+            }
             toklist.push(author);
             return mkreturn({ readAsLastFirst: true });
         }
 
         // not an initial, not a name, stop.
         //debug(`Couldn't consume full name at this point in s: s=‘${this.s}’`);
+
+        // we didn't consume anything, but to be sure (and future-proof if I add an
+        // innocent consumeSpace() or other above), let's restore the state:
+        this._restore_state(aCheckpoint);
+
         return false;
     }
 
@@ -441,8 +486,10 @@ class _TokenConsumer
         return this._consume(/^\s*[.:;,]\s*/u);
     }
 
-    consumeAuthorList(toklist, { assumptions }={})
+    consumeAuthorList(toklist, { assumptions, etalValue }={})
     {
+        etalValue ??= {family: 'others'}; // "others" as recognized by BibTeX
+
         let authortoklist = [];
         let septoklist = [];
         let cur_assumptions = Object.assign(
@@ -453,6 +500,7 @@ class _TokenConsumer
                 //assumeLastCommaFirst|assumeFirstLast: true,
                 assumeMiddleNamesAlwaysInitials: true,
                 //assumeLastNamesNeverInitials: true,
+                assumeNoSequenceOfLowercaseWords: true,
             },
             assumptions ?? {},
         );
@@ -485,6 +533,10 @@ class _TokenConsumer
                 // list!
                 break;
             }
+        }
+
+        if (this.consumeEtAl()) {
+            authortoklist.push(etalValue);
         }
 
         this.consumeFinalPunctuation();
@@ -540,15 +592,20 @@ function guessYear(str)
  *         assumeFirstLast: true,
  *         assumeMiddleNamesAlwaysInitials: true,
  *         assumeLastNamesNeverInitials: true,
+ *         assumeNoSequenceOfLowercaseWords: true,
  *     }
+ * 
+ * If "et al." is encountered, then an additional fictitious author is included to
+ * represent all omitted authors.  By default, it is ``{family: "others"}`` as understood
+ * by BibTeX.  You can supply an alternative object via the `etalValue` option.
  */
-export function parseAuthorsYearInfo(full_text_citation, { assumptions }={})
+export function parseAuthorsYearInfo(full_text_citation, { assumptions, etalValue }={})
 {
     let author_list = [];
 
     let t = new _TokenConsumer(full_text_citation);
     
-    let ok = t.consumeAuthorList(author_list, { assumptions });
+    let ok = t.consumeAuthorList(author_list, { assumptions, etalValue });
 
     if (!ok) {
         author_list = [];

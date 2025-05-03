@@ -3,10 +3,13 @@ const debug = debug_module('eczoohelpers_eczcollectbib.collectbib');
 
 
 import { Cite, plugins } from '@citation-js/core';
-import '@citation-js/plugin-bibtex';
+//import '@citation-js/plugin-bibtex';
 import '@citation-js/plugin-csl';
 
+
 import { parseAuthorsYearInfo } from './parseauthors.js';
+
+import { generateBibtex } from './generatebibtex.js';
 
 // ------------------------------------
 
@@ -38,6 +41,7 @@ export class EczBibReferencesCollector
         this.bib_db = {};
 
         this.remove_full_flm_braces = true;
+        this.detect_formatted_info_extract_year = false;
     }
 
     collectFromZooFlmProcessorEncountered({
@@ -79,7 +83,8 @@ export class EczBibReferencesCollector
             }
 
             let cite_prefix_key_clean =
-                cite_prefix_key.replace(/[^a-zA-Z0-9_.:/@=+()-]+/g, '-');
+                cite_prefix_key.replace(/[^a-zA-Z0-9_.:/@=+()-]+/g, '-')
+                .slice(0,36) ;
 
             const rawjsondata = citation_manager.get_citation_by_id(cite_prefix_key);
 
@@ -112,17 +117,21 @@ export class EczBibReferencesCollector
 
             let sort_key = this._generate_sort_key({ cite_instance, jsondata });
 
-            bib_db[cite_prefix_key] = {
+            const csl_json = generateCslJson(jsondata);
+
+            const bibentry = {
                 cite_prefix,
                 cite_key,
                 cite_prefix_key_clean,
                 cite_instance,
                 jsondata,
                 rawjsondata,
+                csl_json,
                 compiled_flm,
                 sort_key,
                 encountered_in_list: include_encountered_in ? [ encountered_in, ] : null,
             };
+            bib_db[cite_prefix_key] = bibentry;
         }
 
         if (include_encountered_in) {
@@ -156,7 +165,7 @@ export class EczBibReferencesCollector
 
     generateCslJsonEntries()
     {
-        return generateCslJson(this.bib_db);
+        return Object.values(this.bib_db).map((bibentry) => bibentry.csl_json);
     }
 
     // ----------------
@@ -202,6 +211,7 @@ export class EczBibReferencesCollector
             author_list,
             // remaining_string,
             year,
+            remaining_string,
             remaining_string_no_year,
         } = parseAuthorsYearInfo(compiled_flm);
 
@@ -210,16 +220,22 @@ export class EczBibReferencesCollector
         if (jsondata.author == null) {
             newjsondata.author = author_list;
         }
-        if (jsondata.issued == null) {
-            jsondata.issued = {
+        newjsondata._issued_year = year;
+        if (this.detect_formatted_info_extract_year && jsondata.issued == null) {
+            newjsondata.issued = {
                 'date-parts': [ [ year ] ],
             };
         }
-        if (jsondata.title == null && jsondata.type == null
-            && jsondata['container-title'] == null) {
+        if (jsondata.author == null && jsondata.title == null
+            && jsondata.issued == null && jsondata['container-title'] == null) {
             // Looks like an empty entry -- create a minimal CSL-JSON entry!
-            newjsondata.type = "document"; // ???
-            newjsondata.notes = remaining_string_no_year;
+            newjsondata.type = "document";
+            if (this.detect_formatted_info_extract_year) {
+                newjsondata.note = remaining_string_no_year;
+            } else {
+                newjsondata.note = remaining_string;
+            }
+            debug(`Setting type=document etc. on newjsondata:`, newjsondata);
         }
 
         return newjsondata;
@@ -233,19 +249,19 @@ export class EczBibReferencesCollector
 //
 
 
-function generateBibtex(bib_db, { filterByEntry }={})
-{
-    let bibtex_entries = [];
+// function generateBibtex(bib_db, { filterByEntry }={})
+// {
+//     let bibtex_entries = [];
 
-    for (const bibentry of Object.values(bib_db)) {
-        if (filterByEntry != null && !filterByEntry(bibentry)) {
-            continue;
-        }
-        bibtex_entries.push( bibentry.cite_instance.format('bibtex') );
-    }
+//     for (const bibentry of Object.values(bib_db)) {
+//         if (filterByEntry != null && !filterByEntry(bibentry)) {
+//             continue;
+//         }
+//         bibtex_entries.push( bibentry.cite_instance.format('bibtex') );
+//     }
 
-    return bibtex_entries;
-}
+//     return bibtex_entries;
+// }
 
 
 // ------
@@ -358,19 +374,30 @@ const valid_csl_keys = Object.fromEntries([
     "year-suffix"
 ].map( (k) => [k, true] ) );
 
+const default_from_keys = [
+    // if issued is not present, use value from published-online; etc.
+    ["issued", "published-online", null],
+    ["issued", "published-print", null],
+    ["issued", "published-other", null],
+    ["issue", "journal-issue", (v) => v.issue],
+    ["page", "article-number", null],
+    ["ISBN", "isbn-type", (v) => (v.value || v[0]?.value)],
+]
+
 const drop_csl_keys = Object.fromEntries([
-    // Internal key:
-    "_ready_formatted",
+    // Internal keys automatically dropped thanks to leading underscore
+    //"_ready_formatted",
+    //"_hash",
     //---
     "indexed",
     "reference-count",
     "content-domain",
-    //"published-print",
+    "published-print",
     "created",
     "is-referenced-by-count",
     "prefix",
     "member",
-    //"published-online",
+    "published-online",
     "link",
     "license",
     "deposited",
@@ -379,61 +406,74 @@ const drop_csl_keys = Object.fromEntries([
     "subtitle",
     "short-title",
     "references-count",
-    //"journal-issue",
+    "journal-issue",
     "relation",
     "subject",
     "published",
     "reference",
-    "_hash",
+    "funder",
+    "article-number",
+    "assertion",
+    "isbn-type",
+    "update-policy",
+    "published-other",
 ].map( (k) => [k, true] ) );
 
-
-function generateCslJson(bib_db, { filterByEntry }={})
+function valueToString(value)
 {
-    let csljson_entries = [];
+    if (typeof value === 'string') {
+        return value;
+    } else if (typeof value === 'number') {
+        return `${value}`;
+    } else if (Array.isArray(value)) {
+        return value.map(x => valueToString(x)).join('\n');
+    }
+    return JSON.stringify(value);
+};
 
-    for (const bibentry of Object.values(bib_db)) {
-        if (filterByEntry != null && !filterByEntry(bibentry)) {
-            continue;
+function generateCslJson(jsondata)
+{
+    // filter out any dictionary keys that are not valid CSL-JSON
+    let csljson_collected_notes = [];
+    if (jsondata.note) {
+        csljson_collected_notes.push(valueToString(jsondata.note));
+    }
+    let csljson_data = Object.assign({}, jsondata);
+    for (const [k,v, fn] of default_from_keys) {
+        if (csljson_data[k] == null && csljson_data[v] != null) {
+            csljson_data[k] = fn ? fn(csljson_data[v]) : csljson_data[v];
         }
-
-        // filter out any dictionary keys that are not valid CSL-JSON
-        let csljson_collected_notes = [];
-        let csljson_data = Object.fromEntries(
-            Object.entries(bibentry.jsondata).filter(
-                ([key, value]) => {
-                    if (Object.hasOwn(valid_csl_keys, key)) {
-                        return true;
-                    }
-                    // handle this value in some way.
-                    if (Object.hasOwn(drop_csl_keys, key)) {
-                        // simply skip the value
-                        return false;
-                    }
-                    //debug('Invalid CSL-JSON key, adding to notes...');
-                    let value_str = null;
-                    if (typeof value === 'string') {
-                        value_str = value;
-                    } else if (typeof value === 'number') {
-                        value_str = `${value}`;
-                    } else {
-                        value_str = JSON.stringify(value);
-                    }
-                    csljson_collected_notes.push(`${key}:${value_str}`)
+    }
+    csljson_data = Object.fromEntries(
+        Object.entries(csljson_data).filter(
+            ([key, value]) => {
+                if (Object.hasOwn(valid_csl_keys, key)) {
+                    return true;
+                }
+                if (key === 'note') {
+                    // special handling -- skip for now
                     return false;
                 }
-            )
-        );
-        if (csljson_collected_notes.length) {
-            if (csljson_data.notes) {
-                csljson_collected_notes.splice(0, 0, csljson_data.notes);
+                // handle this value in some way.
+                if (Object.hasOwn(drop_csl_keys, key) || key.startsWith('_')) {
+                    // simply skip the value
+                    return false;
+                }
+                //debug('Invalid CSL-JSON key, adding to notes...');
+                if (!value) {
+                    // if there isn't any value (or it's null), simply omit the key...
+                    return false;
+                }
+                let value_str = valueToString(value);
+                csljson_collected_notes.push(`${key}:${value_str}`)
+                return false;
             }
-            csljson_data.notes = csljson_collected_notes.join('\n');
-        }
-
-        csljson_entries.push( csljson_data );
+        )
+    );
+    if (csljson_collected_notes.length) {
+        csljson_data.note = csljson_collected_notes.join('\n');
     }
-
-    return csljson_entries;
+    
+    return csljson_data;
 }
 

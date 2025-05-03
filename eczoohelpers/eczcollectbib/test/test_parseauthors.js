@@ -329,6 +329,109 @@ describe('parseauthors', function () {
                     remainingString: 'Bounds on linear codes, in: Vera S. Pless and W. Cary Huffman (Eds.), Handbook of Coding Theory, pp. 295-461, Elsevier, 1998.',
                 }
             );
+            testConsumeAuthorList(
+                'N. N. Andreev, Location of points on a sphere with minimal energy.',
+                [
+                    {given: 'N. N.', family: 'Andreev'},
+                ],
+                {
+                    remainingString: 'Location of points on a sphere with minimal energy.',
+                }
+            );
+            // // This one fails, but unsure how to fix!
+            // testConsumeAuthorList(
+            //     'Andreev, N. N. Location of points on a sphere with minimal energy.',
+            //     [
+            //         {given: 'N. N.', family: 'Andreev'},
+            //     ],
+            //     {
+            //         remainingString: 'Location of points on a sphere with minimal energy.',
+            //     }
+            // );
+
+            // don't mistake V and I initials for suffixes
+            testConsumeAuthorList(
+                'Arnold, Paul V. I. (1999).',
+                [
+                    {given: 'Paul V. I.', family: 'Arnold'},
+                ],
+            );
+            testConsumeAuthorList(
+                'B. I. Belov, V. N. Logachev, V. P. Sandimirov, “Construction of a Class of Linear Binary Codes...”',
+                [
+                    {given: 'B. I.', family: 'Belov'},
+                    {given: 'V. N.', family: 'Logachev'},
+                    {given: 'V. P.', family: 'Sandimirov'},
+                ],
+            );
+            testConsumeAuthorList(
+                'Berman, A., Dor, A., Shany, Y., Shapir, I., and Doubchak, A. (2023).',
+                [
+                    {given: 'A.', family: 'Berman'},
+                    {given: 'A.', family: 'Dor'},
+                    {given: 'Y.', family: 'Shany'},
+                    {given: 'I.', family: 'Shapir'},
+                    {given: 'A.', family: 'Doubchak'},
+                ]
+            );
+            // includes short last name "Li" that might be seen as an initial.
+            testConsumeAuthorList(
+                'C. Huang, H. Simitci, Y. Xu, A. Ogus, B. Calder, P. Gopalan, J. Li, and S. Yekhanin. \\emph{Erasure coding in Windows Azure Storage}.  In ...',
+                [
+                    {given: 'C.', family: 'Huang'},
+                    {given: 'H.', family: 'Simitci'},
+                    {given: 'Y.', family: 'Xu'},
+                    {given: 'A.', family: 'Ogus'},
+                    {given: 'B.', family: 'Calder'},
+                    {given: 'P.', family: 'Gopalan'},
+                    {given: 'J.', family: 'Li'},
+                    {given: 'S.', family: 'Yekhanin'},
+                ]
+            );
+
+            // Dashes and apostrophes abound
+            testConsumeAuthorList(
+                "T. Jochym-O'Connor, (2022)",
+                [
+                    {given: "T.", family: "Jochym-O'Connor"},
+                ]
+            );
+            testConsumeAuthorList(
+                "C. O'Hara, (2018)", // O is not an initial
+                [
+                    {given: "C.", family: "O'Hara"},
+                ]
+            );
+            testConsumeAuthorList(
+                "C. A-Hoy, J. Li (2018)", // O is not an initial
+                [
+                    {given: "C.", family: "A-Hoy"},
+                    {given: "J.", family: "Li"},
+                ]
+            );
+        });
+
+
+        it('should handle "et al" correctly', function () {
+
+            testConsumeAuthorList(
+                'John Doe, Felix Hanserstadt et al.',
+                [
+                    {given: 'John', family: 'Doe'},
+                    {given: 'Felix', family: 'Hanserstadt'},
+                    {family: 'others'},
+                ]
+            );
+
+            testConsumeAuthorList(
+                'John Doe, Felix Hanserstadt, et al.',
+                [
+                    {given: 'John', family: 'Doe'},
+                    {given: 'Felix', family: 'Hanserstadt'},
+                    {family: 'others'},
+                ]
+            );
+
         });
 
         it('backtracks as necessary to re-parse author list as first last', function () {
