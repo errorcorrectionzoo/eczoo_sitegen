@@ -193,6 +193,9 @@ export class EczBibReferencesCollector
             sort_key = fallback_sort_key + sort_key;
             debug(`For some reason, I was not able to generate a reliable sort key for ‘${jsondata.id}’!  Fallback key = ${fallback_sort_key}`);
         }
+        if (sort_key === "" || sort_key.startsWith(";")) { // still problematic
+            sort_key = `zzzz${sort_key}`; // bump to the end, sorry...
+        }
 
         return sort_key;
     }
