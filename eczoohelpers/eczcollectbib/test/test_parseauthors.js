@@ -338,16 +338,6 @@ describe('parseauthors', function () {
                     remainingString: 'Location of points on a sphere with minimal energy.',
                 }
             );
-            // // This one fails, but unsure how to fix!
-            // testConsumeAuthorList(
-            //     'Andreev, N. N. Location of points on a sphere with minimal energy.',
-            //     [
-            //         {given: 'N. N.', family: 'Andreev'},
-            //     ],
-            //     {
-            //         remainingString: 'Location of points on a sphere with minimal energy.',
-            //     }
-            // );
 
             // don't mistake V and I initials for suffixes
             testConsumeAuthorList(
@@ -409,6 +399,63 @@ describe('parseauthors', function () {
                     {given: "J.", family: "Li"},
                 ]
             );
+
+            // Make sure suffix rx is well anchored to the start of the string and doesn't
+            // find a "II" later in the string
+            testConsumeAuthorList(
+                'Borrelli, Chris. "IEEE 802.3 cyclic redundancy check." application note: Virtex Series and Virtex-II Family, XAPP209 (v1. 0) (2001).',
+                [
+                    {given: "Chris", family: "Borrelli"},
+                ]
+            );
+
+            // Nasty title with "and" which looks like an author separator.
+            testConsumeAuthorList(
+                'R. de Budaand W. Kassem, About lattices and the random coding theorem, in Abstracts of Papers, IEEE Inter. Symp. Info. Theory 1981, IEEE Press, NY 1981, p. 145',
+                [
+                    {given: "R.", family: "de Budaand W. Kassem"},
+                ]
+            );
+
+            // composite initials with dots
+            testConsumeAuthorList(
+                'P. Gaborit, W. C. Huffman, J.-L. Kim, and V. Pless, “On additive GF(4) codes,” in Codes and Association Schemes (DIMACS Workshop, November 9–12, 1999), eds. A. Barg and S. Litsyn. Providence, RI: American Mathematical Society, 2001, pp. 135–149.',
+                [
+                    {given: "P.", family: "Gaborit"},
+                    {given: "W. C.", family: "Huffman"},
+                    {given: "J.-L.", family: "Kim"},
+                    {given: "V.", family: "Pless"},
+                ]
+            );
+            testConsumeAuthorList(
+                'P. Gaborit, W. C. Huffman, J-L Kim, and V. Pless, “On additive GF(4) codes,” in Codes and Association Schemes (DIMACS Workshop, November 9–12, 1999), eds. A. Barg and S. Litsyn. Providence, RI: American Mathematical Society, 2001, pp. 135–149.',
+                [
+                    {given: "P.", family: "Gaborit"},
+                    {given: "W. C.", family: "Huffman"},
+                    {given: "J-L", family: "Kim"},
+                    {given: "V.", family: "Pless"},
+                ]
+            );
+
+        });
+
+        it('should run the specific test I WANT TO DEBUG RIGHT NOW', function () {
+            // paste a single test to debug here, and run 'DEBUG=* yarn test -g "DEBUG"'
+            
+            // once the test is debugged, move it where it belongs.
+
+            // Here I might collect some cases that we might hope to support later on,
+            // but I don't know how to handle right now.
+            // 
+            //testConsumeAuthorList(
+            //    'Andreev, N. N. Location of points on a sphere with minimal energy.',
+            //    [
+            //        {given: 'N. N.', family: 'Andreev'},
+            //    ],
+            //    {
+            //        remainingString: 'Location of points on a sphere with minimal energy.',
+            //    }
+            //);
         });
 
 
@@ -416,6 +463,24 @@ describe('parseauthors', function () {
 
             testConsumeAuthorList(
                 'John Doe, Felix Hanserstadt et al.',
+                [
+                    {given: 'John', family: 'Doe'},
+                    {given: 'Felix', family: 'Hanserstadt'},
+                    {family: 'others'},
+                ]
+            );
+
+            testConsumeAuthorList(
+                'John Doe, Felix Hanserstadt \\emph{et al}.',
+                [
+                    {given: 'John', family: 'Doe'},
+                    {given: 'Felix', family: 'Hanserstadt'},
+                    {family: 'others'},
+                ]
+            );
+
+            testConsumeAuthorList(
+                'John Doe, Felix Hanserstadt \\textit{et al.}',
                 [
                     {given: 'John', family: 'Doe'},
                     {given: 'Felix', family: 'Hanserstadt'},

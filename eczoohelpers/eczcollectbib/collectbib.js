@@ -3,13 +3,17 @@ const debug = debug_module('eczoohelpers_eczcollectbib.collectbib');
 
 
 import { Cite, plugins } from '@citation-js/core';
-//import '@citation-js/plugin-bibtex';
 import '@citation-js/plugin-csl';
 
 
 import { parseAuthorsYearInfo } from './parseauthors.js';
 
+// Using a special BibTeX export style (inspired by Zotero).
 import { generateBibtex } from './generatebibtex.js';
+
+// Using a citaiton.js plugin. Unfortunatly it's over-zealous in escaping LaTeX commands
+// and I can't seem to change this behavior.
+//import { generateBibtex } from './generatebibtex_alt.js';
 
 // ------------------------------------
 
@@ -39,6 +43,8 @@ export class EczBibReferencesCollector
     constructor(options={})
     {
         this.bib_db = {};
+        this.bib_db_sorted = [];
+        this.processed = false;
 
         this.options = Object.assign(
             {
@@ -51,12 +57,16 @@ export class EczBibReferencesCollector
 
     saveBibDbData()
     {
-        return JSON.stringify({bib_db: this.bib_db});
+        return JSON.stringify({bib_db: this.bib_db, processed: this.processed});
     }
     loadBibDbData(bibDbData)
     {
-        this.bib_db = JSON.parse(bibDbData).bib_db;
-        this._build_bib_db_sorted();
+        let d = JSON.parse(bibDbData);
+        this.bib_db = d.bib_db;
+        this.processed = d.processed;
+        if (this.processed) {
+            this._build_bib_db_sorted();
+        }
     }
 
     _build_bib_db_sorted()
@@ -116,49 +126,26 @@ export class EczBibReferencesCollector
 
             const rawjsondata = citation_manager.get_citation_by_id(cite_prefix_key);
 
-            let jsondata = Object.assign(
-                {
-                    id: 'Missing-ID',
-                    type: 'document', // there doesn't seem to be any "unknown" or "misc" type
-                },
-                rawjsondata,
-                {
-                    id: cite_prefix_key_clean,
-                },
-            );
-
             // get the compiled FLM code for this citation
             let compiled_flm = 
                 include_compiled_flm
                 ? citation_compiler.get_compiled_citation(cite_prefix, cite_key)
                 : null;
 
-            //
-            // Try to guess important information from any citation that is provided
-            // as a ready-formatted citation.
-            //
-            if (jsondata.author == null || jsondata.issued == null) {
-                jsondata = this._detect_jsondata_authoryear({ jsondata });
-            }
-
-            let cite_instance = new Cite([ jsondata ]);
-
-            let sort_key = this._generate_sort_key({ cite_instance, jsondata });
-
-            const csl_json = generateCslJson(jsondata);
-
             const bibentry = {
                 cite_prefix,
                 cite_key,
                 cite_prefix_key,
                 cite_prefix_key_clean,
-                // cite_instance, // not serializable
-                jsondata,
                 rawjsondata,
-                csl_json,
                 compiled_flm, // POSSIBLY NON-SERIALIZABLE !
-                sort_key,
                 encountered_in_list: include_encountered_in ? [ encountered_in, ] : null,
+
+                // These are set only once the entries are "processed"
+                cite_instance: null, // NOT SERIALIZABLE
+                jsondata: null,
+                sort_key: null,
+                csl_json: null,
 
                 toJSON()
                 {
@@ -166,7 +153,8 @@ export class EczBibReferencesCollector
                         {},
                         this,
                         {
-                            compiled_flm: this.compiled_flm?.flm_text ?? this.compiled_flm
+                            compiled_flm: this.compiled_flm?.flm_text ?? this.compiled_flm,
+                            cite_instance: null,
                         }
                     );
                 }
@@ -175,25 +163,27 @@ export class EczBibReferencesCollector
         }
 
         if (include_encountered_in) {
-            // Go through all entries again; finalize the encountered_in_list of each
-            // entry to remove duplicates and keep only object pointers
-            for (const [cite_prefix_key_, bibobj] of Object.entries(bib_db)) {
-                let encountered_in_object_list = {};
-                for (const encountered_in of bibobj.encountered_in_list) {
-                    const resource_info = encountered_in.resource_info;
-                    const key = `${resource_info.object_type}:${resource_info.object_id}:`;
-                    if (!Object.hasOwn(encountered_in_object_list, key)) {
-                        encountered_in_object_list[key] = resource_info;
-                    }
-                }
-                bibobj.encountered_in_object_list = encountered_in_object_list;
-            }
+            this._build_encountered_in_object_list();
         }
 
-        // prepare the sorted list, for convenience.
-        this._build_bib_db_sorted();
-
         // all good!
+    }
+
+    _build_encountered_in_object_list()
+    {
+        // Go through all entries again; finalize the encountered_in_list of each
+        // entry to remove duplicates and keep only object pointers
+        for (const [cite_prefix_key_, bibentry] of Object.entries(this.bib_db)) {
+            let encountered_in_object_list = {};
+            for (const encountered_in of bibentry.encountered_in_list) {
+                const resource_info = encountered_in.resource_info;
+                const key = `${resource_info.object_type}:${resource_info.object_id}:`;
+                if (!Object.hasOwn(encountered_in_object_list, key)) {
+                    encountered_in_object_list[key] = resource_info;
+                }
+            }
+            bibentry.encountered_in_object_list = encountered_in_object_list;
+        }
     }
 
     getFilteredBibDb({ filter_bib_entry, include_encountered_in }={})
@@ -232,22 +222,84 @@ export class EczBibReferencesCollector
                     bibentry,
                     {
                         encountered_in_list: [ encountered_in ],
+                        encountered_in_object_list: null,
                     }
                 );
             }
         }
         c2.bib_db = new_bib_db;
+        if (include_encountered_in) {
+            c2._build_encountered_in_object_list();
+        }
+        c2.processed = this.processed;
+        if (c2.processed) {
+            c2._build_bib_db_sorted();
+        }
         return c2;
     }
 
     generateBibtexEntries()
     {
+        if (!this.processed) {
+            throw new Error(`call processEntries() before generateBibtexEntries()`);
+        }
         return generateBibtex(this.bib_db);
     }
 
     generateCslJsonEntries()
     {
+        if (!this.processed) {
+            throw new Error(`call processEntries() before generateCslJsonEntries()`);
+        }
         return Object.values(this.bib_db).map((bibentry) => bibentry.csl_json);
+    }
+
+    // ----------------
+
+    processEntries()
+    {
+        for (const bibentry of Object.values(this.bib_db)) {
+
+            const {
+                cite_prefix_key_clean,
+                rawjsondata
+            } = bibentry;
+
+            let jsondata = Object.assign(
+                {
+                    id: 'Missing-ID',
+                    type: 'document', // there doesn't seem to be any "unknown" or "misc" type
+                },
+                rawjsondata,
+                {
+                    id: cite_prefix_key_clean,
+                },
+            );
+
+            //
+            // Try to guess important information from any citation that is provided
+            // as a ready-formatted citation.
+            //
+            if (jsondata.author == null || jsondata.issued == null) {
+                jsondata = this._detect_jsondata_authoryear({ jsondata });
+            }
+
+            let cite_instance = new Cite([ jsondata ]);
+
+            let sort_key = this._generate_sort_key({ cite_instance, jsondata });
+
+            const csl_json = generateCslJson(jsondata);
+
+            bibentry.cite_instance = cite_instance;
+            bibentry.jsondata = jsondata;
+            bibentry.sort_key = sort_key;
+            bibentry.csl_json = csl_json;
+        }
+
+        this.processed = true;
+
+        // prepare the sorted list, for convenience.
+        this._build_bib_db_sorted();
     }
 
     // ----------------
@@ -291,6 +343,8 @@ export class EczBibReferencesCollector
             compiled_flm = compiled_flm.slice(1,compiled_flm.length-1);
         }
 
+        debug(`_detect_jsondata_authoryear (${jsondata.id}): Using compiled_flm = ‘${compiled_flm}’`);
+
         // run our heuristic parser to read out author list & year
         const  {
             author_list,
@@ -299,6 +353,8 @@ export class EczBibReferencesCollector
             remaining_string,
             remaining_string_no_year,
         } = parseAuthorsYearInfo(compiled_flm);
+
+        debug(`_detect_jsondata_authoryear (${jsondata.id}): Found`, {author_list, year, remaining_string, remaining_string_no_year});
 
         let newjsondata = Object.assign({}, jsondata);
 
@@ -332,21 +388,6 @@ export class EczBibReferencesCollector
 //
 // Helpers to dump bib database contents in BibTeX and/or CSL-JSON
 //
-
-
-// function generateBibtex(bib_db, { filterByEntry }={})
-// {
-//     let bibtex_entries = [];
-
-//     for (const bibentry of Object.values(bib_db)) {
-//         if (filterByEntry != null && !filterByEntry(bibentry)) {
-//             continue;
-//         }
-//         bibtex_entries.push( bibentry.cite_instance.format('bibtex') );
-//     }
-
-//     return bibtex_entries;
-// }
 
 
 // ------
@@ -464,6 +505,7 @@ const default_from_keys = [
     ["issued", "published-online", null],
     ["issued", "published-print", null],
     ["issued", "published-other", null],
+    ["issued", "accepted", null],
     ["issue", "journal-issue", (v) => v.issue],
     ["page", "article-number", null],
     ["ISBN", "isbn-type", (v) => (v.value || v[0]?.value)],
@@ -474,6 +516,7 @@ const drop_csl_keys = Object.fromEntries([
     //"_ready_formatted",
     //"_hash",
     //---
+    "accepted",
     "indexed",
     "reference-count",
     "content-domain",

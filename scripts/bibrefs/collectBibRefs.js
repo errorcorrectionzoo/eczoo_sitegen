@@ -66,14 +66,22 @@ async function collectBibRefs(argv)
 
     let eczoodb = null;
 
-    if (loadBibDb && fs.existsSync(loadBibDb)) {
-        debug(`Loading Bib DB from ‘${loadBibDb}’`);
-        const data = fs.readFileSync(loadBibDb, { encoding: 'utf-8' })
-        bibcollector.loadBibDbData( data );
-    } else {
-        if (loadBibDb != null) {
-            console.warn(`Requested to load Bib DB from file ‘${loadBibDb}’ but the file does not exist.  Will load the eczoo from data.`);
+    let loadedData = null;
+    if (loadBibDb) {
+        try {
+            loadedData = fs.readFileSync(loadBibDb, { encoding: 'utf-8' });
+        } catch (err) {
+            debug(`Failed to load Bib DB from file ‘${loadBibDb}’: ${err}`);
+            console.warn(`Failed to load Bib DB from file ‘${loadBibDb}’.  Will load the eczoo from data instead.`);
         }
+    }
+
+    if (loadedData) {
+
+        debug(`Loading Bib DB from ‘${loadBibDb}’`);
+        bibcollector.loadBibDbData( loadedData );
+
+    } else {
 
         debuglog(`genCodeGraph(): loading zoo... (might take several minutes)`);
         eczoodb = await loadEcZoo({
@@ -89,10 +97,12 @@ async function collectBibRefs(argv)
             // load all entries so that we can also filter entries after loading a data dump
             // filter_bib_entry: ...
         });
+
     }
 
-    // see if we've been requested to save the data dump.
-    if (saveBibDb && saveBibDb !== loadBibDb) {
+    // see if we've been requested to save the data dump.  But don't save it if we
+    // just now loaded the exact same data.
+    if (saveBibDb && !(saveBibDb === loadBibDb && loadedData != null)) {
         debug(`Saving Bib DB to ‘${saveBibDb}’`);
         fs.writeFileSync(saveBibDb, bibcollector.saveBibDbData());
     }
@@ -131,6 +141,9 @@ async function collectBibRefs(argv)
         include_encountered_in: true
     });
 
+    // now, process all remaining entries.
+    bibcollector.processEntries();
+
     let outputData = null;
 
     if (['txt', 'json'].includes(format)) {
@@ -151,12 +164,9 @@ async function collectBibRefs(argv)
             if (data[cite_prefix][cite_key] != null) {
                 throw new Error(`Duplicate ‘${cite_prefix}:${cite_key}’ in internal bib structure!`);
             }
-            data[cite_prefix][cite_key] = encountered_in_list.map(
-                (encountered_in) => ({
-                    resource_info: encountered_in.resource_info.toJSON(),
-                    what: encountered_in.what,
-                })
-            );
+            // resource_info and encountered_in are already serializable -- no need
+            // to patch them
+            data[cite_prefix][cite_key] = encountered_in_list;
         }
 
         //
@@ -217,16 +227,30 @@ async function collectBibRefs(argv)
 
         }
 
+    } else if (format === 'bib:bibdb-json-dump') {
+    
+        outputData = JSON.stringify(
+            bibcollector.bib_db,
+            undefined,
+            4
+        );
+
     } else if (format === 'bib:csl-json') {
 
         outputData = JSON.stringify(
             bibcollector.generateCslJsonEntries(),
-            undefined, 4
+            undefined,
+            4
         );
 
     } else if (format === 'bib:bibtex') {
 
-        outputData = bibcollector.generateBibtexEntries().join('\n\n');
+        outputData = bibcollector.generateBibtexEntries().map( (x) => x.trim() ).join('\n\n');
+
+    } else if (format === 'null') {
+        // special option string 'null', not JS null!
+        
+        outputData = '';
 
     } else {
 
@@ -273,7 +297,7 @@ async function main()
             'format': {
                 alias: 'f',
                 default: 'txt',
-                describe: "Output format ('txt' or 'json' or 'bib:csl-json' or 'bib:bibtex')",
+                describe: "Output format ('txt' or 'json' or 'null' or 'bib:bibdb-json-dump' or 'bib:csl-json' or 'bib:bibtex')",
             },
             'output': {
                 alias: 'o',

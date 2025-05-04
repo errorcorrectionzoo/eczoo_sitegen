@@ -14,5 +14,6 @@ export function prepareEczooBibReferences(eczoodb)
         include_compiled_flm: true,
         include_encountered_in: true,
     });
+    c.processEntries();
     return c;
 }

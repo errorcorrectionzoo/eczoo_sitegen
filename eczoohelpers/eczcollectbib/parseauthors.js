@@ -2,8 +2,8 @@ import debug_module from 'debug';
 const debug = debug_module('eczoohelpers_eczcollectbib.parseauthors');
 
 
-const rx_suffix = /^(Jr\.|Sr\.)|((I{1,3}|IV|V|VI{1,3}|IX|X)\b(?!\.))\s*/u;
-const rx_etal = /^(et\s+al\.?)/iu;
+const rx_suffix = /^((Jr\.|Sr\.)|((I{1,3}|IV|V|VI{1,3}|IX|X)\b(?!\.)))\s*/u;
+const rx_etal = /^((et\s+al\.?)|\\(emph|textit)\{et\s+al(\.?\}|\}\.?))/iu;
 
 class _TokenConsumer
 {
@@ -121,8 +121,12 @@ class _TokenConsumer
             // never match "et al".
             return false;
         }
+        // match:
+        // - "L.", "L", "Yu."
+        // - but NOT: "Lichtenberg" (starts with "L"), "O'Connor", "A-Hoy"
+        // - yet also: "J.-L."
         return this._consume(
-            /^(\p{Lu}\p{M}*)(\.\s*|(?![\p{L}'’\p{Dash_Punctuation}])\s*|(\p{L}\p{M}*)\.\s*)/u,
+            /^(\p{Lu}\p{M}*)(\.\s*|(?![\p{L}'’\p{Dash_Punctuation}])\s*|(\p{L}\p{M}*)\.\s*)(\p{Dash_Punctuation}(\p{Lu}\p{M}*)(\.\s*|(?![\p{L}'’\p{Dash_Punctuation}])\s*|(\p{L}\p{M}*)\.\s*)){0,2}/u,
             toklist, 
             (m) => m[0].trim(),
         );
@@ -267,6 +271,13 @@ class _TokenConsumer
                 // more than this many lowercase words of big enough length, that's
                 // likely a title!
                 this._restore_state(aCheckpoint);
+                return false;
+            }
+            if (v.length == 2 && lcwords.length == 1) {
+                // Also problematic if a we have a single long word in a two-part "name"
+                // e.g. "About lattices" or "Linear bounds".  Note that we might get very
+                // small title names because the presence of a single word "and" causes
+                // a split as if we had a whole author name that was given.
                 return false;
             }
             return true;

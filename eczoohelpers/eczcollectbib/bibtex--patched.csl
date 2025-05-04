@@ -182,7 +182,7 @@
         <text variable="collection-title" prefix=" series={" suffix="}"/>
         <text macro="title" prefix=" title={" suffix="}"/>
         <text variable="volume" prefix=" volume={" suffix="}"/>
-        <!--<text variable="license" prefix=" rights={" suffix="}"/>-->
+        <!-- <text variable="license" prefix=" rights={" suffix="}"/> -->
         <text variable="ISBN" prefix=" ISBN={" suffix="}"/>
         <text variable="ISSN" prefix=" ISSN={" suffix="}"/>
         <text variable="call-number" prefix=" callNumber={" suffix="}"/>
@@ -191,7 +191,7 @@
         <text variable="DOI" prefix=" DOI={" suffix="}"/>
         <text variable="arxivid" prefix=" eprint={" suffix="}"/>
         <text variable="arxivid" prefix=" arxivid={" suffix="}"/>
-        <text variable="abstract" prefix=" abstractNote={" suffix="}"/>
+        <!-- <text variable="abstract" prefix=" abstractNote={" suffix="}"/> -->
         <text variable="note" prefix=" note={" suffix="}"/>
         <text macro="number" prefix=" number={" suffix="}"/>
         <text macro="container-title"/>

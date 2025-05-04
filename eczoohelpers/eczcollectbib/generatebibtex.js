@@ -26,10 +26,18 @@ CSL.Output.Formats.bibtexlatex = {
     "text_escape": function (text) {
         // the actual bibtex content will be passed here, so don't do any fancy escaping...
 
-        // make sure that % signs are escaped, though.
-        text = text?.replace('%', '\\%') ?? '';
+        // - I ran into bugs where '\' chars were simply omitted in some instance.  Here's
+        //   a terribly dirty hack to make sure they're restored.
+        //
+        // - make sure that % signs are escaped.
+        //
+        let text2 = (
+            text?.replace('<BACKSLASHCHAR/>', '\\').replace('%', '\\%')
+        ) ?? '';
 
-        return text;
+        //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
+
+        return text2;
 
         // // get sanitized FLM text.
         // let flm_text = CSL.Output.Formats.flm.text_escape(text);
@@ -46,18 +54,18 @@ CSL.Output.Formats.bibtexlatex = {
     "bibend": "",
     "@font-style/italic": "\\emph{%%STRING%%}",
     "@font-style/oblique": "\\emph{%%STRING%%}",
-    "@font-style/normal": "%%STRING%%",
+    "@font-style/normal": false, // "%%STRING%%",
     "@font-variant/small-caps": "\\textsc{%%STRING%%}",
     "@passthrough/true": CSL.Output.Formatters.passthrough,
-    "@font-variant/normal": "%%STRING%%",
+    "@font-variant/normal": false, //"%%STRING%%",
     "@font-weight/bold": "\\textbf{%%STRING%%}",
-    "@font-weight/normal": "%%STRING%%",
+    "@font-weight/normal": false, //"%%STRING%%",
     "@font-weight/light": false,
-    "@text-decoration/none": "%%STRING%%",
-    "@text-decoration/underline": "%%STRING%%",
+    "@text-decoration/none": false, //"%%STRING%%",
+    "@text-decoration/underline": false, //"%%STRING%%",
     "@vertical-align/sup": "\\ensuremath{{}^{\\text{%%STRING%%}}}",
     "@vertical-align/sub": "\\ensuremath{{}_{\\text{%%STRING%%}}}",
-    "@vertical-align/baseline": "%%STRING%%",
+    "@vertical-align/baseline": false, //"%%STRING%%",
     "@strip-periods/true": CSL.Output.Formatters.passthrough,
     "@strip-periods/false": CSL.Output.Formatters.passthrough,
     "@quotes/true": function (state, str) {
@@ -152,7 +160,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
     debug(`csl_style = ${csl_style.slice(0,200)}...`);
 
     let bib_db_safe = Object.fromEntries(
-        Object.entries(bib_db).map( ([k, v]) => [v.csl_json.id, v] )
+        Object.values(bib_db).map( (v) => [v.csl_json.id, v] )
     );
 
     const citeproc_sys_object = {
@@ -170,13 +178,21 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
                 : (obj.cite_prefix_key_clean ?? id);
             const d = Object.assign(
                 {},
-                obj.csl_json,
+                obj.jsondata,
                 {
                     // force id to match the queried id.
                     id: id,
                     key: citeKey,
                 }
             );
+            // Any manual fixes to be applied here.  There appears to be a bug where
+            // if the "note" field begins with "\emph{", then the backslash gets omitted.
+            // WTF?? Try a hack around that.
+            for (const [k,v] of Object.entries(d)) {
+                if (v && typeof v === 'string') {
+                    d[k] = v.replace('\\', '<BACKSLASHCHAR/>');
+                }
+            }
             debug(`Retrieved item:`, d);
             return d;
         }
