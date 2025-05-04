@@ -193,7 +193,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
                     d[k] = v.replace('\\', '<BACKSLASHCHAR/>');
                 }
             }
-            debug(`Retrieved item:`, d);
+            //debug(`Retrieved item:`, d);
             return d;
         }
     };
