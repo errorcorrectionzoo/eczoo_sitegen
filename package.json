@@ -6,6 +6,7 @@
   "workspaces": [
     "_zoodb_citations_cache",
     "eczoodb",
+    "eczoohelpers/eczcollectbib",
     "jscomponents",
     "site",
     "scripts",

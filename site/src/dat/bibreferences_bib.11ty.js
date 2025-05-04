@@ -24,9 +24,9 @@ const render = async (data) => {
 
     const { eczoodb } = data;
 
-    const bibrefsdata = eczoodb.site_bibrefsdata;
+    const ecz_bibliorefs_collector = eczoodb.site_ecz_bibliorefs_collector;
 
-    const bibtex_list = bibrefsdata.bib_db_sorted.map( (d) => d.bibtex );
+    const bibtex_list = ecz_bibliorefs_collector.generateBibtexEntries();
 
     return bibtex_list.join('\n');
 };

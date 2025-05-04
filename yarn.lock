@@ -280,6 +280,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@citation-js/core@npm:^0.7.18":
+  version: 0.7.18
+  resolution: "@citation-js/core@npm:0.7.18"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    "@citation-js/name": ^0.4.2
+    fetch-ponyfill: ^7.1.0
+    sync-fetch: ^0.4.1
+  checksum: 94a4c42612eb425e16b08ac3720fe3e798263830960ccb81be99a557c9c5b9d1b6515cfdf4303287a3533d658845f457bf4cbae7f558983477b729cf052f0699
+  languageName: node
+  linkType: hard
+
 "@citation-js/date@npm:^0.5.0":
   version: 0.5.1
   resolution: "@citation-js/date@npm:0.5.1"
@@ -307,6 +319,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@citation-js/plugin-bibtex@npm:^0.7.18":
+  version: 0.7.18
+  resolution: "@citation-js/plugin-bibtex@npm:0.7.18"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    "@citation-js/name": ^0.4.2
+    moo: ^0.5.1
+  peerDependencies:
+    "@citation-js/core": ^0.7.0
+  checksum: f0dc77ef3f6ca1cc37ef7a07bcc914fc6c136a8687e55063cf44d7ce82ad3f06dd5b53aa4b73e28d2800fa1d509ee87d045695a3a6814f5d18477d63ba4efb5b
+  languageName: node
+  linkType: hard
+
 "@citation-js/plugin-csl@npm:^0.7.14":
   version: 0.7.14
   resolution: "@citation-js/plugin-csl@npm:0.7.14"
@@ -316,6 +341,18 @@ __metadata:
   peerDependencies:
     "@citation-js/core": ^0.7.0
   checksum: 76fa54d70944ec0b304c156d6aae1335476e308710b17c0bc523db74740da985c5c441e9068aa8eb65dfb4c449d43718a7b6f30cf63c903ff3d359765d4c20e9
+  languageName: node
+  linkType: hard
+
+"@citation-js/plugin-csl@npm:^0.7.18":
+  version: 0.7.18
+  resolution: "@citation-js/plugin-csl@npm:0.7.18"
+  dependencies:
+    "@citation-js/date": ^0.5.0
+    citeproc: ^2.4.6
+  peerDependencies:
+    "@citation-js/core": ^0.7.0
+  checksum: eec193b5bb066ceef9b4b8843a6b197e14f4df4ce0bc06b894d24fd7936ab7370b23a7af1d9414db5b9752af941636aa026526a8517da3855cf45a5a04479d3a
   languageName: node
   linkType: hard
 
@@ -575,6 +612,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@errorcorrectionzoo/eczoohelpers_eczcollectbib@>=0.0.1, @errorcorrectionzoo/eczoohelpers_eczcollectbib@workspace:eczoohelpers/eczcollectbib":
+  version: 0.0.0-use.local
+  resolution: "@errorcorrectionzoo/eczoohelpers_eczcollectbib@workspace:eczoohelpers/eczcollectbib"
+  dependencies:
+    "@citation-js/core": ^0.7.18
+    "@citation-js/plugin-bibtex": ^0.7.18
+    "@citation-js/plugin-csl": ^0.7.18
+    citeproc: ^2.4.62
+    debug: ^4.4.0
+    lodash: ^4.17.21
+    mocha: ^11.0.1
+  peerDependencies:
+    "@errorcorrectionzoo/eczoodb": "*"
+    "@phfaist/zoodb": "*"
+  languageName: unknown
+  linkType: soft
+
 "@errorcorrectionzoo/jscomponents@>=0.0.1, @errorcorrectionzoo/jscomponents@workspace:jscomponents":
   version: 0.0.0-use.local
   resolution: "@errorcorrectionzoo/jscomponents@workspace:jscomponents"
@@ -665,6 +719,7 @@ __metadata:
   resolution: "@errorcorrectionzoo/scripts@workspace:scripts"
   dependencies:
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
+    "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1"
     "@errorcorrectionzoo/jscomponents": ">=0.0.1"
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git"
     csv-stringify: ^6.5.2
@@ -683,6 +738,7 @@ __metadata:
     "@citation-js/plugin-bibtex": ^0.7.16
     "@citation-js/plugin-csl": ^0.7.14
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
+    "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1"
     "@errorcorrectionzoo/jscomponents": ">=0.0.1"
     "@errorcorrectionzoo/parcel-namer-own-folder-hashes": ">=0.0.0"
     "@errorcorrectionzoo/parcel-transformer-ogimage-phf": "workspace:^"

@@ -1,0 +1,25 @@
+{
+    "name": "@errorcorrectionzoo/eczoohelpers_eczcollectbib",
+    "version": "0.0.1",
+    "packageManager": "yarn@3.3.0",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "@citation-js/core": "^0.7.18",
+        "@citation-js/plugin-bibtex": "^0.7.18",
+        "@citation-js/plugin-csl": "^0.7.18",
+        "citeproc": "^2.4.62",
+        "debug": "^4.4.0",
+        "lodash": "^4.17.21"
+    },
+    "peerDependencies": {
+        "@errorcorrectionzoo/eczoodb": "*",
+        "@phfaist/zoodb": "*"
+    },
+    "devDependencies": {
+        "mocha": "^11.0.1"
+    },
+    "scripts": {
+        "test": "mocha"
+    }
+}

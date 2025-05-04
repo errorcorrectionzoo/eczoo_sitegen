@@ -120,7 +120,7 @@ export default async function (eleventyConfig)
         // Here we put the code that is used in common between the "/references" page
         // and the "/dat/bibreferences*" pages (Bibtex/CSL-JSON)
         //
-        eczoodb.site_bibrefsdata = prepareEczooBibReferences(eczoodb);
+        eczoodb.site_ecz_bibliorefs_collector = prepareEczooBibReferences(eczoodb);
 
         return eczoodb;
     });

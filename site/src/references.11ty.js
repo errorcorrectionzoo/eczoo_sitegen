@@ -1,6 +1,8 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.src.references');
 
+import _ from 'lodash';
+
 const data = {
     title: 'References',
     tags: ['sitePage'],
@@ -30,7 +32,7 @@ const render = async (data) => {
 
     const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
-    const bib_db_sorted = eczoodb.site_bibrefsdata.bib_db_sorted;
+    const ecz_bibliorefs_collector = eczoodb.site_ecz_bibliorefs_collector;
 
     const render_doc_fn = (render_context) => {
 
@@ -45,7 +47,7 @@ const render = async (data) => {
 <p><i>Download all: <a href="/dat/bibreferences.bib" download>BibTeX</a>, <a href="/dat/bibreferences_csl.json" download>CSL-JSON</a></i></p>
 
 <ul class="bibliography-list">`;
-        for (let { compiled_flm, encountered_in_object_list, sort_key } of bib_db_sorted) {
+        for (let { compiled_flm, encountered_in_object_list, sort_key } of ecz_bibliorefs_collector.bib_db_sorted) {
             const encountered_in_object_list_sorted_strings =
                 [... Object.keys(encountered_in_object_list)].sort();
             let backrefs = encountered_in_object_list_sorted_strings.map( (obj_type_id) => {
@@ -53,8 +55,7 @@ const render = async (data) => {
                 return ref(object_type, object_id);
             });
             s += sqzhtml`
-<li>
-    <!-- Sort key is ${JSON.stringify(sort_key)} -->
+<li data-sort-key="${_.escape(sort_key)}">
     <span class="bibliography-ref">${rdr(compiled_flm)}</span>.<span> </span>
     <span class="bibliography-backref">Appears in: ${backrefs.join(', ')}</span>
 </li>

@@ -6,6 +6,7 @@
     "type": "module",
     "dependencies": {
         "@errorcorrectionzoo/eczoodb": ">=0.0.1",
+        "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1",
         "@errorcorrectionzoo/jscomponents": ">=0.0.1",
         "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git",
         "csv-stringify": "^6.5.2",

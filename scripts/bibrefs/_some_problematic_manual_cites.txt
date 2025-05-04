@@ -1,0 +1,49 @@
+Check eczoo citations:
+
+
+@misc{preset:Forney, note={(1966). \emph{Concatenated Codes}. MIT Press, Cambridge, MA.}, author={Forney, G. D. and Jr} }
+
+@misc{manual:-G.D.-Forney-Jr.-S.M.-thesis-, note={1963 (unpublished).}, author={Forney, G. D. and Jr. and thesis, S. M. and Institute of Technology, Massachusetts} }
+
+& all G. D. Forney Jr. refs....
+
+@misc{manual:-International-Telecommunicat, note={24: List of definitions for interchange circuits between data terminal equipment (DTE) and data circuit-terminating equipment (DCE), 1988}, author={International Telecommunication Union-T, Recommendation V.} }
+
+@misc{manual:-W.-Kassem-Optimal-Lattice-Co, note={, Hamilton, Ontario, 1981,doi:10.1109/18.651040}, author={Kassem, W. and Lattice Codes for the Gaussian Channel, Optimal and Thesis, Ph. D and Univ, McMaster} }
+
+
+@misc{manual:-Alexei-Kitaev-On-the-Classif, note={(2013)}, author={Kitaev, Alexei and the Classification of Short-Range Entangled States, On and at Simons Center, talk} }
+
+
+@misc{manual:-Alexei-Kitaev-Toward-Topolog, note={(2011)}, author={Kitaev, Alexei and Topological Classification of Phases with Short-range Entanglement, Toward and at KITP, talk} }
+
+
+@misc{manual:-Kitaev-Alexei-Yu.-Protected-, note={“Protected qubit based on superconducting current mirror.” United States Patent Number 7858966B2 (2006).}, author={Kitaev, Alexei Yu.} }
+
+@misc{manual:-Lenstra-Hendrik-W.-Codes-fro, note={1}, author={Lenstra, Hendrik W. “Codes from algebraic number fields.” Mathematics and computer science II, Fundamental contributions in the Netherlands since 4 (1945): 94-104.} }
+
+@misc{manual:-J.-L.-Massey-Threshold-Decod, note={Cambridge, MA: M.I.T. Press, 1963.}, author={Massey, J. L. and Decoding, Threshold} }
+
+@misc{manual:-LDPC-coding-for-OFDMA-PHY.-8, note={802.16REVe Sponsor Ballot Recirculation comment, July 2004. IEEE C802.16e04/141r2}, author={coding for OFDMA PHY, LDPC} }
+
+@misc{manual:-International-Organization-f, note={Automatic Identification and Data Capture Techniques-QR Code 2005 Bar Code Symbology Specification, 2nd ed., IEC18004 (ISO, 2006).}, author={Organization for Standardization, International and Technology, Information} }
+
+@misc{manual:-N.-V.-Semakov-V.-A.-Zinovev-, note={Peredachi Inf., 5:2 (1969), 14–18; Problems Inform. Transmission, 5:2 (1969), 11–13}, author={Semakov, N. V. and Zinovev, V. A. and Complete and Balanced Codes, Quasi-complete and Probl} }
+
+@misc{manual:-Stroud-Arthur-H.-Approximate, note={Arthur H. Approximate calculation of multiple integrals. Prentice Hall, 1971.}, author={Stroud} }
+
+@misc{manual:-R.-Urbanke-LdpcOpt---a-fast-, note={accurate degree distribution optimizer for LDPC code ensembles (2001).}, author={Urbanke, R. and - a fast, LdpcOpt} }
+
+@misc{manual:-Veikkaus-Lotto-(Veikkaaja)-m, note={(Veikkaaja) magazine, issues 27, 28, and 33, August-September 1947.}, author={Veikkaus-Lotto} }
+
+
+@misc{manual:-Wells-Richard-B.-Applied-cod, note={information theory for engineers. Prentice-Hall, Inc., 1998.}, author={Wells and Applied coding, Richard B.} }
+
+@misc{manual:-M.-Yang-Y.-Li-andW.E.-Ryan-D, note={E. Ryan, Design of efficiently-encodable moderate-length high-rate irregular LDPC codes, Proc. 40th Annual Allerton Conference on Communication, Control, and Computing, Champaign, IL., pp. 1415–1424, October 2002.}, author={Yang, M. and Li, Y. and andW} }
+
+
+@misc{manual:-Ziman-John-M.-Models-of-diso, note={the theoretical physics of homogeneously disordered systems. Cambridge university press, 1979.}, author={Ziman and Models of disorder, John M.} }
+
+@misc{manual:-J.-L.-Vasilyev-On-nongroup-c, note={J. L. Vasilyev On nongroup close-packed codes (in Russian), Probl. Kibernet., 8 (1962), 337-339, translated in Probleme der Kibernetik 8 (1965), 375-378.} }
+
+
