@@ -187,6 +187,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
     //         csl_json: v.csl_json,
     //         cite_prefix: v.cite_prefix,
     //         cite_key: v.cite_key,
+    //         cite_prefix_key: v.cite_prefix_key,
     //         cite_prefix_key_clean: v.cite_prefix_key_clean,
     //         sort_key: v.sort_key,
     //     }]) )

@@ -16,11 +16,26 @@ import { hideBin } from 'yargs/helpers';
 
 import { loadEcZoo } from './_helpers/helperEcZooLoader.js';
 
+
+//
+// DEPRECATED: USE bibrefs/collectBibRefs.js INSTEAD!
+//
+
 //
 // Core script function. Loads the zoo and performs the desired analysis.
 //
 async function runmain(args)
 {
+    process.stderr.write(`
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                             !
+!      This script is obsolete!  Use bibrefs/collectBibRefs.js instead!       !
+!                                                                             !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+`);
+
     process.stderr.write('runmain(): loading zoo... (might take a couple minutes)\n');
     const eczoodb = await loadEcZoo({ dataDir: args.dataDir });
 

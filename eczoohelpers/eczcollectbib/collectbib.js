@@ -36,22 +36,46 @@ plusings_config_csl.templates.add(
 
 export class EczBibReferencesCollector
 {
-    constructor()
+    constructor(options={})
     {
         this.bib_db = {};
 
-        this.remove_full_flm_braces = true;
-        this.detect_formatted_info_extract_year = false;
+        this.options = Object.assign(
+            {
+                remove_full_flm_braces: true,
+                detect_formatted_info_extract_year: false,
+            },
+            options ?? {}
+        );
+    }
+
+    saveBibDbData()
+    {
+        return JSON.stringify({bib_db: this.bib_db});
+    }
+    loadBibDbData(bibDbData)
+    {
+        this.bib_db = JSON.parse(bibDbData).bib_db;
+        this._build_bib_db_sorted();
+    }
+
+    _build_bib_db_sorted()
+    {
+        this.bib_db_sorted = [...Object.values(this.bib_db)].sort(
+            (obj1, obj2) => obj1.sort_key.localeCompare(obj2.sort_key)
+        );
     }
 
     collectFromZooFlmProcessorEncountered({
         zoo_flm_processor,
         include_compiled_flm,
         include_encountered_in,
+        filter_bib_entry,
     })
     {
         include_compiled_flm ??= false;
         include_encountered_in ??= false;
+        filter_bib_entry ??= null;
 
         debug(`Collecting bib references using zoo_flm_processor = ${zoo_flm_processor}`);
 
@@ -65,8 +89,12 @@ export class EczBibReferencesCollector
 
         let bib_db = this.bib_db; // alias to this.bib_db
 
-        for (const { cite_prefix, cite_key, encountered_in }
-            of all_encountered_citations) {
+        for (const encountered_citation of all_encountered_citations) {
+            const { cite_prefix, cite_key, encountered_in } = encountered_citation;
+
+            if (filter_bib_entry && !filter_bib_entry(encountered_citation)) {
+                continue;
+            }
 
             let cite_prefix_key = `${cite_prefix}:${cite_key}`;
 
@@ -122,14 +150,26 @@ export class EczBibReferencesCollector
             const bibentry = {
                 cite_prefix,
                 cite_key,
+                cite_prefix_key,
                 cite_prefix_key_clean,
-                cite_instance,
+                // cite_instance, // not serializable
                 jsondata,
                 rawjsondata,
                 csl_json,
-                compiled_flm,
+                compiled_flm, // POSSIBLY NON-SERIALIZABLE !
                 sort_key,
                 encountered_in_list: include_encountered_in ? [ encountered_in, ] : null,
+
+                toJSON()
+                {
+                    return Object.assign(
+                        {},
+                        this,
+                        {
+                            compiled_flm: this.compiled_flm?.flm_text ?? this.compiled_flm
+                        }
+                    );
+                }
             };
             bib_db[cite_prefix_key] = bibentry;
         }
@@ -151,11 +191,53 @@ export class EczBibReferencesCollector
         }
 
         // prepare the sorted list, for convenience.
-        this.bib_db_sorted = [...Object.values(bib_db)].sort(
-            (obj1, obj2) => obj1.sort_key.localeCompare(obj2.sort_key)
-        );
+        this._build_bib_db_sorted();
 
         // all good!
+    }
+
+    getFilteredBibDb({ filter_bib_entry, include_encountered_in }={})
+    {
+        include_encountered_in ??= true;
+
+        let c2 = new EczBibReferencesCollector(
+            this.options
+        );
+        let new_bib_db = {};
+        for (const bibentry of Object.values(this.bib_db)) {
+            const { cite_prefix, cite_key, cite_prefix_key, encountered_in_list } = bibentry;
+            if (encountered_in_list == null) {
+                throw new Error(`getFilteredBibDb() requires the original bibdb to include encountered_in information.  Use option "include_encountered_in: true" when collecting entries.`);
+            }
+            for (const encountered_in of encountered_in_list) {
+                // reconstruct an "encountered citation"
+                const encountered_citation = { cite_prefix, cite_key, encountered_in };
+                if (filter_bib_entry && !filter_bib_entry(encountered_citation)) {
+                    continue;
+                }
+                if (Object.hasOwn(new_bib_db, cite_prefix_key)) {
+                    //
+                    // We've already taken care of this citation.  We only have to
+                    // update the 'encountered_in_list' field.
+                    //
+                    if (include_encountered_in) {
+                        let encountered_in_list =
+                            new_bib_db[cite_prefix_key].encountered_in_list;
+                        encountered_in_list.push(encountered_in);
+                    }
+                    continue;
+                }
+                new_bib_db[cite_prefix_key] = Object.assign(
+                    {},
+                    bibentry,
+                    {
+                        encountered_in_list: [ encountered_in ],
+                    }
+                );
+            }
+        }
+        c2.bib_db = new_bib_db;
+        return c2;
     }
 
     generateBibtexEntries()
@@ -204,7 +286,7 @@ export class EczBibReferencesCollector
     {
         let compiled_flm = jsondata._ready_formatted?.flm ?? '';
         compiled_flm = compiled_flm.flm_text ?? compiled_flm;
-        if (this.remove_full_flm_braces && compiled_flm.startsWith('{')
+        if (this.options.remove_full_flm_braces && compiled_flm.startsWith('{')
             && compiled_flm.endsWith('}')) {
             compiled_flm = compiled_flm.slice(1,compiled_flm.length-1);
         }
@@ -224,7 +306,7 @@ export class EczBibReferencesCollector
             newjsondata.author = author_list;
         }
         newjsondata._issued_year = year;
-        if (this.detect_formatted_info_extract_year && jsondata.issued == null) {
+        if (this.options.detect_formatted_info_extract_year && jsondata.issued == null) {
             newjsondata.issued = {
                 'date-parts': [ [ year ] ],
             };
@@ -233,7 +315,7 @@ export class EczBibReferencesCollector
             && jsondata.issued == null && jsondata['container-title'] == null) {
             // Looks like an empty entry -- create a minimal CSL-JSON entry!
             newjsondata.type = "document";
-            if (this.detect_formatted_info_extract_year) {
+            if (this.options.detect_formatted_info_extract_year) {
                 newjsondata.note = remaining_string_no_year;
             } else {
                 newjsondata.note = remaining_string;
