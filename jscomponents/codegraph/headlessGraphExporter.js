@@ -222,7 +222,7 @@ export class CodeGraphSvgExporter
             svgData = svgData.replace(
                 /(<svg [^>]*>)/,
                 (match) => {
-                    return match + `<style>${ importSourceSansFontsCss.replace('&', '&#x26;') }</style>`;
+                    return match + `<style>${ importSourceSansFontsCss.replaceAll('&', '&#x26;') }</style>`;
                 }
             );
         }

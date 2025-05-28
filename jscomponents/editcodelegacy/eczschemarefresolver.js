@@ -39,7 +39,6 @@ export default class EczSchemaRefResolver
 
     do_fetch_file(file)
     {
-        let _this = this;
         let filejson = file;
         if (!file.endsWith('.json')) {
             filejson = file + '.json';

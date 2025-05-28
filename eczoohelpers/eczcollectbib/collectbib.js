@@ -378,7 +378,7 @@ export class EczBibReferencesCollector
         });
         // hack to cut off additional authors, because I cannot seem to make
         // CSL's et-al to work !!
-        sort_key = sort_key.replace(/,[^;]+;/, ';');
+        sort_key = sort_key.replace(/,[^;]+;/g, ';');
         // In case there is some sort of error ...
         if (sort_key === "" || sort_key.startsWith(";")) {
             let compiled_flm = jsondata._ready_formatted?.flm ?? '';
@@ -406,7 +406,7 @@ export class EczBibReferencesCollector
             compiled_flm = compiled_flm.slice(1,compiled_flm.length-1);
         }
         // make sure we don't have '\n' in compiled_flm!
-        compiled_flm = compiled_flm.replace('\n', ' ');
+        compiled_flm = compiled_flm.replaceAll('\n', ' ');
         return compiled_flm;
     }
 

@@ -28,9 +28,9 @@ function getBundleName(bundle)
     if (filePath != null) {
         stem = path.basename(filePath, path.extname(filePath))
             .replace(/[^a-zA-Z0-9]/g, '')
-            .replace('eczoo', 'ecz')
-            .replace('quantum', 'q')
-            .replace('classical', 'cl')
+            .replaceAll('eczoo', 'ecz')
+            .replaceAll('quantum', 'q')
+            .replaceAll('classical', 'cl')
             .replace(/^[kd]graph/, 'gr')
             .slice(0, 12)
     }

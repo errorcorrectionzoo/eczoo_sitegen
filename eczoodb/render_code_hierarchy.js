@@ -285,10 +285,10 @@ export function render_code_hierarchy_content({
     <a class="code-hierarchy-item-inner-ancestor${
         spar.is_property_code ? ' code-hierarchy-item-inner-ancdesc-propertycode' : ''
     }" href="${
-        refhref(spar.object_type, spar.object_id).replace('"', '&quot;')
+        refhref(spar.object_type, spar.object_id).replaceAll('"', '&quot;')
     }" title="${
         (spar.ancestor_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )
-            .join(' ← ')).replace('"', '&quot;')
+            .join(' ← ')).replaceAll('"', '&quot;')
     }">${ rdr(sparcode ? eczoodb.code_short_name(sparcode) : spar.name) }</a>  <!-- space -->`;
         }
         s += sqzhtml`
@@ -309,10 +309,10 @@ export function render_code_hierarchy_content({
     <a class="code-hierarchy-item-inner-descendant${
         ccinfo.is_property_code ? ' code-hierarchy-item-inner-ancdesc-propertycode' : ''
     }" href="${
-        refhref(ccinfo.object_type, ccinfo.object_id).replace('"', '&quot;')
+        refhref(ccinfo.object_type, ccinfo.object_id).replaceAll('"', '&quot;')
     }" title="${
         (ccinfo.descendant_relation_info_chain.map( (cinfo) => rdrtext(cinfo.code.name) )
-            .join(' → ')).replace('"', '&quot;')
+            .join(' → ')).replaceAll('"', '&quot;')
     }">${ rdr(ccode ? eczoodb.code_short_name(ccode) : ccinfo.name) }</a>  <!-- space -->`;
         }
         s += sqzhtml`

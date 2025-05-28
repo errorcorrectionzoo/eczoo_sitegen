@@ -45,7 +45,7 @@ function display_code_field(code, fieldname, title, { R })
     const classnames = classlist.join(' '); // eg. "code-feature code-feature-rate"
     return sqzhtml`
 <div class="sectioncontent ${classnames}">
-<h2 id="${fieldname.replace('.', '_')}" class="${classnames}">${title}</h2>
+<h2 id="${fieldname.replaceAll('.', '_')}" class="${classnames}">${title}</h2>
 ${rdr(value)}
 </div>
 `;

@@ -71,7 +71,7 @@ CSL.Output.Formats.bibtexlatex = {
         //
         // - make sure that % signs are escaped.
         //
-        text2 = replaceHardEscapes(text2 ?? '').replace('%', '\\%');
+        text2 = replaceHardEscapes(text2 ?? '').replaceAll('%', '\\%');
 
 
         //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
@@ -229,7 +229,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
             // WTF?? Try a hack around that.
             for (const [k,v] of Object.entries(d)) {
                 if (v && typeof v === 'string') {
-                    d[k] = v.replace('\\', '<BACKSLASHCHAR/>');
+                    d[k] = v.replaceAll('\\', '<BACKSLASHCHAR/>');
                 }
             }
             //debug(`Retrieved item:`, d);

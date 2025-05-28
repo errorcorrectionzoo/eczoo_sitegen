@@ -71,8 +71,8 @@ module.exports = new Transformer({
             const ogImageContent = getMetaTagContent(ogImageTag);
             const absoluteOgImageUrl = fixUrl(ogImageContent);
             const ogImageTagAbsoluteUrl =
-                  ogImageTag.replace(ogImageContent, absoluteOgImageUrl);
-            patchedHtml = baseHtml.replace(ogImageTag, ogImageTagAbsoluteUrl);
+                  ogImageTag.replaceAll(ogImageContent, absoluteOgImageUrl);
+            patchedHtml = baseHtml.replaceAll(ogImageTag, ogImageTagAbsoluteUrl);
             //console.log(`DEBUG: patching ‘${ogImageContent}’ -> ‘${absoluteOgImageUrl}’  [ref URL is ‘${ogUrlContent}’]`);
             asset.setCode(patchedHtml);
         } catch (error) {
@@ -85,8 +85,8 @@ module.exports = new Transformer({
             const twitterImageContent = getMetaTagContent(twitterImageTag);
             const absoluteTwitterImageUrl = fixUrl(twitterImageContent);
             const twitterImageTagAbsoluteUrl =
-                  twitterImageTag.replace(twitterImageContent, absoluteTwitterImageUrl);
-            patchedHtml = patchedHtml.replace(twitterImageTag, twitterImageTagAbsoluteUrl);
+                  twitterImageTag.replaceAll(twitterImageContent, absoluteTwitterImageUrl);
+            patchedHtml = patchedHtml.replaceAll(twitterImageTag, twitterImageTagAbsoluteUrl);
             asset.setCode(patchedHtml);
         } catch (error) {
             console.log(error.message);
