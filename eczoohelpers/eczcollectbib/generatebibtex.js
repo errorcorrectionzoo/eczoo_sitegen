@@ -12,6 +12,20 @@ function escape_url(url)
 }
 
 
+const hardEscapes = {
+    BACKSLASHCHAR: '\\',
+    BRACE_OPEN: '{',
+    BRACE_CLOSE: '}',
+};
+
+const _rxHardEscapes = new RegExp("<(" + Object.keys(hardEscapes).join('|') + ")\\s*/>", "g");
+
+function replaceHardEscapes(x)
+{
+    return x.replaceAll(_rxHardEscapes, (match, arg) => hardEscapes[arg]);
+}
+
+
 CSL.Output.Formats.bibtexlatex = {
     // set this from inner functions ... :/
     //flm_environment: null,
@@ -26,14 +40,39 @@ CSL.Output.Formats.bibtexlatex = {
     "text_escape": function (text) {
         // the actual bibtex content will be passed here, so don't do any fancy escaping...
 
+        let text2 = (text ?? '');
+
+        // ensure that braces are balanced!!  We're trying to be tolerant here, so try to add
+        // some braces to balance them if they aren't.  We might have inputs with unbalanced
+        // braces coming from "anystyle"'s output, for instance.
+        let openBraces = 0;
+        for (let j = 0; j < text2.length; ++j) {
+            if (text2.charAt(j) === '{') {
+                openBraces += 1;
+            } else if (text2.charAt(j) === '}') {
+                openBraces -= 1;
+            }
+        }
+        // If openBraces !== 0, fix by including initial or final braces.
+        if (openBraces < 0) {
+            debug(`WARNING: Too many closing braces in bibtex text output “${text2}”!`);
+            text2 = '{'.repeat(-openBraces) + text2;
+        } else if (openBraces > 0) {
+            debug(`WARNING: Missing closing braces in bibtex text output “${text2}”!`);
+            text2 = text2 + '}'.repeat(openBraces);
+        }
+
         // - I ran into bugs where '\' chars were simply omitted in some instance.  Here's
-        //   a terribly dirty hack to make sure they're restored.
+        //   a terribly dirty hack to make sure they're restored.  In a similar vein, sometimes
+        //   some braces should not count towards the mandatory balancing done above (e.g., the 
+        //   "prefix" and "suffix" values in the bibtex csl style, which contain opening and
+        //   closing braces, respectively).  We fix these cases with "hard escapes" with special
+        //   placeholders of the form <BACKSLASHCHAR/> or <BRACE_OPEN/>.  Replace them here.
         //
         // - make sure that % signs are escaped.
         //
-        let text2 = (
-            text?.replace('<BACKSLASHCHAR/>', '\\').replace('%', '\\%')
-        ) ?? '';
+        text2 = replaceHardEscapes(text2 ?? '').replace('%', '\\%');
+
 
         //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
 

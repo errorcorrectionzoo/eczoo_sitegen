@@ -120,23 +120,23 @@
   <macro name="container-title">
     <choose>
       <if type="chapter paper-conference" match="any">
-        <text variable="container-title" prefix=" booktitle={" suffix="}"/>
+        <text variable="container-title" prefix=" booktitle=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </if>
       <else>
-        <text variable="container-title" prefix=" journal={" suffix="}"/>
+        <text variable="container-title" prefix=" journal=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </else>
     </choose>
   </macro>
   <macro name="publisher">
     <choose>
       <if type="thesis">
-        <text variable="publisher" prefix=" school={" suffix="}"/>
+        <text variable="publisher" prefix=" school=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </if>
       <else-if type="report">
-        <text variable="publisher" prefix=" institution={" suffix="}"/>
+        <text variable="publisher" prefix=" institution=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </else-if>
       <else>
-        <text variable="publisher" prefix=" publisher={" suffix="}"/>
+        <text variable="publisher" prefix=" publisher=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </else>
     </choose>
   </macro>
@@ -171,40 +171,40 @@
     </sort>
     <layout>
       <text macro="zotero2bibtexType" prefix=" @"/>
-      <group prefix="{" suffix=" }" delimiter=", ">
+      <group prefix="&lt;BRACE_OPEN/&gt;" suffix=" &lt;BRACE_CLOSE/&gt;" delimiter=", ">
         <text macro="citeKey"/>
-        <text variable="publisher-place" prefix=" address={" suffix="}"/>
+        <text variable="publisher-place" prefix=" address=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
         <!--Fix This-->
-        <text variable="chapter-number" prefix=" chapter={" suffix="}"/>
+        <text variable="chapter-number" prefix=" chapter=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
         <!--Fix This-->
-        <text macro="edition" prefix=" edition={" suffix="}"/>
-        <text variable="genre" prefix=" type={" suffix="}"/>
-        <text variable="collection-title" prefix=" series={" suffix="}"/>
-        <text macro="title" prefix=" title={" suffix="}"/>
-        <text variable="volume" prefix=" volume={" suffix="}"/>
-        <!-- <text variable="license" prefix=" rights={" suffix="}"/> -->
-        <text variable="ISBN" prefix=" ISBN={" suffix="}"/>
-        <text variable="ISSN" prefix=" ISSN={" suffix="}"/>
-        <text variable="call-number" prefix=" callNumber={" suffix="}"/>
-        <text variable="archive_location" prefix=" archiveLocation={" suffix="}"/>
-        <text variable="URL" prefix=" url={" suffix="}"/>
-        <text variable="DOI" prefix=" DOI={" suffix="}"/>
-        <text variable="arxivid" prefix=" eprint={" suffix="}"/>
-        <text variable="arxivid" prefix=" arxivid={" suffix="}"/>
-        <!-- <text variable="abstract" prefix=" abstractNote={" suffix="}"/> -->
-        <text variable="note" prefix=" note={" suffix="}"/>
-        <text macro="number" prefix=" number={" suffix="}"/>
+        <text macro="edition" prefix=" edition=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="genre" prefix=" type=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="collection-title" prefix=" series=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text macro="title" prefix=" title=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="volume" prefix=" volume=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <!-- <text variable="license" prefix=" rights=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/> -->
+        <text variable="ISBN" prefix=" ISBN=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="ISSN" prefix=" ISSN=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="call-number" prefix=" callNumber=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="archive_location" prefix=" archiveLocation=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="URL" prefix=" url=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="DOI" prefix=" DOI=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="arxivid" prefix=" eprint=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="arxivid" prefix=" arxivid=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <!-- <text variable="abstract" prefix=" abstractNote=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/> -->
+        <text variable="note" prefix=" note=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text macro="number" prefix=" number=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
         <text macro="container-title"/>
         <text macro="publisher"/>
-        <text macro="author" prefix=" author={" suffix="}"/>
-        <text macro="editor-translator" prefix=" editor={" suffix="}"/>
-        <text macro="issued-year" prefix=" year={" suffix="}"/>
+        <text macro="author" prefix=" author=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text macro="editor-translator" prefix=" editor=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text macro="issued-year" prefix=" year=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
         <text macro="issued-month" prefix=" month=" suffix=""/>
-        <text macro="pages" prefix=" pages={" suffix="}"/>
-        <text variable="collection-title" prefix=" collection={" suffix="}"/>
-        <text variable="keyword" prefix=" keywords={" suffix="}"/>
-        <text variable="language" prefix="language={" suffix="}"/>
-        <text variable="annote" prefix="annote={" suffix="}"/>
+        <text macro="pages" prefix=" pages=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="collection-title" prefix=" collection=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="keyword" prefix=" keywords=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="language" prefix="language=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
+        <text variable="annote" prefix="annote=&lt;BRACE_OPEN/&gt;" suffix="&lt;BRACE_CLOSE/&gt;"/>
       </group>
     </layout>
   </bibliography>
