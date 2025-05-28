@@ -623,6 +623,7 @@ __metadata:
     debug: ^4.4.0
     lodash: ^4.17.21
     mocha: ^11.0.1
+    which: ^5.0.0
   peerDependencies:
     "@errorcorrectionzoo/eczoodb": "*"
     "@phfaist/zoodb": "*"

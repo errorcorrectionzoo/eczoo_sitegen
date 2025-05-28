@@ -1,12 +1,15 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoohelpers_eczcollectbib.collectbib');
 
+import loMerge from 'lodash/merge.js';
 
 import { Cite, plugins } from '@citation-js/core';
 import '@citation-js/plugin-csl';
 
+import { render_text_standalone, $$kw } from '@phfaist/zoodb/zooflm';
 
 import { parseAuthorsYearInfo } from './parseauthors.js';
+import { Anystyle } from './parse_anystyle.js';
 
 // Using a special BibTeX export style (inspired by Zotero).
 import { generateBibtex } from './generatebibtex.js';
@@ -131,6 +134,26 @@ export class EczBibReferencesCollector
                 include_compiled_flm
                 ? citation_compiler.get_compiled_citation(cite_prefix, cite_key)
                 : null;
+            
+            // compile the citation to plain text for parsing with Anystyle ? --- OR NOT, DIRECTLY USE FLM FOR ANYSTYLE???
+            //
+            // jsondata._ready_formatted.flm;
+            // compiled_flm = compiled_flm.flm_text ?? compiled_flm;
+            // if (this.options.remove_full_flm_braces && compiled_flm.startsWith('{')
+            //     && compiled_flm.endsWith('}')) {
+            //     compiled_flm = compiled_flm.slice(1,compiled_flm.length-1);
+            // }
+            // // compile FLM to text
+            // const fragment = zoo_flm_environment.make_fragment(
+            //     compiled_flm,
+            //     $$kw({
+            //         is_block_level: false,
+            //         standalone_mode: true,
+            //         what: `Citation text for ${jsondata.id}`,
+            //     }),
+            // );
+            // const formattedBibRef = render_text_standalone(fragment);
+
 
             const bibentry = {
                 cite_prefix,
@@ -256,8 +279,11 @@ export class EczBibReferencesCollector
 
     // ----------------
 
-    processEntries()
+    processEntries({ anystyleOptions }={})
     {
+        const anystyle = new Anystyle();
+        anystyle.initialize(anystyleOptions);
+
         for (const bibentry of Object.values(this.bib_db)) {
 
             const {
@@ -280,8 +306,9 @@ export class EczBibReferencesCollector
             // Try to guess important information from any citation that is provided
             // as a ready-formatted citation.
             //
-            if (jsondata.author == null || jsondata.issued == null) {
-                jsondata = this._detect_jsondata_authoryear({ jsondata });
+            if ((jsondata.author == null || jsondata.issued == null)
+                && jsondata._ready_formatted?.flm) {
+                jsondata = this._complete_jsondata({ jsondata, anystyle });
             }
 
             let cite_instance = new Cite([ jsondata ]);
@@ -300,6 +327,42 @@ export class EczBibReferencesCollector
 
         // prepare the sorted list, for convenience.
         this._build_bib_db_sorted();
+    }
+
+    // ----------------
+
+    _complete_jsondata({ jsondata, anystyle })
+    {
+        // based on Anystyle:
+        let compiled_flm = this._get_compiled_flm({ jsondata });
+
+        if (!compiled_flm || compiled_flm.trim() == "") {
+            // no compiled citation to work with!
+            console.warn(`⚠️⚠️⚠️ No compiled citation available for ${jsondata.id}!`, jsondata);
+            return jsondata;
+        }
+
+        try {
+            const anystyleResult =
+                anystyle.anystyle(compiled_flm, { wantJson: true, wantBibtex: false });
+
+            loMerge(jsondata, anystyleResult.json); // merge in!
+            return jsondata;
+
+        } catch (err) {
+            if (!err._anystyle_error) {
+                throw err;
+            }
+            debug(
+                `*** anystyle returned an error for ‘${jsondata.id}’. Trying our `
+                + `heuristic algorithm instead.`
+            );
+            return this._detect_jsondata_authoryear({ jsondata });
+        }
+
+        // alternative, try to find author and year through manual heuristic
+        // coded in parseauthors.js:
+        //return this._detect_jsondata_authoryear({ jsondata });
     }
 
     // ----------------
@@ -334,7 +397,7 @@ export class EczBibReferencesCollector
         return sort_key;
     }
 
-    _detect_jsondata_authoryear({ jsondata })
+    _get_compiled_flm({ jsondata })
     {
         let compiled_flm = jsondata._ready_formatted?.flm ?? '';
         compiled_flm = compiled_flm.flm_text ?? compiled_flm;
@@ -342,6 +405,14 @@ export class EczBibReferencesCollector
             && compiled_flm.endsWith('}')) {
             compiled_flm = compiled_flm.slice(1,compiled_flm.length-1);
         }
+        // make sure we don't have '\n' in compiled_flm!
+        compiled_flm = compiled_flm.replace('\n', ' ');
+        return compiled_flm;
+    }
+
+    _detect_jsondata_authoryear({ jsondata })
+    {
+        const compiled_flm = this._get_compiled_flm({ jsondata });
 
         debug(`_detect_jsondata_authoryear (${jsondata.id}): Using compiled_flm = ‘${compiled_flm}’`);
 

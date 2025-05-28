@@ -10,7 +10,8 @@
         "@citation-js/plugin-csl": "^0.7.18",
         "citeproc": "^2.4.62",
         "debug": "^4.4.0",
-        "lodash": "^4.17.21"
+        "lodash": "^4.17.21",
+        "which": "^5.0.0"
     },
     "peerDependencies": {
         "@errorcorrectionzoo/eczoodb": "*",
