@@ -6,7 +6,7 @@ import loMerge from 'lodash/merge.js';
 import { Cite, plugins } from '@citation-js/core';
 import '@citation-js/plugin-csl';
 
-import { render_text_standalone, $$kw } from '@phfaist/zoodb/zooflm';
+//import { render_text_standalone, $$kw } from '@phfaist/zoodb/zooflm';
 
 import { parseAuthorsYearInfo } from './parseauthors.js';
 import { Anystyle } from './parse_anystyle.js';
@@ -261,12 +261,12 @@ export class EczBibReferencesCollector
         return c2;
     }
 
-    generateBibtexEntries()
+    generateBibtexEntries(options={})
     {
         if (!this.processed) {
             throw new Error(`call processEntries() before generateBibtexEntries()`);
         }
-        return generateBibtex(this.bib_db);
+        return generateBibtex(this.bib_db, options);
     }
 
     generateCslJsonEntries()
