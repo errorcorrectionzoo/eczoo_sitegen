@@ -7,7 +7,7 @@ import {
 
 export function prepareEczooBibReferences(eczoodb)
 {
-    debug(`prepareEczooBibReferences()`, eczoodb.zoo_flm_processor);
+    debug(`prepareEczooBibReferences()`);
     let c = new EczBibReferencesCollector();
     c.collectFromZooFlmProcessorEncountered({
         zoo_flm_processor: eczoodb.zoo_flm_processor,

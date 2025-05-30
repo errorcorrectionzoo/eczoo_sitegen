@@ -54,9 +54,22 @@ function getAnystyleCommand()
 
     debug({ systemPath: process.env.PATH });
 
-    const anystyleExe = which.sync('anystyle', {
-        path: `${gemPathBin}:${process.env.PATH}`,
-    });
+    let anystyleExe;
+    try {
+
+        anystyleExe = which.sync('anystyle', {
+            path: `${gemPathBin}:${process.env.PATH}`,
+        });
+
+    } catch (err) {
+        console.error(err);
+        console.error(
+            `Unable to find the ‘anystyle’ command-line tool.  `
+            + `Please install anystyle, see instructions at https://anystyle.io/ (try `
+            + `‘gem install anystyle-cli’).`
+        );
+        throw new Error(`Unable to find ‘anystyle’ command-line tool.`);
+    }
 
     debug({ anystyleExe });
 
@@ -105,6 +118,12 @@ export class Anystyle
                 }
             );
             debug(`... got CSL-JSON output: “${anystyleResult}”`);
+            if (anystyleResult == null || !anystyleResult.trim().length) {
+                debug(`Empty output from ‘anystyle’!`);
+                let e = new Error(`No output from anystyle for bib ref`);
+                e._anystyle_error = 'no-output-for-bib-ref';
+                throw e;
+            }
             let citjson = JSON.parse(anystyleResult);
             if (citjson.length !== 1) {
                 debug(`Could not parse formatted Bib ref!`, citjson);
@@ -136,6 +155,8 @@ export class Anystyle
         if (d.type == null) {
             d.type = 'document';
         }
+        // avoid "article" type for unpublished arxiv-only items that do not have a "journal"
+        //.....
         return d;
     }
 };
