@@ -92,9 +92,8 @@ Refer to equations with \eqref{eq:stabilizers}, etc. ...
     `arXiv` identifiers whenever possible.  If the DOI is not
     retreived correctly (e.g., it is not listed correctly on the
     arXiv page), then please add a line in the file
-    `citation_extras/citation_hints.yml` (in the data repo),
-    specifically in the `arxiv_to_doi_override:`
-    section.  You can also file an issue in this repo so that we
+    `code_extra/override_arxiv_dois.yml` (in the `eczoo_data` repo).
+    You can also file an issue in this repo so that we
     take care of this addition.*
     
     Citations can be combined as in LaTeX:
