@@ -1,3 +1,7 @@
+echo 'Do not run me! I am a markdown file!'; return
+... that was just in case I blindly ran '. ./YARN_UP_CMDS.md'
+
+
 Yarn upgrade commands for my packages:
 
 ```bash
