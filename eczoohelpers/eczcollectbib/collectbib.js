@@ -314,6 +314,8 @@ export class EczBibReferencesCollector
                     jsondata = this._complete_jsondata({ jsondata, anystyle });
                 }
 
+                this._fix_jsondata({ jsondata });
+
                 let cite_instance = new Cite([ jsondata ]);
 
                 let sort_key = this._generate_sort_key({ cite_instance, jsondata });
@@ -370,6 +372,20 @@ export class EczBibReferencesCollector
         // alternative, try to find author and year through manual heuristic
         // coded in parseauthors.js:
         //return this._detect_jsondata_authoryear({ jsondata });
+    }
+
+    // ----------------
+
+    _fix_jsondata({ jsondata })
+    {
+        // manually fix some known issues :/
+
+        if (!jsondata.type) {
+            jsondata.type = 'document';
+        }
+
+        // fix names.
+        _fix_jsondata_names({ jsondata });
     }
 
     // ----------------
@@ -458,6 +474,62 @@ export class EczBibReferencesCollector
         }
 
         return newjsondata;
+    }
+}
+
+
+
+
+// Common CSL name fields
+const cslNameFields = [
+    "author",
+    "editor",
+    "translator",
+    "recipient",
+    "composer",
+    "original-author",
+    "container-author"
+];
+
+function _fix_jsondata_single_name_object(nameObject)
+{
+    //debug(`Fixing name object:`, JSON.stringify(nameObject));
+
+    // Example correction: title-case given/family names
+    const normalizeNameField = (field) => {
+        let s = nameObject[field];
+        if (s != null) {
+            if (!s) {
+                delete nameObject[field];
+            }
+            nameObject[field] = s.replaceAll(
+                // no space macros, no unicode space.
+                /(\\[;:, ]|\s)/ug,
+                (match, spacemacro) => {
+                    if (spacemacro != null) {
+                        return ' ';
+                    }
+                    throw new Error(`Invalid case??? ${match}`);
+                }
+            );
+        }
+    }
+
+    normalizeNameField('given');
+    normalizeNameField('family');
+    normalizeNameField('literal');
+
+    //debug(`... fixed to`, JSON.stringify(nameObject));
+
+    return nameObject;
+}
+
+function _fix_jsondata_names({ jsondata })
+{
+    for (const field of cslNameFields) {
+        if (Array.isArray(jsondata[field])) {
+            jsondata[field] = jsondata[field].map(_fix_jsondata_single_name_object);
+        }
     }
 }
 

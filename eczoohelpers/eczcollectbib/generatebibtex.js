@@ -4,12 +4,28 @@ const debug = debug_module('eczoohelpers_eczcollectbib.generatebibtex');
 import fs from 'fs';
 import path from 'path';
 
+import { get_builtin_uni2latex_dict } from '@phfaist/zoodb/flm-js/pylatexenc.latexencode.get_builtin_rules';
+
 import CSL from 'citeproc';
 
 function escape_url(url)
 {
     return url.replace(/[%#\\]/g, (match) => '\\'+match);
 }
+
+
+const unicodeLatexReplacements = get_builtin_uni2latex_dict();
+
+// const noBibLatexEscapeKeys = [
+//     // The ID of the entry & its internal hash
+//     'id', '_hash',
+//     // Entry type is a standard string, don't try to escape it
+//     'type',
+//     // Any identifiers, e.g. DOIs, URLs, arXiv numbers, ...
+//     'DOI', 'URL', 'ISBN', 'ISSN', 'eprint', 'prefix',
+//     // The following fields will be ignored anyways in bibtex export, don't waste time converting them
+//     'abstract', 'update-policy', 'source',
+// ];
 
 
 const hardEscapes = {
@@ -42,12 +58,45 @@ CSL.Output.Formats.bibtexlatex = {
 
         let text2 = (text ?? '');
 
+        // Do some heavy escaping. Do not leave stuff that might confuse LaTeX.
+        // no newlines
+        text2 = text2.replaceAll('\n', ' ');
+        // escape any remaining special syntax that could confuse latex, escape _'s and &'s, etc.
+        text2 = text2.replaceAll(
+            /((?:\\|<BACKSLASHCHAR\s*\/>)(?:[a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^$\\^%#]|[^\u0020-\u007F])/ug,
+            (match, macro, safe, specialchar) => {
+                if (macro != null) {
+                    return macro;
+                }
+                if (safe != null) {
+                    return safe;
+                }
+                if (specialchar != null) {
+                    const replacementCode = unicodeLatexReplacements[specialchar.codePointAt(0)];
+                    if (replacementCode != null) {
+                        //debug(`...replacement code for ${specialchar} is ${replacementCode}`);
+                        // replace by known LaTeX equivalent string.  Make sure we include any trailing
+                        // braces to protect a macro name!
+                        if (/\\[a-zA-Z]+$/u.test(replacementCode)) {
+                            // looks like the replacement code finishes with a macro with a name, add protective
+                            // braces around the entire replacement string.
+                            return '{' + replacementCode + '}';
+                        }
+                        return replacementCode;
+                    }
+                    // unknown char, use '?' for safety
+                    return '?';
+                }
+                throw new Error(`Got unknown case??? ‘${match}’`);
+            }
+        );
+
         // ensure that braces are balanced!!  We're trying to be tolerant here, so try to add
         // some braces to balance them if they aren't.  We might have inputs with unbalanced
         // braces coming from "anystyle"'s output, for instance.
         let openBraces = 0;
         for (let j = 0; j < text2.length; ++j) {
-            if (text2.charAt(j) === '{') {
+            if (text2.charAt(j) === '{') { // <BRACE_OPEN/> should not count here, see below.
                 openBraces += 1;
             } else if (text2.charAt(j) === '}') {
                 openBraces -= 1;
@@ -69,25 +118,11 @@ CSL.Output.Formats.bibtexlatex = {
         //   closing braces, respectively).  We fix these cases with "hard escapes" with special
         //   placeholders of the form <BACKSLASHCHAR/> or <BRACE_OPEN/>.  Replace them here.
         //
-        // - make sure that % signs are escaped.
-        //
-        text2 = replaceHardEscapes(text2 ?? '').replaceAll('%', '\\%');
-
+        text2 = replaceHardEscapes(text2 ?? '');
 
         //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
 
         return text2;
-
-        // // get sanitized FLM text.
-        // let flm_text = CSL.Output.Formats.flm.text_escape(text);
-
-        // let fragment = CSL.Output.Formats.bibtexlatex.flm_environment.make_fragment(flm_text);
-
-        // //debug(`CSL.Output.Formats.biblatex.text_escape: fragment =`, fragment);
-        
-        // return CSL.Output.Formats.bibtexlatex.recomposer.subrecompose(
-        //     fragment.nodes,
-        // );
     },
     "bibstart": "",
     "bibend": "",
@@ -196,7 +231,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
     const csl_style = fs.readFileSync(bibtex_csl_fname, {
         encoding: 'utf-8'
     });
-    debug(`csl_style = ${csl_style.slice(0,200)}...`);
+    debug(`csl_style = ${csl_style.slice(0,50)}...`);
 
     let bib_db_safe = Object.fromEntries(
         Object.values(bib_db).map( (v) => [v.csl_json.id, v] )
