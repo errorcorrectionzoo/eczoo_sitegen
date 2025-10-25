@@ -279,48 +279,55 @@ export class EczBibReferencesCollector
 
     // ----------------
 
-    processEntries({ anystyleOptions }={})
+    async processEntries({ anystyleOptions }={})
     {
         const anystyle = new Anystyle();
         anystyle.initialize(anystyleOptions);
+        await anystyle.loadCache();
 
-        for (const bibentry of Object.values(this.bib_db)) {
+        try {
 
-            const {
-                cite_prefix_key_clean,
-                rawjsondata
-            } = bibentry;
+            for (const bibentry of Object.values(this.bib_db)) {
 
-            let jsondata = Object.assign(
-                {
-                    id: 'Missing-ID',
-                    type: 'document', // there doesn't seem to be any "unknown" or "misc" type
-                },
-                rawjsondata,
-                {
-                    id: cite_prefix_key_clean,
-                },
-            );
+                const {
+                    cite_prefix_key_clean,
+                    rawjsondata
+                } = bibentry;
 
-            //
-            // Try to guess important information from any citation that is provided
-            // as a ready-formatted citation.
-            //
-            if ((jsondata.author == null || jsondata.issued == null)
-                && jsondata._ready_formatted?.flm) {
-                jsondata = this._complete_jsondata({ jsondata, anystyle });
+                let jsondata = Object.assign(
+                    {
+                        id: 'Missing-ID',
+                        type: 'document', // there doesn't seem to be any "unknown" or "misc" type
+                    },
+                    rawjsondata,
+                    {
+                        id: cite_prefix_key_clean,
+                    },
+                );
+
+                //
+                // Try to guess important information from any citation that is provided
+                // as a ready-formatted citation.
+                //
+                if ((jsondata.author == null || jsondata.issued == null)
+                    && jsondata._ready_formatted?.flm) {
+                    jsondata = this._complete_jsondata({ jsondata, anystyle });
+                }
+
+                let cite_instance = new Cite([ jsondata ]);
+
+                let sort_key = this._generate_sort_key({ cite_instance, jsondata });
+
+                const csl_json = generateCslJson(jsondata);
+
+                bibentry.cite_instance = cite_instance;
+                bibentry.jsondata = jsondata;
+                bibentry.sort_key = sort_key;
+                bibentry.csl_json = csl_json;
             }
 
-            let cite_instance = new Cite([ jsondata ]);
-
-            let sort_key = this._generate_sort_key({ cite_instance, jsondata });
-
-            const csl_json = generateCslJson(jsondata);
-
-            bibentry.cite_instance = cite_instance;
-            bibentry.jsondata = jsondata;
-            bibentry.sort_key = sort_key;
-            bibentry.csl_json = csl_json;
+        } finally {
+            await anystyle.cleanup()
         }
 
         this.processed = true;

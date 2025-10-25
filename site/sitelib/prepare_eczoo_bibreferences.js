@@ -1,11 +1,13 @@
 import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.sitelib.prepare_eczoo_bibreferences');
 
+import path from 'path';
+
 import {
     EczBibReferencesCollector
 } from '@errorcorrectionzoo/eczoohelpers_eczcollectbib/collectbib.js';
 
-export function prepareEczooBibReferences(eczoodb)
+export async function prepareEczooBibReferences(eczoodb)
 {
     debug(`prepareEczooBibReferences()`);
     let c = new EczBibReferencesCollector();
@@ -14,6 +16,11 @@ export function prepareEczooBibReferences(eczoodb)
         include_compiled_flm: true,
         include_encountered_in: true,
     });
-    c.processEntries();
+    await c.processEntries({
+        anystyleOptions: {
+            cacheFile: path.join(eczoodb.zoo_flm_processor.options.citations.cache_dir,
+                                 '_anystyle_manual_citations_cache.json')
+        }
+    });
     return c;
 }

@@ -6,6 +6,12 @@
 import debug_module from 'debug';
 const debug = debug_module('eczoohelpers_eczcollectbib.parse_anystyle');
 
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+import path from 'path';
+import { tmpdir } from 'node:os';
+import { writeFileAtomic } from '@phfaist/zoodb/util/atomicfilewrite';
+
 import process from 'node:process';
 import child_process from 'child_process';
 
@@ -83,15 +89,69 @@ export class Anystyle
     {
         debug(`Anystyle constructor!`);
         this.anystyleExe = null;
+        this.tempPath = null;
+        this.cacheFile = null;
+        this.cacheDic = null;
     }
 
-    initialize({ anystyleExe }={})
+    initialize({ anystyleExe, cacheFile }={})
     {
         if (anystyleExe == null) {
             anystyleExe = getAnystyleCommand();
         }
         this.anystyleExe = anystyleExe;
-        debug(`Initialized Anystyle interface class;`, { anystyleExe: this.anystyleExe });
+        this.tempPath = fs.mkdtempSync(path.join(tmpdir(), 'eczsitegen-bibhelper-anystyle-'));
+        this.cacheFile = cacheFile;
+        this.cacheDic = Object.create(null);
+        debug(`Initialized Anystyle interface class;`,
+              { anystyleExe: this.anystyleExe, cacheFile: this.cacheFile });
+    }
+
+    async loadCache()
+    {
+        if (this.cacheFile == null) {
+            debug(`Anystyle interface: No cache to load.`);
+            return;
+        }
+        let jsonData = null;
+        try {
+            jsonData = await fsPromises.readFile(this.cacheFile);
+        } catch (err) {
+            debug(`Failed to read citations cache file ‘${this.cacheFile}’ - maybe it does not exist`, err);
+            return;
+        }
+        if (jsonData == null) {
+            return;
+        }
+        try {
+            let jsonObject = JSON.parse(jsonData);
+            Object.assign(this.cacheDic, jsonObject);
+            debug(`Loaded AnyStyle-parsed manual citations cache from ‘${this.cacheFile}’ `
+                  + `(${Object.keys(this.cacheDic).length} items)`);
+        } catch (err) {
+            debug(`Failed to import citations cache from ‘${this.cacheFile}’:`, err);
+        }
+    }
+    async saveCache()
+    {
+        if (this.cacheFile != null) {
+            debug(`Saving AnyStyle-parsed manual citation results to cache file ‘${this.cacheFile}’`);
+            await writeFileAtomic({
+                fsp: fsPromises,
+                fileName: this.cacheFile,
+                data: JSON.stringify(this.cacheDic),
+                processPid: (process != null) ? process.pid : 'XX',
+            });
+        }
+    }
+
+    async cleanup()
+    {
+        debug(`Anystyle: cleaning up...`);
+        await this.saveCache();
+        if (this.tempPath != null) {
+            fs.rmSync(this.tempPath, { recursive: true, force: true });
+        }
     }
 
     anystyle(formattedBibRef, { wantJson, wantBibtex }={})
@@ -108,56 +168,106 @@ export class Anystyle
 
         let data = {};
 
+        let cachedJson = this.cacheDic[`json:${formattedBibRef}`];
+        let cachedBibtex = this.cacheDic[`bibtex:${formattedBibRef}`];
+
+        let needsTempFile = (
+            (wantJson && (cachedJson === undefined))
+            || (wantBibtex && (cachedBibtex === undefined))
+        );
+
+        let cittmpfile = null;
+        // citation data in temp file
+        if (needsTempFile) {
+            cittmpfile = path.join(this.tempPath, 'cit.txt')
+            fs.writeFileSync(cittmpfile, formattedBibRef + '\n');
+        }
+
         if (wantJson) {
-            const anystyleResult = run_command_get_output(
-                this.anystyleExe, [
-                    '-f', 'csl', '--stdout', 'parse', '/dev/stdin',
-                ], {
-                    stdinData: formattedBibRef,
-                    binary: false,
+            let rawDataJson = null;
+            if (cachedJson !== undefined) {
+                rawDataJson = JSON.parse(cachedJson);
+            } else {
+                let anystyleResult = run_command_get_output(
+                    this.anystyleExe, [
+                        '-f', 'csl', '--stdout', 'parse', cittmpfile,
+                        // '/dev/stdin', /dev/stdin doesn't work on gh action
+                    ], {
+                        //stdinData: formattedBibRef,
+                        binary: false,
+                    }
+                );
+                debug(`... got CSL-JSON output: “${anystyleResult}”`);
+                if (anystyleResult == null || !anystyleResult.trim().length) {
+                    debug(`Empty output from ‘anystyle’!`);
+                    let e = new Error(`No output from anystyle for bib ref`);
+                    e._anystyle_error = 'no-output-for-bib-ref';
+                    throw e;
                 }
-            );
-            debug(`... got CSL-JSON output: “${anystyleResult}”`);
-            if (anystyleResult == null || !anystyleResult.trim().length) {
-                debug(`Empty output from ‘anystyle’!`);
-                let e = new Error(`No output from anystyle for bib ref`);
-                e._anystyle_error = 'no-output-for-bib-ref';
-                throw e;
+                let citjson = JSON.parse(anystyleResult);
+                if (citjson.length !== 1) {
+                    debug(`Could not parse formatted Bib ref!`, citjson);
+                    let e = new Error(
+                        `Could not parse formatted Bib ref? citjson.length=${citjson.length}`
+                    );
+                    e._anystyle_error = 'failed-to-parse-bib-ref';
+                    throw e;
+                }
+                rawDataJson = citjson[0];
+                // better store JSON-encoded string in cache, to avoid any wild mutations of shared objects
+                this.cacheDic[`json:${formattedBibRef}`] = JSON.stringify(rawDataJson);
             }
-            let citjson = JSON.parse(anystyleResult);
-            if (citjson.length !== 1) {
-                debug(`Could not parse formatted Bib ref!`, citjson);
-                let e = new Error(`Could not parse formatted Bib ref? citjson.length=${citjson.length}`);
-                e._anystyle_error = 'failed-to-parse-bib-ref';
-                throw e;
-            }
-            data.json = this._fixjson(citjson[0]);
+            // apply fixes here, do NOT cache fixes because we might want to tweak the fixes
+            // without having to rebuild the entire cache.
+            data.json = this._fixjson(rawDataJson);
         }
         if (wantBibtex) {
-            const anystyleResult = run_command_get_output(
-                this.anystyleExe, [
-                    '-f', 'bib', '--stdout', 'parse', '/dev/stdin',
-                ], {
-                    stdinData: formattedBibRef,
-                    binary: false,
-                }
-            );
-            debug(`... got Bibtex output: “${anystyleResult}”`);
-            data.bibtex = anystyleResult;
+            if (cachedBibtex !== undefined) {
+                data.bibtex = cachedBibtex;
+            } else {
+                const anystyleResult = run_command_get_output(
+                    this.anystyleExe, [
+                        '-f', 'bib', '--stdout', 'parse', cittmpfile
+                        // '/dev/stdin', /dev/stdin doesn't work on gh action
+                    ], {
+                        stdinData: formattedBibRef,
+                        binary: false,
+                    }
+                );
+                debug(`... got Bibtex output: “${anystyleResult}”`);
+                data.bibtex = anystyleResult;
+                this.cacheDic[`bibtex:${formattedBibRef}`] = data.bibtex;
+            }
         }
 
         return data;
     }
 
-    _fixjson(d)
+    _fixjson(jsondata)
     {
         // fix the JSON in case we have some common pitfalls
-        if (d.type == null) {
-            d.type = 'document';
+        if (jsondata.type == null) {
+            jsondata.type = 'document';
         }
-        // avoid "article" type for unpublished arxiv-only items that do not have a "journal"
-        //.....
-        return d;
+            
+        if (jsondata.DOI) {
+            const found_urls = [... jsondata.DOI.matchAll(/\\url\{([^}]+)\}/g)].map(m => m[1]);
+            if (found_urls.length) {
+                // there's a problem.
+                const old_doi = jsondata.DOI;
+                delete jsondata.DOI;
+                let existing_urls = jsondata.URL ? jsondata.URL.split(' ') : [];
+                jsondata.URL = [...found_urls, ...existing_urls].join(' ');
+                jsondata.note = `Available at ${old_doi}`;
+            }
+        }
+
+        if (/^article(-journal)?$/.test(jsondata.type) && !jsondata['container-title']) {
+            // make @article -> @unpublished if there is no journal
+            jsondata.type = "manuscript";
+        }
+
+        return jsondata;
     }
 };
 

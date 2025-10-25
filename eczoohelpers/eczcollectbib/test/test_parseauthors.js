@@ -1,5 +1,5 @@
-import debug_module from 'debug';
-const debug = debug_module('eczoohelpers_eczcollectbib.test_parseauthors');
+//import debug_module from 'debug';
+//const debug = debug_module('eczoohelpers_eczcollectbib.test_parseauthors');
 
 import * as assert from 'assert';
 

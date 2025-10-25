@@ -20,7 +20,7 @@ import _ from 'lodash';
 import { EczBibReferencesCollector } from '@errorcorrectionzoo/eczoohelpers_eczcollectbib/collectbib.js';
 
 import { helperSetDefaultLogs } from '../_helpers/helperLogs.js';
-import { loadEcZoo } from '../_helpers/helperEcZooLoader.js';
+import { loadEcZoo, eczooCitationsInfoCacheDir } from '../_helpers/helperEcZooLoader.js';
 
 
 // ----------------------------------------------------------------------------
@@ -83,12 +83,12 @@ async function collectBibRefs(argv)
 
     } else {
 
-        debuglog(`genCodeGraph(): loading zoo... (might take several minutes)`);
+        debuglog(`collectBibRefs(): loading zoo... (might take several minutes)`);
         eczoodb = await loadEcZoo({
             dataDir,
             useFlmProcessor: true,
         });
-        debuglog('genCodeGraph(): zoo is now loaded!');
+        debuglog('collectBibRefs(): zoo is now loaded!');
 
         bibcollector.collectFromZooFlmProcessorEncountered({
             zoo_flm_processor: eczoodb.zoo_flm_processor,
@@ -142,7 +142,11 @@ async function collectBibRefs(argv)
     });
 
     // now, process all remaining entries.
-    bibcollector.processEntries();
+    await bibcollector.processEntries({
+        anystyleOptions: {
+            cacheFile: path.join(eczooCitationsInfoCacheDir, '_anystyle_manual_citations_cache.json')
+        }
+    });
 
     let outputData = null;
 

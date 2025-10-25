@@ -21,6 +21,9 @@ const __dirname = import.meta.dirname;
 const eczoo_sitegen_dir = path.join(__dirname, '..', '..');
 
 
+export const eczooCitationsInfoCacheDir = path.join(eczoo_sitegen_dir, '_zoodb_citations_cache');
+
+
 export async function loadEcZoo({
     dataDir,
     useFlmProcessor,
@@ -50,7 +53,7 @@ export async function loadEcZoo({
             fs_data_dir: dataDir,
         },
         get_eczoo_full_options({
-            citationsinfo_cache_dir: path.join(eczoo_sitegen_dir, '_zoodb_citations_cache'),
+            citationsinfo_cache_dir: eczooCitationsInfoCacheDir,
         }),
         {
             flm_options: {
