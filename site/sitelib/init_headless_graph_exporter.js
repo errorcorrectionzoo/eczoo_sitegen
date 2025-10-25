@@ -9,7 +9,7 @@ export async function init_headless_graph_exporter()
     try {
 
         exporter = new CodeGraphSvgExporter({
-            autoCloseMs: 5 * 60 * 1000, // 5 minutes
+            autoCloseMs: 25 * 60 * 1000, // 25 minutes
         });
 
         await exporter.setup();
