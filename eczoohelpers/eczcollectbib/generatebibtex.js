@@ -41,6 +41,87 @@ function replaceHardEscapes(x)
     return x.replaceAll(_rxHardEscapes, (match, arg) => hardEscapes[arg]);
 }
 
+const _allowedMacrosEverywhere = [ '%', '$', '&', '#', ]
+const allowedMacros = [
+    'emph', 'textbf', 'textit', 'ensuremath', 'url', 'href', 
+    ..._allowedMacrosEverywhere
+];
+const allowedMathMacros = [
+    'mathbb', 'mathsf', 'mathcal', 'text', 'textup', 'frac',
+    ..._allowedMacrosEverywhere
+];
+
+function replaceSpecialChar(c)
+{
+    const replacementCode = unicodeLatexReplacements[c.codePointAt(0)];
+    if (replacementCode != null) {
+        //debug(`...replacement code for ${specialchar} is ${replacementCode}`);
+        // replace by known LaTeX equivalent string.  Make sure we include any trailing
+        // braces to protect a macro name!
+        if (/\\[a-zA-Z]+$/u.test(replacementCode)) {
+            // looks like the replacement code finishes with a macro with a name, add protective
+            // braces around the entire replacement string.
+            return '{' + replacementCode + '}';
+        }
+        return replacementCode;
+    }
+    // unknown char, use '?' for safety
+    return '?';
+}
+
+function cheapTextLatexEscapeMath(x)
+{
+    return x.replaceAll(
+        /((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^\\^%#]|[^\u0020-\u007F])/ug,
+        (match, macro, macroname, safe, specialchar) => {
+            if (macro != null) {
+                if (allowedMathMacros.includes(macroname)) {
+                    return macro;
+                }
+                debug(`Removing unallowed macro in math mode: \\${macroname}`);
+                return '\\string'+macro; // print unallowed macro verbatim
+                //return ''; // remove unallowed macro
+            }
+            if (safe != null) {
+                return safe;
+            }
+            if (specialchar != null) {
+                return replaceSpecialChar(specialchar);
+            }
+            throw new Error(`Got unknown case??? ‘${match}’`);
+        }
+    );
+}
+
+function cheapTextLatexEscape(x)
+{
+    //debug(`cheapTextLatexEscape():`, x);
+    return x.replaceAll(
+        /((?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[([])(.*?)(?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[)\]]))|((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^\\^%#]|[^\u0020-\u007F])/ug,
+        (match, mathinline, mathinlinecontent, macro, macroname, safe, specialchar) => {
+            if (mathinline != null) {
+                //debug(`Replacing math inline! `, {mathinline});
+                return '$' + cheapTextLatexEscapeMath(mathinlinecontent) + '$';
+            }
+            if (macro != null) {
+                if (allowedMacros.includes(macroname)) {
+                    return macro;
+                }
+                debug(`Removing unallowed macro (text mode): \\${macroname}`);
+                return '\\string'+macro; // print unallowed macro verbatim
+                //return ''; // remove unallowed macro
+            }
+            if (safe != null) {
+                return safe;
+            }
+            if (specialchar != null) {
+                return replaceSpecialChar(specialchar);
+            }
+            throw new Error(`Got unknown case??? ‘${match}’`);
+        }
+    );
+}
+
 
 CSL.Output.Formats.bibtexlatex = {
     // set this from inner functions ... :/
@@ -62,34 +143,7 @@ CSL.Output.Formats.bibtexlatex = {
         // no newlines
         text2 = text2.replaceAll('\n', ' ');
         // escape any remaining special syntax that could confuse latex, escape _'s and &'s, etc.
-        text2 = text2.replaceAll(
-            /((?:\\|<BACKSLASHCHAR\s*\/>)(?:[a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^$\\^%#]|[^\u0020-\u007F])/ug,
-            (match, macro, safe, specialchar) => {
-                if (macro != null) {
-                    return macro;
-                }
-                if (safe != null) {
-                    return safe;
-                }
-                if (specialchar != null) {
-                    const replacementCode = unicodeLatexReplacements[specialchar.codePointAt(0)];
-                    if (replacementCode != null) {
-                        //debug(`...replacement code for ${specialchar} is ${replacementCode}`);
-                        // replace by known LaTeX equivalent string.  Make sure we include any trailing
-                        // braces to protect a macro name!
-                        if (/\\[a-zA-Z]+$/u.test(replacementCode)) {
-                            // looks like the replacement code finishes with a macro with a name, add protective
-                            // braces around the entire replacement string.
-                            return '{' + replacementCode + '}';
-                        }
-                        return replacementCode;
-                    }
-                    // unknown char, use '?' for safety
-                    return '?';
-                }
-                throw new Error(`Got unknown case??? ‘${match}’`);
-            }
-        );
+        text2 = cheapTextLatexEscape(text2)
 
         // ensure that braces are balanced!!  We're trying to be tolerant here, so try to add
         // some braces to balance them if they aren't.  We might have inputs with unbalanced
