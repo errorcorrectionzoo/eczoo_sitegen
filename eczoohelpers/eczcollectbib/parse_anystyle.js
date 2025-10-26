@@ -245,6 +245,8 @@ export class Anystyle
 
     _fixjson(jsondata)
     {
+        //debug(`Fixing anystyle-produced jsondata:`, jsondata);
+
         // fix the JSON in case we have some common pitfalls
         if (jsondata.type == null) {
             jsondata.type = 'document';
@@ -260,6 +262,14 @@ export class Anystyle
                 jsondata.URL = [...found_urls, ...existing_urls].join(' ');
                 jsondata.note = `Available at ${old_doi}`;
             }
+        }
+
+        // bug -- anystyle sometimes includes a closing double-quote but suppresses the corresponding
+        // opening double-quote.  Detect a single double-quote and remove it if present.
+        if (jsondata.title && [...jsondata.title.matchAll(/["”]/ug)].length === 1
+             && [...jsondata.title.matchAll(/“/ug)].length === 0) {
+            //debug(`Detected lone closing double-quote in AnyStyle output, removing it:`, jsondata.title);
+            jsondata.title = jsondata.title.replace(/["”]/u, '');
         }
 
         if (/^article(-journal)?$/.test(jsondata.type) && !jsondata['container-title']) {

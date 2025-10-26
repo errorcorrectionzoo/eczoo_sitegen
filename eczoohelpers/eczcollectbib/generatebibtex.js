@@ -33,8 +33,9 @@ const hardEscapes = {
     BRACE_OPEN: '{',
     BRACE_CLOSE: '}',
 };
+const hardEscapesNames = [...Object.keys(hardEscapes)];
 
-const _rxHardEscapes = new RegExp("<(" + Object.keys(hardEscapes).join('|') + ")\\s*/>", "g");
+const _rxHardEscapes = new RegExp("<(" + hardEscapesNames.join('|') + ")\\s*/>", "g");
 
 function replaceHardEscapes(x)
 {
@@ -72,7 +73,7 @@ function replaceSpecialChar(c)
 function cheapTextLatexEscapeMath(x)
 {
     return x.replaceAll(
-        /((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^\\^%#]|[^\u0020-\u007F])/ug,
+        /((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}_^])|([\\%#]|[^\u0020-\u007F])/ug,
         (match, macro, macroname, safe, specialchar) => {
             if (macro != null) {
                 if (allowedMathMacros.includes(macroname)) {
@@ -97,7 +98,7 @@ function cheapTextLatexEscape(x)
 {
     //debug(`cheapTextLatexEscape():`, x);
     return x.replaceAll(
-        /((?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[([])(.*?)(?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[)\]]))|((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^\\^%#]|[^\u0020-\u007F])/ug,
+        /((?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[([])(.*?)(?:\$\$?|(?:\\|<BACKSLASHCHAR\s*\/>)[)\]]))|((?:\\|<BACKSLASHCHAR\s*\/>)([a-zA-Z]+|.))|((?:<(?:BRACE_OPEN|BRACE_CLOSE)\s*\/>)|[{}])|([_^\\%#$]|[^\u0020-\u007F])/ug,
         (match, mathinline, mathinlinecontent, macro, macroname, safe, specialchar) => {
             if (mathinline != null) {
                 //debug(`Replacing math inline! `, {mathinline});
@@ -122,6 +123,83 @@ function cheapTextLatexEscape(x)
     );
 }
 
+const decodeXmlEntities = { 'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&' };
+
+function bibtexTextEscape(text)
+{
+    // the actual bibtex content will be passed here, so don't do any fancy escaping...
+
+    let text2 = (text ?? '');
+
+    // some sources (incl. DOI/crossref lookups) include weird XML and entities that will confuse
+    // LaTeX. Remove all of that.
+    // Some sources have even multiply-encoded &amp;s.  In a first round, take care of all the
+    // &amp;s recursively, like &amp;lt;&amp;amp;&amp;gt; -> &lt;&&gt;
+    while (/&amp;/.test(text2)) {
+        text2 = text2.replaceAll(/&amp;/g, '&');
+    }
+    // all remaining XML content, but NOT our special internal tags!:
+    text2 = text2.replaceAll(
+        /<\/?([a-zA-Z-]+)(\s+[^>]*|\/)?>/g,
+        (match, tagName) => {
+            if (hardEscapesNames.includes(tagName)) {
+                return match;
+            }
+            return ''; // strip out this tag
+        }
+    );
+    // all remaining XML entities:
+    text2 = text2.replaceAll(
+        new RegExp("&(" + Object.keys(decodeXmlEntities).join("|") + ");", 'g'),
+        (_, entityName) => decodeXmlEntities[entityName]
+    )
+
+    // Do some heavy escaping. Do not leave stuff that might confuse LaTeX.
+    // no newlines
+    text2 = text2.replaceAll('\n', ' ');
+    // escape any remaining special syntax that could confuse latex, escape _'s and &'s, etc.
+    text2 = cheapTextLatexEscape(text2)
+
+    // ensure that braces are balanced!!  We're trying to be tolerant here, so try to add
+    // some braces to balance them if they aren't.  We might have inputs with unbalanced
+    // braces coming from "anystyle"'s output, for instance.
+    let openBraces = 0;
+    for (let j = 0; j < text2.length; ++j) {
+        if (text2.charAt(j) === '{') { // <BRACE_OPEN/> should not count here, see below.
+            openBraces += 1;
+        } else if (text2.charAt(j) === '}') {
+            openBraces -= 1;
+        }
+    }
+    // If openBraces !== 0, fix by including initial or final braces.
+    if (openBraces < 0) {
+        debug(`WARNING: Too many closing braces in bibtex text output “${text2}”!`);
+        text2 = '{'.repeat(-openBraces) + text2;
+    } else if (openBraces > 0) {
+        debug(`WARNING: Missing closing braces in bibtex text output “${text2}”!`);
+        text2 = text2 + '}'.repeat(openBraces);
+    }
+
+    // - I ran into bugs where '\' chars were simply omitted in some instance.  Here's
+    //   a terribly dirty hack to make sure they're restored.  In a similar vein, sometimes
+    //   some braces should not count towards the mandatory balancing done above (e.g., the 
+    //   "prefix" and "suffix" values in the bibtex csl style, which contain opening and
+    //   closing braces, respectively).  We fix these cases with "hard escapes" with special
+    //   placeholders of the form <BACKSLASHCHAR/> or <BRACE_OPEN/>.  Replace them here.
+    //
+    text2 = replaceHardEscapes(text2 ?? '');
+
+    //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
+
+    return text2;
+}
+
+
+export const _testing = {
+    bibtexTextEscape,
+    cheapTextLatexEscape,
+};
+
 
 CSL.Output.Formats.bibtexlatex = {
     // set this from inner functions ... :/
@@ -134,50 +212,7 @@ CSL.Output.Formats.bibtexlatex = {
     // will be run only once across each portion of text to be escaped, it
     // need not be idempotent.
     //
-    "text_escape": function (text) {
-        // the actual bibtex content will be passed here, so don't do any fancy escaping...
-
-        let text2 = (text ?? '');
-
-        // Do some heavy escaping. Do not leave stuff that might confuse LaTeX.
-        // no newlines
-        text2 = text2.replaceAll('\n', ' ');
-        // escape any remaining special syntax that could confuse latex, escape _'s and &'s, etc.
-        text2 = cheapTextLatexEscape(text2)
-
-        // ensure that braces are balanced!!  We're trying to be tolerant here, so try to add
-        // some braces to balance them if they aren't.  We might have inputs with unbalanced
-        // braces coming from "anystyle"'s output, for instance.
-        let openBraces = 0;
-        for (let j = 0; j < text2.length; ++j) {
-            if (text2.charAt(j) === '{') { // <BRACE_OPEN/> should not count here, see below.
-                openBraces += 1;
-            } else if (text2.charAt(j) === '}') {
-                openBraces -= 1;
-            }
-        }
-        // If openBraces !== 0, fix by including initial or final braces.
-        if (openBraces < 0) {
-            debug(`WARNING: Too many closing braces in bibtex text output “${text2}”!`);
-            text2 = '{'.repeat(-openBraces) + text2;
-        } else if (openBraces > 0) {
-            debug(`WARNING: Missing closing braces in bibtex text output “${text2}”!`);
-            text2 = text2 + '}'.repeat(openBraces);
-        }
-
-        // - I ran into bugs where '\' chars were simply omitted in some instance.  Here's
-        //   a terribly dirty hack to make sure they're restored.  In a similar vein, sometimes
-        //   some braces should not count towards the mandatory balancing done above (e.g., the 
-        //   "prefix" and "suffix" values in the bibtex csl style, which contain opening and
-        //   closing braces, respectively).  We fix these cases with "hard escapes" with special
-        //   placeholders of the form <BACKSLASHCHAR/> or <BRACE_OPEN/>.  Replace them here.
-        //
-        text2 = replaceHardEscapes(text2 ?? '');
-
-        //debug(`Escaping text: ${JSON.stringify(text)} -> ${JSON.stringify(text2)}`);
-
-        return text2;
-    },
+    "text_escape": bibtexTextEscape,
     "bibstart": "",
     "bibend": "",
     "@font-style/italic": "\\emph{%%STRING%%}",
@@ -280,49 +315,54 @@ const bibtex_csl_fname = path.join(import.meta.dirname, 'bibtex--patched.csl');
  * is given one argument, the object that is a value in `bib_db` (and which
  * contains the key 'csl_json').
  */
-export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
+export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
 {
     const csl_style = fs.readFileSync(bibtex_csl_fname, {
         encoding: 'utf-8'
     });
     debug(`csl_style = ${csl_style.slice(0,50)}...`);
 
-    let bib_db_safe = Object.fromEntries(
-        Object.values(bib_db).map( (v) => [v.csl_json.id, v] )
-    );
+    let csljsonObjects = {};
+    // make sure all citeKeys/ID's are UNIQUE!
+    for (const v of Object.values(bib_db)) {
+        const citeKeyBase =
+            computeEntryBibtexKey
+            ? computeEntryBibtexKey(v)
+            : (v.cite_prefix_key_clean ?? `idX`);
+        let csljsonObject = Object.assign({}, v.jsondata);
+        let citeKey = citeKeyBase;
+        let n = 0;
+        while (csljsonObjects[citeKey] != null) {
+            // citeKey already exists
+            console.warn(`Duplicate citation key ‘${citeKey}’!`);
+            ++n;
+            citeKey = `${citeKeyBase}${n}`;
+        }
+        csljsonObject.id = citeKey;
+        csljsonObject.key = citeKey;
+        csljsonObjects[citeKey] = csljsonObject;
+    }
 
     const citeproc_sys_object = {
         retrieveLocale: (lang_) => {
             return citeproc_locales_en_US;
         },
         retrieveItem: (id) => {
-            const obj = bib_db_safe[id];
-            if (!obj) {
-                throw new Error(`Bib item ‘${id}’ not found`);
+            const citeKey = id;
+            const csljsonObject = csljsonObjects[citeKey];
+            if (csljsonObject == null) {
+                throw new Error(`Bib item ‘${citeKey}’ not found`);
             }
-            const citeKey =
-                computeEntryBibtexKey
-                ? computeEntryBibtexKey(obj)
-                : (obj.cite_prefix_key_clean ?? id);
-            const d = Object.assign(
-                {},
-                obj.jsondata,
-                {
-                    // force id to match the queried id.
-                    id: id,
-                    key: citeKey,
-                }
-            );
             // Any manual fixes to be applied here.  There appears to be a bug where
             // if the "note" field begins with "\emph{", then the backslash gets omitted.
             // WTF?? Try a hack around that.
-            for (const [k,v] of Object.entries(d)) {
+            for (const [k,v] of Object.entries(csljsonObject)) {
                 if (v && typeof v === 'string') {
-                    d[k] = v.replaceAll('\\', '<BACKSLASHCHAR/>');
+                    csljsonObject[k] = v.replaceAll('\\', '<BACKSLASHCHAR/>');
                 }
             }
-            //debug(`Retrieved item:`, d);
-            return d;
+            //debug(`Retrieved item:`, csljsonObject);
+            return csljsonObject;
         }
     };
 
@@ -341,8 +381,10 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey }={})
 
     let cite_processor = new CSL.Engine(citeproc_sys_object, csl_style);
     cite_processor.setOutputFormat(output_format);
+
+    debug(`Generating bibtex keys, all bibtex keys are =`, [ ...Object.keys(csljsonObjects) ].join(','));
     
-    cite_processor.updateItems( [ ...Object.keys(bib_db_safe) ] );
+    cite_processor.updateItems( [ ...Object.keys(csljsonObjects) ] );
     const c_result = cite_processor.makeBibliography();
 
     if (!c_result) {
