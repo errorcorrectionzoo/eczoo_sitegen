@@ -48,7 +48,8 @@ const allowedMacros = [
     ..._allowedMacrosEverywhere
 ];
 const allowedMathMacros = [
-    'mathbb', 'mathsf', 'mathcal', 'text', 'textup', 'frac',
+    'mathbb', 'mathsf', 'mathrm', 'mathcal', 'text', 'textup', 'textrm', 'frac',
+    'langle', 'rangle',
     ..._allowedMacrosEverywhere
 ];
 
