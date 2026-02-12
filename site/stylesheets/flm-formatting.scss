@@ -268,3 +268,35 @@ figure.float {
 }
 
 
+
+.quote, .address, .blockquote {
+  margin: 1em 0;
+}
+.quote {
+  background: var(--boxedcontent-background-color);
+  padding: 1em 3em;
+}
+.quote .quote-lines,
+.quote .quote-text {
+  font-style: italic;
+  margin: 0.5em 0;
+}
+.quote-attributed {
+  margin: 0.5em 0;
+  text-align: right;
+}
+.quote .quote-attributed::before {
+  content: '—';
+}
+.quote-block {
+  padding-left: 1em;
+  border-left: solid 4pt var(--boxedcontent-background-color) ;
+}
+
+.address .quote-lines {
+  font-size: .933em;
+}
+
+.blockquote {
+  padding: 0 1em;
+}

@@ -4,6 +4,18 @@ kingdoms_by_domain_id:
   classical_domain:
     - kingdom_id: bits_into_bits
       name: 'Bits Kingdom (binary linear)'
+
+      description: |-
+        \begin{quote}
+          \lines{
+            At twenty, solved what none could see—\\
+            Equations' hidden symmetry.\\
+            A duel at dawn, then silence fell:\\
+            Groups lived on where the genius fell.
+          }
+          \attributed{Claudius AIus}
+        \end{quote}
+
       root_codes:
         - code_id: binary_linear
 

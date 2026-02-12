@@ -206,7 +206,7 @@ notes:
 relations:
   parents:
     - code_id: stabilizer
-      detail: 'Description of how this code relates to stabilizer codes.\cite{arXiv:1111.0011}'
+      detail: 'Description of how this code relates to stabilizer codes.'  #\cite{arXiv:1111.0011}'
     - code_id: binary_linear
       detail: |-
         Relation to test entries with multiple parent relationships.
