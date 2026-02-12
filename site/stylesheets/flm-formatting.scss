@@ -268,7 +268,7 @@ figure.float {
 }
 
 
-
+/*
 .quote, .address, .blockquote {
   margin: 1em 0;
 }
@@ -291,7 +291,125 @@ figure.float {
 .quote-block {
   padding-left: 1em;
   border-left: solid 4pt var(--boxedcontent-background-color) ;
+}*/
+
+/* CLAUDE OPTION A */
+/*
+.quote, .address, .blockquote {
+  margin: 1.5em 0;
 }
+.quote {
+  background: transparent;
+  padding: 0.75em 1.5em 0.75em 2em;
+  border-left: 3px solid var(--boxedcontent-background-color);
+  position: relative;
+}
+.quote .quote-lines,
+.quote .quote-text {
+  font-style: italic;
+  margin: 0.5em 0;
+  line-height: 1.6;
+  color: inherit;
+  opacity: 0.85;
+}
+.quote-attributed {
+  margin: 0.75em 0 0.25em;
+  text-align: right;
+  font-style: normal;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+.quote .quote-attributed::before {
+  content: '— ';
+}
+.quote-block {
+  padding-left: 1.5em;
+  border-left: 3px solid var(--boxedcontent-background-color);
+}*/
+
+/* CLAUDE OPTION B */
+.quote, .address, .blockquote {
+  margin: 1.5em 0;
+}
+.quote {
+  background: var(--boxedcontent-background-color);
+  padding: 1.25em 2em 1em 4.5em;
+  //border-radius: 2pt;
+  position: relative;
+}
+.quote::before {
+  content: '\201C';
+  position: absolute;
+  left: 0.4em;
+  top: 0.15em;
+  font-size: 4em;
+  line-height: 1;
+  opacity: 0.15;
+  //font-family: 'Source Serif 4', 'Times New Roman', serif; // Nope, use same ol' Source Sans 3
+}
+.quote .quote-lines,
+.quote .quote-text {
+  font-style: italic;
+  margin: 0.4em 0;
+  line-height: 1.6;
+}
+.quote-attributed {
+  margin: 0.75em 0 0.25em;
+  text-align: right;
+  font-style: normal;
+  font-size: 0.9em;
+  opacity: 0.65;
+}
+.quote .quote-attributed::before {
+  content: '— ';
+}
+.quote-block {
+  padding-left: 1.5em;
+  border-left: 2pt solid var(--boxedcontent-border-color);
+}
+@media screen and (max-width: $page-collapse-layout-width) {
+  .quote {
+    padding: 1.5em 1.5em 1em 1.5em;
+  }
+  .quote::before {
+    left: .35em;
+    top: -0.05em;
+    font-size: 3em;
+  }
+}
+/* CLAUDE OPTION C */ /*
+.quote, .address, .blockquote {
+  margin: 1.5em 0;
+}
+.quote {
+  background: transparent;
+  padding: 1em 2em;
+  border-top: 1px solid var(--boxedcontent-border-color);
+  border-bottom: 1px solid var(--boxedcontent-border-color);
+}
+.quote .quote-lines,
+.quote .quote-text {
+  font-style: italic;
+  margin: 0.5em 0;
+  line-height: 1.6;
+  text-align: center;
+}
+.quote-attributed {
+  margin: 0.5em 0 0;
+  text-align: center;
+  font-style: normal;
+  font-size: 0.88em;
+  opacity: 0.6;
+  letter-spacing: 0.02em;
+}
+.quote .quote-attributed::before {
+  content: '— ';
+}
+.quote-block {
+  padding-left: 1.5em;
+  border-left: 3px solid var(--boxedcontent-background-color);
+}*/
+/* END CLAUDE OPTIONS */
 
 .address .quote-lines {
   font-size: .933em;

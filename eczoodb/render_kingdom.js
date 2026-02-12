@@ -42,10 +42,23 @@ export function render_kingdom(
         let s = '';
 
         s += sqzhtml`
-<h1>${ rdr(kingdom.name) }</h1>`;
+<h1>${ rdr(kingdom.name) }</h1>
+`;
+        if (ne(kingdom.epigraph)) {
+            s += sqzhtml`
+${rdr(kingdom.epigraph)}
+`;
+        }
+        s += sqzhtml`
+<p>The ${ rdr(kingdom.name) } lies in the ${ ref('domain', kingdom.parent_domain.domain_id) }.</p>
+`;
+        if (ne(kingdom.description)) {
+            s += sqzhtml`
+${ rdr(kingdom.description) }
+`;
+        }
 
         s += sqzhtml`
-<p>Kingdom in the ${ ref('domain', kingdom.parent_domain.domain_id) }.</p>
 <p>Root codes of the ${ rdr(kingdom.name) }:</p>
 <ul>`;
     for (const rootCodeRel of kingdom.root_codes ?? []) {

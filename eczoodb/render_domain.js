@@ -43,14 +43,19 @@ export function render_domain(
 
         s += sqzhtml`
 <h1>${ rdr(domain.name) }</h1>
-
-<p>Welcome to the ${ rdr(domain.name) }`;
-        if (ne(domain.description)) {
+`;
+        if (ne(domain.epigraph)) {
             s += sqzhtml`
-<!-- --> — ${ rdr(domain.description) }`;
+${rdr(domain.epigraph)}
+`;
         }
         s += sqzhtml`
-</p>`;
+<p>Welcome to the ${ rdr(domain.name) }</p>`;
+        if (ne(domain.description)) {
+            s += sqzhtml`
+${ rdr(domain.description) }
+`;
+        }
 
         s += sqzhtml`
 <p>Kingdoms:</p>

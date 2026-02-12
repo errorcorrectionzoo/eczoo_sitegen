@@ -5,7 +5,7 @@ kingdoms_by_domain_id:
     - kingdom_id: bits_into_bits
       name: 'Bits Kingdom (binary linear)'
 
-      description: |-
+      epigraph: |-
         \begin{quote}
           \lines{
             At twenty, solved what none could see—\\

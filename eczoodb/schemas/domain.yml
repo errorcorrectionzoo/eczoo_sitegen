@@ -21,6 +21,10 @@ properties:
     _flm: standalone
     _single_line_string: True
 
+  epigraph:
+    type: string
+    _flm: full
+  
   description:
     type: string
     _flm: full
