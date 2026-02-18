@@ -25,12 +25,27 @@ properties:
   # every user must have a name.
   name:
     type: string
-    #_flm: standalone # NO FLM!
+    #_flm: standalone # Unicode ONLY, NO FLM!
     _single_line_string: true
     _description: >-
       The user's full name, as it should be displayed.
     _zoo_search:
       include_in_index: true
+  
+  # users can specify one or more affiliation(s)
+  # --- we might only want to use this for core team members / veterinarians,
+  # to avoid bloating the team web page.
+  affiliations:
+    type: array
+    items:
+      _flm: standalone
+      _single_line_string: true
+      _description: >-
+        User's Affiliation (Department, Institute, Institution, Country).  E.g.
+        “Dahlem Center for Complex Quantum Systems, Freie Universität Berlin, 14195
+        Berlin, Germany”.
+      _zoo_search:
+        include_in_index: false
 
   zooteam:
     type: string
