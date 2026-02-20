@@ -14,8 +14,8 @@ description: |
 
 relations:
   parents:
-    - code_id: abstr
-      detail: 'All classical is child of some abstract property code, for testing purposes'
+    #- code_id: abstr
+    #  detail: 'All classical is child of some abstract property code, for testing purposes'
     - code_id: quantum_into_quantum
       detail: 'A classical code is a particular type of quantum code'
 

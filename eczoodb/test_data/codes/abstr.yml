@@ -3,7 +3,12 @@ code_id: abstr
 name: 'Abstract property code'
 
 description: |-
-  Not a child of any domain or kingdom root code.
+  Not a child of any kingdom root code.
+  But it belongs to the classical domain via the \ref{code:ecc} root code.
+
+relations:
+  parents:
+    - code_id: ecc
 
 
 # Begin Entry Meta Information
