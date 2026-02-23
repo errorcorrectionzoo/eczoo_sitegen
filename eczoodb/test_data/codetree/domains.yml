@@ -11,6 +11,14 @@
   description: |-
     Codes for quantum systems!
 
+    Here's a test of a description environment:
+    \begin{description}
+    \item[one] The first nonzero integer number.
+    \item[two] The second one.
+    \item[description \emph{label text} with \verba{verbatim%%labels\}] A description
+      item with an exceptionally long label.
+    \end{description}
+
   epigraph: |-
     \begin{quote}
       \lines{
