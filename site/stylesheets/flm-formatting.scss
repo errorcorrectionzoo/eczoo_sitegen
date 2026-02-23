@@ -353,6 +353,13 @@ figure.float {
   margin: 0.4em 0;
   line-height: 1.6;
 }
+.quote .quote-lines + .quote-lines {
+  margin-top: 1em;
+}
+.quote .quote-lines .quote-lines-indent {
+  display: inline-block;
+  width: 2.5em;
+}
 .quote-attributed {
   margin: 0.75em 0 0.25em;
   text-align: right;

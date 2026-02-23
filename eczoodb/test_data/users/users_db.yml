@@ -11,9 +11,9 @@
   githubusername: valbert4
   gscholaruser: 'hyddAfkAAAAJ'
   pageurl: 'https://sites.google.com/site/victorvalbert'
-  affiliations:
-    - NIST
-    - University of Maryland
+  #affiliations:
+  #  - NIST
+  #  - University of Maryland
 
 - user_id: PhF
   name: 'Philippe Faist'
@@ -22,8 +22,8 @@
   githubusername: phfaist
   gscholaruser: 'rdeNGqMAAAAJ'
   pageurl: 'https://phfaist.com/'
-  affiliations:
-    - Freie Universität Berlin
+  #affiliations:
+  #  - Freie Universität Berlin
 
 
 
