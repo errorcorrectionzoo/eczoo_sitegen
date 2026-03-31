@@ -132,6 +132,16 @@ div#bodycontents {
     margin-top: 1.1em;
 }
 
+/* :not()'s needed to make condition sufficiently specific to override others */
+.__41ai #bodycontents:not(.notthis):not(.notthat) main {
+    margin-top: 0;
+    padding-top: 1.25rem;
+
+    background-color: rgba(127,127,140, 0.1);
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
 .AiZoo20260401-MsgArticleContent-MainContent {
 }
 
@@ -157,6 +167,13 @@ div#bodycontents {
     letter-spacing: 0.02em;
     transition: background-position 0.15s ease-out;
     text-shadow: rgba(150, 15, 135, 0.4) 5px 5px 15px;
+}
+
+html.dark .AiZoo20260401-MsgArticleContent-Title {
+    background: radial-gradient(circle,rgb(174, 184, 218) 0%,rgb(124, 128, 173) 40%,rgb(117, 117, 160) 80%) 50%/200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .AiZoo20260401-wow-ai {
