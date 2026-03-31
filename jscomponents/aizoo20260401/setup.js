@@ -21,7 +21,11 @@ function animateAiZoo20260401()
 </div>
 `;
 
-    const md = markdownit();
+    const md = markdownit({
+        html: true,
+        linkify: true,
+        typographer: true
+    });
     console.log(md);
     const aiUpdateTextArticleHtml = md.render(aiUpdateTextArticleMd);
 
@@ -33,7 +37,7 @@ function animateAiZoo20260401()
 <div class="AiZoo20260401-MsgArticleContent">
 <div class="AiZoo20260401-MsgArticleContent-Title-Logo">
 <div class="AiZoo20260401-MsgArticleContent-Title">
-An Error Correction Zoo with the power of <span class="AiZoo20260401-wow-ai">AI</span>
+The AI Error Correction Zoo<!--: A new start with AI <span class="AiZoo20260401-wow-ai">AI</span>-->
 </div>
 <!--<img src="${eczooMainLogoUrl}">-->
 </div>

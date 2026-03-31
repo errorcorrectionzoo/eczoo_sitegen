@@ -98,6 +98,11 @@ div#bodycontents {
 
 .AiZoo20260401MsgArticleContainer a, .AiZoo20260401MsgArticleContainer a:active, .AiZoo20260401MsgArticleContainer a:hover, .AiZoo20260401MsgArticleContainer a:visited {
     color: rgb(50, 50, 200);
+}
+.AiZoo20260401MsgArticleContainer a:hover {
+    background-color: rgba(50, 50, 200, 0.05);
+}
+.AiZoo20260401MsgArticleContainer a.AiZoo20260401-CloseClickable {
     text-decoration: none;
     font-weight: bold;
     display: block;
@@ -105,9 +110,6 @@ div#bodycontents {
     border: solid 1px rgba(50,50,200,0.3);
     padding: 3px;
     margin-top: 2rem;
-}
-.AiZoo20260401MsgArticleContainer a:hover {
-    background-color: rgba(50, 50, 200, 0.05);
 }
 
 .AiZoo20260401-MsgArticleContent {
@@ -125,6 +127,11 @@ div#bodycontents {
     animation: aizoo-popup-enter 0.35s ease-out;
 }
 
+.AiZoo20260401-MsgArticleContent  h2 {
+    font-size: 1.2em;
+    margin-top: 1.1em;
+}
+
 .AiZoo20260401-MsgArticleContent-MainContent {
 }
 
@@ -137,7 +144,7 @@ div#bodycontents {
 }
 .AiZoo20260401-MsgArticleContent-Title {
     font-family: "Bree Serif", sans-serif;
-    font-size: 48px;
+    font-size: 36px;
     line-height: 1.4em;
     font-weight: 700;
     padding: .5em 0;
@@ -149,6 +156,7 @@ div#bodycontents {
     color: transparent;
     letter-spacing: 0.02em;
     transition: background-position 0.15s ease-out;
+    text-shadow: rgba(150, 15, 135, 0.4) 5px 5px 15px;
 }
 
 .AiZoo20260401-wow-ai {
