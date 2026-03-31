@@ -9,7 +9,7 @@ function animateAiZoo20260401()
 {
     let today = new Date();
     if (today.getDate() != 1 || today.getMonth() != 3) { // April is 3 since Jan is 0
-        //return; // not 4/1
+        return; // not 4/1
     }
 
     let bannerElement = document.createElement('div');

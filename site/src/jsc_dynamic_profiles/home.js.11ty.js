@@ -21,6 +21,9 @@ import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/lin
 
 import { RandomCodeShower } from '@errorcorrectionzoo/jscomponents/randomcode/index.js';
 
+// guess what, it's 4/1 again 😈😈😈
+import "@errorcorrectionzoo/jscomponents/aizoo20260401/setup.js";
+
 const randomCodeData = ${randomCodeDataStr};
 
 //console.log('randomCodeData =', randomCodeData);
