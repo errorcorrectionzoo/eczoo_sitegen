@@ -1,6 +1,6 @@
 
 import './AiZoo20260401.css';
-import eczooMainLogoUrl from 'url:../../site/static/icons/eczoo-main-logo.svg';
+import eczooMainLogoUrl from 'url:../../site/static/icons/eczoo-main-logo-contrast.svg';
 
 
 function animateAiZoo20260401()
@@ -29,7 +29,7 @@ function animateAiZoo20260401()
 <div class="AiZoo20260401-MsgArticleContent-Title">
 The Error Correction Zoo with the power of <span class="AiZoo20260401-wow-ai">AI</span>
 </div>
-<img src="${eczooMainLogoUrl}">
+<!--<img src="${eczooMainLogoUrl}">-->
 </div>
 <p>Lorem ipsum ... ... ...
 Lorem ipsum ... ... ...

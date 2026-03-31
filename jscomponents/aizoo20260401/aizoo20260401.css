@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
 /* === AiZoo 2026-04-01 Banner === */
 
 
@@ -131,10 +133,42 @@ div#bodycontents {
     gap: 2rem;
 }
 .AiZoo20260401-MsgArticleContent-Title {
-    font-size: 32px;
-    line-height: 1.3em;
-    font-weight: bold;
+    font-family: "Orbitron", "Source Sans 3", sans-serif;
+    font-size: 28px;
+    line-height: 1.4em;
+    font-weight: 700;
     padding: .5em 0;
+    background: linear-gradient(135deg, rgb(0, 0, 127) 0%, rgb(80, 120, 220) 50%, rgb(0, 0, 127) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    letter-spacing: 0.02em;
+}
+
+.AiZoo20260401-wow-ai {
+    font-weight: 900;
+    font-size: 1.3em;
+    letter-spacing: 0.08em;
+    background: linear-gradient(
+        135deg,
+        rgb(80, 120, 255) 0%,
+        rgb(180, 100, 255) 25%,
+        rgb(255, 120, 200) 50%,
+        rgb(180, 100, 255) 75%,
+        rgb(80, 120, 255) 100%
+    );
+    background-size: 200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: aizoo-ai-shimmer 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(140, 80, 255, 0.5));
+}
+
+@keyframes aizoo-ai-shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 @keyframes aizoo-popup-enter {
