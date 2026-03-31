@@ -22,11 +22,12 @@ function animateAiZoo20260401()
     let msgElement = document.createElement('div');
     msgElement.classList.add('AiZoo20260401MsgArticleContainer');
     msgElement.innerHTML = `
+<div class="AiZoo20260401-MsgArticleWrap">
 <button class="AiZoo20260401-CloseBtn AiZoo20260401-CloseClickable" aria-label="Close">&times;</button>
 <div class="AiZoo20260401-MsgArticleContent">
 <div class="AiZoo20260401-MsgArticleContent-Title-Logo">
 <div class="AiZoo20260401-MsgArticleContent-Title">
-The Error Correction Zoo goes <span class="AiZoo20260401-wow-ai">AI</span>
+The Error Correction Zoo with the power of <span class="AiZoo20260401-wow-ai">AI</span>
 </div>
 <img src="${eczooMainLogoUrl}">
 </div>
@@ -197,6 +198,7 @@ Lorem ipsum ... ... ...
 Lorem ipsum ... ... ...
 Lorem ipsum ... ... ...</p>
 <a href="" class="AiZoo20260401-CloseClickable">Close</a>
+</div>
 </div>
 `;
 

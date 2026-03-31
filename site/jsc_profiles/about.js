@@ -9,3 +9,9 @@ window.addEventListener('load', async function() {
     //obnoxiouscookiebar.load();
     await mathjax.load();
 });
+
+
+
+
+// guess what, it's 4/1 again 😈😈😈
+import "@errorcorrectionzoo/jscomponents/aizoo20260401/setup.js";

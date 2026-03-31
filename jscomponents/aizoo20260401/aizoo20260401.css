@@ -1,5 +1,12 @@
 /* === AiZoo 2026-04-01 Banner === */
 
+
+div#bodycontents {
+    padding-bottom: 40px !important;
+}
+
+
+
 .AiZoo20260401Banner {
     position: fixed;
     bottom: 0;
@@ -34,10 +41,20 @@
 
 /* === AiZoo 2026-04-01 Close Button === */
 
+.AiZoo20260401-MsgArticleWrap {
+    position: relative;
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .AiZoo20260401-CloseBtn {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: -1.2rem;
+    right: -1.2rem;
+    z-index: 1;
     background: rgb(0, 0, 127);
     color: #fff;
     border: none;
@@ -76,15 +93,27 @@
     display: flex;
 }
 
+
+.AiZoo20260401MsgArticleContainer a, .AiZoo20260401MsgArticleContainer a:active, .AiZoo20260401MsgArticleContainer a:hover, .AiZoo20260401MsgArticleContainer a:visited {
+    color: rgb(50, 50, 200);
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    border: solid 1px rgba(50,50,200,0.3);
+    padding: 3px;
+    margin-top: 2rem;
+}
+.AiZoo20260401MsgArticleContainer a:hover {
+    background-color: rgba(50, 50, 200, 0.05);
+}
+
 .AiZoo20260401-MsgArticleContent {
     background: #fff;
     color: rgb(0, 0, 0);
     font-family: "Source Sans 3", sans-serif;
-    font-size: 1rem;
+    font-size: .95rem;
     line-height: 1.5em;
-    max-width: 720px;
-    width: 100%;
-    max-height: 85vh;
     overflow-y: auto;
     padding: 2.5rem 2.5rem 2rem;
     border-radius: 8px;
@@ -96,9 +125,10 @@
 
 .AiZoo20260401-MsgArticleContent-Title-Logo {
     display: grid;
-    grid-template-columns: auto minmax(30px, 180px);
-    margin-bottom: 1.3rem;
-    align-items: end;
+    grid-template-columns: auto minmax(80px,180px);
+    align-items: center;
+    margin-bottom: 2.25rem;
+    gap: 2rem;
 }
 .AiZoo20260401-MsgArticleContent-Title {
     font-size: 32px;
@@ -124,11 +154,20 @@
         padding: 0;
     }
 
-    .AiZoo20260401-MsgArticleContent {
+    .AiZoo20260401-MsgArticleWrap {
         max-width: none;
         max-height: none;
         height: 100%;
+    }
+
+    .AiZoo20260401-MsgArticleContent {
+        height: 100%;
         border-radius: 0;
         padding: 1.5rem 1.2rem;
+    }
+
+    .AiZoo20260401-CloseBtn {
+        top: 0.5rem;
+        right: 0.5rem;
     }
 }
