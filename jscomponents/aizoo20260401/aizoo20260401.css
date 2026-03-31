@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap');
 
 /* === AiZoo 2026-04-01 Banner === */
 
@@ -112,9 +112,9 @@ div#bodycontents {
 
 .AiZoo20260401-MsgArticleContent {
     background: #fff;
-    color: rgb(0, 0, 0);
-    font-family: "Source Sans 3", sans-serif;
-    font-size: .95rem;
+    color: rgb(102, 7, 110);
+    font-family: "Bree Serif", sans-serif;
+    font-size: 1.2rem;
     line-height: 1.5em;
     overflow-y: auto;
     padding: 2.5rem 2.5rem 2rem;
@@ -125,50 +125,71 @@ div#bodycontents {
     animation: aizoo-popup-enter 0.35s ease-out;
 }
 
+.AiZoo20260401-MsgArticleContent-MainContent {
+}
+
 .AiZoo20260401-MsgArticleContent-Title-Logo {
     display: grid;
-    grid-template-columns: auto minmax(80px,180px);
+    grid-template-columns: auto; /*minmax(80px,180px);*/
     align-items: center;
     margin-bottom: 2.25rem;
     gap: 2rem;
 }
 .AiZoo20260401-MsgArticleContent-Title {
-    font-family: "Orbitron", "Source Sans 3", sans-serif;
-    font-size: 28px;
+    font-family: "Bree Serif", sans-serif;
+    font-size: 48px;
     line-height: 1.4em;
     font-weight: 700;
     padding: .5em 0;
-    background: linear-gradient(135deg, rgb(0, 0, 127) 0%, rgb(80, 120, 220) 50%, rgb(0, 0, 127) 100%);
+    background: radial-gradient(circle at 50% 50%, rgb(80, 110, 220) 0%, rgb(40, 50, 180) 40%, rgb(15, 15, 150) 80%);
+    background-size: 200% 200%;
+    background-position: 50% 50%;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
     letter-spacing: 0.02em;
+    transition: background-position 0.15s ease-out;
 }
 
 .AiZoo20260401-wow-ai {
     font-weight: 900;
-    font-size: 1.3em;
+    font-size: 2em;
+    margin-left: .2em;
+    vertical-align: -.05em;
+    line-height: 1em;
     letter-spacing: 0.08em;
-    background: linear-gradient(
-        135deg,
-        rgb(80, 120, 255) 0%,
-        rgb(180, 100, 255) 25%,
-        rgb(255, 120, 200) 50%,
-        rgb(180, 100, 255) 75%,
-        rgb(80, 120, 255) 100%
-    );
-    background-size: 200% 200%;
-    background-clip: text;
-    -webkit-background-clip: text;
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            transparent 38%,
+            rgba(255, 255, 255, 0.9) 48%,
+            rgba(255, 220, 255, 0.95) 50%,
+            rgba(255, 255, 255, 0.9) 52%,
+            transparent 62%,
+            transparent 100%
+        ),
+        linear-gradient(
+            135deg,
+            rgb(120, 60, 220) 0%,
+            rgb(200, 80, 255) 50%,
+            rgb(100, 140, 255) 100%
+        );
+    background-size: 400% 100%, 100% 100%;
+    background-position: 120% 0%, 0% 0%;
+    background-clip: text, text;
+    -webkit-background-clip: text, text;
     color: transparent;
-    animation: aizoo-ai-shimmer 3s ease-in-out infinite;
     filter: drop-shadow(0 0 8px rgba(140, 80, 255, 0.5));
+    animation: aizoo-ai-shine 6s linear infinite;
 }
 
-@keyframes aizoo-ai-shimmer {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes aizoo-ai-shine {
+    0%    { background-position: 120% 0%, 0% 0%; }
+    83%   { background-position: 120% 0%, 0% 0%; }
+    93%   { background-position: -20% 0%, 0% 0%; }
+    93.01% { background-position: 120% 0%, 0% 0%; }
+    100%  { background-position: 120% 0%, 0% 0%; }
 }
 
 @keyframes aizoo-popup-enter {
