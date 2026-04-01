@@ -1,5 +1,5 @@
 
-import './AiZoo20260401.css';
+import './aizoo20260401.css';
 //import eczooMainLogoUrl from 'url:../../site/static/icons/eczoo-main-logo-contrast.svg';
 
 //import markdownit from 'markdown-it'
