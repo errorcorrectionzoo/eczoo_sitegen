@@ -90,6 +90,10 @@ function animateAiZoo20260401()
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    let today = new Date();
+    if (today.getDate() != 1 || today.getMonth() != 3) { // April is 3 since Jan is 0
+        return; // not 4/1
+    }
     document.getElementById('logo').classList.add('ecz-41ai-logo');
     
 });
