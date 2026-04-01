@@ -6,6 +6,9 @@
 div#bodycontents {
     padding-bottom: 40px !important;
 }
+#logo.ecz-41ai-logo {
+    background-image: url(./eczoo-main-logo-AI.svg);
+}
 
 
 

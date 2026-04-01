@@ -89,6 +89,10 @@ function animateAiZoo20260401()
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('logo').classList.add('ecz-41ai-logo');
+    
+});
 window.addEventListener('load', function() {
     setTimeout(animateAiZoo20260401, 500);
 });
