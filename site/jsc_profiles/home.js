@@ -1,30 +1,10 @@
-
-import {
-    generate_random_code_data
-} from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
-
-
-const data = {
-    layout: false,
-    permalink: '/jsc_dynamic_profiles/home.js',
-};
-
-const render = async function (data)
-{
-    const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
-
-    const randomCodeDataStr = JSON.stringify(random_code_data); //, undefined, 4);
-
-    return `
 import * as mathjax from '@errorcorrectionzoo/jscomponents/mathjax/setup.js';
 import * as linkanchorvisualhighlight from '@errorcorrectionzoo/jscomponents/linkanchorvisualhighlight/setup.js';
 
 import { RandomCodeShower } from '@errorcorrectionzoo/jscomponents/randomcode/index.js';
 
-// guess what, it's 4/1 again 😈😈😈
-import "@errorcorrectionzoo/jscomponents/aizoo20260401/setup.js";
-
-const randomCodeData = ${randomCodeDataStr};
+// // guess what, it's 4/1 again 😈😈😈
+// import "@errorcorrectionzoo/jscomponents/aizoo20260401/setup.js";
 
 //console.log('randomCodeData =', randomCodeData);
 
@@ -34,6 +14,11 @@ window.addEventListener('load', function () {
     linkanchorvisualhighlight.load();
 
     // load -- random code
+
+    // the home page sets the random code data in a <script> tag at the bottom of the page.  That
+    // script runs synchronously with the page load, so the property already exists for sure when
+    // the code here is executed (document 'load' event).
+    const randomCodeData = window.eczoo_random_code_data;
 
     let random_code_element = document.getElementById('random-code-box');
     if (random_code_element) {
@@ -47,8 +32,3 @@ window.addEventListener('load', function () {
     }
 
 });
-`;
-};
-
-
-export default {data, render};

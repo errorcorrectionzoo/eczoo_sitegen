@@ -37,29 +37,38 @@ export default async function (eleventyConfig)
 {
     debug(`eleventyConfig main function running.`);
 
-    const eczoo_run_options = {
+    const eczoo_run_options = ((env) => {
         // Use "!=" such that the string "0" also counts as false
-        run_11ty_parcel: ((process.env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0),
-        run_11ty_parcel_lazy: ((process.env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0),
-
-        use_test_data: ((process.env.ECZOO_USE_TEST_DATA ?? 0) != 0),
-        development_mode: ((process.env.ECZOO_DEVELOPMENT_MODE ?? 0) != 0),
-    };
+        const use_test_data = ((env.ECZOO_USE_TEST_DATA ?? 0) != 0);
+        const run_11ty_parcel = ((env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0);
+        const run_11ty_parcel_lazy = ((env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0);
+        const development_mode = ((env.ECZOO_DEVELOPMENT_MODE ?? 0) != 0);
+        const citations_cache_dir = (
+            process.env.ECZOO_CITATIONS_CACHE_DIR
+            ?? (use_test_data ? '_TEST_zoodb_citations_cache' : '_zoodb_citations_cache')
+        );
+        return {
+            run_11ty_parcel,
+            run_11ty_parcel_lazy,
+            use_test_data,
+            development_mode,
+            citations_cache_dir,
+        };
+    })(process.env);
 
     const eczoo_config = {
-        data_dir: path.resolve(__dirname, '..', '..', 'eczoo_data'),
+        data_dir: 
+            eczoo_run_options.use_test_data
+            ? path.resolve(__dirname, '../eczoodb/test_data/')
+            : path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
         site_base_url_host_name: 'https://errorcorrectionzoo.org/',
         citationsinfo_cache_dir: path.join(
             __dirname,
             '..',
-            (process.env.ECZOO_CITATIONS_CACHE_DIR ?? '_zoodb_citations_cache')
+            eczoo_run_options.citations_cache_dir,
         ),
     };
-    if (eczoo_run_options.use_test_data) {
-        eczoo_config.data_dir =
-            path.resolve(__dirname, '../eczoodb/test_data/');
-    }
 
     eczoo_config.generate_code_graph_svg_exports
         = ! eczoo_config.run_options.development_mode;

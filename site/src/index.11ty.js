@@ -2,6 +2,10 @@
 import * as zooflm from '@phfaist/zoodb/zooflm';
 //import { get_home_page_stats } from '@errorcorrectionzoo/eczoodb/stats.js';
 
+import {
+    generate_random_code_data
+} from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
+
 
 const data = {
     title: 'Home',
@@ -14,9 +18,7 @@ const data = {
 
         div_bodycontents_classes: ['page-index'],
 
-        jscomponents_profile: {
-            dynamic: 'home',
-        },
+        jscomponents_profile: 'home',
 
         // These <meta> tags will enable the mobile site to be pinned to the
         // phone's home screen and will appear without safari controls when
@@ -243,6 +245,16 @@ async function render(data)
     s += `
 </nav>`;
 
+
+    //
+    // PAYLOAD: RANDOM CODE DATA
+    //
+    const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
+    const randomCodeDataStr = JSON.stringify(random_code_data);
+    s += `
+<script type="text/javascript">
+window.eczoo_random_code_data = ${randomCodeDataStr.replace(/<\//g, '<\\/')};
+</script>`;
 
     //
     //

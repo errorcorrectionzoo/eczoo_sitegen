@@ -203,19 +203,20 @@ const render = async function (data) {
     }
     for (const extra_jsmod of page_layout_info.extra_jsmod ?? []) {
         s += sqzhtml`
-  <script type="module" async src="${ extra_jsmod }"></script>`;
+  <script type="module" src="${ extra_jsmod }"></script>`;
+    }
+    for (const extra_import_jsmod of page_layout_info.extra_import_jsmod ?? []) {
+        s += sqzhtml`
+  <script type="module">
+  import ${JSON.stringify(extra_import_jsmod)};
+  </script>`;
     }
 
     const jscomponents_profile = page_layout_info.jscomponents_profile ?? 'default';
 
     if (jscomponents_profile != null) {
-        if (jscomponents_profile.dynamic != null) {
-            s += sqzhtml`
-  <script type="module" defer src="/jsc_dynamic_profiles/${ jscomponents_profile.dynamic }.js"></script>`;
-        } else {
-            s += sqzhtml`
-  <script type="module" defer src="~/site/jsc_profiles/${ jscomponents_profile }.js"></script>`;
-        }
+        s += sqzhtml`
+  <script type="module" src="~/site/jsc_profiles/${ jscomponents_profile }.js"></script>`;
     }
 
     //

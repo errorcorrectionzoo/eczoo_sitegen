@@ -61,7 +61,7 @@
     "serve": "sirv _site/"
   },
   "@mischnic/parcel-resolver-root": {
-    "CAUTION-NO-LONGER-USED": "NOT-USED",
+    "CAUTION-NO-LONGER-USED": "NOT-USED: Using @phfaist/parcel-resolver-root now instead (https://github.com/phfaist/parcel-resolver-root)",
     "/": "./_site",
     "~": ".."
   },
