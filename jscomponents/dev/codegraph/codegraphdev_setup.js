@@ -6,6 +6,34 @@ if (!isStrict()) {
     throw new Error(`Not strict mode!`);
 }
 
+
+const initialDisplayOptions_alt6 = {
+    displayMode: 'subset',
+    modeSubsetOptions: {
+        "codeIds": [
+            "balanced",
+            "combinatorial_design", "constant_weight", "hadamard", "one_hot", "one_vs_one","tetracode","weight_two","simplex","simplex734","q-ary_simplex"
+        ],
+        reusePreviousLayoutPositions: false,
+        showIntermediateConnectingNodes: true,
+        connectingNodesMaxDepth: 15,
+        connectingNodesPathMaxLength: 20, 
+        connectingNodesMaxExtraDepth: 3,
+        connectingNodesOnlyKeepPathsWithAdditionalLength: 1,
+        connectingNodesToDomainsAndKingdoms: true,
+        connectingNodesEdgeLengthsByType: {
+            primaryParent: 1,
+            secondaryParent: 4,
+            cousin: 6,
+        },
+    },
+    highlightImportantNodes: {
+        highlightImportantNodes: false,
+        highlightPrimaryParents: false,
+        highlightRootConnectingEdges: false,
+    },
+};
+
 const initialDisplayOptions_alt5 = {
     "displayMode": "subset",
     "modeSubsetOptions": {
@@ -30,7 +58,7 @@ const initialDisplayOptions_alt5 = {
     "searchHighlightText": null
 };
 
-const initialDisplayOptions_alt3 = {
+const initialDisplayOptions = {
     "displayMode": "subset",
     "modeIsolateNodesOptions": {
         "nodeIds": null,
@@ -116,7 +144,7 @@ const initialDisplayOptions_alt3 = {
 };
 
 
-const initialDisplayOptions_alt4 = {
+const initialDisplayOptions_alt2 = {
     "displayMode": "subset",
     "modeIsolateNodesOptions": {
         "nodeIds": null,
@@ -203,7 +231,7 @@ const initialDisplayOptions_alt4 = {
 };
 
 
-const initialDisplayOptions = {
+const initialDisplayOptions_alt1 = {
   cousinEdgesShown: true,
   secondaryParentEdgesShown: true,
 
@@ -245,9 +273,9 @@ const initialDisplayOptions = {
     },
 };
 
-const initialGraphGlobalOptions = {
+const initialGraphGlobalOptions_alt2 = {
     useCodeShortNamesForLabels: false,
-    alwaysSkipCoseLayout: true, //false,
+    alwaysSkipCoseLayout: false, //true, //false,
     overrideCoseLayoutOptions: {
         //quality: "proof",
         //nodeDimensionsIncludeLabels: true,
@@ -271,6 +299,21 @@ const initialGraphGlobalOptions = {
         //         "gap": 10
         //     }
         // ]
+    },
+};
+const initialGraphGlobalOptions = {
+    overrideCoseLayoutOptions: {
+        nodeRepulsion: 9000,
+        idealEdgeLength: 50,
+        edgeElasticity: 1.5
+    },
+    globalLayoutOptions: {
+        pullNodesTogether: {
+            enabled: true,
+            pullFactor: 0.05,
+            pullThreshold: 1.05,
+        },
+        resolveLabelOverlaps: true,
     }
 };
 

@@ -77,6 +77,14 @@ const defaultGraphGlobalOptions = {
     useCodeShortNamesForLabels: false, //true,
     alwaysSkipCoseLayout: false, // can set this to true to debug prelayouts.
     overrideCoseLayoutOptions: null, // specify dict to override individual layout options for fcose
+    globalLayoutOptions: {
+        pullNodesTogether: {
+            enabled: false,
+            pullFactor: 0.2,
+            pullThreshold: 1.2,
+        },
+        resolveLabelOverlaps: true,
+    },
 };
 
 
@@ -439,6 +447,8 @@ export class EczCodeGraph
             skipCoseLayout = true;
         }
 
+        const globalLayoutOptions = this.graphGlobalOptions.globalLayoutOptions ?? {};
+
         if (this.subgraphSelector == null) {
             throw new Error(
                 `You didn't install a subgraph selector, which is needed to lay out the code graph. `
@@ -484,15 +494,18 @@ export class EczCodeGraph
         debug(
             `updateLayout(): ${nodeIdsInLayout.length} nodes participate in the layout `
             + `(.layoutVisible):`, nodeIdsInLayout, `; and ${rootNodeIds.length} nodes are `
-            + `listed as 'root' nodes (.layoutRoot.layoutVisible):`, rootNodeIds
+            + `listed as 'root' nodes (.layoutRoot.layoutVisible):`, rootNodeIds,
+            globalLayoutOptions
         );
 
         let shouldApplyPrelayout = true;
         let shouldApplyCoseLayout = true;
+        let shouldApplyPostlayout = true;
 
         if (reusePreviousLayoutPositions) {
             shouldApplyPrelayout = false;
             shouldApplyCoseLayout = false;
+            shouldApplyPostlayout = false;
         }
         if (skipCoseLayout) {
             shouldApplyCoseLayout = false;
@@ -505,12 +518,17 @@ export class EczCodeGraph
 
         if (shouldApplyPrelayout) {
             debug(`Running prelayout ...`);
-            await this._runPrelayout({ rootNodeIds });
+            await this._runPrelayout({ rootNodeIds, globalLayoutOptions });
         }
 
         if (shouldApplyCoseLayout) {
             debug(`Running fcose layout ...`);
-            await this._runCoseLayout({ rootNodeIds, animate });
+            await this._runCoseLayout({ rootNodeIds, animate, globalLayoutOptions });
+        }
+
+        if (shouldApplyPostlayout) {
+            debug(`Running post-layout fixes ...`);
+            await this._runPostlayout({ rootNodeIds, animate, globalLayoutOptions });
         }
 
         this.cy.nodes('.layoutVisible').addClass('_layoutPositioned');
@@ -518,7 +536,7 @@ export class EczCodeGraph
         debug(`updateLayout() done!`);
     }
 
-    async _runPrelayout({ rootNodeIds })
+    async _runPrelayout({ rootNodeIds, globalLayoutOptions_ })
     {
         // compute an initial position of the nodes to reflect the tree
         // structure of the codes
@@ -558,7 +576,7 @@ export class EczCodeGraph
     }
 
 
-    async _runCoseLayout({ rootNodeIds, animate })
+    async _runCoseLayout({ rootNodeIds, animate, globalLayoutOptions_ })
     {
         // Fix root node positioning to how our prelayout arranged it.
         // Format for fixedNodeConstraint is =
@@ -668,6 +686,182 @@ export class EczCodeGraph
         debug('_runCoseLayout() done!');
     }
 
+    async _runPostlayout({ rootNodeIds, animate, globalLayoutOptions })
+    {
+        const layoutNodes = this.cy.nodes('.layoutVisible');
+        if (layoutNodes.length <= 1) {
+            return;
+        }
+
+        const rootNodeIdSet = new Set(rootNodeIds);
+
+        // Shorten unnecessarily long edges by pulling nodes toward their neighbors
+        if (globalLayoutOptions.pullNodesTogether?.enabled ?? false ) {
+            await this._postlayoutShortenLongEdges({layoutNodes, rootNodeIdSet, animate, globalLayoutOptions});
+        }
+
+        // Resolve text label overlaps by pushing overlapping nodes apart
+        if (globalLayoutOptions.resolveLabelOverlaps ?? true ) {
+            await this._postlayoutResolveLabelOverlaps({layoutNodes, rootNodeIdSet, animate, globalLayoutOptions});
+        }
+    }
+
+    async _postlayoutShortenLongEdges({ layoutNodes, rootNodeIdSet, animate, globalLayoutOptions })
+    {
+        const pullFactor = globalLayoutOptions.pullNodesTogether?.pullFactor ?? 0.2;
+        const relativePullThreshold = globalLayoutOptions.pullNodesTogether?.pullThreshold ?? 1.5;
+
+        // Compute median visible edge length as a reference scale
+        const visibleEdges = this.cy.edges().filter(
+            e => e.source().hasClass('layoutVisible') && e.target().hasClass('layoutVisible')
+        );
+        if (visibleEdges.length === 0) return;
+
+        const edgeLengths = visibleEdges.map(e => {
+            const sp = e.source().position();
+            const tp = e.target().position();
+            return Math.sqrt((sp.x - tp.x) ** 2 + (sp.y - tp.y) ** 2);
+        });
+        edgeLengths.sort((a, b) => a - b);
+        const medianEdgeLength = edgeLengths[Math.floor(edgeLengths.length / 2)];
+        const pullThreshold = medianEdgeLength * relativePullThreshold;
+
+        const newPositions = {};
+
+        for (const node of layoutNodes) {
+            if (rootNodeIdSet.has(node.id())) {
+                continue;
+            }
+
+            const neighbors = node.neighborhood('node.layoutVisible');
+            if (neighbors.length === 0) {
+                continue;
+            }
+
+            let centroidX = 0, centroidY = 0;
+            for (const n of neighbors) {
+                const p = n.position();
+                centroidX += p.x;
+                centroidY += p.y;
+            }
+            centroidX /= neighbors.length;
+            centroidY /= neighbors.length;
+
+            const pos = node.position();
+            const dx = centroidX - pos.x;
+            const dy = centroidY - pos.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > pullThreshold) {
+                newPositions[node.id()] = {
+                    x: pos.x + dx * pullFactor,
+                    y: pos.y + dy * pullFactor,
+                };
+            }
+        }
+
+        if (animate) {
+            const animPromises = [];
+            for (const [nodeId, pos] of Object.entries(newPositions)) {
+                const node = this.cy.getElementById(nodeId);
+                animPromises.push(
+                    node.animation({ position: pos, duration: 300, easing: 'ease-out' })
+                        .play().promise('completed')
+                );
+            }
+            await Promise.all(animPromises);
+        } else {
+            this.cy.batch(() => {
+                for (const [nodeId, pos] of Object.entries(newPositions)) {
+                    this.cy.getElementById(nodeId).position(pos);
+                }
+            });
+        }
+
+        debug(`_postlayoutShortenLongEdges: moved ${Object.keys(newPositions).length} nodes `
+              + `(median edge length=${medianEdgeLength.toFixed(1)}, threshold=${pullThreshold.toFixed(1)})`);
+    }
+
+    async _postlayoutResolveLabelOverlaps({ layoutNodes, rootNodeIdSet, animate, globalLayoutOptions_ })
+    {
+        const padding = 5;
+        const maxIterations = 10;
+        const shiftFactor = 0.5;
+
+        for (let iter = 0; iter < maxIterations; iter++) {
+            let anyOverlap = false;
+            const shifts = {};
+
+            for (let i = 0; i < layoutNodes.length; i++) {
+                const nodeA = layoutNodes[i];
+                const bbA = nodeA.boundingBox({ includeLabels: true });
+
+                for (let j = i + 1; j < layoutNodes.length; j++) {
+                    const nodeB = layoutNodes[j];
+                    const bbB = nodeB.boundingBox({ includeLabels: true });
+
+                    const overlapX = Math.min(bbA.x2, bbB.x2) - Math.max(bbA.x1, bbB.x1) + padding;
+                    const overlapY = Math.min(bbA.y2, bbB.y2) - Math.max(bbA.y1, bbB.y1) + padding;
+
+                    if (overlapX > 0 && overlapY > 0) {
+                        anyOverlap = true;
+                        const posA = nodeA.position();
+                        const posB = nodeB.position();
+                        const idA = nodeA.id();
+                        const idB = nodeB.id();
+
+                        if (!shifts[idA]) shifts[idA] = { dx: 0, dy: 0 };
+                        if (!shifts[idB]) shifts[idB] = { dx: 0, dy: 0 };
+
+                        // Push apart along the axis of minimum overlap
+                        if (overlapX < overlapY) {
+                            const shift = overlapX * shiftFactor / 2;
+                            const dir = posA.x <= posB.x ? -1 : 1;
+                            if (!rootNodeIdSet.has(idA)) shifts[idA].dx += dir * shift;
+                            if (!rootNodeIdSet.has(idB)) shifts[idB].dx -= dir * shift;
+                        } else {
+                            const shift = overlapY * shiftFactor / 2;
+                            const dir = posA.y <= posB.y ? -1 : 1;
+                            if (!rootNodeIdSet.has(idA)) shifts[idA].dy += dir * shift;
+                            if (!rootNodeIdSet.has(idB)) shifts[idB].dy -= dir * shift;
+                        }
+                    }
+                }
+            }
+
+            if (!anyOverlap) {
+                debug(`_postlayoutResolveLabelOverlaps: converged after ${iter} iterations`);
+                break;
+            }
+
+            if (animate) {
+                const animPromises = [];
+                for (const [nodeId, shift] of Object.entries(shifts)) {
+                    const node = this.cy.getElementById(nodeId);
+                    const pos = node.position();
+                    animPromises.push(
+                        node.animation({
+                            position: { x: pos.x + shift.dx, y: pos.y + shift.dy },
+                            duration: 200,
+                            easing: 'ease-out',
+                        }).play().promise('completed')
+                    );
+                }
+                await Promise.all(animPromises);
+            } else {
+                this.cy.batch(() => {
+                    for (const [nodeId, shift] of Object.entries(shifts)) {
+                        const node = this.cy.getElementById(nodeId);
+                        const pos = node.position();
+                        node.position({
+                            x: pos.x + shift.dx,
+                            y: pos.y + shift.dy,
+                        });
+                    }
+                });
+            }
+        }
+    }
 
 
 
