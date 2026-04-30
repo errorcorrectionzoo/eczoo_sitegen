@@ -44,7 +44,7 @@ function replaceHardEscapes(x)
 
 const _allowedMacrosEverywhere = [ '%', '$', '&', '#', ]
 const allowedMacros = [
-    'emph', 'textbf', 'textit', 'ensuremath', 'url', 'href', 
+    'emph', 'textbf', 'textit', 'ensuremath', 'url', 'href', 'flmUrl', 'flmHref',
     ..._allowedMacrosEverywhere
 ];
 const allowedMathMacros = [
