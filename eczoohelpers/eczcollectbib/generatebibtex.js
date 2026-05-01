@@ -42,14 +42,15 @@ function replaceHardEscapes(x)
     return x.replaceAll(_rxHardEscapes, (match, arg) => hardEscapes[arg]);
 }
 
-const _allowedMacrosEverywhere = [ '%', '$', '&', '#', ]
+const _allowedMacrosEverywhere = [ '%', '$', '&', '#', '_' ]
 const allowedMacros = [
     'emph', 'textbf', 'textit', 'ensuremath', 'url', 'href', 'flmUrl', 'flmHref',
     ..._allowedMacrosEverywhere
 ];
 const allowedMathMacros = [
     'mathbb', 'mathsf', 'mathrm', 'mathcal', 'text', 'textup', 'textrm', 'frac',
-    'langle', 'rangle',
+    'langle', 'rangle', 'log', 'exp', 'sin', 'cos', 'lceil', 'rceil', 'choose', 'sqrt',
+    'varepsilon', 'epsilon', 'pm', 
     ..._allowedMacrosEverywhere
 ];
 
