@@ -17,6 +17,9 @@ import { hideBin } from 'yargs/helpers';
 
 import _ from 'lodash';
 
+import * as flm_flmrecomposer_purelatex from '@phfaist/zoodb/flm-js/flm.flmrecomposer.purelatex';
+import * as flm_fragmentrenderer_latex from '@phfaist/zoodb/flm-js/flm.fragmentrenderer.latex';
+
 import { EczBibReferencesCollector } from '@errorcorrectionzoo/eczoohelpers_eczcollectbib/collectbib.js';
 
 import { helperSetDefaultLogs } from '../_helpers/helperLogs.js';
@@ -33,6 +36,7 @@ async function collectBibRefs(argv)
     const {
         citePrefix,
         citePattern,
+        keepManual,
         domain,
         format,
         output,
@@ -249,7 +253,29 @@ async function collectBibRefs(argv)
 
     } else if (format === 'bib:bibtex') {
 
-        outputData = bibcollector.generateBibtexEntries().map( (x) => x.trim() ).join('\n\n');
+        let options = {};
+        if (keepManual) {
+            const zoo_flm_environment = eczoodb.zoo_flm_environment;
+            let fake_document = zoo_flm_environment.make_document(
+                (render_context_) => { throw Error("Callback is not meant to be called."); }
+            );
+            let fragment_renderer = flm_fragmentrenderer_latex.LatexFragmentRenderer();
+            let render_context = fake_document.make_render_context(fragment_renderer)
+            const flmLatexRecomposer = flm_flmrecomposer_purelatex.FLMPureLatexRecomposer({
+                render_context,
+            });
+
+            options = Object.assign(options, {
+                keepReadyCitations: true,
+                flmLatexRecomposer,
+                zoo_flm_environment
+            });
+        }
+        const bibtexEntries = bibcollector.generateBibtexEntries({
+            ...options,
+        });
+
+        outputData = bibtexEntries.map( (x) => x.trim() ).join('\n\n')  + '\n';
 
     } else if (format === 'null') {
         // special option string 'null', not JS null!
@@ -292,6 +318,12 @@ async function main()
                 alias: 'm',
                 default: null,
                 describe: "Only include citations whose entire prefix-key matches the given regular expression.  E.g. --cite-pattern='/^doi:10.\\d+\\/2897.*/ui'",
+            },
+            'keep-manual': {
+                alias: 'M',
+                boolean: true,
+                default: false,
+                describe: "For Bibtex output only: Do not attempt to parse manually-formatted entries (`\\cite{manual:{...}}`), and keep the fully formatted citation as is in the bibtex entry (uses `@misc{key, node={{...}}}`).",
             },
             'domain': {
                 alias: 'D',

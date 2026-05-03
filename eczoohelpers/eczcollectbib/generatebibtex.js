@@ -4,6 +4,10 @@ const debug = debug_module('eczoohelpers_eczcollectbib.generatebibtex');
 import fs from 'fs';
 import path from 'path';
 
+import {
+    $$kw,
+    ZooFLMResourceInfo,
+} from '@phfaist/zoodb/zooflm';
 import { get_builtin_uni2latex_dict } from '@phfaist/zoodb/flm-js/pylatexenc.latexencode.get_builtin_rules';
 
 import CSL from 'citeproc';
@@ -316,8 +320,18 @@ const bibtex_csl_fname = path.join(import.meta.dirname, 'bibtex--patched.csl');
  * determine what BibTeX key a given item should be given.  The callback
  * is given one argument, the object that is a value in `bib_db` (and which
  * contains the key 'csl_json').
+ * 
+ * If `keepReadyCitations` is set to `true`, then ready-citations are kept as
+ * a preformatted citation.  You need to specify a FLM purelatex recomposer
+ * object instance in `flmLatexRecomposer` and the zoo FLM environment as
+ * `zoo_flm_environment`.
  */
-export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
+export function generateBibtex(bib_db, {
+    computeEntryBibtexKey,
+    keepReadyCitations,
+    flmLatexRecomposer,
+    zoo_flm_environment
+}={})
 {
     const csl_style = fs.readFileSync(bibtex_csl_fname, {
         encoding: 'utf-8'
@@ -325,6 +339,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
     debug(`csl_style = ${csl_style.slice(0,50)}...`);
 
     let csljsonObjects = {};
+    let readyCitationObjects = {};
     // make sure all citeKeys/ID's are UNIQUE!
     for (const v of Object.values(bib_db)) {
         const citeKeyBase =
@@ -334,7 +349,7 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
         let csljsonObject = Object.assign({}, v.jsondata);
         let citeKey = citeKeyBase;
         let n = 0;
-        while (csljsonObjects[citeKey] != null) {
+        while (csljsonObjects[citeKey] != null || readyCitationObjects[citeKey] != null) {
             // citeKey already exists
             console.warn(`Duplicate citation key ‘${citeKey}’!`);
             ++n;
@@ -342,7 +357,11 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
         }
         csljsonObject.id = citeKey;
         csljsonObject.key = citeKey;
-        csljsonObjects[citeKey] = csljsonObject;
+        if (keepReadyCitations && csljsonObject._ready_formatted?.flm) {
+            readyCitationObjects[citeKey] = csljsonObject;
+        } else {
+            csljsonObjects[citeKey] = csljsonObject;
+        }
     }
 
     const citeproc_sys_object = {
@@ -393,11 +412,46 @@ export function generateBibtex(bib_db, { computeEntryBibtexKey, }={})
         throw new Error(`Could not CSL-compile citation text to bibtex!`);
     }
 
-    const bibtex_entries = [ ... c_result[1] ];
-    
-    return bibtex_entries;
-}
+    const bibtex_entries_1 = [ ... c_result[1] ];
+    let bibtex_ready_citations = [];
+        
+    // now, the preserved ready-citations
+    if (keepReadyCitations) {
 
+        const recomposer = flmLatexRecomposer;
+        const flm_to_latex = (flm_fragment) => {
+            if (flm_fragment == null) {
+                console.error(`Warning: Undefined/null fragment in flm_to_latex()!`);
+                return '\\ECZUNDEFINEDNULL ';
+            }
+            if (typeof flm_fragment === 'string') {
+                // we actually need to compile the FLM fragment to translate it to pure latex
+                flm_fragment = zoo_flm_environment.make_fragment(
+                    flm_fragment,
+                    $$kw({
+                        what: `fragment for flm_to_text(...)`,
+                        resource_info: new ZooFLMResourceInfo(null, null, null),
+                    })
+                );
+            }
+            if (flm_fragment.__class__.__name__ === 'LatexNodeList') {
+                // we were already given the nodes directly 
+                return recomposer.subrecompose(flm_fragment);
+            }
+            return recomposer.subrecompose(flm_fragment.nodes);
+        }
+
+        for (const csljsonObject of Object.values(readyCitationObjects)) {
+            const key = csljsonObject.key;
+            const flm = csljsonObject._ready_formatted.flm; // can be either fragment object or flm-text
+            let latex = flm_to_latex(flm);
+            latex = latex.replace('\n', ' '); // avoid line breaks in bibtex...
+            bibtex_ready_citations.push(`@misc{${key}, note={{${latex}}} }`);
+        }
+    }
+    
+    return [...bibtex_entries_1, ...bibtex_ready_citations];
+}
 
 
 
