@@ -325,11 +325,18 @@ const bibtex_csl_fname = path.join(import.meta.dirname, 'bibtex--patched.csl');
  * a preformatted citation.  You need to specify a FLM purelatex recomposer
  * object instance in `flmLatexRecomposer` and the zoo FLM environment as
  * `zoo_flm_environment`.
+ * 
+ * You can specify your custom way of preparing the bibtex entry for
+ * preformatted citations, to hack with your preferred bibtex style.
+ * Specify a callable that takes an object with keys `key` and `latex`,
+ * and returns the bibtex string.  The default is
+ * ``({key, latex}) => `@misc{${key}, note={{${latex}}} }` ``.
  */
 export function generateBibtex(bib_db, {
     computeEntryBibtexKey,
     keepReadyCitations,
     flmLatexRecomposer,
+    composePreformattedBibtexEntry,
     zoo_flm_environment
 }={})
 {
@@ -417,6 +424,7 @@ export function generateBibtex(bib_db, {
         
     // now, the preserved ready-citations
     if (keepReadyCitations) {
+        composePreformattedBibtexEntry ??= ({key, latex}) => `@misc{${key}, note={{${latex}}} }`;
 
         const recomposer = flmLatexRecomposer;
         const flm_to_latex = (flm_fragment) => {
@@ -446,7 +454,8 @@ export function generateBibtex(bib_db, {
             const flm = csljsonObject._ready_formatted.flm; // can be either fragment object or flm-text
             let latex = flm_to_latex(flm);
             latex = latex.replace('\n', ' '); // avoid line breaks in bibtex...
-            bibtex_ready_citations.push(`@misc{${key}, note={{${latex}}} }`);
+            const bibtex = composePreformattedBibtexEntry({ key, latex });
+            bibtex_ready_citations.push(bibtex);
         }
     }
     
