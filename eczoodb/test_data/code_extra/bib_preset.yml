@@ -104,3 +104,8 @@ coxeterComplex:
   _ready_formatted:
     flm: >-
       H. S. M. Coxeter. Regular Complex Polytopes. Cambridge University Press, 1991.
+
+Helstrom:
+  _ready_formatted:
+    flm: >-
+      C. W. Helstrom, \emph{Quantum Detection and Estimation Theory} (Elsevier, 1976)
