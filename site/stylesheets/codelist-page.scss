@@ -15,6 +15,21 @@
     font-size: $small-font-size;
     margin: 2*$parskip-half-length  0pt;
 }
+.codelist-autodescription {
+    font-style: italic;
+    font-size: $small-font-size;
+    margin: $parskip-half-length  0pt;
+    padding: $parskip-half-length  0pt;
+    background: rgba(127,190,127,0.15);
+
+    p, dl, ul, ol {
+        margin: $parskip-half-length 0pt;
+    }
+
+    .enumeration.enumerate, .enumeration.itemize {
+        row-gap: .1em;
+    }
+}
 
 //
 // Code list page with style=index

@@ -12,7 +12,7 @@ import {
     docrefs_placeholder_ref_resolver,
 } from './render_utils.js';
 
-import { get_list_data } from './compile_codelist.js';
+import { get_list_data, describe_codelist } from './compile_codelist.js';
 
 
 const get_code_relationship_to = (code, reference_code_id) => {
@@ -191,15 +191,31 @@ export function render_codelist_page(
         eczoodb, doc_metadata, additional_setup_render_context,
         render_meta_changelog_options,
         include_code_graph_excerpt,
+        include_auto_description,
     }
 )
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
 
+    additional_setup_render_context ??= null;
+    include_code_graph_excerpt ??= false;
+    include_auto_description ??= true;
+
     const zoo_flm_environment = eczoodb.zoo_flm_environment;
 
     const styles_render_fn = styles[codelist.display?.style ?? 'index']
     const list_data = get_list_data({codelist, eczoodb});
+
+    let auto_description_fragment = null;
+    let auto_description_pattern = null;
+    if (include_auto_description) {
+        const { pattern, description_flm } = describe_codelist({eczoodb, codelist});
+        let heading = 'List';
+        if (pattern && pattern.type && pattern.type !== 'custom') {
+            heading += ` (\\verba{${auto_description_pattern}})`;
+        }
+        auto_description_fragment = zoo_flm_environment.make_fragment(heading + ': ' + description_flm);
+    }
     
     const render_doc_fn = (render_context) => {
 
@@ -227,6 +243,12 @@ export function render_codelist_page(
         }
 
         html += styles_render_fn( {codelist, list_data, R} );
+
+        if (include_auto_description) {
+            html += sqzhtml`
+<div class="codelist-autodescription">${rdr(auto_description_fragment)}</div>
+`;
+        }
 
         if (include_code_graph_excerpt) {
             html += sqzhtml`

@@ -73,8 +73,8 @@ const render = async (data) => {
             include_code_graph_excerpt: {
                 href: `/code_graph#J${encodeURIComponent(JSON.stringify(ecgDisplayOptions))}`,
                 graphic_url: `/list/lgraph_${codelist.list_id}.svg`,
-            }
-            
+            },
+            include_auto_description: true,
         }
     );
 

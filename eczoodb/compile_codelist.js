@@ -243,6 +243,284 @@ export function get_list_data({codelist, eczoodb})
 // ----------------------------------------------------------------------------
 
 
+/**
+ * Analyze a codelist's `codes.select` predicates and return a machine-readable
+ * description of what the list selects, along with an FLM text description.
+ *
+ * @param {object} {eczoodb, codelist} - The eczoodb and a codelist data object (with `codes.select`).
+ * @returns {{ pattern: object, description_flm: string }}
+ *   - `pattern`: machine-readable object with a `type` field and relevant
+ *     parameters (e.g. `{ type: 'descendants', code_id: 'topological' }`).
+ *   - `description_flm`: FLM markup string describing the list in words.
+ */
+export function describe_codelist({ eczoodb, codelist })
+{
+    const select = codelist.codes?.select;
+    if (!select || !Array.isArray(select)) {
+        return {
+            pattern: { type: null },
+            description_flm: 'Unknown code list.',
+        };
+    }
+
+    // ---- Pattern: all codes ----
+    if (select.length === 1 && Object.keys(select[0]).length === 0) {
+        return {
+            pattern: { type: 'all_codes' },
+            description_flm: 'All codes.',
+        };
+    }
+
+    // Helper: check if a predicate collection has exactly the given keys (unordered)
+    const has_exactly_keys = (pred, keys) => {
+        const pkeys = Object.keys(pred);
+        return pkeys.length === keys.length && keys.every(k => pkeys.includes(k));
+    };
+
+    // Helper: format a code_id as an FLM reference
+    const code_ref = (code_id) => `\\ref{code:${code_id}}`;
+
+    // Helper: format a domain_id as an FLM reference
+    const domain_ref = (domain_id) => `\\ref{domain:${domain_id}}`;
+
+    // Helper: format a property path for display
+    const prop_label = (prop) => {
+        // e.g. "features.threshold" -> "threshold", "realizations" -> "realizations"
+        const parts = prop.split('.');
+        return parts[parts.length - 1].replace(/_/g, ' ');
+    };
+
+    // ---- Try to match known standard patterns first. If none match, fall
+    //      through to the generic description builder below. ----
+
+    if (select.length === 1) {
+        const pred = select[0];
+
+        // Pattern: descendants only
+        if (has_exactly_keys(pred, ['descendant_of'])) {
+            return {
+                pattern: { type: 'descendants', code_id: pred.descendant_of },
+                description_flm:
+                    `All descendants of ${code_ref(pred.descendant_of)}.`,
+            };
+        }
+
+        // Pattern: cousins only
+        if (has_exactly_keys(pred, ['cousin_of'])) {
+            return {
+                pattern: { type: 'cousins', code_id: pred.cousin_of },
+                description_flm:
+                    `All cousins of ${code_ref(pred.cousin_of)}.`,
+            };
+        }
+
+        // Pattern: domain with exclusions
+        if (pred.domain != null && pred.not_any_domain != null
+            && has_exactly_keys(pred, ['domain', 'not_any_domain'])) {
+            return {
+                pattern: {
+                    type: 'domain',
+                    domain_id: pred.domain,
+                    not_any_domain: pred.not_any_domain,
+                },
+                description_flm:
+                    `All codes in ${domain_ref(pred.domain)}.`,
+            };
+        }
+
+        // Pattern: domain only
+        if (has_exactly_keys(pred, ['domain'])) {
+            return {
+                pattern: { type: 'domain', domain_id: pred.domain },
+                description_flm:
+                    `All codes in ${domain_ref(pred.domain)}.`,
+            };
+        }
+
+        // Pattern: property_set with not_descendant_of
+        if (pred.property_set != null && pred.not_descendant_of != null
+            && has_exactly_keys(pred, ['property_set', 'not_descendant_of'])) {
+            return {
+                pattern: {
+                    type: 'property_set_excluding_descendants',
+                    property: pred.property_set,
+                    not_descendant_of: pred.not_descendant_of,
+                },
+                description_flm:
+                    `All codes with ${prop_label(pred.property_set)}`
+                    + ` that are not descendants of`
+                    + ` ${code_ref(pred.not_descendant_of)}.`,
+            };
+        }
+
+        // Pattern: property_set with domain
+        if (pred.property_set != null && pred.domain != null
+            && has_exactly_keys(pred, ['property_set', 'domain'])) {
+            return {
+                pattern: {
+                    type: 'property_set_in_domain',
+                    property: pred.property_set,
+                    domain_id: pred.domain,
+                },
+                description_flm:
+                    `All codes in ${domain_ref(pred.domain)}`
+                    + ` with ${prop_label(pred.property_set)}.`,
+            };
+        }
+
+        // Pattern: property_set only
+        if (has_exactly_keys(pred, ['property_set'])) {
+            return {
+                pattern: {
+                    type: 'property_set',
+                    property: pred.property_set,
+                },
+                description_flm:
+                    `All codes with ${prop_label(pred.property_set)}.`,
+            };
+        }
+
+        // Pattern: manual_code_list
+        if (has_exactly_keys(pred, ['manual_code_list'])) {
+            return {
+                pattern: {
+                    type: 'manual_code_list',
+                    code_ids: pred.manual_code_list,
+                },
+                description_flm:
+                    `A manually specified list of codes.`,
+            };
+        }
+    }
+
+    if (select.length === 2) {
+        const [p0, p1] = select;
+
+        // Pattern: descendants and cousins of the same code (either order)
+        let desc_pred = null, cous_pred = null;
+        if (has_exactly_keys(p0, ['descendant_of'])
+            && has_exactly_keys(p1, ['cousin_of'])) {
+            desc_pred = p0; cous_pred = p1;
+        } else if (has_exactly_keys(p0, ['cousin_of'])
+                   && has_exactly_keys(p1, ['descendant_of'])) {
+            desc_pred = p1; cous_pred = p0;
+        }
+        if (desc_pred && cous_pred
+            && desc_pred.descendant_of === cous_pred.cousin_of) {
+            return {
+                pattern: {
+                    type: 'descendants_and_cousins',
+                    code_id: desc_pred.descendant_of,
+                },
+                description_flm:
+                    `All descendants and cousins of`
+                    + ` ${code_ref(desc_pred.descendant_of)}.`,
+            };
+        }
+    }
+
+    // ---- Fallback: build a generic description from predicates.
+    //      Handles any combination of predicate collections. ----
+    const description_parts = [];
+    for (let i = 0; i < select.length; i++) {
+        const pred = select[i];
+        const conds = [];
+        for (const [key, val] of Object.entries(pred)) {
+            // descendant_of family
+            if (key === 'descendant_of') {
+                conds.push(`descendants of ${code_ref(val)}`);
+            } else if (key === 'any_descendant_of') {
+                conds.push(`descendants of any of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'all_descendant_of') {
+                conds.push(`descendants of all of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'not_descendant_of') {
+                conds.push(`not descendants of ${code_ref(val)}`);
+            } else if (key === 'not_any_descendant_of') {
+                conds.push(`not descendants of any of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'not_all_descendant_of') {
+                conds.push(`not descendants of all of ${val.map(code_ref).join(', ')}`);
+
+            // cousin_of family
+            } else if (key === 'cousin_of') {
+                conds.push(`cousins of ${code_ref(val)}`);
+            } else if (key === 'any_cousin_of') {
+                conds.push(`cousins of any of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'all_cousin_of') {
+                conds.push(`cousins of all of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'not_cousin_of') {
+                conds.push(`not cousins of ${code_ref(val)}`);
+            } else if (key === 'not_any_cousin_of') {
+                conds.push(`not cousins of any of ${val.map(code_ref).join(', ')}`);
+            } else if (key === 'not_all_cousin_of') {
+                conds.push(`not cousins of all of ${val.map(code_ref).join(', ')}`);
+
+            // domain family
+            } else if (key === 'domain') {
+                conds.push(`in ${domain_ref(val)}`);
+            } else if (key === 'any_domain') {
+                conds.push(`in any of ${val.map(domain_ref).join(', ')}`);
+            } else if (key === 'all_domain') {
+                conds.push(`in all of ${val.map(domain_ref).join(', ')}`);
+            } else if (key === 'not_domain') {
+                conds.push(`not in ${domain_ref(val)}`);
+            } else if (key === 'not_any_domain') {
+                conds.push(`not in any of ${val.map(domain_ref).join(', ')}`);
+            } else if (key === 'not_all_domain') {
+                conds.push(`not in all of ${val.map(domain_ref).join(', ')}`);
+
+            // property_set family
+            } else if (key === 'property_set') {
+                conds.push(`with ${prop_label(val)}`);
+            } else if (key === 'any_property_set') {
+                conds.push(`with any of ${val.map(prop_label).join(', ')}`);
+            } else if (key === 'all_property_set') {
+                conds.push(`with all of ${val.map(prop_label).join(', ')}`);
+            } else if (key === 'not_property_set') {
+                conds.push(`without ${prop_label(val)}`);
+            } else if (key === 'not_any_property_set') {
+                conds.push(`without any of ${val.map(prop_label).join(', ')}`);
+            } else if (key === 'not_all_property_set') {
+                conds.push(`without all of ${val.map(prop_label).join(', ')}`);
+
+            // property (exact value match)
+            } else if (key === 'property') {
+                conds.push(`with ${val.name} equal to ${JSON.stringify(val.value)}`);
+
+            // explicit code lists
+            } else if (key === 'manual_code_list') {
+                conds.push(`manually listed codes`);
+            } else if (key === 'exclude') {
+                conds.push(`excluding ${val.length} specific codes`);
+
+            // unknown predicate — render raw for debugging
+            } else {
+                conds.push(`[${key}: ${JSON.stringify(val)}]`);
+            }
+        }
+        if (conds.length === 0) {
+            description_parts.push('all codes');
+        } else {
+            description_parts.push('codes that are ' + conds.join(' and '));
+        }
+    }
+
+    let description_flm;
+    if (description_parts.length === 1) {
+        description_flm = description_parts[0].charAt(0).toUpperCase()
+            + description_parts[0].slice(1) + '.';
+    } else {
+        description_flm = 'Union of:\n\\begin{itemize}\n'
+            + description_parts.map(p => `\\item ${p}`).join('\n')
+            + '\n\\end{itemize}';
+    }
+
+    return {
+        pattern: { type: 'custom', select },
+        description_flm,
+    };
+}
+
+
 const _EcZooDbCodeListComputedData = {
     codelist: {
         compiled_codes_info: {
