@@ -207,12 +207,11 @@ export function render_codelist_page(
     const list_data = get_list_data({codelist, eczoodb});
 
     let auto_description_fragment = null;
-    let auto_description_pattern = null;
     if (include_auto_description) {
         const { pattern, description_flm } = describe_codelist({eczoodb, codelist});
         let heading = 'List';
         if (pattern && pattern.type && pattern.type !== 'custom') {
-            heading += ` (\\verba{${auto_description_pattern}})`;
+            heading += ` (\\verba{${pattern.type}})`;
         }
         auto_description_fragment = zoo_flm_environment.make_fragment(heading + ': ' + description_flm);
     }

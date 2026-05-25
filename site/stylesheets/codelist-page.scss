@@ -19,8 +19,8 @@
     font-style: italic;
     font-size: $small-font-size;
     margin: $parskip-half-length  0pt;
-    padding: $parskip-half-length  0pt;
-    background: rgba(127,190,127,0.15);
+    padding: $parskip-half-length 2*$parskip-half-length;
+    background: $boxedcontent-background-color;
 
     p, dl, ul, ol {
         margin: $parskip-half-length 0pt;
