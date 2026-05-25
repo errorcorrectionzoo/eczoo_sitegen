@@ -299,6 +299,11 @@ The `relationship_property` column type looks up a code's relationship (parent
 or cousin) to a specific reference code (given by code_id) and extracts a field
 from that relationship object (typically `detail`).
 
+Possible CSS classes for the table: `xtra-stretch`, `xtra-xtra-stretch`, `hlines`.
+
+Possible CSS classes for the columns: `small` (font size), `left`, `center`, `right`
+(horizontal align) `top`, `bottom` (vertical alignment).
+
 ---
 
 ## Common patterns in existing code lists
