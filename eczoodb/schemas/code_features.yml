@@ -18,49 +18,58 @@ properties:
   rate:
     type: string
     _flm: full
+    _title: 'Rate'
 
   magic_scaling_exponent:
     type: string
     _flm: full
+    _title: 'Magic'
 
   encoders:
     type: array
+    _title: 'Encoding'
     items:
       type: string
       _flm: full
 
   general_gates:
     type: array
+    _title: 'Gates'
     items:
       type: string
       _flm: full
 
-  decoders: 
+  decoders:
     type: array
+    _title: 'Decoding'
     items:
       type: string
       _flm: full
 
   transversal_gates:
     type: array
+    _title: 'Transversal Gates'
     items:
       type: string
       _flm: full
 
   fault_tolerance:
     type: array
+    _title: 'Fault Tolerance'
     items:
       type: string
       _flm: full
 
-  threshold: 
+  threshold:
     type: array
+    _title: 'Threshold'
     items:
       type: string
       _flm: full
 
-  code_capacity_threshold: 
+  code_capacity_threshold:
     type: array
+    _title: 'Code Capacity Threshold'
     items:
       type: string
       _flm: full

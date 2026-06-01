@@ -1,7 +1,7 @@
 import debug_mod from 'debug';
 const debug = debug_mod("eczoodbjs.render_code");
 
-import { getfield } from '@phfaist/zoodb/util';
+import { getfield, get_field_schema } from '@phfaist/zoodb/util';
 
 import {
     // $$kw, repr
@@ -294,34 +294,39 @@ export function render_code_page(
         }
 
 
+        const code_schema = eczoodb.schemas.code;
         const display_field =
-            (fieldname, title) => display_code_field(code, fieldname, title, { R });
-        
-        html += display_field('description', 'Description');
+            (fieldname) => display_code_field(
+                code, fieldname,
+                get_field_schema(code_schema, fieldname)._title ?? `Field: ‘${fieldname}’`,
+                { R }
+            );
 
-        html += display_field('protection', 'Protection');
+        html += display_field('description');
 
-        html += display_field('features.rate', 'Rate');
+        html += display_field('protection');
 
-        html += display_field('features.magic_scaling_exponent', 'Magic');
+        html += display_field('features.rate');
 
-        html += display_field('features.encoders', 'Encoding');
+        html += display_field('features.magic_scaling_exponent');
 
-        html += display_field('features.transversal_gates', 'Transversal Gates');
+        html += display_field('features.encoders');
 
-        html += display_field('features.general_gates', 'Gates');
+        html += display_field('features.transversal_gates');
 
-        html += display_field('features.decoders', 'Decoding');
+        html += display_field('features.general_gates');
 
-        html += display_field('features.fault_tolerance', 'Fault Tolerance');
+        html += display_field('features.decoders');
 
-        html += display_field('features.code_capacity_threshold', 'Code Capacity Threshold');
+        html += display_field('features.fault_tolerance');
 
-        html += display_field('features.threshold', 'Threshold');
+        html += display_field('features.code_capacity_threshold');
 
-        html += display_field('realizations', 'Realizations');
+        html += display_field('features.threshold');
 
-        html += display_field('notes', 'Notes');
+        html += display_field('realizations');
+
+        html += display_field('notes');
 
 
         const relations = code.relations ?? {};

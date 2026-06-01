@@ -1,7 +1,7 @@
 import debug_mod from 'debug';
 const debug = debug_mod("eczoodbjs.compile_codelist");
 
-import { getfield } from '@phfaist/zoodb/util';
+import { getfield, get_field_schema } from '@phfaist/zoodb/util';
 
 import * as zooflm from '@phfaist/zoodb/zooflm';
 //const { $$kw, repr } = zooflm;
@@ -284,10 +284,13 @@ export function describe_codelist({ eczoodb, codelist })
     const domain_ref = (domain_id) => `\\ref{domain:${domain_id}}`;
 
     // Helper: format a property path for display
+    const code_schema = eczoodb.schemas.code;
     const prop_label = (prop) => {
-        // e.g. "features.threshold" -> "threshold", "realizations" -> "realizations"
-        const parts = prop.split('.');
-        return parts[parts.length - 1].replace(/_/g, ' ');
+        const field_schema = get_field_schema(code_schema, prop);
+        if (field_schema._title != null) {
+            return `\\emph{${field_schema._title}}`;
+        }
+        return `\\verbcode{${prop}}`;
     };
 
     // ---- Try to match known standard patterns first. If none match, fall
@@ -484,7 +487,7 @@ export function describe_codelist({ eczoodb, codelist })
 
             // property (exact value match)
             } else if (key === 'property') {
-                conds.push(`with ${val.name} equal to ${JSON.stringify(val.value)}`);
+                conds.push(`with ${prop_label(val.name)} equal to ${JSON.stringify(val.value)}`);
 
             // explicit code lists
             } else if (key === 'manual_code_list') {
@@ -494,7 +497,7 @@ export function describe_codelist({ eczoodb, codelist })
 
             // unknown predicate — render raw for debugging
             } else {
-                conds.push(`[${key}: ${JSON.stringify(val)}]`);
+                conds.push(`[\\verbcode{${key}}: \\verbcode{${JSON.stringify(val)}}]`);
             }
         }
         if (conds.length === 0) {
@@ -519,6 +522,11 @@ export function describe_codelist({ eczoodb, codelist })
         description_flm,
     };
 }
+
+
+
+// -----
+
 
 
 const _EcZooDbCodeListComputedData = {

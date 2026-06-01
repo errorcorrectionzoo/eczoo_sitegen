@@ -94,6 +94,7 @@ properties:
   description:
     type: string
     _flm: full
+    _title: 'Description'
     _description: >-
       Describe code subspace as best as you can here.  Anything applicable to a
       larger parent set of codes (see below) should go in that entry instead of
@@ -119,6 +120,7 @@ properties:
 
   protection:
     _flm: full
+    _title: 'Protection'
     type: string
 
 
@@ -127,12 +129,14 @@ properties:
 
 
   realizations:
+    _title: 'Realizations'
     type: array
     items:
       _flm: full
       type: string
 
   notes:
+    _title: 'Notes'
     type: array
     items:
       _flm: full
