@@ -55,6 +55,7 @@ properties:
     type: string
     pattern: '^[a-z0-9_.-]+$'
     _single_line_string: True
+    _title: 'Code ID'
     _description: >-
       An internal identifier for the code.  It must be unique across all codes
       on the error correction zoo.
@@ -64,6 +65,7 @@ properties:
     type: string
     _flm: standalone
     _single_line_string: True
+    _title: 'Name'
     _description: >-
       The name of the code.  It is listed in multiple places, so don't make it
       too long.
@@ -74,6 +76,7 @@ properties:
     type: string
     _flm: standalone
     _single_line_string: true
+    _title: 'Short Name'
     _description: >-
       (Optional.) A short name in case the 'name' field is long.  The short name
       is used in places where space is precious, such as in the navigation links
@@ -83,6 +86,7 @@ properties:
   # codes may have aliases.
   alternative_names:
     type: array
+    _title: 'Alternative Names'
     _description: >-
       Alternative name(s) under which this code is known.
     items:
@@ -105,6 +109,7 @@ properties:
     type: string
     _single_line_string: True
     _flm: full
+    _title: 'Introduced'
     _description: >-
       First reference with the code (optional).  This field should be a single
       ‘\cite{}’ command with the appropriate reference(s).  Recall that you can

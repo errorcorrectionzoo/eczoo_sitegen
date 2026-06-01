@@ -162,7 +162,8 @@
               </else>
             </choose>
             <group delimiter=", ">
-              <text variable="volume" font-weight="bold"/>
+              <!-- <text variable="volume" font-weight="bold"/> -->
+              <text variable="volume"/>
               <group delimiter=" ">
                 <text variable="page-first" form="short"/>
                 <text macro="year-date" prefix="(" suffix=")"/>

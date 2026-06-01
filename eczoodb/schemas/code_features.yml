@@ -5,10 +5,6 @@ $id: "https://errorcorrectionzoo.org/schemas/code_features"
 # the features: code object property
 #
 
-# type: object
-
-# # todo, we should codify the exact properties and values that can be set under
-# # within the `features:` tree.
 
 type: object
 additionalProperties: false
