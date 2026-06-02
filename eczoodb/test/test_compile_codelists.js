@@ -566,6 +566,19 @@ describe('get_list_data', function () {
 
 describe('describe_codelist', function () {
 
+    this.timeout(0);
+
+    let eczoodb;
+
+    before(async function () {
+        eczoodb = await load_eczoo({
+            eczoodb_options: {
+                flm_allow_unresolved_citations: true,
+                flm_allow_unresolved_references: true,
+            },
+        });
+    });
+
     // ------- Standard patterns -------
 
     describe('standard patterns', function () {
@@ -573,6 +586,7 @@ describe('describe_codelist', function () {
         it('recognizes all_codes from an empty predicate collection', function () {
             const result = describe_codelist({
                 codelist: make_codelist([{}]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'all_codes');
             assert.strictEqual(result.description_flm, 'All codes.');
@@ -583,6 +597,7 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { descendant_of: 'stabilizer' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'descendants');
             assert.strictEqual(result.pattern.code_id, 'stabilizer');
@@ -597,6 +612,7 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { cousin_of: 'binary_linear' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'cousins');
             assert.strictEqual(result.pattern.code_id, 'binary_linear');
@@ -612,6 +628,7 @@ describe('describe_codelist', function () {
                     { descendant_of: 'stabilizer' },
                     { cousin_of: 'stabilizer' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'descendants_and_cousins');
             assert.strictEqual(result.pattern.code_id, 'stabilizer');
@@ -627,6 +644,7 @@ describe('describe_codelist', function () {
                     { cousin_of: 'stabilizer' },
                     { descendant_of: 'stabilizer' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'descendants_and_cousins');
             assert.strictEqual(result.pattern.code_id, 'stabilizer');
@@ -638,6 +656,7 @@ describe('describe_codelist', function () {
                     { domain: 'classical_domain',
                       not_any_domain: ['quantum_domain'] },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'domain');
             assert.strictEqual(result.pattern.domain_id, 'classical_domain');
@@ -656,6 +675,7 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { domain: 'classical_domain' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'domain');
             assert.strictEqual(result.pattern.domain_id, 'classical_domain');
@@ -670,12 +690,13 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { property_set: 'features.rate' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'property_set');
             assert.strictEqual(result.pattern.property, 'features.rate');
             assert.strictEqual(
                 result.description_flm,
-                'All codes with rate.'
+                'All codes with \\emph{Rate}.'
             );
         });
 
@@ -685,6 +706,7 @@ describe('describe_codelist', function () {
                     { property_set: 'features.threshold',
                       not_descendant_of: 'ecc' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(
                 result.pattern.type,
@@ -694,7 +716,7 @@ describe('describe_codelist', function () {
             assert.strictEqual(result.pattern.not_descendant_of, 'ecc');
             assert.strictEqual(
                 result.description_flm,
-                'All codes with threshold that are not descendants of '
+                'All codes with \\emph{Threshold} that are not descendants of '
                 + '\\ref{code:ecc}.'
             );
         });
@@ -705,13 +727,14 @@ describe('describe_codelist', function () {
                     { property_set: 'features.rate',
                       domain: 'classical_domain' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'property_set_in_domain');
             assert.strictEqual(result.pattern.property, 'features.rate');
             assert.strictEqual(result.pattern.domain_id, 'classical_domain');
             assert.strictEqual(
                 result.description_flm,
-                'All codes in \\ref{domain:classical_domain} with rate.'
+                'All codes in \\ref{domain:classical_domain} with \\emph{Rate}.'
             );
         });
 
@@ -720,6 +743,7 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { manual_code_list: ['css', 'stabilizer', 'surface'] },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'manual_code_list');
             assert.deepStrictEqual(
@@ -743,6 +767,7 @@ describe('describe_codelist', function () {
                     { descendant_of: 'stabilizer',
                       not_cousin_of: 'css' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(
@@ -762,6 +787,7 @@ describe('describe_codelist', function () {
                     { any_descendant_of: ['stabilizer', 'binary_linear'],
                       not_descendant_of: 'css' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(
@@ -783,6 +809,7 @@ describe('describe_codelist', function () {
                     { property: { name: 'physical', value: 'qubits' } },
                     { descendant_of: 'stabilizer' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(result.description_flm.includes('\\begin{itemize}'));
@@ -798,6 +825,7 @@ describe('describe_codelist', function () {
                     { descendant_of: 'stabilizer' },
                     { cousin_of: 'css' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(
@@ -815,6 +843,7 @@ describe('describe_codelist', function () {
                     { cousin_of: 'css' },
                     { domain: 'classical_domain' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(result.description_flm.includes('\\begin{itemize}'));
@@ -838,6 +867,7 @@ describe('describe_codelist', function () {
                       not_any_descendant_of: ['g'],
                       not_all_descendant_of: ['h', 'i'] },
                 ]),
+                eczoodb,
             });
             const flm = result.description_flm;
             assert.ok(flm.includes('descendants of \\ref{code:a}'));
@@ -858,6 +888,7 @@ describe('describe_codelist', function () {
                       not_any_cousin_of: ['f'],
                       not_all_cousin_of: ['g', 'h'] },
                 ]),
+                eczoodb,
             });
             const flm = result.description_flm;
             assert.ok(flm.includes('cousins of \\ref{code:a}'));
@@ -878,6 +909,7 @@ describe('describe_codelist', function () {
                       not_any_domain: ['x_domain'],
                       not_all_domain: ['y_domain', 'z_domain'] },
                 ]),
+                eczoodb,
             });
             const flm = result.description_flm;
             assert.ok(flm.includes('in \\ref{domain:classical_domain}'));
@@ -902,14 +934,15 @@ describe('describe_codelist', function () {
                       not_any_property_set: ['realizations'],
                       not_all_property_set: ['features.rate', 'features.decoders'] },
                 ]),
+                eczoodb,
             });
             const flm = result.description_flm;
-            assert.ok(flm.includes('with rate'));
-            assert.ok(flm.includes('with any of rate, threshold'));
-            assert.ok(flm.includes('with all of decoders'));
-            assert.ok(flm.includes('without magic scaling exponent'));
-            assert.ok(flm.includes('without any of realizations'));
-            assert.ok(flm.includes('without all of rate, decoders'));
+            assert.ok(flm.includes('with \\emph{Rate}'));
+            assert.ok(flm.includes('with any of \\emph{Rate}, \\emph{Threshold}'));
+            assert.ok(flm.includes('with all of \\emph{Decoding}'));
+            assert.ok(flm.includes('without \\emph{Magic}'));
+            assert.ok(flm.includes('without any of \\emph{Realizations}'));
+            assert.ok(flm.includes('without all of \\emph{Rate}, \\emph{Decoding}'));
         });
 
         it('handles property (exact value match)', function () {
@@ -917,9 +950,12 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { property: { name: 'physical', value: 'qubits' } },
                 ]),
+                eczoodb,
             });
             assert.ok(
-                result.description_flm.includes('with physical equal to "qubits"')
+                result.description_flm.includes(
+                    'with \\verbcode{physical} equal to "qubits"'
+                )
             );
         });
 
@@ -929,6 +965,7 @@ describe('describe_codelist', function () {
                     { descendant_of: 'stabilizer',
                       exclude: ['css', 'surface'] },
                 ]),
+                eczoodb,
             });
             assert.ok(
                 result.description_flm.includes('excluding 2 specific codes')
@@ -941,6 +978,7 @@ describe('describe_codelist', function () {
                     { manual_code_list: ['css', 'surface'],
                       not_descendant_of: 'stabilizer' },
                 ]),
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, 'custom');
             assert.ok(
@@ -953,9 +991,12 @@ describe('describe_codelist', function () {
                 codelist: make_codelist([
                     { some_future_predicate: 'foo_value' },
                 ]),
+                eczoodb,
             });
             assert.ok(
-                result.description_flm.includes('[some_future_predicate:')
+                result.description_flm.includes(
+                    '[\\verbcode{some_future_predicate}:'
+                )
             );
         });
     });
@@ -967,6 +1008,7 @@ describe('describe_codelist', function () {
         it('returns type null for missing codes.select', function () {
             const result = describe_codelist({
                 codelist: { list_id: 'bad', title: 'Bad', display: {} },
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, null);
             assert.strictEqual(result.description_flm, 'Unknown code list.');
@@ -978,6 +1020,7 @@ describe('describe_codelist', function () {
                     list_id: 'bad', title: 'Bad', display: {},
                     codes: { select: 'not_an_array' },
                 },
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, null);
         });
@@ -985,6 +1028,7 @@ describe('describe_codelist', function () {
         it('returns type null when codes is missing entirely', function () {
             const result = describe_codelist({
                 codelist: { list_id: 'x', title: 'X', display: {} },
+                eczoodb,
             });
             assert.strictEqual(result.pattern.type, null);
         });
@@ -992,6 +1036,7 @@ describe('describe_codelist', function () {
         it('handles an empty select array via the fallback', function () {
             const result = describe_codelist({
                 codelist: make_codelist([]),
+                eczoodb,
             });
             assert.ok(result.description_flm != null);
             assert.ok(result.pattern != null);
