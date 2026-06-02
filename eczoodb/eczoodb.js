@@ -9,6 +9,8 @@ import { ZooDb } from '@phfaist/zoodb';
 import { makeStandardZooDb } from '@phfaist/zoodb/std/stdzoodb';
 import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
 
+import { CiteSourceExternalQecdbOrg } from './citeextsources.js';
+
 import { schema_root_dir_default } from './dirs_defaults.js';
 
 import { objects_config } from './objects_config.js';
@@ -66,6 +68,17 @@ const default_config = {
             ],
             default_user_agent: null,
             // cache_file: ......, // set with "full options" in fullopts.js
+
+            // register custom sources!
+            sources: {
+                // default, preconfigured sources
+                'arxiv': true,
+                'doi': true,
+                'manual': true,
+                'preset': true,
+                // our custom sources:
+                'qecdborg': new CiteSourceExternalQecdbOrg(),
+            },
         },
         
         resources: {
