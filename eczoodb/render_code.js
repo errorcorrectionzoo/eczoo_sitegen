@@ -185,6 +185,10 @@ export function render_code_page(
 
     debug(`render_code_page(): Rendering code page for ‘${code_id}’ ...`);
     
+    const code_schema = eczoodb.schemas.code;
+    const get_field_schema_title = (fieldname) =>
+        get_field_schema(code_schema, fieldname)._title ?? `Field: ‘${fieldname}’` ;
+    
     const render_doc_fn = (render_context) => {
 
         // debug(`Rendering code information. render_context =`, render_context,
@@ -233,7 +237,7 @@ export function render_code_page(
                 .join(', ');
             html += sqzhtml`
 <div class="sectioncontent code-alternative-names">
-  Alternative names: ${alt_names_joined}.
+  ${get_field_schema_title('alternative_names')}: ${alt_names_joined}.
 </div>
 `
         }
@@ -293,12 +297,10 @@ export function render_code_page(
 `;
         }
 
-
-        const code_schema = eczoodb.schemas.code;
         const display_field =
             (fieldname) => display_code_field(
                 code, fieldname,
-                get_field_schema(code_schema, fieldname)._title ?? `Field: ‘${fieldname}’`,
+                get_field_schema_title(fieldname),
                 { R }
             );
 
