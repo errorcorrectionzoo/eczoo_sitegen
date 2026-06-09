@@ -44,7 +44,7 @@ properties:
 
   transversal_gates:
     type: array
-    _title: 'Transversal Gates'
+    _title: 'Transversal and Permutation-Based Gates'
     items:
       type: string
       _flm: full
