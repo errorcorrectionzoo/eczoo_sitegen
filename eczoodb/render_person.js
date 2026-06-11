@@ -7,7 +7,10 @@ export function render_person(person)
     let avatar_url = '';
     let avatar_add_class = '';
     if (person.avatarurl != null && person.avatarurl !== '') {
-        avatar_url = person.avatarurl;
+        avatar_url = person.avatarurl.replace(
+            /^builtinavatar:(.*)$/,
+            (m, aUrl) => `processimg:~/static/icons/avatar/${aUrl}`
+        );
     } else if (person.githubusername != null && person.githubusername !== '') {
         avatar_url = `https://github.com/${person.githubusername}.png`;
     } else {

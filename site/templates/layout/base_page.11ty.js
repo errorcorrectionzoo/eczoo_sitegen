@@ -39,19 +39,8 @@ const get_page_header_navigation_links_default = async (data) => {
     let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
     let flmrender = (value) => value.render_standalone(html_fragment_renderer);
 
-    let page_header_navigation_links = [
-        {
-            heading: null,
-            links: [
-                { href: '/', html: 'Home' },
-                { href: '/code_graph', html: 'Code graph' },
-                { href: '/lists', html: 'Code lists' },
-                { href: '/concepts', html: 'Concepts glossary' },
-                { href: '/search', html: 'Search' },
-            ],
-        },
-    ];
-
+    let page_header_navigation_links = [];
+    
     for (const [domain_id_, domain] of Object.entries(eczoodb.objects.domain)) {
         page_header_navigation_links.push({
             heading: {
@@ -68,7 +57,18 @@ const get_page_header_navigation_links_default = async (data) => {
     page_header_navigation_links.push({
         heading: null,
         links: [
-            { href: '/edit_code', html: 'Add new code' },
+            { href: '/', html: 'Home' },
+            { href: '/code_graph', html: 'Code graph' },
+            { href: '/lists', html: 'Code lists' },
+            { href: '/concepts', html: 'Concepts glossary' },
+            { href: '/search', html: 'Search' },
+        ],
+    });
+
+    page_header_navigation_links.push({
+        heading: null,
+        links: [
+            //{ href: '/edit_code', html: 'Add new code' },
             //{ href: '/additional_resources', html: 'Additional resources' },
             { href: '/team', html: 'Team' },
             { href: '/about', html: 'About' },

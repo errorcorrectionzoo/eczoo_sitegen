@@ -96,7 +96,7 @@ const generate_navigation_links = ({code, eczoodb, flmrender}) => {
             { href: '/code_graph', html: 'Code graph' },
             { href: '/lists', html: 'Lists' },
             { href: '/concepts', html: 'Concepts glossary' },
-            { href: '/edit_code', html: 'Add new code' },
+            //{ href: '/edit_code', html: 'Add new code' },
             { href: '/search', html: 'Search' },
         ],
     });
@@ -265,24 +265,27 @@ const render = async (data) => {
     const code_text_citation = (
         `“${flmrender(code.name)}”, The Error Correction Zoo `
         + `(V. V. Albert & P. Faist, eds.), ${code_citation_year}. `
-        + `https://errorcorrectionzoo.org${ code_ref_link }`
+        + `https://errorcorrectionzoo.org${ code_ref_link }, `
+        + `arXiv:2606.11484`
     );
     const code_edit_github_url = (
         `https://github.com/errorcorrectionzoo/eczoo_data`
         + `/edit/main/${code._zoodb.source_file_path}`
     ); // e.g. https://github.com/errorcorrectionzoo/eczoo_data/edit/main/codes/approximate_oaecc.yml
-    const code_edit_onsite_url = (
-        `/edit_code#${encodeURIComponent(JSON.stringify({
-              code_id: code.code_id,
-              code_yml_filename: code._zoodb.source_file_path}))}`
-    );
+    // const code_edit_onsite_url = (
+    //     `/edit_code#${encodeURIComponent(JSON.stringify({
+    //           code_id: code.code_id,
+    //           code_yml_filename: code._zoodb.source_file_path}))}`
+    // );
     const code_bibtex = `@incollection{eczoo_${code.code_id},
   title={${ code.name.flm_text }},
   booktitle={The Error Correction Zoo},
   year={${code_citation_year}},
   editor={Albert, Victor V. and Faist, Philippe},
+  eprint={2606.11484},
+  doi={https://doi.org/10.48550/arXiv.2606.11484},
   url={https://errorcorrectionzoo.org${code_ref_link}}
-}`;
+}`.replaceAll('\n', '<br/>');
     
     const code_name_text = flmrendertext(code.name);
     const code_encurl_name = encodeURIComponent(code_name_text);
@@ -316,13 +319,13 @@ const render = async (data) => {
     <p><a class="code-link-with-icon code-show-github"
           target="_blank"
           title="Edit code information directly on github.com"
-          href="${ code_edit_github_url }">on github.com (edit &amp; pull request)</a>
-          — see <a title="edit source instructions" target="_blank"
-                   href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/README.md">instructions</a></p>
-    <p><a class="code-link-with-icon code-self-edit"
+          href="${ code_edit_github_url }">on github.com (edit &amp; pull request)</a></p>
+    <p>— see <a title="edit source instructions" target="_blank"
+                href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/README.md">instructions</a></p>
+    <!--<p><a class="code-link-with-icon code-self-edit"
           target="_blank"
           title="edit code information on this site without using github"
-          href="${ code_edit_onsite_url }">edit on this site</a></p>
+          href="${ /*code_edit_onsite_url*/ '#' }">edit on this site</a></p>-->
     <p class="zoo-code-id">Zoo Code ID: <code>${code.code_id}</code>
   </div>
   <div class="code-popup-info-frame"

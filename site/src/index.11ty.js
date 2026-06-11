@@ -210,7 +210,7 @@ async function render(data)
 
   <h1>More</h1>
   <ul class="navlinks">
-    <li><a href="/edit_code">Add new code</a></li>
+    <!-- <li><a href="/edit_code">Add new code</a></li> -->
     <li><a href="/team">Team</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="javascript:window.eczColorSchemeHandler.toggle();">🌒</a></li>

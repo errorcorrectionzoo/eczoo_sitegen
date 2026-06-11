@@ -42,7 +42,7 @@
 }
 
 //
-// Logo (use background-image) -- includes BETA marker in icon
+// Logo (use background-image)
 //
 #logo {
     background-image: url('~/site/static/icons/eczoo-main-logo.svg');
@@ -52,9 +52,11 @@
     background-position-y: center;
     background-size: contain; //$header-bgimage-width auto;
 
+    // note: Set width, not height, so the layout is responsive in the correct way...
     width: $header-bgimage-width;
 
     margin-right: $header-bgimage-horizontal-gap;
+    margin-left: $header-bgimage-horizontal-gap-left;
 }
 
 
@@ -73,6 +75,8 @@
         width: $header-bgimage-width-mobile;
         // it's set to 'contain'
         //background-size: $header-bgimage-width-mobile auto;
+        margin-right: $header-bgimage-horizontal-gap-mobile;
+        margin-left: $header-bgimage-horizontal-gap-left-mobile;
     }
 }
 }

@@ -2,12 +2,6 @@
 @use './tiles.scss' as *;
 
 
-// .person-list {
-//     max-width: 400px;
-// }
-// .person-list.two-columns {
-//     max-width: calc(max(400px, 90%));
-// }
 @media screen and (max-width: $page-collapse-layout-width) {
     .person-list.two-columns {
         // fall back to single column layout
@@ -45,6 +39,6 @@
     }
 
     &.person-avatar-unknown {
-        background-image: url('~/site/static/icons/avatar-unknown.svg');
+        background-image: url('~/site/static/icons/avatar/avatar-unknown.svg');
     }
 }

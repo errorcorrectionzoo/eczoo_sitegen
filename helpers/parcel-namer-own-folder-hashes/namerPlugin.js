@@ -31,6 +31,7 @@ function getBundleName(bundle)
             .replaceAll('eczoo', 'ecz')
             .replaceAll('quantum', 'q')
             .replaceAll('classical', 'cl')
+            .replaceAll('avatar-', 'av')
             .replace(/^[kd]graph/, 'gr')
             .slice(0, 12)
     }
@@ -52,10 +53,10 @@ module.exports = new Namer({
             || (filePath && filePath.endsWith('/static/icons/eczogimage.png'))
         ) {
             const bname = getBundleName(bundle);
-            // process.stdout.write(
-            //     `Custom Namer: ‘${filePath}’ (type ‘${bundle.type}’ ID ‘${bundle.id}’) `
-            //     + `→ ‘${bname}’\n`
-            // );
+            console.log(
+                `Custom Namer: ‘${filePath}’ (type ‘${bundle.type}’ ID ‘${bundle.id}’) `
+                + `→ ‘${bname}’\n`
+            );
             return bname;
         }
 
