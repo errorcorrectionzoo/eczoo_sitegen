@@ -41,4 +41,22 @@
     &.person-avatar-unknown {
         background-image: url('~/site/static/icons/avatar/avatar-unknown.svg');
     }
+
+    &.person-avatar-builtin-VictorVAlbert {
+        background-image: url('processimg:~/static/icons/avatar/VictorVAlbert.jpg?as=webp&width=460');
+    }
+    &.person-avatar-builtin-PhilippeFaist {
+        background-image: url('processimg:~/static/icons/avatar/PhilippeFaist.jpg?as=webp&width=460');
+    }
+    &.person-avatar-builtin-DanielGottesman {
+        background-image: url('processimg:~/static/icons/avatar/DanielGottesman.webp?as=webp&width=460');
+    }
+    &.person-avatar-builtin-LeonidPryadko {
+        background-image: url('processimg:~/static/icons/avatar/LeonidPryadko.jpg?as=webp&width=460');
+    }
+    &.person-avatar-builtin-AlexanderBarg {
+        background-image: url('processimg:~/static/icons/avatar/AlexanderBarg.jpg?as=webp&width=460');
+    }
 }
+
+

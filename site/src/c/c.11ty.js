@@ -283,7 +283,7 @@ const render = async (data) => {
   year={${code_citation_year}},
   editor={Albert, Victor V. and Faist, Philippe},
   eprint={2606.11484},
-  doi={https://doi.org/10.48550/arXiv.2606.11484},
+  doi={10.48550/arXiv.2606.11484},
   url={https://errorcorrectionzoo.org${code_ref_link}}
 }`.replaceAll('\n', '<br/>');
     

@@ -53,10 +53,10 @@ module.exports = new Namer({
             || (filePath && filePath.endsWith('/static/icons/eczogimage.png'))
         ) {
             const bname = getBundleName(bundle);
-            console.log(
-                `Custom Namer: ‘${filePath}’ (type ‘${bundle.type}’ ID ‘${bundle.id}’) `
-                + `→ ‘${bname}’\n`
-            );
+            // console.log(
+            //     `Custom Namer: ‘${filePath}’ (type ‘${bundle.type}’ ID ‘${bundle.id}’) `
+            //     + `→ ‘${bname}’\n`
+            // );
             return bname;
         }
 

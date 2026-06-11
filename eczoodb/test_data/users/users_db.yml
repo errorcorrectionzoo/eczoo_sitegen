@@ -11,6 +11,7 @@
   githubusername: valbert4
   gscholaruser: 'hyddAfkAAAAJ'
   pageurl: 'https://sites.google.com/site/victorvalbert'
+  avatarurl: "builtinavatar:VictorVAlbert"
   #affiliations:
   #  - NIST
   #  - University of Maryland
@@ -22,9 +23,9 @@
   githubusername: phfaist
   gscholaruser: 'rdeNGqMAAAAJ'
   pageurl: 'https://phfaist.com/'
+  avatarurl: "builtinavatar:PhilippeFaist"
   #affiliations:
   #  - Freie Universität Berlin
-
 
 
 
@@ -38,7 +39,7 @@
   name: "Daniel Gottesman"
   gscholaruser: 6eJtRigAAAAJ
   pageurl: "https://quics.umd.edu/people/daniel-gottesman"
-  avatarurl: "builtinavatar:DanielGottesman.jpg"
+  avatarurl: "builtinavatar:DanielGottesman"
 
 - user_id: AlexanderBarg
   zooteam: veterinarians
@@ -46,7 +47,7 @@
   gscholaruser: nvU3IvEAAAAJ
   pageurl: "https://user.eng.umd.edu/~abarg/"
   githubusername: AlexanderBarg
-  avatarurl: "builtinavatar:AlexanderBarg.jpg"
+  avatarurl: "builtinavatar:AlexanderBarg"
 
 - user_id: LeonidPryadko
   zooteam: veterinarians
@@ -54,7 +55,7 @@
   gscholaruser: "S8iAOo4AAAAJ"
   githubusername: LeonidPryadko
   pageurl: "http://www.faculty.ucr.edu/~leonid/"
-  avatarurl: "builtinavatar:LeonidPryadko.jpg"
+  avatarurl: "builtinavatar:LeonidPryadko"
 
 
 #

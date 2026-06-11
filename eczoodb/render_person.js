@@ -5,12 +5,15 @@ export function render_person(person)
     let s = '';
 
     let avatar_url = '';
+    let avatar_builtin = '';
     let avatar_add_class = '';
     if (person.avatarurl != null && person.avatarurl !== '') {
-        avatar_url = person.avatarurl.replace(
-            /^builtinavatar:(.*)$/,
-            (m, aUrl) => `processimg:~/static/icons/avatar/${aUrl}`
-        );
+        const m = /^builtinavatar:(.*)$/.exec(person.avatarurl);
+        if (m) {
+            avatar_builtin = m[1];
+        } else {
+            avatar_url = person.avatarurl;
+        }
     } else if (person.githubusername != null && person.githubusername !== '') {
         avatar_url = `https://github.com/${person.githubusername}.png`;
     } else {
@@ -23,7 +26,7 @@ export function render_person(person)
     }
 
     s += `
-<div class="tile tile-person${avatar_add_class}"
+<div class="tile tile-person${avatar_add_class}${ avatar_builtin && ` person-avatar-builtin-${avatar_builtin}`}"
      id="u-${person.user_id}" ${styleBgImage}
      ><div class="tile-content"><div class="tile-person-line tile-persion-name-line">`;
     s += `<span class="person-name">${person.name}</span>`;
