@@ -200,6 +200,7 @@ async function render(data)
     <li><a href="/all">All codes</a></li>
     <li><a href="/concepts">Glossary of concepts</a></li>
     <li><a href="/references">Bibliographic references</a></li>
+    <li><a href="/handbook">Handbook of Error-Correcting Codes</a></li>
     <!--<li><a href="/search">Search</a></li>-->
     <li>
       <form action="/search" method="GET">

@@ -96,6 +96,7 @@ const generate_navigation_links = ({code, eczoodb, flmrender}) => {
             { href: '/code_graph', html: 'Code graph' },
             { href: '/lists', html: 'Lists' },
             { href: '/concepts', html: 'Concepts glossary' },
+            { href: '/handbook', html: 'Handbook' },
             //{ href: '/edit_code', html: 'Add new code' },
             { href: '/search', html: 'Search' },
         ],

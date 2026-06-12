@@ -61,6 +61,7 @@ const get_page_header_navigation_links_default = async (data) => {
             { href: '/code_graph', html: 'Code graph' },
             { href: '/lists', html: 'Code lists' },
             { href: '/concepts', html: 'Concepts glossary' },
+            { href: '/handbook', html: 'Handbook' },
             { href: '/search', html: 'Search' },
         ],
     });
