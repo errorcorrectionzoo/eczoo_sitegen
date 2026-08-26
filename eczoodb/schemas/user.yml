@@ -33,19 +33,36 @@ properties:
       include_in_index: true
   
   # users can specify one or more affiliation(s)
-  # --- we might only want to use this for core team members / veterinarians,
+  # --- only for core team members / veterinarians,
   # to avoid bloating the team web page.
   affiliations:
     type: array
     items:
-      _flm: standalone
-      _single_line_string: true
-      _description: >-
-        User's Affiliation (Department, Institute, Institution, Country).  E.g.
-        “Dahlem Center for Complex Quantum Systems, Freie Universität Berlin, 14195
-        Berlin, Germany”.
-      _zoo_search:
-        include_in_index: false
+      type: object
+      additionalProperties: false
+      required: ['short']
+      properties:
+        full:
+          type: string
+          _single_line_string: true
+          _description: >-
+            User's Affiliation (Department, Institute, Institution, Country).  E.g.
+            “Dahlem Center for Complex Quantum Systems, Freie Universität Berlin, 14195
+            Berlin, Germany”.
+          _zoo_search:
+            include_in_index: false
+        short:
+          type: string
+          _single_line_string: true
+          _description: >-
+            User's Short-Form Affiliation (Institution).
+            “Freie Universität Berlin”.
+          _zoo_search:
+            include_in_index: false
+        logo:
+          type: string
+          _zoo_search:
+            include_in_index: false
 
   zooteam:
     type: string

@@ -31,7 +31,7 @@ const render = async (data) => {
 
     s += `<h1>The Zoo core team</h1>
 
-<section class="tiles-collection person-list">`;
+<section class="tiles-collection person-list person-list-zooteam-core">`;
 
     let people_core = zoo_contributors_by_team.core;
 
@@ -50,7 +50,7 @@ const render = async (data) => {
 
 <h2>Veterinarians</h2>
 
-<section class="tiles-collection person-list">`;
+<section class="tiles-collection person-list person-list-zooteam-veterinarians">`;
 
 
     let people_veterinarians = zoo_contributors_by_team.veterinarians;
@@ -68,7 +68,7 @@ const render = async (data) => {
 
 <h2>Code contributions</h2>
 
-<section class="tiles-collection person-list two-columns">
+<section class="tiles-collection person-list two-columns person-list-zooteam-codecontributors">
 `;
 
     let people_code_contributors = zoo_contributors_by_team.code_contributors.map(

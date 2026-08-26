@@ -57,6 +57,38 @@
     &.person-avatar-builtin-AlexanderBarg {
         background-image: url('processimg:~/static/icons/avatar/AlexanderBarg.jpg?as=webp&width=460');
     }
+
+
+    .tile-person-affil-line {
+        margin-top: 1rem;
+        font-style: italic;
+    }
+    .tile-person-affillogo-line {
+        margin-top: 0.33rem;
+        height: 60px;
+        background-repeat: no-repeat;
+        background-position: 0% 0%;
+        background-size: auto 50px;
+
+        // builtin logos: see below
+    }
 }
 
+.tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
+    background-image: url('processimg:~/static/icons/affil/quics-logo.png?as=webp&height=60');
+}
+.dark .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
+    background-image: url('processimg:~/static/icons/affil/quics-logo-white.png?as=webp&height=60');
+}
+
+
+.person-list-zooteam-core.tiles-collection .tile.tile-person {
+    background-color: inherit;
+    background-position-y: 8px;
+    box-shadow: none;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+
+    max-width: unset;
+}
 
