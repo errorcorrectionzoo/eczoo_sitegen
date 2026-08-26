@@ -42,20 +42,22 @@
         background-image: url('~/site/static/icons/avatar/avatar-unknown.svg');
     }
 
+    // 460x460 is github's standard avatar size -- let's stick to that for uniformity
+
     &.person-avatar-builtin-VictorVAlbert {
-        background-image: url('processimg:~/static/icons/avatar/VictorVAlbert.jpg?as=webp&width=460');
+        background-image: url('processimg:~/site/static/icons/avatar/VictorVAlbert.jpg?as=webp&width=460');
     }
     &.person-avatar-builtin-PhilippeFaist {
-        background-image: url('processimg:~/static/icons/avatar/PhilippeFaist.jpg?as=webp&width=460');
+        background-image: url('processimg:~/site/static/icons/avatar/PhilippeFaist.jpg?as=webp&width=460');
     }
     &.person-avatar-builtin-DanielGottesman {
-        background-image: url('processimg:~/static/icons/avatar/DanielGottesman.webp?as=webp&width=460');
+        background-image: url('processimg:~/site/static/icons/avatar/DanielGottesman.webp?as=webp&width=460');
     }
     &.person-avatar-builtin-LeonidPryadko {
-        background-image: url('processimg:~/static/icons/avatar/LeonidPryadko.jpg?as=webp&width=460');
+        background-image: url('processimg:~/site/static/icons/avatar/LeonidPryadko.jpg?as=webp'); //&width=460'); // need higher resolution image to begin with
     }
     &.person-avatar-builtin-AlexanderBarg {
-        background-image: url('processimg:~/static/icons/avatar/AlexanderBarg.jpg?as=webp&width=460');
+        background-image: url('processimg:~/site/static/icons/avatar/AlexanderBarg.jpg?as=webp&width=460');
     }
 
 
@@ -75,10 +77,10 @@
 }
 
 .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
-    background-image: url('processimg:~/static/icons/affil/quics-logo.png?as=webp&height=60');
+    background-image: url('processimg:~/site/static/icons/affil/quics-logo.png?as=webp&height=240');
 }
 .dark .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
-    background-image: url('processimg:~/static/icons/affil/quics-logo-white.png?as=webp&height=60');
+    background-image: url('processimg:~/site/static/icons/affil/quics-logo-white.png?as=webp&height=240');
 }
 
 

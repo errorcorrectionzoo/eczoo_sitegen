@@ -35,7 +35,7 @@
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@parcel/optimizer-terser": "^2.13.3",
     "@parcel/transformer-sass": "2.13.3",
-    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f",
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=952c43371099b4b2cf2f10cb43d0cc88ff8432aa",
     "parcel": "^2.13.3",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",

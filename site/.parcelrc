@@ -10,7 +10,7 @@
     "transformers": {
         // figures from code files
         "*.{pdf,jpg,jpeg,png}": ["@parcel/transformer-raw"],
-        "processimg:*.{jpg,jpeg,png}": ["..."],
+        "processimg:*.{jpg,jpeg,png,webp,gif,tiff,avif,heic,heif}": ["@parcel/transformer-image"],
         "*.{json,ico,bib}": ["@parcel/transformer-raw"],
         "*.{xml,txt}": ["@parcel/transformer-raw"],
         "*.html": ["...", "@errorcorrectionzoo/parcel-transformer-ogimage-phf"],

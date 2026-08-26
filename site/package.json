@@ -26,7 +26,7 @@
     "@parcel/config-default": "^2.13.3",
     "@parcel/core": "^2.13.3",
     "@parcel/plugin": "^2.13.3",
-    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=2bbb68fa29fa3bfa5a35e59b8a27998c6ccdb10f",
+    "@phfaist/parcel-resolver-root": "https://github.com/phfaist/parcel-resolver-root.git#commit=952c43371099b4b2cf2f10cb43d0cc88ff8432aa",
     "@phfaist/zoodb": "https://github.com/phfaist/zoodb.git",
     "debug": "^4.4.0",
     "eleventy-favicon": "^1.1.3",
@@ -45,7 +45,8 @@
     "@parcel/transformer-raw": "^2.13.3",
     "@parcel/transformer-sass": "2.13.3",
     "parcel-reporter-static-files-copy": "^1.5.3",
-    "parcel-transformer-meta-image": "^1.0.4"
+    "parcel-transformer-meta-image": "^1.0.4",
+    "sharp": "^0.33.5"
   },
   "scripts": {
     "build": "rm -rf _site ../.parcel-cache && DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" NODE_OPTIONS=\"--max-old-space-size=8192\" eleventy  && yarn private_add_use_strict_to_site_js_files",
