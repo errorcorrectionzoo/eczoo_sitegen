@@ -15,9 +15,10 @@
   affiliations:
     - short: 'National Institute of Standards and Technology'
       full: 'National Institute of Standards and Technology, (.... long form affiliation with address ...), U.S.A.'
+      href: 'https://www.nist.gov/'
     - short: 'Joint Center for Quantum Information and Computer Science (QuICS)'
       logo: "builtinaffillogo:quics"
-      logohref: 'https://quics.umd.edu/'
+      href: 'https://quics.umd.edu/'
 
 - user_id: PhF
   name: 'Philippe Faist'
@@ -30,6 +31,7 @@
   affiliations:
     - short: 'Freie Universität Berlin'
       full: 'Dahlem Center for Complex Quantum Systems, Freie Universität Berlin, Arnimallee 14, 14195 Berlin, Germany'
+      href: 'https://fu-berlin.de/'
 
 
 

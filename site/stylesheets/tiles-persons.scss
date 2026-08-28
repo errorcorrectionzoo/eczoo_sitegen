@@ -64,6 +64,27 @@
     .tile-person-affil-line {
         margin-top: 1rem;
         font-style: italic;
+
+        .person-affil-link {
+            margin-left: 0.5em;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+    }
+    // the links to the affiliations' web pages only show up when hovering any
+    // one of this person's affiliations --- or when one of the links has the
+    // keyboard focus.  They are always shown on touch devices, where there is
+    // no hovering.
+    .tile-person-affils:hover,
+    .tile-person-affils:focus-within {
+        .person-affil-link {
+            opacity: 1;
+        }
+    }
+    @media (hover: none) {
+        .person-affil-link {
+            opacity: 1;
+        }
     }
     .tile-person-affillogo-line {
         margin-top: 0.33rem;

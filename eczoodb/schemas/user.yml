@@ -63,7 +63,7 @@ properties:
           type: string
           _zoo_search:
             include_in_index: false
-        logohref:
+        href:
           type: string
           _zoo_search:
             include_in_index: false

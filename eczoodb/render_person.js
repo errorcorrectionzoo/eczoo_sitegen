@@ -78,6 +78,10 @@ export function render_person(person)
     // core members & veterinarians get their affil
     if ((person.zooteam === 'core' || person.zooteam === 'veterinarians') && person.affiliations) {
         //debug(`Affiliations: `, person.affiliations);
+        // all the affiliations are wrapped in a single element, so that
+        // hovering any one of them can reveal all their links at once (see
+        // tiles-persons.scss)
+        s += `<div class="tile-person-affils">`;
         for (const affil of person.affiliations) {
 
             let affillogo_info = resolve_img(affil.logo, {
@@ -85,7 +89,21 @@ export function render_person(person)
                 builtin_prefix: 'builtinaffillogo',
             });
 
-            s += `<div class="tile-person-line tile-person-affil-line">${ affil.short }</div>`;
+            let affilHrefHtml = '';
+            if (affil.href) {
+                // link to the affiliation's web page; it is only revealed
+                // when hovering an affiliation (see tiles-persons.scss).  No
+                // whitespace before the tag, so that the link cannot end up
+                // alone on a line; its spacing is set in the stylesheet.
+                const affilhref_attribs = {
+                    class: 'person-affil-link',
+                    href: affil.href,
+                    target: '_blank',
+                };
+                affilHrefHtml = `<${htmlTagWithAttribs('a', affilhref_attribs)}>\u{1F517}</a>`;
+            }
+
+            s += `<div class="tile-person-line tile-person-affil-line">${ affil.short }${ affilHrefHtml }</div>`;
             if (affillogo_info != null) {
                 let tag = 'div';
                 let attribs = {
@@ -97,14 +115,15 @@ export function render_person(person)
                     style: (affillogo_info.url == null) ? null
                         : `--affillogo-image: url('${affillogo_info.url}');`,
                 };
-                if (affil.logohref) {
+                if (affil.href) {
                     tag = 'a';
-                    attribs.href = affil.logohref;
+                    attribs.href = affil.href;
                     attribs.target = '_blank';
                 }
                 s += `<${htmlTagWithAttribs(tag, attribs)}></${tag}>`;
             }
         }
+        s += `</div>`;
     }
 
     s += `</div></div>`;
