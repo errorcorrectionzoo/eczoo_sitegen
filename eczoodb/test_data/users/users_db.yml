@@ -17,6 +17,7 @@
       full: 'National Institute of Standards and Technology, (.... long form affiliation with address ...), U.S.A.'
     - short: 'Joint Center for Quantum Information and Computer Science (QuICS)'
       logo: "builtinaffillogo:quics"
+      logohref: 'https://quics.umd.edu/'
 
 - user_id: PhF
   name: 'Philippe Faist'
@@ -43,6 +44,9 @@
   gscholaruser: 6eJtRigAAAAJ
   pageurl: "https://quics.umd.edu/people/daniel-gottesman"
   avatarurl: "builtinavatar:DanielGottesman"
+  affiliations:
+    - short: 'Joint Center for Quantum Information and Computer Science (QuICS)'
+      #logo: "builtinaffillogo:quics"
 
 - user_id: AlexanderBarg
   zooteam: veterinarians
@@ -51,6 +55,9 @@
   pageurl: "https://user.eng.umd.edu/~abarg/"
   githubusername: AlexanderBarg
   avatarurl: "builtinavatar:AlexanderBarg"
+  affiliations:
+    - short: 'Joint Center for Quantum Information and Computer Science (QuICS)'
+      #logo: "builtinaffillogo:quics"
 
 - user_id: LeonidPryadko
   zooteam: veterinarians

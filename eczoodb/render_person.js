@@ -75,8 +75,8 @@ export function render_person(person)
     s += `&nbsp;`;
     s += `</div>`
 
-    // core members get their affil
-    if (person.zooteam === 'core' && person.affiliations) {
+    // core members & veterinarians get their affil
+    if ((person.zooteam === 'core' || person.zooteam === 'veterinarians') && person.affiliations) {
         //debug(`Affiliations: `, person.affiliations);
         for (const affil of person.affiliations) {
 
@@ -87,8 +87,15 @@ export function render_person(person)
 
             s += `<div class="tile-person-line tile-person-affil-line">${ affil.short }</div>`;
             if (affillogo_info != null) {
-                s += `<div class="tile-person-line tile-person-affillogo-line ${affillogo_info.cssclasses.join(' ')}"
-                           ${styleBgImageMaybe(affillogo_info)}></div>`;
+                let tag = 'div';
+                let attribs = {};
+                if (affil.logohref) {
+                    tag = 'a';
+                    attribs = {href: affil.logohref, target: '_blank'};
+                }
+                s += `<${htmlTagWithAttribs(tag, attribs)}
+                       class="tile-person-line tile-person-affillogo-line ${affillogo_info.cssclasses.join(' ')}"
+                       ${styleBgImageMaybe(affillogo_info)}></${tag}>`;
             }
         }
     }
@@ -96,4 +103,26 @@ export function render_person(person)
     s += `</div></div>`;
 
     return s;
+}
+
+
+function htmlTagWithAttribs(tag, attrs = {})
+{
+    const NAME_RE = /^[A-Za-z_:][A-Za-z0-9_.:-]*$/;
+    if (!NAME_RE.test(tag)) {
+        throw new Error(`invalid tag name: ${tag}`);
+    }
+    let out = tag;
+    for (const [name, value] of Object.entries(attrs)) {
+        if (value == null || value === false) continue;
+        if (!NAME_RE.test(name)) {
+            throw new Error(`invalid attribute name: ${name}`);
+        }
+        if (value === true) {
+            out += ` ${name}`;
+        } else {
+            out += ` ${name}="${String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`;
+        }
+    }
+    return out;
 }

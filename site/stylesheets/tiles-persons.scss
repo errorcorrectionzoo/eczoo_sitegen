@@ -72,19 +72,30 @@
         background-position: 0% 0%;
         background-size: auto 50px;
 
+        // shrink-wrap the box (and hence the clickable area if the logo is a
+        // link) to the logo's own width; builtin logos set their width below.
+        // Fall back to full width for logos whose aspect ratio we don't know.
+        display: inline-block;
+        vertical-align: bottom;
+        width: 100%;
+
         // builtin logos: see below
     }
 }
 
 .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
     background-image: url('processimg:~/site/static/icons/affil/quics-logo.png?as=webp&height=240');
+    // logo image is 2682x619 px, displayed at 50px height
+    width: calc(50px * 2682 / 619);
 }
 .dark .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
     background-image: url('processimg:~/site/static/icons/affil/quics-logo-white.png?as=webp&height=240');
 }
 
 
-.person-list-zooteam-core.tiles-collection .tile.tile-person {
+.person-list-zooteam-core.tiles-collection .tile.tile-person,
+.person-list-zooteam-veterinarians.tiles-collection .tile.tile-person
+{
     background-color: inherit;
     background-position-y: 8px;
     box-shadow: none;
