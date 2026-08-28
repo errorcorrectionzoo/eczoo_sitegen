@@ -67,29 +67,28 @@
     }
     .tile-person-affillogo-line {
         margin-top: 0.33rem;
-        height: 60px;
-        background-repeat: no-repeat;
-        background-position: 0% 0%;
-        background-size: auto 50px;
+        margin-bottom: 10px; // breathing space below the logo
 
-        // shrink-wrap the box (and hence the clickable area if the logo is a
-        // link) to the logo's own width; builtin logos set their width below.
-        // Fall back to full width for logos whose aspect ratio we don't know.
+        // The logo is the element's *replaced content* rather than a background
+        // image, so that the box --- and hence the clickable area, when the
+        // logo is a link --- is exactly as wide as the logo itself.  The image
+        // comes either from one of the builtin logo rules below, or from the
+        // --affillogo-image property set on the element itself when the logo is
+        // given as a custom URL in the data.
+        content: var(--affillogo-image, normal);
         display: inline-block;
         vertical-align: bottom;
-        width: 100%;
+        height: 50px; // the width follows from the image's aspect ratio
 
         // builtin logos: see below
     }
 }
 
 .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
-    background-image: url('processimg:~/site/static/icons/affil/quics-logo.png?as=webp&height=240');
-    // logo image is 2682x619 px, displayed at 50px height
-    width: calc(50px * 2682 / 619);
+    content: url('processimg:~/site/static/icons/affil/quics-logo.png?as=webp&height=240');
 }
 .dark .tile-person .tile-person-affillogo-line.person-affillogo-builtin-quics {
-    background-image: url('processimg:~/site/static/icons/affil/quics-logo-white.png?as=webp&height=240');
+    content: url('processimg:~/site/static/icons/affil/quics-logo-white.png?as=webp&height=240');
 }
 
 

@@ -88,14 +88,21 @@ export function render_person(person)
             s += `<div class="tile-person-line tile-person-affil-line">${ affil.short }</div>`;
             if (affillogo_info != null) {
                 let tag = 'div';
-                let attribs = {};
+                let attribs = {
+                    class: ['tile-person-line', 'tile-person-affillogo-line',
+                            ...affillogo_info.cssclasses].join(' '),
+                    // the logo image is set as replaced content (see
+                    // tiles-persons.scss), so that the box is exactly as wide
+                    // as the logo; builtin logos set it in the stylesheet.
+                    style: (affillogo_info.url == null) ? null
+                        : `--affillogo-image: url('${affillogo_info.url}');`,
+                };
                 if (affil.logohref) {
                     tag = 'a';
-                    attribs = {href: affil.logohref, target: '_blank'};
+                    attribs.href = affil.logohref;
+                    attribs.target = '_blank';
                 }
-                s += `<${htmlTagWithAttribs(tag, attribs)}
-                       class="tile-person-line tile-person-affillogo-line ${affillogo_info.cssclasses.join(' ')}"
-                       ${styleBgImageMaybe(affillogo_info)}></${tag}>`;
+                s += `<${htmlTagWithAttribs(tag, attribs)}></${tag}>`;
             }
         }
     }
