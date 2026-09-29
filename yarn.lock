@@ -2246,7 +2246,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git":
   version: 0.2.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=cf37c47bce450d7f9ef77710883742cfdaa2d2c7"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=177f9dbcf821d5cbdfbfcb4dfc509b4ebe09c196"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^11.7.3
     base32-encode: ^2.0.0
@@ -2264,8 +2264,9 @@ __metadata:
     url: ^0.11.4
   bin:
     zoodb-extend-citations-ttl: ./tools/extend_citations_ttl.mjs
+    zoodb-merge-citations-cache: ./tools/merge_citations_cache.mjs
     zoodb-migrate-citations-cache: ./tools/migrate_citations_cache.mjs
-  checksum: be84b8a94677f0b8c21dbcaf18ae6b37294583e6aaada2c588e68b3162bc20f4181dd3dce13ca72557b61a3ced3644eeea627e451ceb79c80f1b993c40876043
+  checksum: 9f542b06ab13d3cffb95c8960eefa97367da488cd1414b5e68abcddca560ba53cc9eab7af6b9d0d7c1503496ba4203ba912a18c8ca3ceef3f608a3d9cb1fe3b1
   languageName: node
   linkType: hard
 
