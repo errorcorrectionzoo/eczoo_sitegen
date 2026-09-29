@@ -69,11 +69,29 @@ const default_config = {
             default_user_agent: null,
             // cache_file: ......, // set with "full options" in fullopts.js
 
+            citation_manager_options: {
+                // expired entries that cannot be refreshed are still used for
+                // this many days (also caps the sources' max_defer_days)
+                ttl_policy: { grace_days: 45 },
+            },
+
             // register custom sources!
             sources: {
                 // default, preconfigured sources
-                'arxiv': true,
-                'doi': true,
+                'arxiv': {
+                    cache_duration_ms: 60 * 24*3600*1000, // 60 days
+                    refresh_batching: {
+                        min_batch: 300,
+                        max_defer_days: 30,
+                        top_up: { min_age_percent: 50, fill: 'chunk' },
+                    },
+                },
+                'doi': {
+                    refresh_batching: {
+                        min_batch: 50,
+                        max_defer_days: 20,
+                    },
+                },
                 'manual': true,
                 'preset': true,
                 // our custom sources:
