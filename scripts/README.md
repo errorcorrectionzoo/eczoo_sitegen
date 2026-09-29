@@ -12,6 +12,34 @@ Try also `--no-warnings` immediately after `yarn node` if you're annoyed by
 some warnings (`ExperimentalWarnings`) that `node` displays.
 
 
+## Citations cache util
+
+### Manipulate cache expiry dates
+
+The script picks the entries of `_zoodb_citations_cache/citations.jsonl`
+with a given citation prefix (optionally only those expiring within a given
+date range), and assigns them evenly spaced expiry dates, in random order,
+over a window starting at their earliest expiry.  This avoids having a large
+number of entries all refreshed by the same build.  Run it only when no build
+is running.
+
+Spread out the dates at which cache entries of a given type will expire:
+```
+eczoo_sitegen> yarn node scripts/cacheUtil/spreadCitationExpiry ...
+```
+
+Preview what would change for arXiv entries, spread over 30 days (the
+default):
+```
+eczoo_sitegen> yarn node scripts/cacheUtil/spreadCitationExpiry --prefix arxiv --dry-run
+```
+
+Spread the DOI entries that expire in January and February 2027 over 90 days:
+```
+eczoo_sitegen> yarn node scripts/cacheUtil/spreadCitationExpiry --prefix doi --expiring-from 2027-01-01 --expiring-before 2027-03-01 --window-days 90
+```
+
+
 ## List ancestors of a given code
 
 ### Simply listing ancestors and code hierarchy tree
