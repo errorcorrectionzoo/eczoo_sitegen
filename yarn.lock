@@ -2246,7 +2246,7 @@ __metadata:
 
 "@phfaist/zoodb@https://github.com/phfaist/zoodb.git":
   version: 0.2.1
-  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=177f9dbcf821d5cbdfbfcb4dfc509b4ebe09c196"
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=bb94f3e36f911d251ce3e153ec40661f0d69fc15"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^11.7.3
     base32-encode: ^2.0.0
