@@ -158,8 +158,6 @@ export default async function (eleventyConfig)
         'src/dat/bibreferences_bib.11ty.js',
         'src/dat/bibreferences_csl.11ty.js',
         'src/dat/randomcodedata.11ty.js',
-        // the glossary, ported in the next commit
-        'src/concepts.11ty.js',
     ]) {
         eleventyConfig.ignores.add(not_yet_ported);
     }
