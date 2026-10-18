@@ -3,12 +3,7 @@ import debugm from 'debug';
 const debug = debugm('eczoo_sitegen.src.c')
 
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-import {
-    docrefs_placeholder_ref_resolver
- } from '@errorcorrectionzoo/eczoodb/render_utils.js';
-
-//const { $$kw } = zooflm;
+import { format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import * as rendercodepage from '@errorcorrectionzoo/eczoodb/render_code.js';
@@ -126,9 +121,8 @@ function get_code_citation_year(code)
 
 const data = async () => {
     
-    let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
-    let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
-    let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
+    // the HTML snippet of a standalone field (a name)
+    const flmrender = (eczoodb, value) => value && eczoodb.zoo_flm_engine.snippet(value, 'html');
 
     return {
         pagination: {
@@ -142,7 +136,7 @@ const data = async () => {
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('code', data.code.code_id) + '.html',
-            title: (data) => zooflm.render_text_standalone(data.code.name),
+            title: (data) => data.eczoodb.zoo_flm_engine.snippet(data.code.name, 'text'),
             // ---
             // injection hack to get correct page date property!
             // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
@@ -157,7 +151,8 @@ const data = async () => {
                 //     popuptippy: true,
                 // },
                 header_navigation_links: generate_navigation_links({
-                    code: data.code, eczoodb: data.eczoodb, flmrender
+                    code: data.code, eczoodb: data.eczoodb,
+                    flmrender: (value) => flmrender(data.eczoodb, value),
                 }),
                 // provide wide page layouts for code pages because we want to display the
                 // code hierarchy, too
@@ -165,35 +160,33 @@ const data = async () => {
             }),
 
             page_description_text: (data) => {
-                const fragment = data.code.description?.get_first_paragraph();
-                const render_doc_fn = (render_context) => {
-                    if (fragment == null) {
-                        return '';
-                    }
-                    return fragment.render(render_context);
-                };
+                const description = data.code.description;
+                if (description == null) {
+                    return '';
+                }
+                const zoo_flm_engine = data.eczoodb.zoo_flm_engine;
+                let fragment = null;
                 try {
                     //
-                    // Allow unresolved references in the first paragraph.  It's
-                    // normal, it's a snippet!
+                    // The first paragraph as plain text.  A reference to a
+                    // label of the rest of the page (a figure, an equation)
+                    // resolves through the zoo's index.
                     //
-                    return zooflm.make_and_render_document({
-                        zoo_flm_environment: data.eczoodb.zoo_flm_environment,
-                        render_doc_fn,
-                        doc_metadata: {},
-                        fragment_renderer: text_fragment_renderer,
-                        render_endnotes: false,
-                        feature_render_options: {
-                            refs: {
-                                add_external_ref_resolvers: [
-                                    docrefs_placeholder_ref_resolver
-                                ],
-                            },
-                        },
-                    });
+                    fragment = zoo_flm_engine.truncate(description, {
+                        first_paragraph: true,
+                        chars: description.source.length + 1,
+                    }).fragment;
+                    const result = zoo_flm_engine.render_text([ fragment ]);
+                    for (const diagnostic of result.diagnostics) {
+                        const page_url =
+                            data.eczoodb.zoo_object_permalink('code', data.code.code_id);
+                        console.warn(`${page_url} (meta description): `
+                                     + `${format_diagnostic(diagnostic)}`);
+                    }
+                    return result.text;
                 } catch (err) {
                     throw new Error(
-                        `\n\nCannot render the first paragraph of the code ‘${data.code_id}’'s `
+                        `\n\nCannot render the first paragraph of the code ‘${data.code.code_id}’'s `
                         + `description on its own.  We use the first paragraph of a code's `
                         + `description in a few places, including as a snippet for web `
                         + `crawlers (e.g. for search results).  If you don't recognize `
@@ -201,11 +194,15 @@ const data = async () => {
                         + `that does exist), it might be a bug.  Please get in touch!\n\n`
                         + (''+err)
                     );
+                } finally {
+                    if (fragment != null) {
+                        zoo_flm_engine.release(fragment);
+                    }
                 }
             },
 
             meta_citation_info: (data) => {
-                const code_name = zooflm.render_text_standalone(data.code.name);
+                const code_name = data.eczoodb.zoo_flm_engine.snippet(data.code.name, 'text');
                 const cite_year = get_code_citation_year(data.code);
                 return [
                     ["citation_language", "en"],
@@ -234,28 +231,30 @@ const render = async (data) => {
     const code = data.code;
     const eczoodb = data.eczoodb;
 
-    let html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
-    let text_fragment_renderer = new zooflm.ZooTextFragmentRenderer();
-    let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
-    let flmrendertext = (value) => value && value.render_standalone(text_fragment_renderer);
-
-    const doc_metadata = {};
-    const zoo_flm_environment = eczoodb.zoo_flm_environment;
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
+    // the HTML and the text snippets of a standalone field (the name)
+    let flmrender = (value) => value && zoo_flm_engine.snippet(value, 'html');
+    let flmrendertext = (value) => value && zoo_flm_engine.snippet(value, 'text');
 
     debug(`Rendering code page for ‘${code.code_id}’ ...`);
 
     // RENDER THE BULK OF THE CODE PAGE
-    const code_page_html = rendercodepage.render_code_page(
+    const code_page_result = rendercodepage.render_code_page(
         code,
         {
-            zoo_flm_environment,
-            doc_metadata,
+            zoo_flm_engine,
             //extra_html_after_title,
             eczoodb,
             include_code_graph_link: `/code_graph#code_${code.code_id}`,
             notable_codes: data.notable_codes_hierarchy.notable_codes,
         }
     );
+    // An error in the page's content has thrown (the 'abort' policy); the
+    // warnings are returned.
+    for (const diagnostic of code_page_result.diagnostics) {
+        console.warn(`${data.page.url}: ${format_diagnostic(diagnostic)}`);
+    }
+    const code_page_html = code_page_result.html;
 
     // additional info for popups, etc.
 
@@ -279,7 +278,7 @@ const render = async (data) => {
     //           code_yml_filename: code._zoodb.source_file_path}))}`
     // );
     const code_bibtex = `@incollection{eczoo_${code.code_id},
-  title={${ code.name.flm_text }},
+  title={${ code.name.source }},
   booktitle={The Error Correction Zoo},
   year={${code_citation_year}},
   editor={Albert, Victor V. and Faist, Philippe},

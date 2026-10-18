@@ -26,7 +26,10 @@ const __dirname = import.meta.dirname;
 
 
 import { load_or_reload_eczoodb } from './sitelib/build_eczoo.js';
-import { prepareEczooBibReferences } from './sitelib/prepare_eczoo_bibreferences.js';
+// TEMPORARY (zoodb 0.3.0 port, part B1): the bibliography collection
+// (eczcollectbib) is ported in part B2; its module imports a table of the
+// former FLM layer that 0.3.0 no longer ships.
+//import { prepareEczooBibReferences } from './sitelib/prepare_eczoo_bibreferences.js';
 
 
 Error.stackTraceLimit = 999;
@@ -129,7 +132,9 @@ export default async function (eleventyConfig)
         // Here we put the code that is used in common between the "/references" page
         // and the "/dat/bibreferences*" pages (Bibtex/CSL-JSON)
         //
-        eczoodb.site_ecz_bibliorefs_collector = await prepareEczooBibReferences(eczoodb);
+        // TEMPORARY (zoodb 0.3.0 port, part B1): ported in part B2.
+        //eczoodb.site_ecz_bibliorefs_collector = await prepareEczooBibReferences(eczoodb);
+        eczoodb.site_ecz_bibliorefs_collector = null;
 
         return eczoodb;
     });
@@ -145,6 +150,19 @@ export default async function (eleventyConfig)
     // building the zoo is pretty consequential, even incrementally, so don't
     // react right away but wait for a couple seconds first
     eleventyConfig.setWatchThrottleWaitTime(5000); // in milliseconds
+
+    // TEMPORARY (zoodb 0.3.0 port, part B1): the pages that the part B2 of the
+    // port moves to the new FLM engine are not built until then.
+    for (const not_yet_ported of [
+        'src/references.11ty.js',
+        'src/dat/bibreferences_bib.11ty.js',
+        'src/dat/bibreferences_csl.11ty.js',
+        'src/dat/randomcodedata.11ty.js',
+        // the glossary, ported in the next commit
+        'src/concepts.11ty.js',
+    ]) {
+        eleventyConfig.ignores.add(not_yet_ported);
+    }
 
     eleventyConfig.addLayoutAlias('base_page', 'base_page.11ty.js');
 

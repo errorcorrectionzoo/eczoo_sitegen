@@ -35,9 +35,8 @@ const get_page_header_navigation_links_default = async (data) => {
 
     const { eczoodb } = data;
 
-    let zooflm = await import('@phfaist/zoodb/zooflm');
-    let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
-    let flmrender = (value) => value.render_standalone(html_fragment_renderer);
+    // the HTML snippet of a standalone field (a name)
+    let flmrender = (value) => eczoodb.zoo_flm_engine.snippet(value, 'html');
 
     let page_header_navigation_links = [];
     

@@ -3,12 +3,6 @@ const debug = debug_mod("eczoodbjs.render_code");
 
 import { getfield, get_field_schema } from '@phfaist/zoodb/util';
 
-import {
-    // $$kw, repr
-    make_render_shorthands,
-    //render_text_standalone,
-    make_and_render_document,
-} from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -107,7 +101,7 @@ function display_code_list_memberships({ eczoodb, code, R })
     );
     if (appears_in_codelists.length !== 0) {
         appears_in_codelists.sort(
-            (a,b) => a.title.flm_text.localeCompare(b.title.flm_text)
+            (a,b) => a.title.source.localeCompare(b.title.source)
         );
         //debug(`${code_id} appears in code lists: ${ appears_in_codelists.map(l => l.list_id).join(', ') }`);
         html += sqzhtml`
@@ -172,36 +166,39 @@ function display_code_list_memberships({ eczoodb, code, R })
 //
 
 
+/**
+ * Renders a code's page with the zoo's FLM engine (`zoo_flm_engine`, by
+ * default `eczoodb.zoo_flm_engine`).  Returns the result of the engine's
+ * `render_document()`, `{ html, diagnostics, ... }`; the caller prints the
+ * diagnostics (warnings; an error has thrown under the 'abort' policy).
+ * `render_document_options` are passed on to `render_document()` (e.g.,
+ * `context`).
+ */
 export function render_code_page(
     code, {
-        zoo_flm_environment, doc_metadata, extra_html_after_title,
+        zoo_flm_engine, extra_html_after_title,
         include_code_graph_link,
-        additional_setup_render_context, render_meta_changelog_options,
-        eczoodb, notable_codes
+        render_meta_changelog_options,
+        eczoodb, notable_codes,
+        render_document_options,
     }
 )
 {
     const code_id = code.code_id;
 
     debug(`render_code_page(): Rendering code page for ‘${code_id}’ ...`);
+
+    zoo_flm_engine ??= eczoodb.zoo_flm_engine;
     
     const code_schema = eczoodb.schemas.code;
     const get_field_schema_title = (fieldname) =>
         get_field_schema(code_schema, fieldname)._title ?? `Field: ‘${fieldname}’` ;
     
-    const render_doc_fn = (render_context) => {
+    const compose = (R) => {
 
-        // debug(`Rendering code information. render_context =`, render_context,
-        //       `; zoo_flm_environment =`, zoo_flm_environment);
-
-        if (additional_setup_render_context) {
-            additional_setup_render_context(render_context);
-        }
-
-        const R = make_render_shorthands({render_context});
         const {
             ne, rdr, //rdrblock,
-            ref
+            ref, endnotes,
         } = R;
 
         let html = '';
@@ -399,7 +396,7 @@ ${code_hierarchy_content}`;
 
         html += sqzhtml`
 <div class="sectioncontent code-bibliography">
-<RENDER_ENDNOTES/>
+${ endnotes() }
 `;
         const changelog = code._meta?.changelog;
         if (changelog != null) {
@@ -415,13 +412,9 @@ ${code_hierarchy_content}`;
         return html;
     };
 
-    return make_and_render_document({
-        zoo_flm_environment,
-        render_doc_fn,
-        doc_metadata,
-        render_endnotes: {
-            annotations: ['sectioncontent'],
-        }
+    return zoo_flm_engine.render_document({
+        compose,
+        ...(render_document_options ?? {}),
     });
 }
 

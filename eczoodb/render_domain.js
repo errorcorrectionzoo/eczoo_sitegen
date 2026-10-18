@@ -3,8 +3,6 @@
 
 //import { getfield } from '@phfaist/zoodb/util';
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-//const { $$kw, repr } = zooflm;
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
@@ -16,28 +14,32 @@ import {
 // ------
 
 
+/**
+ * Renders a domain's page with the zoo's FLM engine (`zoo_flm_engine`, by
+ * default `eczoodb.zoo_flm_engine`).  Returns the result of the engine's
+ * `render_document()`, `{ html, diagnostics, ... }`; the caller prints the
+ * diagnostics.  `render_document_options` are passed on to
+ * `render_document()` (e.g., `context`).
+ */
 export function render_domain(
     domain,
     {
         eczoodb,
-        zoo_flm_environment,
-        doc_metadata,
+        zoo_flm_engine,
         include_code_graph_excerpt,
-        additional_setup_render_context,
         render_meta_changelog_options,
+        render_document_options,
     }
 )
 {
     const stats = eczoodb.ecz_stats_processor?.stats;
 
-    const render_doc_fn = (render_context) => {
+    zoo_flm_engine ??= eczoodb.zoo_flm_engine;
 
-        if (additional_setup_render_context) {
-            additional_setup_render_context(render_context);
-        }
+    const compose = (R) => {
 
-        const R = zooflm.make_render_shorthands({render_context});
         const { ne, rdr, ref, refhref } = R;
+        const { endnotes } = R;
 
         let s = '';
 
@@ -94,7 +96,7 @@ ${ rdr(domain.description) }
 
         s += `
 
-<RENDER_ENDNOTES/>
+${ endnotes() }
 
 `;
 
@@ -106,12 +108,8 @@ ${ rdr(domain.description) }
         return s;
     };
 
-    return zooflm.make_and_render_document({
-        zoo_flm_environment,
-        render_doc_fn,
-        doc_metadata,
-        render_endnotes: {
-            annotations: ['sectioncontent'],
-        }
+    return zoo_flm_engine.render_document({
+        compose,
+        ...(render_document_options ?? {}),
     });
 }

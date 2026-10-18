@@ -9,10 +9,15 @@ import cytoscape from 'cytoscape';
 //import cyCoseBilkent from 'cytoscape-cose-bilkent';
 import cyFcose from 'cytoscape-fcose';
 
-import {
-    render_text_standalone, is_flm_fragment,
-    // $$kw,
-} from '@phfaist/zoodb/zooflm';
+// TEMPORARY (zoodb 0.3.0 port, part B1): the code graph is ported to the FLM
+// engine in part C.  Until then this module only stays importable (the site's
+// graph pages and code list pages import its graph options): the texts of
+// the graph labels are not available.
+import { is_fragment as is_flm_fragment } from '@phfaist/zoodb/zooflm/engine';
+function render_text_standalone(content_) {
+    throw new Error(`The code graph's labels are not yet ported to the FLM engine `
+                    + `of zoodb 0.3.0 (part C of the port)`);
+}
 
 import { cyBaseStyleJson, getCyStyleJson } from './style.js';
 

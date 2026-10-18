@@ -8,11 +8,6 @@ import { listGraphMakeDisplayOptions } from './listgraph.11ty.js';
 
 const data = async () => {
     
-    const zooflm = await import('@phfaist/zoodb/zooflm');
-
-    // let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
-    // let flmrender = (value) => value && value.render_standalone(html_fragment_renderer);
-
     return {
         pagination: {
             data: 'eczoodb.objects.codelist',
@@ -29,7 +24,7 @@ const data = async () => {
         eleventyComputed: {
             permalink: (data) =>
                 data.eczoodb.zoo_object_permalink('codelist', data.codelist.list_id) + '.html',
-            title: (data) => zooflm.render_text_standalone(data.codelist.title),
+            title: (data) => data.eczoodb.zoo_flm_engine.snippet(data.codelist.title, 'text'),
             // ---
             // injection hack to get correct page date property!
             // https://github.com/11ty/eleventy/issues/2199#issuecomment-1027362151
@@ -55,8 +50,8 @@ const render = async (data) => {
     const codelist = data.codelist;
 
     const { render_codelist_page } = await import('@errorcorrectionzoo/eczoodb/render_codelist.js');
+    const { format_diagnostic } = await import('@phfaist/zoodb/zooflm/engine');
 
-    const doc_metadata = {};
     const eczoodb = data.eczoodb;
 
     debug(`Rendering list ‘${codelist.list_id}’ ...`);
@@ -69,7 +64,6 @@ const render = async (data) => {
         codelist,
         {
             eczoodb,
-            doc_metadata,
             include_code_graph_excerpt: {
                 href: `/code_graph#J${encodeURIComponent(JSON.stringify(ecgDisplayOptions))}`,
                 graphic_url: `/list/lgraph_${codelist.list_id}.svg`,
@@ -83,7 +77,13 @@ const render = async (data) => {
     //     return run_and_dump_profile( run , './_profile_gen_list_good_qldpc' );
     // }
 
-    return run();
+    const result = run();
+    // An error in the page's content has thrown (the 'abort' policy); the
+    // warnings are returned.
+    for (const diagnostic of result.diagnostics) {
+        console.warn(`${data.page.url}: ${format_diagnostic(diagnostic)}`);
+    }
+    return result.html;
 
 };
 

@@ -1,10 +1,12 @@
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
+import { value_not_empty } from '@phfaist/zoodb/zooflm/engine';
 //import { get_home_page_stats } from '@errorcorrectionzoo/eczoodb/stats.js';
 
-import {
-    generate_random_code_data
-} from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
+// TEMPORARY (zoodb 0.3.0 port, part B1): the random code data is ported in
+// part B2.
+// import {
+//     generate_random_code_data
+// } from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
 
 
 const data = {
@@ -70,11 +72,10 @@ async function render(data)
 {
     const {eczoodb, home_page_data} = data;
 
-    const flm_html_renderer = new zooflm.ZooHtmlFragmentRenderer();
-
+    // the HTML snippet of a standalone field (a name, a title)
     const flmrender = (fragment) => {
-        if (zooflm.value_not_empty(fragment)) {
-            return fragment.render_standalone(flm_html_renderer);
+        if (value_not_empty(fragment)) {
+            return eczoodb.zoo_flm_engine.snippet(fragment, 'html');
         }
         return '';
     };
@@ -162,7 +163,7 @@ async function render(data)
     let codelist_entries = Object.entries(eczoodb.objects.codelist);
     const cmp = (a,b) => ( a === b ? 0 : (a < b ? -1 : +1) );
     codelist_entries.sort(
-        ([a_id_, a], [b_id_, b]) => cmp(a.title?.flm_text, b.title?.flm_text)
+        ([a_id_, a], [b_id_, b]) => cmp(a.title?.source, b.title?.source)
     );
 
     {
@@ -172,7 +173,7 @@ async function render(data)
             //debug('rendering codelist box; codelist =', codelist);
             s_items.push(
                 `<a href="${eczoodb.zoo_object_permalink('codelist', codelist_id)}" `
-                + `>${flmrender(codelist.title.whitespace_stripped())}</a>`
+                + `>${flmrender(codelist.title).trim()}</a>`
             );
         }
         s += join_list_items(s_items);
@@ -250,12 +251,13 @@ async function render(data)
     //
     // PAYLOAD: RANDOM CODE DATA
     //
-    const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
-    const randomCodeDataStr = JSON.stringify(random_code_data);
-    s += `
-<script type="text/javascript">
-window.eczoo_random_code_data = ${randomCodeDataStr.replace(/<\//g, '<\\/')};
-</script>`;
+    // TEMPORARY (zoodb 0.3.0 port, part B1): ported in part B2.
+    // const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
+    // const randomCodeDataStr = JSON.stringify(random_code_data);
+    // s += `
+    // <script type="text/javascript">
+    // window.eczoo_random_code_data = ${randomCodeDataStr.replace(/<\//g, '<\\/')};
+    // </script>`;
 
     //
     //

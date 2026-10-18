@@ -1,7 +1,6 @@
 // import debug_module from 'debug';
 // const debug = debug_module('eczoodbjs.render_utils');
 //
-import { RefInstance, $$kw } from '@phfaist/zoodb/zooflm';
 
 
 export function render_meta_changelog(changelog, R, { details_open }={})
@@ -37,23 +36,7 @@ export function render_stat_num_codes(value)
     return `<span class="stat-number">${value}</span> code${value > 1 ? 's' : ''}`;
 }
 
-
-export const docrefs_placeholder_ref_resolver = {
-    get_ref(ref_type, ref_label, resource_info_) {
-        if (ref_type === 'code'
-            || ref_type === 'domain' || ref_type === 'kingdom'
-            || ref_type === 'codelist' || ref_type === 'user' || ref_type === 'space'
-            || ref_type === 'topic' || ref_type === 'defterm') {
-            // we'll let the default resolver find it
-            return null;
-        }
-        // e.g. [figure]
-        return  new RefInstance( $$kw({
-            ref_type, ref_label,
-            formatted_ref_flm_text: `[${ref_type}]`,
-            target_href: null,
-            counter_value: null,
-            counter_formatter_id: null
-        }) );
-    }
-};
+// (The former `docrefs_placeholder_ref_resolver`, which showed a reference
+// to a figure or an equation of another page as `[figure]`, is gone: labels
+// are unique in the whole zoo, and such a reference resolves through the
+// zoo's index, linking to the page that defines the label.)
