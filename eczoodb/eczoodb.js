@@ -19,6 +19,108 @@ import { objects_config } from './objects_config.js';
 // -----------------------------------------------------------------------------
 
 
+//
+// The settings of the FLM engine's standard features where the EC zoo writes
+// differently from the engine's defaults (as the former FLM layer did).  A
+// browser app that renders the zoo's data dump creates its engine with the
+// same configuration (`flm_options.engine`).  Each map given here replaces
+// the feature's default map as a whole, so every entry is written out.
+//
+const eczoo_flm_engine_settings = {
+    // floats numbered with capital Roman numerals: "Figure I", "Table II"
+    floats: {
+        types: {
+            figure: {
+                label_types: ['figure'],
+                caption_name: 'Figure',
+                numbering: 'auto-numbered',
+                number_format: { initial: 'I' },
+                words: {
+                    base: { one: 'Fig.~', other: 'Figs.~' },
+                    variants: { capital: { one: 'Figure~', other: 'Figures~' } },
+                },
+                handlers: ['includegraphics'],
+                scoped_packages: ['flm.graphics.includegraphics'],
+            },
+            table: {
+                label_types: ['table'],
+                caption_name: 'Table',
+                numbering: 'auto-numbered',
+                number_format: { initial: 'I' },
+                words: {
+                    base: { one: 'Tab.~', other: 'Tabs.~' },
+                    variants: { capital: { one: 'Table~', other: 'Tables~' } },
+                },
+                handlers: ['cells', 'includegraphics'],
+                scoped_packages: ['flm.cells.environment', 'flm.graphics.includegraphics'],
+            },
+        },
+    },
+    // footnotes numbered with letters: a, b, c, ...
+    xnotes: {
+        kinds: {
+            footnote: {
+                latex_command: 'footnote',
+                commands: ['footnote'],
+                words: {
+                    base: { one: 'Footnote~', other: 'Footnotes~' },
+                    variants: { capital: { one: 'Footnote~', other: 'Footnotes~' } },
+                },
+                label_type: 'fn',
+                numbered: true,
+                number_format: { formats: '#{alph}' },
+                within: null,
+                mark: { formats: '#{alph}' },
+                placement: 'list',
+                layout: 'inline-or-blocks',
+                title: 'Footnotes',
+                title_level: 2,
+                backlink: '↩',
+            },
+        },
+    },
+    // \paragraph is a run-in heading
+    headings: {
+        headings: Object.fromEntries([
+            ['section', 1, null, '#{arabic}', false],
+            ['subsection', 2, { parents: { one: 'flm.headings.section' },
+                                joiner: { joined: '.' }, no_restart: false },
+             '#{arabic}', false],
+            ['subsubsection', 3, { parents: { one: 'flm.headings.subsection' },
+                                   joiner: { joined: '.' }, no_restart: false },
+             '#{arabic}', false],
+            ['paragraph', 4, { parents: { any: [ 'flm.headings.section',
+                                                 'flm.headings.subsection',
+                                                 'flm.headings.subsubsection' ] },
+                               joiner: 'bare', no_restart: false },
+             '#{alph}', true],
+            ['subparagraph', 5, { parents: { one: 'flm.headings.paragraph' },
+                                  joiner: { joined: '.' }, no_restart: false },
+             '#{alph}', false],
+        ].map( ([kind, level, within, number_format, run_in]) => [kind, {
+            docs: '',
+            level,
+            counter: `flm.headings.${kind}`,
+            style: `flm.headings.style.${kind}`,
+            within,
+            number_format: { formats: number_format },
+            title_number_format: '#{number}. ',
+            skip_toc: false,
+            run_in,
+            ref_kind: 'section',
+            label_types: ['sec', 'topic'],
+            anchor_prefix: 'sec',
+        }] )),
+    },
+    // in a field, \section is <h2> (the field's own heading's level),
+    // \subsection <h3> and \subsubsection <h4>; the headings above the lists
+    // of footnotes and of references stay <h2>
+    html: {
+        heading_tags: { section: 'h2', subsection: 'h3', subsubsection: 'h4' },
+    },
+};
+
+
 const default_config = {
 
     continue_with_errors: false,
@@ -27,32 +129,27 @@ const default_config = {
 
     use_gitlastmodified_processor: null,
 
-    use_flm_environment: null,
-    flm_allow_unresolved_references: false,
-    flm_allow_unresolved_citations: false,
+    use_flm_engine: null,
 
     use_flm_processor: null,
 
     flm_options: {
 
-        environment_options: null,
+        allow_unresolved_references: false,
+        allow_unresolved_citations: false,
+
+        engine: {
+            settings: eczoo_flm_engine_settings,
+        },
 
         refs:  {
             code: {
-                // Keep 'code.name.flm_text' until we fix the issue in
-                // zoodb/src/zooflm/_environment.js dealing with JSON
-                // serialization of RefInstance's with FLMFragment instances.
-                // Otherwise it's better to keep the fragment instance here
-                // ('code.name') so that it doesn't have to be recompiled.
-                formatted_ref_flm_text_fn: (codeid, code) => code.name.flm_text,
+                // the standalone fragment of the code's name
+                formatted_ref_flm_text_fn: (codeid, code) => code.name,
             },
             codelist: {
-                // Keep 'code.name.flm_text' until we fix the issue in
-                // zoodb/src/zooflm/_environment.js dealing with JSON
-                // serialization of RefInstance's with FLMFragment instances.
-                // Otherwise it's better to keep the fragment instance here
-                // ('code.name') so that it doesn't have to be recompiled.
-                formatted_ref_flm_text_fn: (codelistid, codelist) => codelist.title.flm_text,
+                // the standalone fragment of the code list's title
+                formatted_ref_flm_text_fn: (codelistid, codelist) => codelist.title,
             },
             user: {
                 formatted_ref_flm_text_fn: (userid, user) => user.name,
@@ -157,20 +254,24 @@ const _EcZooDbComputedData = {
                 let name = code.name;
                 let short_name = null;
                 if (eczoodb.config.use_flm_processor) {
-                    name = name.flm_text;
+                    name = name.source;
                 }
                 if (name.endsWith(" code")) {
                     short_name = name.slice(0, -(" code".length));
                 }
                 if (short_name !== null) {
                     if (eczoodb.config.use_flm_processor) {
-                        return eczoodb.zoo_flm_environment.make_fragment(
+                        // The name's source without its end: the origin is
+                        // the name's (with its position in the file), for a
+                        // computed field `short_name`.
+                        const { label: name_label_, ...name_origin } = code.name.origin;
+                        return eczoodb.zoo_flm_engine.make_fragment(
                             short_name,
-                            eczoodb.$$kw({
-                                what: `${code.name.what} (short)`,
-                                resource_info: code._zoodb.resource_info,
-                                standalone_mode: true,
-                            })
+                            {
+                                origin: { ...name_origin, field: 'short_name' },
+                                layout: 'inline',
+                                standalone: true,
+                            }
                         );
                     } else {
                         return short_name;
@@ -527,7 +628,7 @@ export class EcZooDb extends ZooDb
                     [ primary_parent_root_code_id ]
                 ).map( (cId) => {
                     let c = this.objects.code[cId];
-                    return `‘${c.name.flm_text ?? c.name}’ (${c.code_id})`;
+                    return `‘${c.name.source ?? c.name}’ (${c.code_id})`;
                 } );
                 throw new Error(
                     `Detected cycle in primary-parent relationships: `
@@ -914,7 +1015,7 @@ export class EcZooDb extends ZooDb
                 + cycles.map(
                     (cyc) => `    ` + cyc.map( (cid) => {
                         const c = this.objects.code[cid];
-                        return `‘${c.name.flm_text ?? c.name}’ (${cid})`;
+                        return `‘${c.name.source ?? c.name}’ (${cid})`;
                     } ).join(' → ')
                 ).join('\n')
             );

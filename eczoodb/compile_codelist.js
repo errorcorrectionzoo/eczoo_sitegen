@@ -3,8 +3,7 @@ const debug = debug_mod("eczoodbjs.compile_codelist");
 
 import { getfield, get_field_schema } from '@phfaist/zoodb/util';
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-//const { $$kw, repr } = zooflm;
+import { is_fragment } from '@phfaist/zoodb/zooflm/engine';
 
 import { ComputedDataProcessor } from '@phfaist/zoodb/dbprocessor/computeddata';
 
@@ -204,11 +203,15 @@ export function get_list_data({codelist, eczoodb})
     const sort_case_sensitive = codelist.sort?.case_sensitive ?? false;
     const sort_parents_before_children = codelist.sort?.parents_before_children ?? false;
 
-    const text_fragment_renderer = new zooflm.ZooTextFragmentRenderer;
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
     const normalize_sort_value = (value) => {
-        if (typeof value === 'object' && 'render_standalone' in value) { // e.g., flmfragment
-            return value.render_standalone(text_fragment_renderer)
+        if (is_fragment(value)) {
+            // the text of a standalone field (e.g. the name) from the
+            // engine's snippets; another field rendered alone as text
+            return value.standalone
+                ? zoo_flm_engine.snippet(value, 'text')
+                : zoo_flm_engine.render_text([ value ]).text;
         }
         let nvalue = ''+value;
         if (!sort_case_sensitive) {

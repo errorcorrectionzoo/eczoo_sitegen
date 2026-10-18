@@ -2,10 +2,14 @@ import csl_style_json_data from './eczoo-bib-style.js';
 
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_gitlastmodified_processor } from '@phfaist/zoodb/std/use_gitlastmodified_processor';
-import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
-import * as zooflm from '@phfaist/zoodb/zooflm';
+import { use_flm_engine } from '@phfaist/zoodb/std/use_flm_engine';
 import { use_flm_processor } from '@phfaist/zoodb/std/use_flm_processor';
 import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
+
+// Loads the WebAssembly module of the FLM engine under Node.  (In a browser,
+// the module is fetched instead, so this option is set here, with the other
+// options that are not browser-compatible, and not in eczoodb.js.)
+import { load_zoodb_flm_wasm_node } from '@phfaist/zoodb/zooflm/wasm-node';
 
 import { EczStatsDbProcessor } from './stats.js';
 import { EczPopulateCodeListsDbProcessor } from './compile_codelist.js';
@@ -41,7 +45,7 @@ export function get_eczoo_full_options({
     return {
         use_relations_populator,
         use_gitlastmodified_processor,
-        use_flm_environment,
+        use_flm_engine,
         use_flm_processor,
         use_searchable_text_processor,
 
@@ -57,15 +61,13 @@ export function get_eczoo_full_options({
         },
 
         flm_options: {
+            load_wasm: load_zoodb_flm_wasm_node,
             citations: {
                 csl_style: csl_style_data,
                 cache_dir: citationsinfo_cache_dir,
             },
-            environment_options: {
-                custom_features: [
-                    new zooflm.flm_feature_quote.FeatureQuote()
-                ],
-            }
+            // (The quote environments are a standard feature of the FLM
+            // engine, `quote`, enabled by default.)
         },
 
         custom_zoodb_properties: {
