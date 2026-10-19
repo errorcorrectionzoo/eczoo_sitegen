@@ -17,9 +17,6 @@ import { hideBin } from 'yargs/helpers';
 
 import _ from 'lodash';
 
-import * as flm_flmrecomposer_purelatex from '@phfaist/zoodb/flm-js/flm.flmrecomposer.purelatex';
-import * as flm_fragmentrenderer_latex from '@phfaist/zoodb/flm-js/flm.fragmentrenderer.latex';
-
 import { EczBibReferencesCollector } from '@errorcorrectionzoo/eczoohelpers_eczcollectbib/collectbib.js';
 
 import { helperSetDefaultLogs } from '../_helpers/helperLogs.js';
@@ -255,23 +252,13 @@ async function collectBibRefs(argv)
 
         let options = {};
         if (keepManual) {
-            const zoo_flm_environment = eczoodb.zoo_flm_environment;
-            let fake_document = zoo_flm_environment.make_document(
-                (render_context_) => { throw Error("Callback is not meant to be called."); }
-            );
-            let fragment_renderer = flm_fragmentrenderer_latex.LatexFragmentRenderer();
-            let render_context = fake_document.make_render_context(fragment_renderer)
-            const flmLatexRecomposer = flm_flmrecomposer_purelatex.FLMPureLatexRecomposer({
-                render_context,
-            });
-
+            // the ready-formatted citations are written as LaTeX by the FLM
+            // engine's recomposed-LaTeX output (in generateBibtex())
             options = Object.assign(options, {
                 keepReadyCitations: true,
-                flmLatexRecomposer,
-                zoo_flm_environment
             });
         }
-        const bibtexEntries = bibcollector.generateBibtexEntries({
+        const bibtexEntries = await bibcollector.generateBibtexEntries({
             ...options,
         });
 

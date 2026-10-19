@@ -4,11 +4,8 @@ const debug = debug_module('eczoohelpers_eczcollectbib.generatebibtex');
 import fs from 'fs';
 import path from 'path';
 
-import {
-    $$kw,
-    ZooFLMResourceInfo,
-} from '@phfaist/zoodb/zooflm';
-import { get_builtin_uni2latex_dict } from '@phfaist/zoodb/flm-js/pylatexenc.latexencode.get_builtin_rules';
+import { ZooFlmEngine, format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
+import { load_zoodb_flm_wasm_node } from '@phfaist/zoodb/zooflm/wasm-node';
 
 import CSL from 'citeproc';
 
@@ -18,7 +15,109 @@ function escape_url(url)
 }
 
 
-const unicodeLatexReplacements = get_builtin_uni2latex_dict();
+//
+// The LaTeX spellings of the characters that BibTeX text cannot hold as they
+// are.  The characters that LaTeX reads as syntax are spelled here, as LaTeX's
+// own escapes; every other character (outside printable ASCII) is spelled by
+// the recomposed-LaTeX output of the FLM engine with its option
+// `latex-recomposed.unicode: 'replace'`, which writes each character's LaTeX
+// spelling from flm-rs's Unicode-to-LaTeX table (see LatexSpeller below).
+//
+const latexSyntaxCharSpellings = {
+    '\\': '\\textbackslash',
+    '%': '\\%',
+    '#': '\\#',
+    '$': '\\$',
+    '_': '\\_',
+    '^': '\\textasciicircum',
+};
+
+
+//
+// Spells characters in LaTeX through an FLM engine of its own (the zoo's
+// engine writes characters as they are, with the default `unicode:
+// 'declare'`), one recomposed-LaTeX run per character, cached.  A character
+// that the engine cannot spell (`flm.latex-recomposed.unknown-character`) is
+// `null`.  Created by generateBibtex() for the length of one call, and freed
+// at its end.
+//
+class LatexSpeller
+{
+    static async create()
+    {
+        const engine = await ZooFlmEngine.create({
+            load_wasm: load_zoodb_flm_wasm_node,
+            core: { settings: { 'latex-recomposed': { unicode: 'replace' } } },
+            error_policy: 'continue',
+        });
+        return new LatexSpeller(engine);
+    }
+
+    constructor(engine)
+    {
+        this.engine = engine;
+        this.spellings = new Map();
+    }
+
+    spell(c)
+    {
+        if (this.spellings.has(c)) {
+            return this.spellings.get(c);
+        }
+        const engine = this.engine;
+        const fragment = engine.make_fragment(c, {
+            origin: { label: `bibtex character U+${c.codePointAt(0).toString(16).toUpperCase()}` },
+            layout: 'inline',
+            error_policy: 'continue',
+        });
+        let latex = null;
+        try {
+            const result = engine.render_latex([ fragment ], { error_policy: 'continue' });
+            const diagnostics = [ ...fragment.diagnostics, ...result.diagnostics ];
+            if (diagnostics.length) {
+                debug(`No LaTeX spelling for ‘${c}’: `
+                      + diagnostics.map( (d) => format_diagnostic(d) ).join('; '));
+            } else {
+                latex = result.trees[0];
+            }
+        } finally {
+            engine.release(fragment);
+        }
+        this.spellings.set(c, latex);
+        return latex;
+    }
+
+    free()
+    {
+        this.engine.free();
+        this.engine = null;
+    }
+}
+
+// The speller of the generateBibtex() call in progress (citeproc calls the
+// output format's text_escape synchronously, inside that call).
+let currentLatexSpeller = null;
+
+// Runs fn(latexSpeller), which is synchronous, with a speller of its own
+// installed for the BibTeX text escapes; the speller's engine is freed at the
+// end.
+async function withLatexSpeller(fn)
+{
+    const latexSpeller = await LatexSpeller.create();
+    try {
+        if (currentLatexSpeller != null) {
+            throw new Error(`BibTeX text is already being escaped (generateBibtex() is running)`);
+        }
+        currentLatexSpeller = latexSpeller;
+        try {
+            return fn(latexSpeller);
+        } finally {
+            currentLatexSpeller = null;
+        }
+    } finally {
+        latexSpeller.free();
+    }
+}
 
 // const noBibLatexEscapeKeys = [
 //     // The ID of the entry & its internal hash
@@ -60,7 +159,13 @@ const allowedMathMacros = [
 
 function replaceSpecialChar(c)
 {
-    const replacementCode = unicodeLatexReplacements[c.codePointAt(0)];
+    let replacementCode = latexSyntaxCharSpellings[c];
+    if (replacementCode == null) {
+        if (currentLatexSpeller == null) {
+            throw new Error(`No LaTeX speller for ‘${c}’: BibTeX text is escaped inside generateBibtex()`);
+        }
+        replacementCode = currentLatexSpeller.spell(c);
+    }
     if (replacementCode != null) {
         //debug(`...replacement code for ${specialchar} is ${replacementCode}`);
         // replace by known LaTeX equivalent string.  Make sure we include any trailing
@@ -204,6 +309,7 @@ function bibtexTextEscape(text)
 export const _testing = {
     bibtexTextEscape,
     cheapTextLatexEscape,
+    withLatexSpeller,
 };
 
 
@@ -322,23 +428,30 @@ const bibtex_csl_fname = path.join(import.meta.dirname, 'bibtex--patched.csl');
  * contains the key 'csl_json').
  * 
  * If `keepReadyCitations` is set to `true`, then ready-citations are kept as
- * a preformatted citation.  You need to specify a FLM purelatex recomposer
- * object instance in `flmLatexRecomposer` and the zoo FLM environment as
- * `zoo_flm_environment`.
+ * a preformatted citation, their FLM text written as LaTeX by the FLM
+ * engine's recomposed-LaTeX output (the hooks `\flmHref`, `\flmUrl`, ...).
  * 
  * You can specify your custom way of preparing the bibtex entry for
  * preformatted citations, to hack with your preferred bibtex style.
  * Specify a callable that takes an object with keys `key` and `latex`,
  * and returns the bibtex string.  The default is
  * ``({key, latex}) => `@misc{${key}, note={{${latex}}} }` ``.
+ *
+ * Asynchronous: the LaTeX spellings of the characters come from an FLM
+ * engine that this function creates, and frees before it returns.
  */
-export function generateBibtex(bib_db, {
+export async function generateBibtex(bib_db, options={})
+{
+    return await withLatexSpeller(
+        (latexSpeller) => _generateBibtex(bib_db, options, latexSpeller)
+    );
+}
+
+function _generateBibtex(bib_db, {
     computeEntryBibtexKey,
     keepReadyCitations,
-    flmLatexRecomposer,
     composePreformattedBibtexEntry,
-    zoo_flm_environment
-}={})
+}, latexSpeller)
 {
     const csl_style = fs.readFileSync(bibtex_csl_fname, {
         encoding: 'utf-8'
@@ -426,33 +539,34 @@ export function generateBibtex(bib_db, {
     if (keepReadyCitations) {
         composePreformattedBibtexEntry ??= ({key, latex}) => `@misc{${key}, note={{${latex}}} }`;
 
-        const recomposer = flmLatexRecomposer;
-        const flm_to_latex = (flm_fragment) => {
-            if (flm_fragment == null) {
-                console.error(`Warning: Undefined/null fragment in flm_to_latex()!`);
+        // The FLM text of a ready-formatted citation, written as LaTeX by the
+        // recomposed-LaTeX output of the speller's engine (characters spelled
+        // in LaTeX, the links through the hooks \flmHref, \flmUrl).
+        const engine = latexSpeller.engine;
+        const flm_to_latex = (flm_text, key) => {
+            if (flm_text == null) {
+                console.error(`Warning: Undefined/null FLM text in flm_to_latex()!`);
                 return '\\ECZUNDEFINEDNULL ';
             }
-            if (typeof flm_fragment === 'string') {
-                // we actually need to compile the FLM fragment to translate it to pure latex
-                flm_fragment = zoo_flm_environment.make_fragment(
-                    flm_fragment,
-                    $$kw({
-                        what: `fragment for flm_to_text(...)`,
-                        resource_info: new ZooFLMResourceInfo(null, null, null),
-                    })
-                );
+            const fragment = engine.make_fragment(flm_text, {
+                origin: { label: `ready-formatted citation ${key}` },
+                layout: 'inline',
+            });
+            try {
+                const result = engine.render_latex([ fragment ]);
+                for (const diagnostic of [ ...fragment.diagnostics, ...result.diagnostics ]) {
+                    console.warn(`Ready-formatted citation ${key}: ${format_diagnostic(diagnostic)}`);
+                }
+                return result.trees[0];
+            } finally {
+                engine.release(fragment);
             }
-            if (flm_fragment.__class__.__name__ === 'LatexNodeList') {
-                // we were already given the nodes directly 
-                return recomposer.subrecompose(flm_fragment);
-            }
-            return recomposer.subrecompose(flm_fragment.nodes);
         }
 
         for (const csljsonObject of Object.values(readyCitationObjects)) {
             const key = csljsonObject.key;
-            const flm = csljsonObject._ready_formatted.flm; // can be either fragment object or flm-text
-            let latex = flm_to_latex(flm);
+            const flm = csljsonObject._ready_formatted.flm; // the FLM text
+            let latex = flm_to_latex(flm, key);
             latex = latex.replace('\n', ' '); // avoid line breaks in bibtex...
             const bibtex = composePreformattedBibtexEntry({ key, latex });
             bibtex_ready_citations.push(bibtex);

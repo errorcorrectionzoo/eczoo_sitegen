@@ -22,61 +22,82 @@ const data = {
 
 const render = async (data) => {
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
-    const {
-        make_render_shorthands, make_and_render_document
-    } = await import('@phfaist/zoodb/zooflm');
+    const { format_diagnostic } = await import('@phfaist/zoodb/zooflm/engine');
 
     debug(`references.11ty.js -- render()`);
 
     const { eczoodb } = data;
 
-    const zoo_flm_environment = eczoodb.zoo_flm_environment;
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
     const ecz_bibliorefs_collector = eczoodb.site_ecz_bibliorefs_collector;
 
-    const render_doc_fn = (render_context) => {
+    // The citation texts (FLM text from the citation compiler) as ad hoc
+    // fragments of this page, released when the page is done.
+    let fragments = [];
+    try {
+        const entries = ecz_bibliorefs_collector.bib_db_sorted.map( (bibentry) => {
+            const { compiled_flm, cite_prefix_key } = bibentry;
+            let fragment = null;
+            if (compiled_flm != null) {
+                fragment = zoo_flm_engine.make_fragment(compiled_flm, {
+                    origin: { label: `references: ${cite_prefix_key}` },
+                    layout: 'inline',
+                });
+                fragments.push(fragment);
+            }
+            return { bibentry, fragment };
+        });
 
-        const R = make_render_shorthands({render_context});
-        const { ne, rdr, ref } = R;
+        const compose = (R) => {
+            const { rdr, ref } = R;
 
-        let s = '';
+            let s = '';
 
-        s += sqzhtml`
+            s += sqzhtml`
 <h1>References</h1>
 
 <p><i>Download all: <a href="/dat/bibreferences.bib" download>BibTeX</a>, <a href="/dat/bibreferences_csl.json" download>CSL-JSON</a></i></p>
 
 <ul class="bibliography-list">`;
-        for (let { compiled_flm, encountered_in_object_list, sort_key } of ecz_bibliorefs_collector.bib_db_sorted) {
-            const encountered_in_object_list_sorted_strings =
-                [... Object.keys(encountered_in_object_list)].sort();
-            let backrefs = encountered_in_object_list_sorted_strings.map( (obj_type_id) => {
-                const { object_type, object_id } = encountered_in_object_list[obj_type_id];
-                return ref(object_type, object_id);
-            });
-            s += sqzhtml`
+            for (const { bibentry, fragment } of entries) {
+                const { encountered_in_object_list, sort_key } = bibentry;
+                const encountered_in_object_list_sorted_strings =
+                    [... Object.keys(encountered_in_object_list)].sort();
+                let backrefs = [];
+                for (const obj_type_id of encountered_in_object_list_sorted_strings) {
+                    const { object_type, object_id } = encountered_in_object_list[obj_type_id];
+                    // (an object without a page, such as a space, is not linked to)
+                    if (eczoodb.zoo_object_permalink(object_type, object_id) == null) {
+                        continue;
+                    }
+                    backrefs.push(ref(object_type, object_id));
+                }
+                s += sqzhtml`
 <li data-sort-key="${_.escape(sort_key)}">
-    <span class="bibliography-ref">${rdr(compiled_flm)}</span>.<span> </span>
+    <span class="bibliography-ref">${rdr(fragment)}</span>.<span> </span>
     <span class="bibliography-backref">Appears in: ${backrefs.join(', ')}</span>
 </li>
 `;
-        }
+            }
 
-        s += sqzhtml`
+            s += sqzhtml`
 </ul>`;
 
-        return s;
-    };
+            return s;
+        };
 
-    
-    return make_and_render_document({
-        zoo_flm_environment,
-        render_doc_fn,
-        //doc_metadata,
-        render_endnotes: {
-            // annotations: ['sectioncontent'],
+        const result = zoo_flm_engine.render_document({ compose });
+        // An error in the content has thrown (the 'abort' policy); the
+        // warnings are returned.
+        for (const diagnostic of result.diagnostics) {
+            console.warn(`${data.page.url}: ${format_diagnostic(diagnostic)}`);
         }
-    });
+        return result.html;
+
+    } finally {
+        zoo_flm_engine.release(fragments);
+    }
 };
 
 
