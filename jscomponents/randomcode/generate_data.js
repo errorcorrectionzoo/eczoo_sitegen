@@ -25,7 +25,28 @@ const preview_render_options = {
 };
 
 
+//
+// The data, computed once per processing of the zoo (the home page and
+// dat/randomcodedata.json both ask for it): keyed by the FLM processor's scan
+// results, which every processing of the zoo replaces (a reload in dev mode
+// included).
+//
+const random_code_data_memo = new WeakMap();
+
+
 export function generate_random_code_data({eczoodb})
+{
+    const scan_results = eczoodb.zoo_flm_processor.scan_results;
+    let data = random_code_data_memo.get(scan_results);
+    if (data == null) {
+        data = compute_random_code_data({ eczoodb });
+        random_code_data_memo.set(scan_results, data);
+    }
+    return data;
+}
+
+
+function compute_random_code_data({eczoodb})
 {
     const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
