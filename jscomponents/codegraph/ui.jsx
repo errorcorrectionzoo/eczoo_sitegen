@@ -763,7 +763,6 @@ export function EczCodeGraphComponent(props)
                     currentCodeSelected={currentCodeSelected}
                     currentDomainSelected={currentDomainSelected}
                     currentKingdomSelected={currentKingdomSelected}
-                    captureLinksToObjectTypes={['code', 'domain', 'kingdom']}
                     onLinkToObjectActivated={onLinkToObjectActivated}
                 />
             </div>

@@ -9,15 +9,7 @@ import cytoscape from 'cytoscape';
 //import cyCoseBilkent from 'cytoscape-cose-bilkent';
 import cyFcose from 'cytoscape-fcose';
 
-// TEMPORARY (zoodb 0.3.0 port, part B1): the code graph is ported to the FLM
-// engine in part C.  Until then this module only stays importable (the site's
-// graph pages and code list pages import its graph options): the texts of
-// the graph labels are not available.
 import { is_fragment as is_flm_fragment } from '@phfaist/zoodb/zooflm/engine';
-function render_text_standalone(content_) {
-    throw new Error(`The code graph's labels are not yet ported to the FLM engine `
-                    + `of zoodb 0.3.0 (part C of the port)`);
-}
 
 import { cyBaseStyleJson, getCyStyleJson } from './style.js';
 
@@ -36,16 +28,19 @@ cytoscape.use( cyFcose );
 
 // -----
 
-function contentToText(content)
+// The text of a name: a fragment's text snippet, from the FLM engine of the
+// graph's zoo (the names are standalone fields, whose snippets the zoo's
+// data dump holds, see setup_eczoodb.js); FLM text is returned as it is.
+function contentToText(content, flmEngine)
 {
     if (is_flm_fragment(content)) {
-        return render_text_standalone(content);
+        return flmEngine.snippet(content, 'text');
     }
     return content;
 }
-function contentToNodeLabel(content)
+function contentToNodeLabel(content, flmEngine)
 {
-    let label = contentToText(content);
+    let label = contentToText(content, flmEngine);
 
     label = label.trim();
     
@@ -878,6 +873,8 @@ export class EczCodeGraph
     {
         debug("EczCodeGraph: initGraph() ...");
 
+        const flmEngine = this.eczoodb.zoo_flm_engine;
+
         let nodes = [];
         let edges = [];
 
@@ -891,8 +888,8 @@ export class EczCodeGraph
 
             const thisDomainNodeId = this.getNodeIdDomain(domainId);
 
-            const thisDomainName = contentToText(domain.name);
-            const thisDomainLabel = contentToNodeLabel(thisDomainName);
+            const thisDomainName = contentToText(domain.name, flmEngine);
+            const thisDomainLabel = contentToNodeLabel(thisDomainName, flmEngine);
 
             nodes.push({
                 data: {
@@ -914,8 +911,8 @@ export class EczCodeGraph
                 const kingdomId = kingdomRelation.kingdom_id;
                 const kingdom = kingdomRelation.kingdom;
 
-                const kingdomName = contentToText(kingdom.name);
-                const label = contentToNodeLabel(kingdomName);
+                const kingdomName = contentToText(kingdom.name, flmEngine);
+                const label = contentToNodeLabel(kingdomName, flmEngine);
 
                 // create node & add it to our list of nodes
 
@@ -953,11 +950,12 @@ export class EczCodeGraph
 
             //debug(`adding code =`, code);
 
-            const codeName = contentToText(code.name);
-            const codeShortName = contentToText(this.eczoodb.code_short_name(code));
+            const codeName = contentToText(code.name, flmEngine);
+            const codeShortName = contentToText(this.eczoodb.code_short_name(code), flmEngine);
 
             const label = contentToNodeLabel(
-                this.graphGlobalOptions.useCodeShortNamesForLabels ? codeShortName : codeName
+                this.graphGlobalOptions.useCodeShortNamesForLabels ? codeShortName : codeName,
+                flmEngine
             );
 
             const thisCodeNodeId = this.getNodeIdCode(codeId);

@@ -3,69 +3,136 @@ const debug = debug_module('eczoo_site.jscomponents.codegraph.setup_eczoodb');
 
 
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
-import { use_flm_environment } from '@phfaist/zoodb/std/use_flm_environment';
+import { use_flm_engine } from '@phfaist/zoodb/std/use_flm_engine';
+import { FLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
 
 import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
 
+//
+// The code graph runs in the browser (the /code_graph page, and the headless
+// SVG exporter in Puppeteer) on the zoo's data dump (`dat/eczoodata.json`),
+// without the FLM processor: the zoo's objects come from the dump's `db`, and
+// the FLM engine renders their fields with the data the FLM processor
+// computed at build time, from the dump's `zooflm` (the index of
+// cross-references, the citations, the images and the snippets of the names
+// and titles).  The fields are compiled when they are shown, by the field
+// compiler (`eczoodb.codegraph_flm_compiler`), except the names of the codes,
+// domains and kingdoms, which the graph's labels need and which are compiled
+// in place when the zoo is loaded (their text snippets come from the dump, so
+// nothing is rendered for them).
+//
 
-export async function load_eczoodb_from_data(eczoodbData)
+
+//
+// The output context of the FLM engine's index in which the information pane
+// renders: the dump's `default` index with the links to codes, domains and
+// kingdoms made `#jsCallbackRef:TYPE/ID` addresses, which the pane turns into
+// callbacks that select the object in the graph.  (An address of the form
+// `jsCallbackRef:TYPE/ID`, as the pane used before zoodb 0.3, has a scheme
+// that the FLM engine's HTML output refuses in a reference written in content,
+// such as `\ref{code:ID}`: it writes the link without its address and reports
+// the Error `flm.html.refused-address`.  A fragment address has no scheme.)
+//
+export const codegraph_flm_context = 'codegraph';
+
+export const codegraph_captured_object_types = [ 'code', 'domain', 'kingdom' ];
+
+function codegraph_index_entries(default_index_entries)
 {
-    let eczoodbRefsData = eczoodbData.refs_data;
+    return default_index_entries.map( (entry) => {
+        const sep = entry.label.indexOf(':');
+        const object_type = entry.label.slice(0, sep);
+        const object_id = entry.label.slice(sep + 1);
+        if (codegraph_captured_object_types.includes(object_type)) {
+            return { ...entry, href: `#jsCallbackRef:${object_type}/${object_id}` };
+        }
+        return entry;
+    } );
+}
+
+
+/**
+ * Creates the EC zoo from its data dump, for the code graph.
+ *
+ * `load_wasm` (optional) is how the FLM engine loads its WebAssembly module;
+ * by default the browser fetches it (Parcel serves the file beside the
+ * bundle).  Under Node, pass the Node loader (`load_zoodb_flm_wasm_node` of
+ * `@phfaist/zoodb/zooflm/wasm-node`).
+ */
+export async function load_eczoodb_from_data(eczoodbData, { load_wasm } = {})
+{
+    if (eczoodbData?.zooflm == null) {
+        throw new Error(
+            `The zoo's data dump holds no FLM data (‘zooflm’): it was not written by `
+            + `the zoo's FLM processor (zoodb 0.3 or later)`
+        );
+    }
 
     let eczoodbOpts = {
         use_relations_populator,
 
         // In the future, maybe use ecz stats processor? currently it's not needed.
 
-        // set up a standard FLM environment so we can at least render the code names to text ...
-        use_flm_environment,
-        // ... but not the full automatic FLM DB processing
+        // The FLM engine, created with the zoo's own core configuration
+        // (`flm_options.engine` of eczoodb.js), so that it installs the dump's
+        // FLM data (engine.load() refuses data made under another
+        // configuration) ...
+        use_flm_engine,
+        // ... but not the FLM processor: the fields are compiled when shown.
         use_flm_processor: false,
 
-        // allow unresolved refs because e.g. a code description might contain a
-        // reference to an equation/figure somewhere else on the code page
-        // itself (and hence not listed in the global refs database)
         flm_options: {
+            // A reference that resolves to nothing is a Warning, not an Error.
             allow_unresolved_references: true,
+            ...( (load_wasm != null) ? { load_wasm } : {} ),
         },
 
         use_searchable_text_processor: false,
 
         fs: null,
-        // flm_processor_graphics_resources_fs_data_dir: data_dir,    
-        // flm_processor_citations_override_arxiv_dois_file:
-        //     path.join(data_dir, 'code_extra', 'override_arxiv_dois.yml'),
-        // flm_processor_citations_preset_bibliography_files: [
-        //     path.join(data_dir, 'code_extra', 'bib_preset.yml'),
-        // ],
 
+        // the FLM error policy 'continue': what cannot be rendered shows the
+        // engine's recovery markup
         continue_with_errors: true,
     };
 
     let eczoodb = await createEcZooDb(eczoodbOpts, { use_schemas_loader: false });
 
-    debug(`Created eczoodb, loading refs & citations ...`);
+    const engine = eczoodb.zoo_flm_engine;
 
-    //
-    // load refs & citations
-    //
-    if (eczoodbRefsData != null) {
-        eczoodb.zoo_flm_environment.ref_resolver.load_database(
-            eczoodbRefsData.refs
-        );
-        eczoodb.zoo_flm_environment.citations_provider.load_database(
-            eczoodbRefsData.citations
-        );
+    debug(`Created eczoodb, loading the FLM data (index, citations, graphics, snippets) ...`);
+
+    engine.load(eczoodbData.zooflm);
+    engine.set_index(
+        codegraph_index_entries(eczoodbData.zooflm.index?.default ?? []),
+        { context: codegraph_flm_context }
+    );
+
+    debug(`Loaded the FLM data, loading the zoo's data ...`);
+
+    await eczoodb.load_data(eczoodbData.db);
+
+    const flm_compiler = new FLMSimpleContentCompiler({
+        engine,
+        error_policy: 'continue',
+    });
+    eczoodb.codegraph_flm_compiler = flm_compiler;
+
+    // The names, compiled in place (the graph's labels; the pane shows them).
+    for (const object_type of codegraph_captured_object_types) {
+        const object_schema = eczoodb.schema(object_type);
+        for (const object of Object.values(eczoodb.objects[object_type] ?? {})) {
+            object.name = flm_compiler.compile_flm(object.name, {
+                object_type,
+                object_schema,
+                object,
+                fieldname: 'name',
+            });
+        }
     }
 
-    debug(`Loaded refs & citations, loading data ...`);
-
-    //
-    // load zoo data
-    //
-    await eczoodb.load_data(eczoodbData.db);
+    debug(`Loaded the zoo.`);
 
     return eczoodb;
 }
-
