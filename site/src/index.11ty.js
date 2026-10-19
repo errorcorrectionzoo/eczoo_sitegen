@@ -2,11 +2,9 @@
 import { value_not_empty } from '@phfaist/zoodb/zooflm/engine';
 //import { get_home_page_stats } from '@errorcorrectionzoo/eczoodb/stats.js';
 
-// TEMPORARY (zoodb 0.3.0 port, part B1): the random code data is ported in
-// part B2.
-// import {
-//     generate_random_code_data
-// } from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
+import {
+    generate_random_code_data
+} from '@errorcorrectionzoo/jscomponents/randomcode/generate_data.js';
 
 
 const data = {
@@ -251,13 +249,12 @@ async function render(data)
     //
     // PAYLOAD: RANDOM CODE DATA
     //
-    // TEMPORARY (zoodb 0.3.0 port, part B1): ported in part B2.
-    // const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
-    // const randomCodeDataStr = JSON.stringify(random_code_data);
-    // s += `
-    // <script type="text/javascript">
-    // window.eczoo_random_code_data = ${randomCodeDataStr.replace(/<\//g, '<\\/')};
-    // </script>`;
+    const random_code_data = generate_random_code_data({ eczoodb: data.eczoodb });
+    const randomCodeDataStr = JSON.stringify(random_code_data);
+    s += `
+<script type="text/javascript">
+window.eczoo_random_code_data = ${randomCodeDataStr.replace(/<\//g, '<\\/')};
+</script>`;
 
     //
     //

@@ -146,15 +146,6 @@ export default async function (eleventyConfig)
     // react right away but wait for a couple seconds first
     eleventyConfig.setWatchThrottleWaitTime(5000); // in milliseconds
 
-    // TEMPORARY (zoodb 0.3.0 port, part B1): the random code data, which the
-    // part B2 of the port moves to the new FLM engine, is not built until
-    // then.
-    for (const not_yet_ported of [
-        'src/dat/randomcodedata.11ty.js',
-    ]) {
-        eleventyConfig.ignores.add(not_yet_ported);
-    }
-
     eleventyConfig.addLayoutAlias('base_page', 'base_page.11ty.js');
 
     eleventyConfig.setTemplateFormats(['html','md','njk','11ty.js']);
