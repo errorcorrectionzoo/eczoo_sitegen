@@ -121,9 +121,25 @@ const eczoo_flm_engine_settings = {
 };
 
 
+//
+// A diagnostic switch for inspection builds while the flm-rs finding F1 is
+// open (a citation key holding a straight quote, an apostrophe or `--` is
+// looked up after the typography rewrite when rendering, so its entry is not
+// found: the Error `flm.citations.no-entry`).  With
+// ECZOO_FLM_CONTINUE_WITH_ERRORS=1 in the environment, the FLM error policy
+// is 'continue': the pages print their FLM errors and the build goes on,
+// rendering the recovery markup.  Off by default: the site is built without
+// it, and an FLM error stops the build.  (Read through `globalThis.process`,
+// so that a browser bundle neither inlines nor polyfills it; there it is
+// off.)
+//
+const flm_continue_with_errors =
+    ((globalThis.process?.env?.ECZOO_FLM_CONTINUE_WITH_ERRORS ?? 0) != 0);
+
+
 const default_config = {
 
-    continue_with_errors: false,
+    continue_with_errors: flm_continue_with_errors,
 
     use_relations_populator: null,
 

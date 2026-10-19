@@ -22,6 +22,15 @@ Eleventy 3 build that turns the eczoodb object graph into static HTML in
 | `ECZOO_RUN_11TY_PARCEL=0` | skip Parcel bundling entirely (fastest) |
 | `ECZOO_RUN_11TY_PARCEL_LAZY=1` | lazy Parcel builds |
 | `ECZOO_CITATIONS_CACHE_DIR` | override citations cache location |
+| `ECZOO_FLM_CONTINUE_WITH_ERRORS=1` | FLM errors do not stop the build (inspection builds only) |
+
+`ECZOO_FLM_CONTINUE_WITH_ERRORS=1` sets the zoo's `continue_with_errors`
+(`eczoodb/eczoodb.js`): an FLM error in the content no longer stops the
+build; each page still prints its FLM diagnostics and renders the recovery
+markup. It exists for inspection builds while the flm-rs finding F1 is open
+(citation keys holding a straight quote, an apostrophe or `--` are not found
+when rendering, `flm.citations.no-entry`). The site itself is built without
+it, so that any FLM error fails the build.
 
 ### Build scripts (`site/package.json`)
 
