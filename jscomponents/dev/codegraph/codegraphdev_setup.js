@@ -1,3 +1,12 @@
+//
+// NOT PORTED to zoodb 0.3 (part C of the zoodb 0.3.0 port, brief 13 of zoodb's
+// dev-docs/initial-design/): ./eczoodata.json is a data dump of zoodb 0.2
+// (`refs_data`, no `zooflm`), which ../../codegraph/setup_eczoodb.js refuses,
+// and codegraphdev.html writes no MathJax configuration, which
+// ../../mathjax/setup.js requires.  To use the page again, copy a build's
+// _site/dat/eczoodata.json here and write the FLM engine's scripts
+// (html_scripts()) into the page's <head>.
+//
 import debugm from 'debug';
 const debug = debugm('codegraph_page_main');
 

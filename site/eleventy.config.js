@@ -160,6 +160,15 @@ export default async function (eleventyConfig)
 
     eleventyConfig.setTemplateFormats(['html','md','njk','11ty.js']);
 
+    // The git preview app (/gitpreview, jscomponents/gitzoopreview/) runs the
+    // zoo's full FLM processing in the browser through
+    // @phfaist/zoodbtools_preview, which is still written for the FLM layer
+    // of zoodb 0.2, gone in 0.3 (gap G5 of the zoodb 0.3.0 port, brief 13 of
+    // zoodb's dev-docs/initial-design/; the same holds for previewtool/).
+    // Until zoodbtools is ported, the page is not built, so that Parcel does
+    // not bundle the app.
+    eleventyConfig.ignores.add('src/gitpreview.html');
+
     eleventyConfig.addPlugin(faviconPlugin, {
         destination: packageJson.config.output,
     });

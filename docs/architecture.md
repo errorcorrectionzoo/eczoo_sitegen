@@ -46,7 +46,7 @@ Client-side interactivity (code graph, search, popups, MathJax, ...) comes from
 ## Key technologies
 
 - **ZooDb** (`@phfaist/zoodb`, https://zoodb.readthedocs.io) — schema-driven YAML database with relations, processors, citations. `EcZooDb` extends `ZooDb`.
-- **FLM** ("Flexible LaTeX-like Markup", `@phfaist/zoodb/zooflm`) — markup language used for all zoo content (descriptions, names). See `flm_howto.md` at repo root.  Uses a JS transpiled version of `https://github.com/phfaist/flm`, integrated into the zoodb package.
+- **FLM** ("Flexible LaTeX-like Markup", `@phfaist/zoodb/zooflm`) — markup language used for all zoo content (descriptions, names). See `flm_howto.md` at repo root.  Processed by flm-rs (the Rust implementation of FLM), compiled to WebAssembly and shipped in the zoodb package (0.3); the zoo holds one FLM engine (`zoodb.zoo_flm_engine`), which the browser apps create again from the data dump.
 - **Eleventy 3** — static site generator; pages are mostly `.11ty.js` JavaScript templates.
 - **Parcel 2** — bundles JS components and SCSS; integrated into the Eleventy build via `@kitschpatrol/eleventy-plugin-parcel`.
 - **Yarn 3 workspaces** (`yarn@3.3.0`, `nodeLinker: node-modules` in `.yarnrc.yml` — not PnP) — monorepo; workspaces declared in root `package.json`.

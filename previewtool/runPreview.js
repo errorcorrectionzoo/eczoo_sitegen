@@ -1,3 +1,11 @@
+//
+// NOT PORTED to zoodb 0.3 (gap G5 of the zoodb 0.3.0 port, brief 13 of zoodb's
+// dev-docs/initial-design/): the preview app runs the zoo's full FLM
+// processing in the browser through @phfaist/zoodbtools_preview and
+// ../jscomponents/gitzoopreview/renderObject.js, which are still written for
+// the FLM layer of zoodb 0.2, gone in 0.3; Parcel cannot bundle the app until
+// zoodbtools is ported.
+//
 import process from 'node:process';
 import fs from 'fs';
 import path from 'path';
