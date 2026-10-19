@@ -114,8 +114,11 @@ Refer to equations with \eqref{eq:stabilizers}, etc. ...
     
   - Insert references to figures and tables with `\ref{figure:my-figure-label}`
     and `\ref{table:my-table-label}`.  In contrast to LaTeX' usual
-    behavior, the output of these commands includes the words “Figure”
-    or “Table”, i.e., you get *Figure X* or *Table X*.
+    behavior, the output of these commands includes the abbreviated words
+    “Fig.” or “Tab.”, i.e., you get *Fig. I* or *Tab. I* (figures and
+    tables are numbered with Roman numerals).  Write
+    `\ref[S]{figure:my-figure-label}` for the full word, *Figure I* or
+    *Table I* (e.g., at the start of a sentence).
   
   - You can insert footnotes with `\footnote{...}`.  Footnotes should
     be avoided in general.
@@ -192,10 +195,11 @@ Refer to equations with \eqref{eq:stabilizers}, etc. ...
     text with ``\ref{figure:my-figure-label}``.  The label prefix
     `figure:` or `table:` must match the float environment name.  *In
     contrast to standard LaTeX, the ``\ref`` command will include the
-    word “Figure” or “Table” along with the reference*.  In this
-    regard, ``\ref`` acts more like
-    LaTeX/[cleveref](https://ctan.org/pkg/cleveref)'s ``\cref``
-    command.
+    abbreviated word “Fig.” or “Tab.” along with the reference* (*Fig. I*,
+    *Tab. II*), and ``\ref[S]{figure:my-figure-label}`` the full word
+    “Figure” or “Table” (*Figure I*).  In this regard, ``\ref`` acts more
+    like LaTeX/[cleveref](https://ctan.org/pkg/cleveref)'s ``\cref``
+    command, and ``\ref[S]`` like its ``\Cref``.
 
     Our parser is very picky about the syntax of commands within float
     environments and will issue errors if you deviate from it.
