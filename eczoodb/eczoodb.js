@@ -223,7 +223,10 @@ const default_config = {
     use_searchable_text_processor: null,
 
     searchable_text_options: {
-        object_types: ['code',]  // only search for codes
+        object_types: ['code',],  // only search for codes
+        // the works a field cites (and its footnotes) in its search text, so
+        // that a code is found by the authors and titles of the works it cites
+        flm_pieces: true,
     },
 
     zoo_permalinks,
