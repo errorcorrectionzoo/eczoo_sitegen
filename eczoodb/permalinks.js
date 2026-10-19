@@ -20,13 +20,9 @@ export function zoo_object_permalink(object_type, object_id)
         }
         return `/list/${object_id}`;
     } else if (object_type === 'space') {
-        // TEMPORARY (zoodb 0.3.0 port, part B1): the FLM processor's index
-        // has an entry, with an href, for every object, and the spaces have
-        // no page.  No content refers to a space.  The href is a placeholder,
-        // as were the `zoodbobjectref:` hrefs of the former FLM layer, until
-        // the package can leave an object without a page out of the index
-        // (reported to the main session).
-        return `zoodbobjectref:/space:${object_id}`;
+        // The spaces have no page: null leaves them out of the FLM
+        // processor's index (a reference to a space is then unresolved).
+        return null;
     }
 
     throw new Error(`Unknown object type ‘${object_type}’`);

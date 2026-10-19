@@ -51,6 +51,11 @@ const render = async (data) => {
             const { object_type, object_id } = scanned_object;
             for (const term of scanned_object.terms) {
                 let href = eczoodb.zoo_object_permalink(object_type, object_id);
+                if (href == null) {
+                    // an object without a page (a space) has nothing to link to
+                    throw new Error(`concepts.11ty.js: the term ‘${term.labels[0]}’ is defined in `
+                                    + `${object_type} ‘${object_id}’, which has no page`);
+                }
                 if (term.anchor != null) {
                     href += '#' + term.anchor;
                 }

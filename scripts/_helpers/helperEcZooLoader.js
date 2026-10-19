@@ -64,8 +64,10 @@ export async function loadEcZoo({
             },
             zoo_permalinks: {
                 object: (object_type, object_id) => {
-                    return 'https://errorcorrectionzoo.org'
-                        + zoo_permalinks.object(object_type, object_id);
+                    const permalink = zoo_permalinks.object(object_type, object_id);
+                    // null: an object without a page
+                    return (permalink == null) ? null
+                        : 'https://errorcorrectionzoo.org' + permalink;
                 },
                 graphics_resource: (graphics_resource) =>
                     `__abstract_fig_reference__/${graphics_resource.src_url}`
