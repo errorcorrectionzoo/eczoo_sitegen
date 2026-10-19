@@ -64,7 +64,7 @@ class CSVRecords {
 // helper: dump FLM text (whether compiled or not)
 function toFlmText(s)
 {
-    return s?.flm_text ?? s;
+    return s?.source ?? s;
 }
 
 
@@ -99,7 +99,22 @@ async function zooStats(argv)
     //           the number of parents, childern, and cousins?
     //         - Total number of parent-child and cousin connections ”
 
-    const flm_scanner = eczoodb.zoo_flm_processor?.scanner ?? null;
+    // the references of the zoo by their label (`code:ID`), from the FLM
+    // processor's scan: each with the object it is written in
+    let refs_by_label = null;
+    if (includeNumRefs) {
+        refs_by_label = new Map();
+        for (const object_entry of eczoodb.zoo_flm_processor.scan_results.objects.values()) {
+            for (const ref of object_entry.refs) {
+                let refs = refs_by_label.get(ref.label);
+                if (refs == null) {
+                    refs = [];
+                    refs_by_label.set(ref.label, refs);
+                }
+                refs.push({ object_type: object_entry.object_type, object_id: object_entry.object_id });
+            }
+        }
+    }
 
     let totalNumCodes = 0;
     let totalNumParentRels = 0;
@@ -139,13 +154,12 @@ async function zooStats(argv)
         // number of references to this code.
         let num_refs = 'N/A';
         if (includeNumRefs) {
-            const encountered_refs =
-                flm_scanner.get_encountered_references_to_labels([['code', code_id]]);
+            const encountered_refs = refs_by_label.get(`code:${code_id}`);
             if (encountered_refs != null) {
                 debug(
                     `Code ${code_id} is referenced ${encountered_refs.length} times: `
                     + encountered_refs.map(
-                        ({resource_info: ri}) => `‘${ri.object_type}:${ri.object_id}’`
+                        (ri) => `‘${ri.object_type}:${ri.object_id}’`
                     ).join(', ')
                 );
                 num_refs = encountered_refs.length;
