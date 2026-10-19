@@ -75,8 +75,9 @@ class LatexSpeller
             const result = engine.render_latex([ fragment ], { error_policy: 'continue' });
             const diagnostics = [ ...fragment.diagnostics, ...result.diagnostics ];
             if (diagnostics.length) {
-                debug(`No LaTeX spelling for ‘${c}’: `
-                      + diagnostics.map( (d) => format_diagnostic(d) ).join('; '));
+                // (written '?', as by the former table)
+                debug(`No LaTeX spelling for ‘${c}’ (U+${c.codePointAt(0).toString(16).toUpperCase()}): `
+                      + diagnostics.map( (d) => d.identifier ).join(', '));
             } else {
                 latex = result.trees[0];
             }
