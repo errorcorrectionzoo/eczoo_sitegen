@@ -5,6 +5,7 @@ const debug = debug_module('eczoo_site.jscomponents.codegraph.setup_eczoodb');
 import { use_relations_populator } from '@phfaist/zoodb/std/use_relations_populator';
 import { use_flm_engine } from '@phfaist/zoodb/std/use_flm_engine';
 import { FLMSimpleContentCompiler } from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
+import { format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
 
 import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 
@@ -49,6 +50,16 @@ function codegraph_index_entries(default_index_entries)
         }
         return entry;
     } );
+}
+
+// Prints the diagnostics of an engine call on the console (under the error
+// policy 'continue' an Error does not throw; the information pane prints the
+// diagnostics of its renders likewise).
+function warn_diagnostics(what, { diagnostics })
+{
+    for (const diagnostic of diagnostics) {
+        console.warn(`Code graph, ${what}: ${format_diagnostic(diagnostic)}`);
+    }
 }
 
 
@@ -103,10 +114,16 @@ export async function load_eczoodb_from_data(eczoodbData, { load_wasm } = {})
 
     debug(`Created eczoodb, loading the FLM data (index, citations, graphics, snippets) ...`);
 
-    engine.load(eczoodbData.zooflm);
-    engine.set_index(
-        codegraph_index_entries(eczoodbData.zooflm.index?.default ?? []),
-        { context: codegraph_flm_context }
+    warn_diagnostics(
+        `the FLM data of the zoo's data dump`,
+        engine.load(eczoodbData.zooflm)
+    );
+    warn_diagnostics(
+        `the index of the FLM context ‘${codegraph_flm_context}’`,
+        engine.set_index(
+            codegraph_index_entries(eczoodbData.zooflm.index?.default ?? []),
+            { context: codegraph_flm_context }
+        )
     );
 
     debug(`Loaded the FLM data, loading the zoo's data ...`);
