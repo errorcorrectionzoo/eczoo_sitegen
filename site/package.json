@@ -55,8 +55,8 @@
     "build-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy   && yarn private_add_use_strict_to_site_js_files",
     "build-test-simple": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy   && yarn private_add_use_strict_to_site_js_files",
     "build-test-noparcel": "rm -rf _site ../.parcel-cache && ECZOO_RUN_11TY_PARCEL=0 ECZOO_USE_TEST_DATA=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy   && yarn private_add_use_strict_to_site_js_files",
-    "dev": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" eleventy --serve",
-    "dev-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" eleventy --serve",
+    "dev": "rm -rf _site ../.parcel-cache && ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy:Logger,Eleventy:Benchmark\" NODE_OPTIONS=\"--max-old-space-size=8192\" eleventy --serve",
+    "dev-test": "rm -rf _site ../.parcel-cache && ECZOO_USE_TEST_DATA=1 ECZOO_DEVELOPMENT_MODE=1 DEBUG=\"*Error*,*zoo*,Eleventy*\" NODE_OPTIONS=\"--max-old-space-size=8192\" eleventy --serve",
     "private_add_use_strict_to_site_js_files": "bash -c 'shopt -s nullglob; for i in _site/vv/*.js; do grep -e \"^\\\"use strict\\\";\" -q -v \"$i\" && (mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\";) done'",
     "private_add_use_strict_to_dist_js_files": "echo 'Only use this yarn script when debugging a manual parcel build'; bash -c 'for i in dist/vv/*.js; do grep -e \"^\\\"use strict\\\";\" -q -v \"$i\" && (mv \"$i\" \"$i\".COPY; echo \"\\\"use strict\\\";\" >\"$i\"; cat \"$i\".COPY >>\"$i\"; rm \"$i\".COPY; echo \"added “use strict” to $i\";) done'",
     "serve": "sirv _site/"
