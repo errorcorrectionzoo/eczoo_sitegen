@@ -118,6 +118,17 @@ function get_code_citation_year(code)
 // ---------------------------------------------------------
 
 
+//
+// The meta description of each code, computed once per processing of the zoo
+// (Eleventy computes `page_description_text` more than once per page, so
+// each description would be truncated and rendered as many times, and its
+// warnings printed as many times).  Keyed by the FLM processor's scan results,
+// which every processing of the zoo replaces (a reload in dev mode included),
+// so that a description that refers to an object that changed is computed
+// again.
+//
+const page_description_text_memo = new WeakMap();
+
 
 const data = async () => {
     
@@ -164,6 +175,15 @@ const data = async () => {
                 if (description == null) {
                     return '';
                 }
+                const scan_results = data.eczoodb.zoo_flm_processor.scan_results;
+                let memo = page_description_text_memo.get(scan_results);
+                if (memo == null) {
+                    memo = new Map();
+                    page_description_text_memo.set(scan_results, memo);
+                }
+                if (memo.has(data.code.code_id)) {
+                    return memo.get(data.code.code_id);
+                }
                 const zoo_flm_engine = data.eczoodb.zoo_flm_engine;
                 let fragment = null;
                 try {
@@ -183,6 +203,7 @@ const data = async () => {
                         console.warn(`${page_url} (meta description): `
                                      + `${format_diagnostic(diagnostic)}`);
                     }
+                    memo.set(data.code.code_id, result.text);
                     return result.text;
                 } catch (err) {
                     throw new Error(

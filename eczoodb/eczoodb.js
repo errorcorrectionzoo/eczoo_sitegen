@@ -232,6 +232,12 @@ const default_config = {
 
 
 
+// The fragments that the computed `short_name` makes (and not the fields it
+// may return as they are: a code's `short_name` or `name`, which the FLM
+// processor owns).
+const computed_short_name_fragments = new WeakSet();
+
+
 const _EcZooDbComputedData = {
     //
     // Object computed properties
@@ -279,9 +285,10 @@ const _EcZooDbComputedData = {
                     if (eczoodb.config.use_flm_processor) {
                         // The name's source without its end: the origin is
                         // the name's (with its position in the file), for a
-                        // computed field `short_name`.
+                        // computed field `short_name`.  Released when a
+                        // reload replaces the code (EcZooDb.update_objects()).
                         const { label: name_label_, ...name_origin } = code.name.origin;
-                        return eczoodb.zoo_flm_engine.make_fragment(
+                        const fragment = eczoodb.zoo_flm_engine.make_fragment(
                             short_name,
                             {
                                 origin: { ...name_origin, field: 'short_name' },
@@ -289,6 +296,8 @@ const _EcZooDbComputedData = {
                                 standalone: true,
                             }
                         );
+                        computed_short_name_fragments.add(fragment);
+                        return fragment;
                     } else {
                         return short_name;
                     }
@@ -308,6 +317,26 @@ export class EcZooDb extends ZooDb
     constructor(options)
     {
         super(options);
+    }
+
+    //
+    // A reload (dev mode) computes the computed data of the objects it
+    // updates again: the computed `short_name` fragments of the codes it
+    // replaces are released once the update has succeeded, as the FLM
+    // processor releases the replaced objects' own fragments.
+    //
+    async update_objects(db_objects)
+    {
+        const replaced_fragments = [];
+        const computed_code_values = this.scratch.computed_data_values?.code ?? {};
+        for (const code_id of Object.keys(db_objects.code ?? {})) {
+            const value = computed_code_values[code_id]?.short_name;
+            if (computed_short_name_fragments.has(value)) {
+                replaced_fragments.push(value);
+            }
+        }
+        await super.update_objects(db_objects);
+        this.zoo_flm_engine.release(replaced_fragments);
     }
 
     //
