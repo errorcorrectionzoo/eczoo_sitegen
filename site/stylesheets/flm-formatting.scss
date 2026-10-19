@@ -66,6 +66,8 @@
     --flm-cells-blue: rgba(79, 142, 255, 0.27); /*rgb(200,220,255);*/
     --flm-cells-yellow: rgba(255, 255, 49, 0.33); /*rgb(255,255,200);*/
     --flm-cells-red: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
+    // the background of code (inline and as a block): translucent as well
+    --flm-verbatim-background: rgba(127,127,127,0.25);
 }
 
 
@@ -121,7 +123,6 @@
 .flm-pres-verbatim[data-flm-kind="code"][data-flm-display="inline"] {
     font-family: monospace;
     font-size: 0.9em;
-    background-color: rgba(127,127,127,0.25);
     border-radius: 2px;
     padding: 1px 2px;
     display: inline-block;
