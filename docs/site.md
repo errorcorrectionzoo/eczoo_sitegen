@@ -66,15 +66,17 @@ Data exports under `src/dat/`: `eczoodata.11ty.js` (full DB dump JSON, used
 client-side by codegraph/editors), `searchindex.11ty.js` (lunr index, built by
 `jscomponents/search/generate_index.js`), `randomcodedata.11ty.js`,
 `bibreferences_bib.11ty.js` (.bib), `bibreferences_csl.11ty.js` (CSL-JSON).
+The FLM engine's stylesheet: `src/dynamic_style/flm.css.11ty.js`
+(`/dynamic_style/flm.css`, the engine's `html_stylesheet()`).
 
 Directory defaults: `src/src.11tydata.js` — layout `base_page`, git
 last-modified dates, tag `sitePage` (used by sitemap).
 
 ## Layout & assets
 
-- `templates/layout/base_page.11ty.js` (~lines 86–238) — master HTML shell: meta tags, favicon, fonts, nav links, stylesheet link, footer; injects the page's JS profile via `<script type="module" src="~/site/jsc_profiles/${jscomponents_profile}.js">` (~line 219). Pages control this via the `page_layout_info` object (`jscomponents_profile`, `wide_layout`, `header_navigation_links`, extra head content).
+- `templates/layout/base_page.11ty.js` (~lines 86–238) — master HTML shell: meta tags, favicon, fonts, nav links, stylesheet links (the FLM engine's `/dynamic_style/flm.css`, then `main.scss`), the FLM engine's scripts (`html_scripts()`: the MathJax 4 configuration and loader), footer; injects the page's JS profile via `<script type="module" src="~/site/jsc_profiles/${jscomponents_profile}.js">` (~line 219). Pages control this via the `page_layout_info` object (`jscomponents_profile`, `wide_layout`, `header_navigation_links`, extra head content).
 - `jsc_profiles/*.js` — one Parcel entry per page type; imports + initializes jscomponents (see [jscomponents.md](jscomponents.md)).
-- `stylesheets/` — modular SCSS (~29 files), `main.scss` is the master import; compiled by Parcel. Page-specific files: `ecc-code-page.scss`, `codelist-page.scss`, `home-page.scss`, `search-page.scss`, `flm-formatting.scss`, etc.
+- `stylesheets/` — modular SCSS (~29 files), `main.scss` is the master import; compiled by Parcel. Page-specific files: `ecc-code-page.scss`, `codelist-page.scss`, `home-page.scss`, `search-page.scss`, `flm-formatting.scss` (the EC zoo's look of FLM content on the FLM engine's HTML classes, over the engine's stylesheet), etc.
 - `tinyjavascript/` — small standalone scripts injected directly: `darkmode.js`, `copyboxedcontent.js`, `expandnavlinks.js`.
 - `static/` (icons → `/icons/*`), `static_copy/` (robots.txt → site root); copied by `parcel-reporter-static-files-copy`.
 - `site_data/` — global data: `home_page_data.js` (popular codes list), `notable_codes_hierarchy.js` (~123 code IDs highlighted in hierarchy trees).

@@ -50,7 +50,7 @@ Client-side interactivity (code graph, search, popups, MathJax, ...) comes from
 - **Eleventy 3** — static site generator; pages are mostly `.11ty.js` JavaScript templates.
 - **Parcel 2** — bundles JS components and SCSS; integrated into the Eleventy build via `@kitschpatrol/eleventy-plugin-parcel`.
 - **Yarn 3 workspaces** (`yarn@3.3.0`, `nodeLinker: node-modules` in `.yarnrc.yml` — not PnP) — monorepo; workspaces declared in root `package.json`.
-- **React 18** (some components), **Cytoscape** (code graph), **Lunr** (search), **MathJax 3** (math), **citation-js / CSL** (bibliography).
+- **React 18** (some components), **Cytoscape** (code graph), **Lunr** (search), **MathJax 4** (math, configured by the FLM engine), **citation-js / CSL** (bibliography).
 
 ## Workspaces (root package.json)
 

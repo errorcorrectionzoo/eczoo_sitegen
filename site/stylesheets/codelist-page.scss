@@ -26,8 +26,8 @@
         margin: $parskip-half-length 0pt;
     }
 
-    .enumeration.enumerate, .enumeration.itemize {
-        row-gap: .1em;
+    .flm-pres-list[data-flm-kind~="enumerate"], .flm-pres-list[data-flm-kind~="itemize"] {
+        --flm-list-entry-spacing: .1em;
     }
 }
 

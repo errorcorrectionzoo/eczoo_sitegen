@@ -26,7 +26,7 @@ window.addEventListener('load', async function() {
 |---|---|---|
 | `codegraph/` | Interactive code-hierarchy graph (Cytoscape + cose-bilkent/fcose layouts). Classes `EczCodeGraph`, `EczCodeGraphViewController` in `index.js`; React UI in `ui.jsx`. Also `_headless_exporter_browser_code.js`: headless (Puppeteer) build used server-side to export SVG graphs during the site build (`yarn build` in jscomponents compiles it to `codegraph/_headless_exporter_browser_code_dist/`). | `setup.js` |
 | `search/` | Lunr-based full-text search widget (`@phfaist/zoodbtools_search`); index config in `configuresearchindex.js`; build-time index generator `generate_index.js` (used by `site/src/dat/searchindex.11ty.js`); loads `/dat/searchindex.json`. | `setup.js` |
-| `mathjax/` | MathJax 3 loader/config for `.display-math` / `.inline-math`. | `setup.js` exports async `load()` |
+| `mathjax/` | Waits for MathJax 4, which the page layout configures and loads with the FLM engine's scripts (`html_scripts()`). | `setup.js` exports async `load()` |
 | `popuptippy/` | Tippy.js popups for code info buttons (`.info-popup-button-zone`). | `setup.js` |
 | `randomcode/` | Homepage "random code" widget, class `RandomCodeShower`. | `index.js` |
 | `linkanchorvisualhighlight/` | Highlight animation for in-page anchor links. | `setup.js` |

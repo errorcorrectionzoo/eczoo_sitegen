@@ -41,10 +41,11 @@
 
 
 //
-// endnotes: citations and footnotes
+// endnotes: the lists of citations and of footnotes (the FLM engine's blocks
+// flm-citations-bibliography and flm-xnotes-footnote-list)
 //
 
-#endnotes {
+.flm-citations-bibliography, .flm-xnotes-footnote-list {
     // border: dotted 1px gray;
     // padding: 3px;
 
@@ -52,36 +53,34 @@
 
     margin-bottom: 20px;
 
-    dl {
+    > .flm-pres-list {
         margin-top: 0px;
         margin-bottom: 0px;
-    }
 
-    dt {
-        font-style: normal;
-        text-align: right;
-    }
+        // the labels at the left edge, close to the entries
+        --flm-list-indent: 0px;
+        --flm-list-label-gap: 5px;
+        --flm-list-entry-spacing: 0.4em;
 
-    dd {
-        margin-left: 5px;
-        margin-bottom: 0.4em;
-    }
-
-    dt, dd {
-        transition: background-color 0.5s;
-    }
-
-    // superscript text for footnotes, not for citations
-    #footnotes {
-        dt {
-            @include fixbaseline-superscript-text;
+        > li {
+            transition: background-color 0.5s;
         }
     }
+}
+.flm-xnotes-footnote-list {
+    // no line above the list of footnotes, which follows the content
+    --flm-xnotes-list-rule: none;
+    --flm-xnotes-list-space: 0px;
+}
 
+// superscript labels for footnotes, not for citations
+.flm-xnotes-footnote-list .flm-xnotes-entry-mark {
+    @include fixbaseline-superscript-text;
 }
 
 
-.page_style_cards #endnotes {
+.page_style_cards .flm-citations-bibliography,
+.page_style_cards .flm-xnotes-footnote-list {
 
     @include card-item;
 
@@ -91,7 +90,7 @@
 
     opacity: 0.8;
 
-    dt {
+    .flm-pres-list-label {
         min-width: 2em;
     }
 }
