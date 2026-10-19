@@ -24,8 +24,10 @@ describe('stats', function () {
         console.log('loading zoo!');
         /*const eczoodb =*/ await load_eczoo({
             eczoodb_options: {
-                flm_allow_unresolved_citations: true,
-                flm_allow_unresolved_references: true,
+                flm_options: {
+                    allow_unresolved_citations: true,
+                    allow_unresolved_references: true,
+                },
             }
         });
     

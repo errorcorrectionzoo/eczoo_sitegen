@@ -33,22 +33,24 @@ describe('render_code', function () {
             data_dir,
             fs,
             eczoodb_options: {
-                flm_allow_unresolved_citations: true,
-                flm_allow_unresolved_references: true,
+                flm_options: {
+                    allow_unresolved_citations: true,
+                    allow_unresolved_references: true,
+                },
             }
         });
-        const zoo_flm_environment = eczoodb.zoo_flm_environment;
+        const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
-        const result_css_html = render_code_page(
+        const result_css = render_code_page(
             eczoodb.objects.code.css,
             {
-                zoo_flm_environment,
-                doc_metadata: {},
+                zoo_flm_engine,
                 eczoodb,
             }
         );
 
-        assert.ok(result_css_html.startsWith('<div'));
+        assert.ok(result_css.html.startsWith('<div'));
+        assert.deepStrictEqual(result_css.diagnostics, []);
         
     });
 });

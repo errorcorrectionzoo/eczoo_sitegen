@@ -340,7 +340,7 @@ describe('EcZooDb', function () {
         debug(`done! short_name=`, {short_name});
         
         assert.strictEqual(
-            short_name.flm_text,
+            short_name.source,
             'Calderbank-Shor-Steane (CSS) stabilizer'
         )
 
