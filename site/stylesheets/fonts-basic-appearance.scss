@@ -35,7 +35,11 @@ h2 {
     margin: 0.7em 0px 0.7em 0pxn;
 }
 
-p, ul, ol, pre {
+// Not the blocks of an entry of the FLM engine's lists: the engine's stylesheet
+// sets their margins (a label beside its entry's text), in its cascade layer
+// `flm`, which this unlayered rule would beat.  `:where()` adds nothing to the
+// specificity, which stays that of `p`.
+:is(p, ul, ol, pre):where(:not(.flm-pres-list > li > *)) {
     // remember, top margin of next element overlaps with bottom margin of previous one
     margin-top: 2*$parskip-half-length;
     margin-bottom: 2*$parskip-half-length;
