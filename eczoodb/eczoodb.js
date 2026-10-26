@@ -114,9 +114,11 @@ const eczoo_flm_engine_settings = {
     },
     // in a field, \section is <h2> (the field's own heading's level),
     // \subsection <h3> and \subsubsection <h4>; the headings above the lists
-    // of footnotes and of references stay <h2>
+    // of footnotes and of references stay <h2>; no stop after a run-in
+    // heading (\paragraph), which the site's stylesheet follows with a dash
     html: {
         heading_tags: { section: 'h2', subsection: 'h3', subsubsection: 'h4' },
+        run_in_stop: '',
     },
 };
 

@@ -125,10 +125,21 @@
     line-height: inherit;
 }
 
-// \paragraph{...}: a run-in heading, in italics
+// \paragraph{...}: a run-in heading, in italics, followed by a dash (the
+// engine writes no stop after it: `html.run_in_stop` in eczoodb.js), and no
+// gap of the run-in decoration after the dash
 .flm-pres-runin--heading[data-flm-heading="paragraph"] {
     font-style: italic;
     font-weight: normal;
+
+    &::after {
+        display: inline-block;
+        margin: 0px .12em;
+        content: '—';
+    }
+}
+.flm-pres-deco-runin:has(> .flm-pres-runin--heading[data-flm-heading="paragraph"]) {
+    --flm-runin-gap: 0px;
 }
 
 
