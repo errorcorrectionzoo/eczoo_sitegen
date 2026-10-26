@@ -34,6 +34,20 @@
 }
 
 
+// ------------------------------------------------------------------
+// The site's classes for italic and bold text, which the data gives to
+// elements of the site's own: e.g., the `cssclass` of a code list's column
+// (see docs/CODELISTS_HOWTO.md).
+// ------------------------------------------------------------------
+
+.textit {
+    font-style: italic;
+}
+.textbf {
+    font-weight: bold;
+}
+
+
 // ------------------------------------
 // FLM content: the EC zoo's look
 // ------------------------------------
