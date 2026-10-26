@@ -12,11 +12,12 @@ const rx_stub = /^[ \t\n.;_-]*stub[ \t\n.;!_-]*$/i;
 
 //
 // A preview places no endnotes: its render leaves out the lists of footnotes
-// and of citations, which are then not built.  (The marks of footnotes and
-// citations stay, linking to notes that are not on the page: flm-rs has no
-// render option that leaves them out.)  The floats are left out by the
-// truncation to the first paragraph (the EC zoo writes floats as paragraphs
-// of their own).
+// and of citations, which are then not built.  (flm-rs has no render option
+// that leaves out the marks of footnotes and citations, which would link to
+// notes that are not on the page: the widget's stylesheet, randomcode.scss,
+// hides them, and the no-break space before a citation mark.)  The floats are
+// left out by the truncation to the first paragraph (the EC zoo writes floats
+// as paragraphs of their own).
 //
 const preview_render_options = {
     pieces: {
