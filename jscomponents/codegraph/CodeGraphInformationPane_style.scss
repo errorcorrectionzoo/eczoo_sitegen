@@ -96,14 +96,6 @@
     .flm-citations-bibliography, .flm-xnotes-footnote-list {
         font-size: 0.85rem;
         color: rgb(80,80,100);
-
-        // the heading the engine writes at the top of each list (the pane
-        // placed the lists without one before zoodb 0.3)
-        > .flm-pres-block--heading {
-            font-size: 1em;
-            font-weight: bold;
-            margin: 0.6em 0 0.3em 0;
-        }
     }
 
     .domain-name {

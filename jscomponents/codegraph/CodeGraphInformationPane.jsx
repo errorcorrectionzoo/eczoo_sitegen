@@ -34,6 +34,24 @@ import './CodeGraphInformationPane_style.scss';
 // unresolved references are Warnings (setup_eczoodb.js); the diagnostics are
 // printed on the console.
 //
+// The lists of citations and of footnotes are placed without a heading.  The
+// headings are settings that the engine fixes when it is created, so the
+// pane's renders run on a second configuration of the engine, which it
+// builds at the first of them.  A `xnotes.kinds` given for one render
+// replaces the map of kinds whole: the zoo's own kinds (the settings the
+// engine was created with), with no title on the footnotes' list.
+//
+function mkPaneRenderOptions({ eczoodb })
+{
+    const xnote_kinds = eczoodb.config.flm_options.engine.settings.xnotes.kinds;
+    return {
+        citations: { heading_title: null },
+        xnotes: {
+            kinds: { ...xnote_kinds, footnote: { ...xnote_kinds.footnote, title: null } },
+        },
+    };
+}
+
 function mkRenderWrapUtils({ eczoodb })
 {
     const zoo_flm_engine = eczoodb.zoo_flm_engine;
@@ -69,6 +87,7 @@ function mkRenderWrapUtils({ eczoodb })
                 const { html, diagnostics } = zoo_flm_engine.render_document({
                     compose,
                     context: codegraph_flm_context,
+                    render_options: mkPaneRenderOptions({ eczoodb }),
                 });
                 for (const diagnostic of diagnostics) {
                     console.warn(`Code graph information pane: ${format_diagnostic(diagnostic)}`);
