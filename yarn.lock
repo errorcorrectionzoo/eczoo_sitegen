@@ -2244,9 +2244,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@phfaist/zoodb@file:/Users/philippe/Research/projects/zoodb/zoodb/.worktrees/zoodb-flmrs/scratch/zoodb-flmrs.tgz::locator=errorcorrectionzoo%40workspace%3A.":
+"@phfaist/zoodb@https://github.com/phfaist/zoodb.git":
   version: 0.3.0
-  resolution: "@phfaist/zoodb@file:/Users/philippe/Research/projects/zoodb/zoodb/.worktrees/zoodb-flmrs/scratch/zoodb-flmrs.tgz::locator=errorcorrectionzoo%40workspace%3A."
+  resolution: "@phfaist/zoodb@https://github.com/phfaist/zoodb.git#commit=446a2e81c199238343a2adb6541e55d7bd7a139d"
   dependencies:
     "@apidevtools/json-schema-ref-parser": ^11.7.3
     base32-encode: ^2.0.0
@@ -2264,7 +2264,7 @@ __metadata:
     zoodb-merge-citations-cache: ./tools/merge_citations_cache.mjs
     zoodb-migrate-citations-cache: ./tools/migrate_citations_cache.mjs
     zoodb-reindent-yaml: ./tools/reindent_yaml.mjs
-  checksum: 0cc0c1e21cb95acc952327baa7bb5ee4f632f054d2e92682de5f692ae44e8fe6b8bd6f6ddcdd5fc6047e91b381a6b88146c4a89ac090c2149513eaedb763002b
+  checksum: 999c10be893c47deeb5408b293dfc0bd7ccbc078899c401457a2126b276be052cf664e8bb90e9b88d3a8096e0f46125c528cc8ff9ec53399c68d3ec96548ea63
   languageName: node
   linkType: hard
 
