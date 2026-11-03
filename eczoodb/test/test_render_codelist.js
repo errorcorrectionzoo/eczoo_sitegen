@@ -23,20 +23,22 @@ describe('render_codelist', function () {
             data_dir,
             fs,
             eczoodb_options: {
-                flm_allow_unresolved_citations: true,
-                flm_allow_unresolved_references: true,
+                flm_options: {
+                    allow_unresolved_citations: true,
+                    allow_unresolved_references: true,
+                },
             }
         });
 
-        const result_all_html = render_codelist_page(
+        const result_all = render_codelist_page(
             eczoodb.objects.codelist.all,
             {
                 eczoodb,
-                doc_metadata: {},
             }
         );
 
-        assert.ok(result_all_html.startsWith('<article'));
+        assert.ok(result_all.html.startsWith('<article'));
+        assert.deepStrictEqual(result_all.diagnostics, []);
         
     });
 });

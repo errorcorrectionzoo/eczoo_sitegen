@@ -12,6 +12,15 @@ $preview-contents-v-margin: 25px;
         box-sizing: border-box;
 
 
+        // the FLM diagnostics of the object (renderObject.js; the list's own
+        // style comes with @phfaist/zoodbtools_preview)
+        > section.zoodb-preview-diagnostics {
+            margin: 0px auto;
+            min-width: 200px;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
         div.ecz-preview-recommendation-list {
             //grid-column-start: 1;
             margin: 0px auto;
@@ -69,6 +78,19 @@ $preview-contents-v-margin: 25px;
             // specific types of pages require wide layout.
             width: min(calc(2*$preview-contents-h-margin + $page-max-width), 100%);
             max-width: calc(2*$preview-contents-h-margin + $page-max-width);
+        }
+        // overridden from ecc-code-page.scss
+        article.ecc-code-page {
+            grid-template-rows:
+                [code-main-sections-start code-hierarchy-start]
+                auto
+                [code-main-sections-end code-bibliography-start]
+                1fr
+                [code-bibliography-end code-hierarchy-end] ;
+            // - auto = get size from contents
+            // - 1fr on last row so that bibliography section sticks with code sections and
+            //   isn't aligned on the bottom with a large gap, when the code hierarchy is
+            //   longer than the code sections.
         }
 
         // for default object renderer

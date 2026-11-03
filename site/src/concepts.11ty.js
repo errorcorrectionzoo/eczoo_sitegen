@@ -21,120 +21,130 @@ const data = {
 
 const render = async (data) => {
     const { sqzhtml } = await import('@phfaist/zoodb/util/sqzhtml');
-    const {
-        $$kw, make_render_shorthands, make_and_render_document
-    } = await import('@phfaist/zoodb/zooflm');
+    const { format_diagnostic } = await import('@phfaist/zoodb/zooflm/engine');
 
     debug(`concepts.11ty.js -- render()`);
 
     const { eczoodb } = data;
 
-    const zoo_flm_environment = eczoodb.zoo_flm_environment;
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
-    const all_referenceables =
-          eczoodb.zoo_flm_processor.scanner.get_encountered('referenceables');
+    // What the FLM processor's scan found, per object: the term definitions
+    // (`terms`: their labels, anchor, term and body) and the references
+    // (`refs`), in the order of the zoo's objects.
+    const scanned_objects = [ ...eczoodb.zoo_flm_processor.scan_results.objects.values() ];
 
-    const all_defterms = all_referenceables.filter( (encountered_referenceable) =>
-              (encountered_referenceable.defterm_body_flm != null)
-          );
+    // The fragments made for this page only (the terms and their bodies),
+    // released once the page is rendered.
+    let page_fragments = [];
+    const make_page_fragment = (source, options) => {
+        const fragment = zoo_flm_engine.make_fragment(source, options);
+        page_fragments.push(fragment);
+        return fragment;
+    };
 
-    const render_doc_fn = (render_context) => {
+    // Everything from the first fragment made on is inside the `try`, so that
+    // the fragments made so far are released whatever throws.
+    try {
+        let glossary_terms = [];
+        for (const scanned_object of scanned_objects) {
+            const { object_type, object_id } = scanned_object;
+            for (const term of scanned_object.terms) {
+                let href = eczoodb.zoo_object_permalink(object_type, object_id);
+                if (href == null) {
+                    // an object without a page (a space) has nothing to link to
+                    throw new Error(`concepts.11ty.js: the term ‘${term.labels[0]}’ is defined in `
+                                    + `${object_type} ‘${object_id}’, which has no page`);
+                }
+                if (term.anchor != null) {
+                    href += '#' + term.anchor;
+                }
+                // the term, as written in the definition (the origin: the
+                // field's, without a file position, and the term)
+                const { label, field, source_path } = term.fragment.origin;
+                const term_fragment = make_page_fragment(term.display, {
+                    origin: { label, object_type, object_id, field, source_path, term: term.labels[0] },
+                    layout: 'inline',
+                });
+                // the body of the definition, with the origin (the field's, with
+                // the file position of the body) that the scan gives it
+                const body_fragment = (term.body != null)
+                    ? make_page_fragment(term.body, { origin: term.body_origin, layout: 'blocks' })
+                    : null;
+                // the other objects that refer to the term (one of its labels)
+                const referenced_in = scanned_objects.filter(
+                    (o) => ( !(o.object_type === object_type && o.object_id === object_id)
+                             && o.refs.some( (r) => term.labels.includes(r.label) ) )
+                );
+                glossary_terms.push({
+                    object_type, object_id, href, term_fragment, body_fragment, referenced_in,
+                });
+            }
+        }
+        debug(`concepts.11ty.js: ${glossary_terms.length} term definition(s)`);
 
-        const R = make_render_shorthands({render_context});
-        const { ne, rdr, ref } = R;
+        const compose = (R) => {
 
-        let s = '';
+            const { rdr, rdrblock, ref, endnotes } = R;
 
-        const refsmgr = render_context.feature_render_manager('refs');
+            let s = '';
 
-        s += sqzhtml`
+            s += sqzhtml`
 <h1>Glossary of concepts</h1>
 
 <dl class="glossary-defterm-list">`;
-        for (const encountered_referenceable of all_defterms) {
-            const flm_text =
-                  encountered_referenceable.referenceable_info.formatted_ref_flm_text;
-            const flm_body = encountered_referenceable.defterm_body_flm;
+            for (const {
+                object_type, object_id, href, term_fragment, body_fragment, referenced_in,
+            } of glossary_terms) {
 
-            const { object_type, object_id } =
-                  encountered_referenceable.encountered_in.resource_info;
-            let href = eczoodb.zoo_object_permalink(object_type, object_id);
-            const referenceable_info_target_id =
-                  encountered_referenceable.referenceable_info.get_target_id();
-            if (referenceable_info_target_id != null) {
-                href += '#' + referenceable_info_target_id;
-            }
-            const defining_object_ref_instance = refsmgr.get_ref(object_type, object_id);
-            const defining_obj_name_flm = defining_object_ref_instance.formatted_ref_flm_text;
-            const defining_obj_name = render_context.doc.environment.make_fragment(
-                defining_obj_name_flm,
-                $$kw({ standalone_mode: true }),
-            );
+                // the display of the defining object (its name)
+                const defining_obj = eczoodb.objects[object_type][object_id];
+                const defining_obj_name = defining_obj.name ?? defining_obj.title ?? object_id;
 
-            let concept_encountered_references =
-                eczoodb.zoo_flm_processor.scanner.get_encountered_references_to_labels(
-                    encountered_referenceable.referenceable_info.labels
-                );
-            let concept_referenced_in_list = '';
-            let concept_referenced_dict = {};
-            for (const encountered_reference of concept_encountered_references) {
-                const ri = encountered_reference.resource_info;
-                if (ri.object_type === object_type && ri.object_id === object_id) {
-                    // skip the object that defines the concept ("defined in")
-                    continue;
+                let concept_referenced_in_list = '';
+                if (referenced_in.length) {
+                    concept_referenced_in_list = 
+                        `<div class="glossary-referenced-in-list">Referenced in: `;
+                    concept_referenced_in_list += referenced_in.map(
+                        (o) => `<span class="glossary-referenced-in-item">${
+                                ref(o.object_type, o.object_id)
+                            }</span>`
+                    ) .join(', ');
+                    concept_referenced_in_list += `</div>`;
                 }
-                const key = `${ri.object_type}:${ri.object_id}`;
-                if (Object.hasOwn(concept_referenced_dict, key)) {
-                    continue;
-                }
-                concept_referenced_dict[key] = ri;
-            }
-            if (Object.keys(concept_referenced_dict).length) {
-                concept_referenced_in_list = 
-                    `<div class="glossary-referenced-in-list">Referenced in: <!-- ${JSON.stringify(concept_referenced_dict)} -->`;
-                concept_referenced_in_list += Object.entries(concept_referenced_dict).map(
-                    ([k_,ri]) => {
-                        return `<span class="glossary-referenced-in-item">${
-                            ref(ri.object_type, ri.object_id)
-                        }</span>`
-                    }
-                ) .join(', ');
-                concept_referenced_in_list += `</div>`;
-            }
 
-            s += sqzhtml`
+                s += sqzhtml`
   <dt class="glossary-defterm-term-name">
     <a href="${ href }">
-      ${ rdr(flm_text) }
+      ${ rdr(term_fragment) }
     </a>
   </dt>
-    ${ /*<a href="${ href }"
-       class="glossary-a-view-in-context"
-       >view in context&nbsp;→</a> */ '' }
   <dd class="glossary-defterm-body">
-    ${ rdr(flm_body) }
+    ${ (body_fragment != null) ? rdrblock(body_fragment) : '' }
     <div class="glossary-defined-in">Defined in: <a href="${href}">${
-        rdr(defining_obj_name)
-    }</a></div>
+            rdr(defining_obj_name)
+        }</a></div>
     ${ concept_referenced_in_list }
   </dd>`;
-        } // end for
+            } // end for
 
-        s += sqzhtml`
+            s += sqzhtml`
 </dl>
-<RENDER_ENDNOTES/>`;
-        return s;
-    };
+${ endnotes() }`;
+            return s;
+        };
 
-    
-    return make_and_render_document({
-        zoo_flm_environment,
-        render_doc_fn,
-        //doc_metadata,
-        render_endnotes: {
-            // annotations: ['sectioncontent'],
+        const result = zoo_flm_engine.render_document({ compose });
+        // An error in the page's content has thrown (the 'abort' policy); the
+        // warnings are returned.
+        for (const diagnostic of result.diagnostics) {
+            console.warn(`${data.page.url}: ${format_diagnostic(diagnostic)}`);
         }
-    });
+        return result.html;
+    } finally {
+        zoo_flm_engine.release(page_fragments);
+        page_fragments = [];
+    }
 };
 
 

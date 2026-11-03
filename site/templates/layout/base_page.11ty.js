@@ -35,9 +35,8 @@ const get_page_header_navigation_links_default = async (data) => {
 
     const { eczoodb } = data;
 
-    let zooflm = await import('@phfaist/zoodb/zooflm');
-    let html_fragment_renderer = zooflm.ZooHtmlFragmentRenderer();
-    let flmrender = (value) => value.render_standalone(html_fragment_renderer);
+    // the HTML snippet of a standalone field (a name)
+    let flmrender = (value) => eczoodb.zoo_flm_engine.snippet(value, 'html');
 
     let page_header_navigation_links = [];
     
@@ -191,8 +190,19 @@ const render = async function (data) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" />`;
 
+    // the stylesheet of FLM content (the FLM engine's, src/dynamic_style/),
+    // then the site's own, which overrides it where the EC zoo looks
+    // different (stylesheets/flm-formatting.scss)
     s += sqzhtml`
+  <link type="text/css" rel="stylesheet" href="/dynamic_style/flm.css" />
   <link type="text/css" rel="stylesheet" href="~/site/stylesheets/main.scss" />`;
+
+    //
+    // The FLM engine's scripts: MathJax 4, configured for the FLM content (its
+    // configuration, then its loader, `async`).  The jscomponents profiles'
+    // mathjax.load() waits for it to start (jscomponents/mathjax/setup.js).
+    //
+    s += '\n' + data.eczoodb.zoo_flm_engine.html_scripts();
 
     for (const extra_css of page_layout_info.extra_css ?? []) {
         s += sqzhtml`

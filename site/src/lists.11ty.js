@@ -1,6 +1,4 @@
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-
 const data = {
     title: 'List of code lists',
     tags: ['sitePage'],
@@ -23,7 +21,7 @@ const render = async (data) => {
 
     const eczoodb = data.eczoodb;
 
-    const html_fragment_renderer = new zooflm.ZooHtmlFragmentRenderer();
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
 
     let html = '';
     
@@ -45,7 +43,7 @@ const render = async (data) => {
             return -1;
         }
         // otherwise, sort lists alphabetically by their title
-        return codelist_a.title.flm_text.localeCompare(codelist_b.title.flm_text);
+        return codelist_a.title.source.localeCompare(codelist_b.title.source);
     };
 
     codelists_kv.sort( sort_compare_fn );
@@ -53,7 +51,7 @@ const render = async (data) => {
     for (const [list_id, codelist] of codelists_kv) {
         html += `
   <li><p><a href="${eczoodb.zoo_object_permalink('codelist', list_id)}">`;
-        html += codelist.title.render_standalone(html_fragment_renderer);
+        html += zoo_flm_engine.snippet(codelist.title, 'html');
         html += `
   </a></p></li>`.trim();
     }

@@ -174,7 +174,7 @@ export class EczStatsDbProcessor extends ZooDbProcessorBase
             );
             stats.num_codes_per_kingdom[kingdom_id] = {
                 value: (value === null ? 0 : value),
-                label: `in the ${kingdom.name.flm_text ?? kingdom.name}`,
+                label: `in the ${kingdom.name.source ?? kingdom.name}`,
             };
 
             for (const { code_id } of kingdom.root_codes ?? []) {

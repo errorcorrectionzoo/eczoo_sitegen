@@ -10,18 +10,11 @@ import React, {
     useLayoutEffect
 } from 'react';
 
-import {
-    FLMSimpleContentCompiler
-} from '@phfaist/zoodb/dbprocessor/flmsimplecontent';
-
-import {
-    // render_text_standalone, is_flm_fragment,
-    $$kw, // ZooHtmlFragmentRenderer,
-    RefInstance,
-    make_and_render_document, make_render_shorthands,
-} from '@phfaist/zoodb/zooflm';
+import { format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
 
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
+
+import { codegraph_flm_context } from './setup_eczoodb.js';
 
 
 import './CodeGraphInformationPane_style.scss';
@@ -29,54 +22,81 @@ import './CodeGraphInformationPane_style.scss';
 
 
 
-function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
+//
+// The pane is rendered by the FLM engine of the code graph's zoo
+// (setup_eczoodb.js) in its output context `codegraph_flm_context`, whose
+// index gives the links to codes, domains and kingdoms the addresses
+// `#jsCallbackRef:TYPE/ID` (the component below turns them into callbacks).
+// The fields shown are compiled by the zoo's field compiler for each
+// rendering (the names are fragments already), and the fragments made for a
+// rendering (the fields and the truncated description) are released once its
+// HTML is rendered.  The engine's error policy is 'continue' and its
+// unresolved references are Warnings (setup_eczoodb.js); the diagnostics are
+// printed on the console.
+//
+// The lists of citations and of footnotes are placed without a heading.  The
+// headings are settings that the engine fixes when it is created, so the
+// pane's renders run on a second configuration of the engine, which it
+// builds at the first of them.  A `xnotes.kinds` given for one render
+// replaces the map of kinds whole: the zoo's own kinds (the settings the
+// engine was created with), with no title on the footnotes' list.
+//
+function mkPaneRenderOptions({ eczoodb })
 {
-    let zoo_flm_environment = eczoodb.zoo_flm_environment;
-    // let html_fragment_renderer = new ZooHtmlFragmentRenderer();
-    
-    let flm_simple_content = new FLMSimpleContentCompiler({
-        flm_environment: zoo_flm_environment,
-        flm_error_policy: 'continue',
-    });
+    const xnote_kinds = eczoodb.config.flm_options.engine.settings.xnotes.kinds;
+    return {
+        citations: { heading_title: null },
+        xnotes: {
+            kinds: { ...xnote_kinds, footnote: { ...xnote_kinds.footnote, title: null } },
+        },
+    };
+}
 
-    let my_ref_resolver = {
-        get_ref(ref_type, ref_label, resource_info) {
-            let ref_instance = eczoodb.zoo_flm_environment.ref_resolver.get_ref(
-                ref_type, ref_label, resource_info
-            );
-            if (captureLinksToObjectTypes.includes(ref_type)) {
-                return new RefInstance( $$kw(
-                    Object.assign({}, ref_instance.asdict(), {
-                        target_href: `jsCallbackRef:${ref_type}/${ref_label}`,
-                    })
-                ) );
-            }
-            return null;
+function mkRenderWrapUtils({ eczoodb })
+{
+    const zoo_flm_engine = eczoodb.zoo_flm_engine;
+    const flm_compiler = eczoodb.codegraph_flm_compiler;
+
+    const fragments_made = [];
+
+    const compile_field = (object_type, object, fieldname) => {
+        const value = object[fieldname];
+        const fragment = flm_compiler.compile_flm(value, {
+            object_type,
+            object_schema: eczoodb.schema(object_type),
+            object,
+            fieldname,
+        });
+        if (fragment !== value) {
+            fragments_made.push(fragment);
         }
+        return fragment;
+    };
+
+    const truncate = (fragment, chars) => {
+        const { fragment: truncated } = zoo_flm_engine.truncate(fragment, { chars });
+        fragments_made.push(truncated);
+        return truncated;
     };
 
     return {
-        zoo_flm_environment,
-        flm_simple_content,
-        render: (render_doc_fn) => {
-            const html = make_and_render_document({
-                zoo_flm_environment,
-                render_doc_fn,
-                render_endnotes: {
-                    target_id: null,
-                    include_headings_at_level: false,
-                    endnotes_heading_title: null,
-                    endnotes_heading_level: null,
-                },
-                feature_render_options: {
-                    refs: {
-                        add_external_ref_resolvers: [ my_ref_resolver ],
-                    },
-                },
-                flm_error_policy: 'continue',
-            });
-            debug("Got HTML: ", html);
-            return html;
+        compile_field,
+        truncate,
+        render: (compose) => {
+            try {
+                const { html, diagnostics } = zoo_flm_engine.render_document({
+                    compose,
+                    context: codegraph_flm_context,
+                    render_options: mkPaneRenderOptions({ eczoodb }),
+                });
+                for (const diagnostic of diagnostics) {
+                    console.warn(`Code graph information pane: ${format_diagnostic(diagnostic)}`);
+                }
+                debug("Got HTML: ", html);
+                return html;
+            } finally {
+                zoo_flm_engine.release(fragments_made);
+            }
         }
     };
 }
@@ -84,13 +104,9 @@ function mkRenderWrapUtils({ eczoodb, captureLinksToObjectTypes })
 
 
 
-function renderHtmlCode({ eczoodb, code, displayInformationOptions,
-                          captureLinksToObjectTypes, })
+function renderHtmlCode({ eczoodb, code, displayInformationOptions, })
 {
-    const { flm_simple_content, render } = mkRenderWrapUtils({
-        eczoodb,
-        captureLinksToObjectTypes,
-    });
+    const { compile_field, truncate, render } = mkRenderWrapUtils({ eczoodb });
 
     let { truncateDescriptionLength } = displayInformationOptions ?? {};
     truncateDescriptionLength ??= 700;
@@ -102,33 +118,13 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
     const code_id = code.code_id;
     const code_ref_link = eczoodb.zoo_object_permalink('code', code_id);
 
-    const code_schema = eczoodb.schemas.code;
+    let code_name = compile_field('code', code, 'name');
 
-    let code_name = flm_simple_content.compile_flm(
-        code.name,
-        { object_type: 'code',
-          object_schema: code_schema,
-          object: code,
-          fieldname: 'name' }
-    );
+    let code_introduced = compile_field('code', code, 'introduced');
 
-    let code_introduced = flm_simple_content.compile_flm(
-        code.introduced,
-        { object_type: 'code',
-          object_schema: code_schema,
-          object: code,
-          fieldname: 'introduced' }
-    );
+    let code_description = compile_field('code', code, 'description');
 
-    let code_description = flm_simple_content.compile_flm(
-        code.description,
-        { object_type: 'code',
-          object_schema: code_schema,
-          object: code,
-          fieldname: 'description' }
-    );
-
-    let short_description = code_description.truncate_to( truncateDescriptionLength );
+    let short_description = truncate(code_description, truncateDescriptionLength);
 
     let kingdom = code.relations?.root_for_kingdom?.[0]?.kingdom ?? null;
     // let kingdom_name = null;
@@ -146,9 +142,7 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
     //     );
     // }
 
-    const render_doc_fn = (render_context) => {
-        
-        const { ne, rdr, ref } = make_render_shorthands({render_context});
+    const compose = ({ rdr, ref, endnotes }) => {
 
         let s = '';
 
@@ -196,51 +190,31 @@ function renderHtmlCode({ eczoodb, code, displayInformationOptions,
             }
         }
         
-        s += sqzhtml`
-  <RENDER_ENDNOTES/>`;
+        s += endnotes();
 
         return s;
     };
 
-    return render(render_doc_fn);
+    return render(compose);
 }
 
 
-function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
+function renderHtmlDomain({ eczoodb, domain, })
 {
-    const { flm_simple_content, render } = mkRenderWrapUtils({
-        eczoodb,
-        captureLinksToObjectTypes,
-    });
+    const { compile_field, render } = mkRenderWrapUtils({ eczoodb });
 
     // -----------------
 
     debug(`Rendering domain information ...`);
 
 
-    const domain_schema = eczoodb.schemas.domain;
+    let domain_name = compile_field('domain', domain, 'name');
 
-    let domain_name = flm_simple_content.compile_flm(
-        domain.name,
-        { object_type: 'domain',
-          object_schema: domain_schema,
-          object: domain,
-          fieldname: 'name' }
-    );
-
-    let domain_description = flm_simple_content.compile_flm(
-        domain.description,
-        { object_type: 'domain',
-          object_schema: domain_schema,
-          object: domain,
-          fieldname: 'description' }
-    );
+    let domain_description = compile_field('domain', domain, 'description');
 
     const domain_ref_link = eczoodb.zoo_object_permalink('domain', domain.domain_id);
 
-    let render_doc_fn = (render_context) => {
-
-        const { ne, rdr, ref } = make_render_shorthands({render_context});
+    const compose = ({ rdr, ref }) => {
 
         let s = '';
         s += sqzhtml`
@@ -264,49 +238,26 @@ function renderHtmlDomain({ eczoodb, domain, captureLinksToObjectTypes, })
         return s;
     };
 
-    return render(render_doc_fn);
+    return render(compose);
 }
 
 
 
-function renderHtmlKingdom({ eczoodb, kingdom, captureLinksToObjectTypes, })
+function renderHtmlKingdom({ eczoodb, kingdom, })
 {
-    const { flm_simple_content, render } = mkRenderWrapUtils({
-        eczoodb,
-        captureLinksToObjectTypes,
-    });
+    const { compile_field, render } = mkRenderWrapUtils({ eczoodb });
 
     // -----------------
 
     debug(`Rendering kingdom information ...`);
 
-    const kingdom_schema = eczoodb.schemas.kingdom;
-
     const kingdom_id = kingdom.kingdom_id;
     const kingdom_ref_link = eczoodb.zoo_object_permalink('kingdom', kingdom_id);
 
-    const kingdom_name = flm_simple_content.compile_flm(
-        kingdom.name,
-        {
-            object_type: 'kingdom',
-            object_schema: kingdom_schema,
-            object: kingdom,
-            fieldname: 'name',
-        }
-    );
-    const kingdom_description = flm_simple_content.compile_flm(
-        kingdom.description,
-        {
-            object_type: 'kingdom',
-            object_schema: kingdom_schema,
-            object: kingdom,
-            fieldname: 'description',
-        }
-    );
+    const kingdom_name = compile_field('kingdom', kingdom, 'name');
+    const kingdom_description = compile_field('kingdom', kingdom, 'description');
 
-    let render_doc_fn = (render_context) => {
-
-        const { ne, rdr, ref } = make_render_shorthands({render_context});
+    const compose = ({ rdr, ref }) => {
 
         let s = '';
         s += sqzhtml`
@@ -331,24 +282,19 @@ function renderHtmlKingdom({ eczoodb, kingdom, captureLinksToObjectTypes, })
         return s;
     };
 
-    return render(render_doc_fn);
+    return render(compose);
 }
 
 
-function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
+function renderHtmlEmpty({ eczoodb, })
 {
-    const { flm_simple_content_, render } = mkRenderWrapUtils({
-        eczoodb,
-        captureLinksToObjectTypes,
-    });
+    const { render } = mkRenderWrapUtils({ eczoodb });
 
     // -----------------
 
     debug(`Rendering empty pane information ...`);
 
-    let render_doc_fn = (render_context) => {
-
-        const { ne, rdr, ref } = make_render_shorthands({render_context});
+    const compose = ({ ref }) => {
 
         let s = '';
         s += sqzhtml`
@@ -373,7 +319,7 @@ function renderHtmlEmpty({ eczoodb, captureLinksToObjectTypes, })
         return s;
     }
 
-    return render(render_doc_fn);
+    return render(compose);
 }
 
 
@@ -397,15 +343,16 @@ export function CodeGraphInformationPane(props)
         currentCodeSelected,
         currentDomainSelected,
         currentKingdomSelected,
-        captureLinksToObjectTypes,
         onLinkToObjectActivated,
         displayInformationOptions,
     } = props;
 
     debug(`CodeGraphInformationPane component - render`, props);
-    
-    captureLinksToObjectTypes ??= [ 'code', 'domain', 'kingdom' ];
-   
+
+    // (The links to codes, domains and kingdoms are captured: the index of the
+    // FLM engine's output context in which the pane is rendered gives them
+    // `#jsCallbackRef:` addresses, see setup_eczoodb.js.)
+
     //
     // React hooks.
     //
@@ -428,7 +375,6 @@ export function CodeGraphInformationPane(props)
                     let html = renderHtmlCode({
                         eczoodb,
                         displayInformationOptions,
-                        captureLinksToObjectTypes,
                         code: currentCodeSelected,
                     });
                     setCompiledHtmlContent({ html, what, });
@@ -436,7 +382,6 @@ export function CodeGraphInformationPane(props)
                     let html = renderHtmlDomain({
                         eczoodb,
                         displayInformationOptions,
-                        captureLinksToObjectTypes,
                         domain: currentDomainSelected,
                     });
                     setCompiledHtmlContent({ html, what, });
@@ -444,7 +389,6 @@ export function CodeGraphInformationPane(props)
                     let html = renderHtmlKingdom({
                         eczoodb,
                         displayInformationOptions,
-                        captureLinksToObjectTypes,
                         kingdom: currentKingdomSelected,
                     });
                     setCompiledHtmlContent({ html, what, });
@@ -452,7 +396,6 @@ export function CodeGraphInformationPane(props)
                     let html = renderHtmlEmpty({
                         eczoodb,
                         displayInformationOptions,
-                        captureLinksToObjectTypes,
                     });
                     //debug('Gonna update panel html contents...');
                     setCompiledHtmlContent({ html, what, });
@@ -460,14 +403,20 @@ export function CodeGraphInformationPane(props)
             } else {
                 let domNode = contentDomRef.current;
                 if (domNode != null) {
-                    // install MathJax formulas
-                    if (window?.MathJax?.typesetPromise != null) {
-                        await window.MathJax.typesetPromise([ domNode ]);
-                    }
+                    // typeset the formulas: the FLM engine's convention for
+                    // content updated in place, the event `flm:region-updated`
+                    // on the element whose content is new, on which the
+                    // MathJax configuration of the page (the engine's
+                    // html_scripts()) typesets the formulas that are not
+                    // typeset yet
+                    domNode.dispatchEvent(new CustomEvent('flm:region-updated', {
+                        bubbles: true,
+                        detail: { region: null, artifacts: [] },
+                    }));
                     // install link callbacks
                     for (const aNode of domNode.querySelectorAll('a')) {
                         let href = aNode.getAttribute("href");
-                        let m = /^jsCallbackRef:([^/]+)\/(.*)$/.exec(href);
+                        let m = /^#jsCallbackRef:([^/]+)\/(.*)$/.exec(href);
                         if (m != null) {
                             (function() { // make closure for objectType & objectId.
                                 let objectType = m[1];

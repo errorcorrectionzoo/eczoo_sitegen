@@ -49,5 +49,11 @@
       "~": "/",
       "/": "/site/_site"
     }
+  },
+  "alias": {
+    "yaml": "./node_modules/@phfaist/zoodb/node_modules/yaml/browser/dist/index.js"
+  },
+  "resolutions": {
+    "@phfaist/zoodb": "file:/Users/philippe/Research/projects/zoodb/zoodb/.worktrees/zoodb-flmrs/scratch/zoodb-flmrs.tgz"
   }
 }

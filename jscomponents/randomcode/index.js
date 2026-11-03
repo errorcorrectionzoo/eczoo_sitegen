@@ -84,11 +84,17 @@ export class RandomCodeShower
         this.element_container.appendChild(a_go);
         this.element_container.appendChild(a_new_random);
         this.element_container.appendChild(p_desc);
-        
-        if (window?.MathJax?.typesetPromise != null) {
-            window.MathJax.texReset();
-            window.MathJax.typesetPromise([this.element_container]);
-        }
+
+        // Typeset the formulas: the FLM engine's convention for content
+        // updated in place, the event `flm:region-updated` on the element whose
+        // content is new, on which the MathJax configuration of the page (the
+        // engine's html_scripts()) typesets the formulas that are not typeset
+        // yet (before MathJax has started, there is nothing to do: it
+        // typesets every formula of the page when it starts).
+        this.element_container.dispatchEvent(new CustomEvent('flm:region-updated', {
+            bubbles: true,
+            detail: { region: this.element_container.id || null, artifacts: [] },
+        }));
     }
 }
 

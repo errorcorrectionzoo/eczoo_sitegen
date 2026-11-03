@@ -22,12 +22,13 @@
     padding: $parskip-half-length 2*$parskip-half-length;
     background: $boxedcontent-background-color;
 
-    p, dl, ul, ol {
+    // (`.flm-pres-par`: a paragraph of FLM content, a `<p>` or a `<div>`)
+    p, .flm-pres-par, dl, ul, ol {
         margin: $parskip-half-length 0pt;
     }
 
-    .enumeration.enumerate, .enumeration.itemize {
-        row-gap: .1em;
+    .flm-pres-list[data-flm-kind~="enumerate"], .flm-pres-list[data-flm-kind~="itemize"] {
+        --flm-list-entry-spacing: .1em;
     }
 }
 

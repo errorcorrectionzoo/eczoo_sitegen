@@ -35,8 +35,10 @@ describe('get_list_data', function () {
     before(async function () {
         eczoodb = await load_eczoo({
             eczoodb_options: {
-                flm_allow_unresolved_citations: true,
-                flm_allow_unresolved_references: true,
+                flm_options: {
+                    allow_unresolved_citations: true,
+                    allow_unresolved_references: true,
+                },
             },
         });
     });
@@ -573,8 +575,10 @@ describe('describe_codelist', function () {
     before(async function () {
         eczoodb = await load_eczoo({
             eczoodb_options: {
-                flm_allow_unresolved_citations: true,
-                flm_allow_unresolved_references: true,
+                flm_options: {
+                    allow_unresolved_citations: true,
+                    allow_unresolved_references: true,
+                },
             },
         });
     });

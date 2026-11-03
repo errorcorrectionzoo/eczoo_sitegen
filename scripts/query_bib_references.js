@@ -45,15 +45,27 @@ async function runmain(args)
     // Zoo is loaded (eczoodb). Query anything we need from it at this point.
     //
 
-    const encountered_citations = eczoodb.zoo_flm_processor.scanner.get_encountered('citations');
+    // every key each object cites (the FLM processor's scan of the zoo, one
+    // entry per key and field)
+    const encountered_citations = [];
+    for (const object_entry of eczoodb.zoo_flm_processor.scan_results.objects.values()) {
+        for (const cited of object_entry.cited) {
+            encountered_citations.push({
+                cite_prefix: cited.cite_prefix,
+                cite_key: cited.cite_key,
+                object_type: object_entry.object_type,
+                object_id: object_entry.object_id,
+                source_path: cited.fragment?.origin?.source_path ?? null,
+            });
+        }
+    }
 
     let data = {};
 
     for (const encountered_citation of encountered_citations) {
         //debug(`encountered citation, `, encountered_citation);
-        const { cite_prefix, cite_key } = encountered_citation;
-        const { object_type, object_id, source_path } =
-            encountered_citation.encountered_in.resource_info;
+        const { cite_prefix, cite_key, object_type, object_id, source_path } =
+            encountered_citation;
         if (args.citePrefix && args.citePrefix !== cite_prefix) {
             continue;
         }

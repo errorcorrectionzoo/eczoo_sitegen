@@ -37,7 +37,7 @@ protection: |
   \item Quatre
   \end{enumerate}
 
-  \begin{itemize}[{⇒}]
+  \begin{itemize}[label={⇒}]
   \item One
   \item Two
   \item Three

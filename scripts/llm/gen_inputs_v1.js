@@ -95,15 +95,15 @@ async function runmain(args)
 
     // iterate over all codes
     for (const [code_id, code] of Object.entries(eczoodb.objects.code)) {
-        debug(`Trying ${code_id} ...`, code.introduced?.flm_text);
+        debug(`Trying ${code_id} ...`, code.introduced?.source);
 
-        if (! code.introduced?.flm_text ) {
+        if (! code.introduced?.source ) {
             // no introduced field, skip
             continue;
         }
         // identify codes that are introduced in a single arXiv paper
         const m = /^\s*\\cite\s*\{[aA][rR][xX][iI][vV]:([0-9a-zA-Z._/-]+)\}\s*$/.exec(
-            code.introduced.flm_text
+            code.introduced.source
         );
         if (m == null) {
             // no match.

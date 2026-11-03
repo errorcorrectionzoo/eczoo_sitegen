@@ -34,25 +34,13 @@
 }
 
 
-// ------------------------------------
-// FLM Base Style (adapted)
-// ------------------------------------
+// ------------------------------------------------------------------
+// The site's classes for italic and bold text, which the data gives to
+// elements of the site's own: e.g., the `cssclass` of a code list's column
+// (see docs/CODELISTS_HOWTO.md).
+// ------------------------------------------------------------------
 
-
-.p-block {
-    // remember, top margin of next element overlaps with bottom margin of previous one
-    margin-top: 2*$parskip-half-length;
-    margin-bottom: 2*$parskip-half-length;
-}
-.p-block:first-child {
-    margin-top: 0px !important;
-}
-.p-block:last-child {
-    margin-bottom: 0px !important;
-}
-
-
-.emph, .textit {
+.textit {
     font-style: italic;
 }
 .textbf {
@@ -60,33 +48,81 @@
 }
 
 
-.enumeration {
-    > dt {
-        font-style: normal;
-    }
+// ------------------------------------
+// FLM content: the EC zoo's look
+// ------------------------------------
+//
+// The HTML of FLM content is the FLM engine's (its HTML contract: the classes
+// `flm-pres-*` and `flm-<feature>-*`, the attributes `data-flm-*`).  The
+// engine's own stylesheet, /dynamic_style/flm.css (src/dynamic_style/,
+// html_stylesheet()), gives the defaults, every rule of it in the cascade
+// layer `flm`.  The rules below are outside that layer, so each of them wins
+// over the engine's whatever the selectors' specificity; they set only what
+// the EC zoo styles differently from the engine's defaults.  (So do the site's
+// own element rules, such as those of `p`, `a`, `h2` and `code` in
+// fonts-basic-appearance.scss.)
+//
+
+
+// The engine's custom properties, set to the EC zoo's values.
+:root {
+    // paragraphs and blocks: the site's paragraph skip
+    --flm-block-spacing: #{2*$parskip-half-length};
+    // a displayed formula: no space of its own.  The engine keeps a displayed
+    // formula inside its paragraph, as the former site did (`.display-math`),
+    // so the text runs on above and below it, spaced by MathJax's own
+    // container margins, which stay inside the engine's display box (it
+    // scrolls sideways); a formula that ends its paragraph is followed by the
+    // paragraph's margin.
+    --flm-math-display-space-above: 0px;
+    --flm-math-display-space-below: 0px;
+    // the caption line under a float: the text's size, a little apart
+    --flm-floats-caption-size: 1em;
+    --flm-floats-caption-spacing: 0.75em;
+    // the custom cell styles: translucent, for the light and the dark color
+    // schemes alike
+    --flm-cells-green: rgba(69, 255, 69, 0.31); /*rgb(200,255,215);*/
+    --flm-cells-blue: rgba(79, 142, 255, 0.27); /*rgb(200,220,255);*/
+    --flm-cells-yellow: rgba(255, 255, 49, 0.33); /*rgb(255,255,200);*/
+    --flm-cells-red: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
+    // the background of code (inline and as a block): translucent as well
+    --flm-verbatim-background: rgba(127,127,127,0.25);
 }
-.enumeration.enumerate, .enumeration.itemize {
 
-    row-gap: $parskip-half-length;
 
-    > dt {
-        margin-left: 0.8em;
-    }
+//
+// lists (enumerate, itemize): the labels close to the text, as in the former
+// layout of a list as a grid of terms and descriptions
+//
+.flm-pres-list[data-flm-kind~="enumerate"],
+.flm-pres-list[data-flm-kind~="itemize"] {
+    --flm-list-indent: 0.8em;
+    --flm-list-label-gap: 1rem;
+    --flm-list-entry-spacing: #{$parskip-half-length};
+}
+// the terms of a list of terms are upright (the site sets every <dt> in
+// italics)
+.flm-pres-list > dt {
+    font-style: normal;
 }
 
 
-.heading-level-3 {
-    // \section{...}
+//
+// headings: \subsection in a field (an <h3>) is bold, at the text's size
+//
+.flm-pres-block--heading[data-flm-heading="subsection"] {
     font-weight: bold;
     margin: 1.25em 0 1em;
     font-size: 1rem;
+    line-height: inherit;
 }
 
-.heading-level-4 {
-    // \paragraph{...}
+// \paragraph{...}: a run-in heading, in italics, followed by a dash (the
+// engine writes no stop after it: `html.run_in_stop` in eczoodb.js), and no
+// gap of the run-in decoration after the dash
+.flm-pres-runin--heading[data-flm-heading="paragraph"] {
     font-style: italic;
-    display: inline;
-    //margin-right: 1em;
+    font-weight: normal;
 
     &::after {
         display: inline-block;
@@ -94,93 +130,50 @@
         content: '—';
     }
 }
-
-
-table.cells {
-  margin: 1em auto 1em auto;
-  // border-collapse: collapse;
-  border-collapse: separate;
-  border-spacing: 0px;
-  // border-top: solid 1pt;
-  // border-bottom: solid 1pt;
-
-  box-sizing: border-box;
-  max-width: 100%;
-  max-width: calc(100% - 3em);
-
-  td {
-      padding: 0.3em 0.5em;
-      border: none 0px;
-  }
-  th {
-      padding: 0.3em 0.5em;
-      border: none 0px;
-  }
-  .cellstyle-H {
-      border-bottom: solid .5pt;
-  }
-  .cellstyle-rH {
-  }
-  .cellstyle-l {
-      text-align: left;
-  }
-  .cellstyle-c {
-      text-align: center;
-  }
-  .cellstyle-r {
-      text-align: right;
-  }
-  .cellstyle-green {
-      background-color: rgba(69, 255, 69, 0.31); /*rgb(200,255,215);*/
-  }
-  .cellstyle-blue {
-      background-color: rgba(79, 142, 255, 0.27); /*rgb(200,220,255);*/
-  }
-  .cellstyle-yellow {
-      background-color: rgba(255, 255, 49, 0.33); /*rgb(255,255,200);*/
-  }
-  .cellstyle-red {
-      background-color: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
-  }
-  .cellstyle-lvert {
-      border-left: solid var(--main-text-color) .5pt;
-  }
-  .cellstyle-rvert {
-      border-right: solid var(--main-text-color) .5pt;
-  }
-
-  .celltbledge-top {
-      border-top: solid var(--main-text-color) 1pt;
-  }
-  .celltbledge-bottom {
-      border-bottom: solid var(--main-text-color) 1pt;
-  }
-
+.flm-pres-deco-runin:has(> .flm-pres-runin--heading[data-flm-heading="paragraph"]) {
+    --flm-runin-gap: 0px;
 }
 
 
-.verbatimcode {
-  font-family: monospace;
-  font-size: 0.9em;
-  background-color: rgba(127,127,127,0.25);
-  border-radius: 2px;
-  padding: 1px 2px;
-  display: inline-block;
-  white-space: pre-wrap;
-}
-.verbatima {
-  font-style: italic;
-}
-.verbatimcode-environment {
-  display: block;
-  margin: 0.75em 0px 1em;
-  white-space: pre;
+//
+// tables of cells
+//
+.flm-pres-cells {
+    margin: 1em auto 1em auto;
+
+    box-sizing: border-box;
+    max-width: 100%;
+    max-width: calc(100% - 3em);
 }
 
 
+//
+// verbatim content
+//
+.flm-pres-verbatim[data-flm-kind="code"][data-flm-display="inline"] {
+    font-family: monospace;
+    font-size: 0.9em;
+    border-radius: 2px;
+    padding: 1px 2px;
+    display: inline-block;
+    white-space: pre-wrap;
+}
+// an identifier (\verba): in italics (the engine's), in the text's font
+.flm-pres-verbatim[data-flm-kind="a"] {
+    font-family: inherit;
+    font-size: inherit;
+}
+.flm-pres-verbatim[data-flm-display="block"] {
+    font-family: monospace;
+    font-size: 0.9em;
+    margin: 0.75em 0px 1em;
+}
 
 
-figure.float {
+//
+// floats (figures, tables)
+//
+.flm-pres-block.flm-floats-float {
     /*min-width: 200pt;*/
     box-sizing: border-box;
     width: 100%;
@@ -193,44 +186,40 @@ figure.float {
     margin: 0.5rem 0px;
     padding: 0.5rem 0px;
 
-    &.float-table {
+    &[data-flm-kind~="table"] {
         // suppress borders for tables
         border-style: none none none none;
         // and separate the table a bit more from its surroundings
         margin: 1rem 0px 1rem;
     }
 
-    .float-contents {
+    > .flm-floats-float-content {
         box-sizing: border-box;
         width: 100%;
         max-width: 100%;
         overflow-x: auto;
 
-        img {
-            display: block;
-            margin: 0pt;
+        > .flm-pres-image {
+            margin: 0px auto;
             padding: 0pt;
             border: 0pt;
-            margin: 0px auto;
 
             background-color: var(--light-main-background-color);
             box-shadow: 0px 0px 3px var(--light-main-background-color);
         }
 
-        table.cells {
+        > .flm-pres-cells {
             margin-top: 0px;
             margin-bottom: 0px;
         }
     }
 
-    figcaption {
-        display: block;
-        margin-top: 0.5em;
+    > .flm-floats-float-caption {
         margin: 0.75em 2em 0px;
 
         text-align: center;
 
-        > span {
+        > .flm-pres-par {
             display: inline-block;
 
             font-style: italic;
@@ -241,103 +230,109 @@ figure.float {
 }
 
 
+//
+// term definitions: the lead-in (the term and its colon) in bold italics,
+// which writes its own space after the colon
+//
+.flm-defterm {
+    --flm-runin-gap: 0px;
 
-
-.defterm {
-    //font-style: italic;
-
-    .defterm-term {
+    .flm-defterm-leadin {
         font-style: italic;
         font-weight: bold;
     }
 }
 
 
-
-.display-math {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-
-    display: block;
-    overflow-x: auto;
-}
-
-.endnote-marks, .citation-marks {
+//
+// citation and footnote marks: raised without moving the baseline
+//
+.flm-citations-mark, .flm-xnotes-xnote-mark {
     @include fixbaseline-superscript-text;
 }
 
 
+//
+// quotations (the quote environment and its sections \text, \lines,
+// \attributed, \block; address and blockquote).  The alternatives commented
+// out, written for the former classes, are translated to the engine's; an
+// attribution's dash there would be doubled by the engine's own
+// (--flm-quote-attributed-lead).
+//
+
 /*
-.quote, .address, .blockquote {
+.flm-quote[data-flm-kind~="quote"], .flm-quote[data-flm-kind~="address"], .flm-quote[data-flm-kind~="blockquote"] {
   margin: 1em 0;
 }
-.quote {
+.flm-quote[data-flm-kind~="quote"] {
   background: var(--boxedcontent-background-color);
   padding: 1em 3em;
 }
-.quote .quote-lines,
-.quote .quote-text {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines,
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-text {
   font-style: italic;
   margin: 0.5em 0;
 }
-.quote-attributed {
+.flm-quote-attributed {
   margin: 0.5em 0;
   text-align: right;
 }
-.quote .quote-attributed::before {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-attributed > .flm-pres-par:first-child::before {
   content: '—';
 }
-.quote-block {
+.flm-quote-block {
   padding-left: 1em;
   border-left: solid 4pt var(--boxedcontent-background-color) ;
 }*/
 
 /* CLAUDE OPTION A */
 /*
-.quote, .address, .blockquote {
+.flm-quote[data-flm-kind~="quote"], .flm-quote[data-flm-kind~="address"], .flm-quote[data-flm-kind~="blockquote"] {
   margin: 1.5em 0;
 }
-.quote {
+.flm-quote[data-flm-kind~="quote"] {
   background: transparent;
   padding: 0.75em 1.5em 0.75em 2em;
   border-left: 3px solid var(--boxedcontent-background-color);
   position: relative;
 }
-.quote .quote-lines,
-.quote .quote-text {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines,
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-text {
   font-style: italic;
   margin: 0.5em 0;
   line-height: 1.6;
   color: inherit;
   opacity: 0.85;
 }
-.quote-attributed {
+.flm-quote-attributed {
   margin: 0.75em 0 0.25em;
   text-align: right;
   font-style: normal;
   font-size: 0.9em;
   opacity: 0.7;
 }
-.quote .quote-attributed::before {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-attributed > .flm-pres-par:first-child::before {
   content: '— ';
 }
-.quote-block {
+.flm-quote-block {
   padding-left: 1.5em;
   border-left: 3px solid var(--boxedcontent-background-color);
 }*/
 
 /* CLAUDE OPTION B */
-.quote, .address, .blockquote {
+.flm-pres-block.flm-quote {
   margin: 1.5em 0;
+  // a block section (\block): a line on its left
+  --flm-quote-block-rule: 2pt solid var(--boxedcontent-border-color);
+  --flm-quote-block-padding: 1.5em;
 }
-.quote {
+.flm-pres-block.flm-quote[data-flm-kind~="quote"] {
   background: var(--boxedcontent-background-color);
   padding: 1.25em 2em 1em 4.5em;
   //border-radius: 2pt;
   position: relative;
 }
-.quote::before {
+.flm-pres-block.flm-quote[data-flm-kind~="quote"]::before {
   content: '\201C';
   position: absolute;
   left: 0.4em;
@@ -347,61 +342,65 @@ figure.float {
   opacity: 0.15;
   //font-family: 'Source Serif 4', 'Times New Roman', serif; // Nope, use same ol' Source Sans 3
 }
-.quote .quote-lines,
-.quote .quote-text {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines,
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-text {
   font-style: italic;
   margin: 0.4em 0;
   line-height: 1.6;
+  &:first-child {
+    margin-top: 0px;
+  }
+  &:last-child {
+    margin-bottom: 0px;
+  }
 }
-.quote .quote-lines + .quote-lines {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines + .flm-quote-lines {
   margin-top: 1em;
 }
-.quote .quote-lines .quote-lines-indent {
-  display: inline-block;
-  width: 2.5em;
+// the lines of a quotation: no space of their own inside the section; an
+// indented line (\indent) is set in by 2.5em per step
+.flm-quote-lines > .flm-pres-lines {
+  margin: 0px;
 }
-.quote-attributed {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines {
+  --flm-tab: 2.5em;
+}
+// an attribution: its dash is the engine's (--flm-quote-attributed-lead)
+.flm-quote > .flm-quote-attributed {
   margin: 0.75em 0 0.25em;
   text-align: right;
   font-style: normal;
   font-size: 0.9em;
   opacity: 0.65;
 }
-.quote .quote-attributed::before {
-  content: '— ';
-}
-.quote-block {
-  padding-left: 1.5em;
-  border-left: 2pt solid var(--boxedcontent-border-color);
-}
 @media screen and (max-width: $page-collapse-layout-width) {
-  .quote {
+  .flm-pres-block.flm-quote[data-flm-kind~="quote"] {
     padding: 1.5em 1.5em 1em 1.5em;
   }
-  .quote::before {
+  .flm-pres-block.flm-quote[data-flm-kind~="quote"]::before {
     left: .35em;
     top: -0.05em;
     font-size: 3em;
   }
 }
 /* CLAUDE OPTION C */ /*
-.quote, .address, .blockquote {
+.flm-quote[data-flm-kind~="quote"], .flm-quote[data-flm-kind~="address"], .flm-quote[data-flm-kind~="blockquote"] {
   margin: 1.5em 0;
 }
-.quote {
+.flm-quote[data-flm-kind~="quote"] {
   background: transparent;
   padding: 1em 2em;
   border-top: 1px solid var(--boxedcontent-border-color);
   border-bottom: 1px solid var(--boxedcontent-border-color);
 }
-.quote .quote-lines,
-.quote .quote-text {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-lines,
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-text {
   font-style: italic;
   margin: 0.5em 0;
   line-height: 1.6;
   text-align: center;
 }
-.quote-attributed {
+.flm-quote-attributed {
   margin: 0.5em 0 0;
   text-align: center;
   font-style: normal;
@@ -409,19 +408,15 @@ figure.float {
   opacity: 0.6;
   letter-spacing: 0.02em;
 }
-.quote .quote-attributed::before {
+.flm-quote[data-flm-kind~="quote"] > .flm-quote-attributed > .flm-pres-par:first-child::before {
   content: '— ';
 }
-.quote-block {
+.flm-quote-block {
   padding-left: 1.5em;
   border-left: 3px solid var(--boxedcontent-background-color);
 }*/
 /* END CLAUDE OPTIONS */
 
-.address .quote-lines {
-  font-size: .933em;
-}
-
-.blockquote {
+.flm-pres-block.flm-quote[data-flm-kind~="blockquote"] {
   padding: 0 1em;
 }

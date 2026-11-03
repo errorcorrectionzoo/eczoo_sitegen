@@ -26,7 +26,7 @@ const render = async (data) => {
 
     const ecz_bibliorefs_collector = eczoodb.site_ecz_bibliorefs_collector;
 
-    const bibtex_list = ecz_bibliorefs_collector.generateBibtexEntries();
+    const bibtex_list = await ecz_bibliorefs_collector.generateBibtexEntries();
 
     return bibtex_list.join('\n');
 };

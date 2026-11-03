@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+import _ from 'lodash';
+
 import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
 import { createEcZooDb } from '../eczoodb.js';
 import { get_eczoo_full_options } from '../fullopts.js';
@@ -18,14 +20,18 @@ const data_dir = path.join(__dirname, '..', 'test_data');
 
 export async function load_eczoo({ eczoodb_options }={})
 {
-    let eczoodb = await createEcZooDb({
-        fs,
-        fs_data_dir: data_dir,
-        ... get_eczoo_full_options({
+    // (merged deeply, so that the test's `flm_options` add to the full
+    // options' rather than replace them)
+    let eczoodb = await createEcZooDb(_.merge(
+        {
+            fs,
+            fs_data_dir: data_dir,
+        },
+        get_eczoo_full_options({
             citationsinfo_cache_dir: '_TEST_zoodb_citations_cache',
         }),
-        ... (eczoodb_options ?? {}),
-    });
+        eczoodb_options ?? {},
+    ));
     let loader = await createEcZooYamlDbDataLoader(eczoodb);
     await eczoodb.install_zoo_loader_handler(
         new ZooDbDataLoaderHandler( loader )

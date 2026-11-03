@@ -1,9 +1,6 @@
 // import debug_mod from 'debug';
 // const debug = debug_mod("eczoodbjs.render_code_hierarchy");
 
-import {
-    render_text_standalone,
-} from '@phfaist/zoodb/zooflm';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 
@@ -259,7 +256,8 @@ export function render_code_hierarchy_content({
 })
 {
     const { refhref, rdr, ref, ne } = R;
-    const rdrtext = (fragment) => render_text_standalone(fragment);
+    // the plain text of a standalone field (a code's name)
+    const rdrtext = (fragment) => eczoodb.zoo_flm_engine.snippet(fragment, 'text');
 
     let code_hierarchy_content = '';
 

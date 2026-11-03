@@ -9,9 +9,6 @@
 .visual-highlight {
     @include visual-highlight;
 }
-.visual-highlight + dd {
-    @include visual-highlight;
-}
 
 
 

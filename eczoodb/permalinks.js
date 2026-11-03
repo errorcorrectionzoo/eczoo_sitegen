@@ -19,6 +19,10 @@ export function zoo_object_permalink(object_type, object_id)
             return `/all`;
         }
         return `/list/${object_id}`;
+    } else if (object_type === 'space') {
+        // The spaces have no page: null leaves them out of the FLM
+        // processor's index (a reference to a space is then unresolved).
+        return null;
     }
 
     throw new Error(`Unknown object type ‘${object_type}’`);

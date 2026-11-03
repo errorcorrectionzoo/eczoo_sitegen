@@ -97,8 +97,40 @@ export class EczBibReferencesCollector
         // will be used if include_compiled_flm
         const citation_compiler = zoo_flm_processor.citation_compiler;
 
-        const all_encountered_citations =
-            zoo_flm_processor.scanner.get_encountered('citations');
+        //
+        // Every key each object cites, from the FLM processor's scan of the
+        // zoo: `object_scan(TYPE, ID).cited` holds one entry per key and
+        // field (`scan_results.cited` holds only the first citation of each
+        // key).  Each citation is described as before: `encountered_in` gives
+        // the citing object (`resource_info`: `object_type`, `object_id`,
+        // `source_path`) and the field (`what`, the field's origin label);
+        // all of it is serializable (see saveBibDbData()).
+        //
+        const scan_results = zoo_flm_processor.scan_results;
+        if (scan_results == null) {
+            throw new Error(`The zoo's FLM processor has no scan results (load the zoo first)`);
+        }
+        let all_encountered_citations = [];
+        for (const object_entry of scan_results.objects.values()) {
+            const { object_type, object_id } = object_entry;
+            for (const cited of object_entry.cited) {
+                if (cited.cite_prefix == null) {
+                    continue;
+                }
+                all_encountered_citations.push({
+                    cite_prefix: cited.cite_prefix,
+                    cite_key: cited.cite_key,
+                    encountered_in: {
+                        resource_info: {
+                            object_type,
+                            object_id,
+                            source_path: cited.fragment?.origin?.source_path ?? null,
+                        },
+                        what: cited.origin,
+                    },
+                });
+            }
+        }
 
         let bib_db = this.bib_db; // alias to this.bib_db
 
@@ -261,12 +293,13 @@ export class EczBibReferencesCollector
         return c2;
     }
 
-    generateBibtexEntries(options={})
+    // asynchronous (see generateBibtex())
+    async generateBibtexEntries(options={})
     {
         if (!this.processed) {
             throw new Error(`call processEntries() before generateBibtexEntries()`);
         }
-        return generateBibtex(this.bib_db, options);
+        return await generateBibtex(this.bib_db, options);
     }
 
     generateCslJsonEntries()

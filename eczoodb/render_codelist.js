@@ -3,13 +3,11 @@ const debug = debug_mod("eczoodbjs.render_codelist");
 
 import { getfield } from '@phfaist/zoodb/util';
 
-import * as zooflm from '@phfaist/zoodb/zooflm';
-//const { $$kw, repr } = zooflm;
+import { is_fragment } from '@phfaist/zoodb/zooflm/engine';
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
 import {
     render_meta_changelog,
-    docrefs_placeholder_ref_resolver,
 } from './render_utils.js';
 
 import { get_list_data, describe_codelist } from './compile_codelist.js';
@@ -29,7 +27,7 @@ const get_code_relationship_to = (code, reference_code_id) => {
 
 const styles = {
 
-    table: ({codelist, list_data, R}) => {
+    table: ({codelist, list_data, R, preview}) => {
 
         const display_options = codelist.display?.options ?? {};
         const {ne, rdr, ref} = R;
@@ -87,13 +85,13 @@ const styles = {
                     }
 
                     // maybe fix the display_value
-                    if (ne(display_value) && column_info.first_paragraph_only) {
-                        // must be an FLMFragment for this to make sense.
-                        display_value = display_value.get_first_paragraph();
-                    }
-                    if (ne(display_value) && column_info.truncate_to != null) {
-                        // must be an FLMFragment for this to make sense.
-                        display_value = display_value.truncate_to(column_info.truncate_to);
+                    if (ne(display_value)
+                        && (column_info.first_paragraph_only
+                            || column_info.truncate_to != null)) {
+                        display_value = preview(display_value, {
+                            first_paragraph: column_info.first_paragraph_only,
+                            truncate_to: column_info.truncate_to,
+                        });
                     }
 
                     // render the value itself
@@ -122,7 +120,7 @@ const styles = {
         return html;
     },
 
-    index: ({codelist, list_data, R}) => {
+    index: ({codelist, list_data, R, preview}) => {
 
         const display_options = codelist.display?.options ?? {};
         const {ne, rdr, ref} = R;
@@ -159,13 +157,13 @@ const styles = {
             }
             if (display_options.show_description) {
                 let description = code.description;
-                if (ne(description) && display_options.description_first_paragraph) {
-                    description = description.get_first_paragraph();
-                }
-                if (ne(description) && display_options.description_truncate_to) {
-                    description = description.truncate_to(
-                        display_options.description_truncate_to
-                    );
+                if (ne(description)
+                    && (display_options.description_first_paragraph
+                        || display_options.description_truncate_to)) {
+                    description = preview(description, {
+                        first_paragraph: display_options.description_first_paragraph,
+                        truncate_to: display_options.description_truncate_to,
+                    });
                 }
                 html += `
       <div class="code-description code-index-code-description-start-hidden">${ rdr(description) }</div>` .trim();
@@ -185,26 +183,54 @@ const styles = {
 
 
 
+/**
+ * Renders a code list's page with the zoo's FLM engine (`zoo_flm_engine`, by
+ * default `eczoodb.zoo_flm_engine`).  Returns the result of the engine's
+ * `render_document()`, `{ html, diagnostics, ... }`; the caller prints the
+ * diagnostics.  The fragments this page makes (the truncated descriptions
+ * and the automatic description) are released once the page is rendered.
+ * `render_document_options` are passed on to `render_document()` (e.g.,
+ * `context`).
+ */
 export function render_codelist_page(
     codelist,
     {
-        eczoodb, doc_metadata, additional_setup_render_context,
+        eczoodb, zoo_flm_engine,
         render_meta_changelog_options,
         include_code_graph_excerpt,
         include_auto_description,
+        render_document_options,
     }
 )
 {
     debug(`render_codelist_page(): Rendering list ‘${codelist.list_id}’ ...`);
 
-    additional_setup_render_context ??= null;
     include_code_graph_excerpt ??= false;
     include_auto_description ??= true;
 
-    const zoo_flm_environment = eczoodb.zoo_flm_environment;
+    zoo_flm_engine ??= eczoodb.zoo_flm_engine;
 
     const styles_render_fn = styles[codelist.display?.style ?? 'index']
     const list_data = get_list_data({codelist, eczoodb});
+
+    // The fragments made for this page only, released when it is rendered.
+    let page_fragments = [];
+
+    // A shortened copy of a field for a column or a description: its first
+    // paragraph and/or about `truncate_to` characters.  (A value that is not
+    // a fragment is shown as it is.)
+    const preview = (value, { first_paragraph, truncate_to }) => {
+        if (!is_fragment(value)) {
+            return value;
+        }
+        const { fragment } = zoo_flm_engine.truncate(value, {
+            first_paragraph: Boolean(first_paragraph),
+            // without a length, the whole first paragraph
+            chars: truncate_to ?? (value.source.length + 1),
+        });
+        page_fragments.push(fragment);
+        return fragment;
+    };
 
     let auto_description_fragment = null;
     if (include_auto_description) {
@@ -213,17 +239,23 @@ export function render_codelist_page(
         if (pattern && pattern.type && pattern.type !== 'custom') {
             heading += ` (\\verba{${pattern.type}})`;
         }
-        auto_description_fragment = zoo_flm_environment.make_fragment(heading + ': ' + description_flm);
+        auto_description_fragment = zoo_flm_engine.make_fragment(
+            heading + ': ' + description_flm,
+            {
+                origin: {
+                    object_type: 'codelist',
+                    object_id: codelist.list_id,
+                    field: 'auto_description',
+                    label: `codelist:${codelist.list_id}#auto_description`,
+                },
+            }
+        );
+        page_fragments.push(auto_description_fragment);
     }
     
-    const render_doc_fn = (render_context) => {
+    const compose = (R) => {
 
-        if (additional_setup_render_context) {
-            additional_setup_render_context(render_context);
-        }
-
-        const R = zooflm.make_render_shorthands({render_context});
-        const { ne, rdr, ref } = R;
+        const { ne, rdr, ref, endnotes } = R;
 
         let html = '';
 
@@ -241,7 +273,7 @@ export function render_codelist_page(
 `;
         }
 
-        html += styles_render_fn( {codelist, list_data, R} );
+        html += styles_render_fn( {codelist, list_data, R, preview} );
 
         if (include_auto_description) {
             html += sqzhtml`
@@ -261,7 +293,7 @@ export function render_codelist_page(
 
         html += `
 
-<RENDER_ENDNOTES/>
+${ endnotes() }
 
 `;
 
@@ -276,21 +308,19 @@ export function render_codelist_page(
         return html;
     };
 
-    // use placeholder_ref_resolver to ignore any undefined references -- e.g. a
-    // figure reference in the first paragraph of a description text that was
-    // used as a snippet
+    // (A reference in a truncated description to a label of the code's page,
+    // such as a figure's, resolves through the zoo's index: it links to the
+    // code's page.)
 
-    return zooflm.make_and_render_document({
-        zoo_flm_environment,
-        render_doc_fn,
-        doc_metadata,
-        render_endnotes: true,
-        feature_render_options: {
-            refs: {
-                add_external_ref_resolvers: [ docrefs_placeholder_ref_resolver ],
-            },
-        },
-    });
+    try {
+        return zoo_flm_engine.render_document({
+            compose,
+            ...(render_document_options ?? {}),
+        });
+    } finally {
+        zoo_flm_engine.release(page_fragments);
+        page_fragments = [];
+    }
 
 };
 

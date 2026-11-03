@@ -16,7 +16,8 @@ import {
     CitationSourceApiPlaceholder,
     //installFlmContentStyles,
     //simpleRenderObjectWithFlm,
-    installZooFlmEnvironmentLinksAndGraphicsHandlers,
+    previewObjectHref,
+    previewGraphicsDataUrl,
 } from '@phfaist/zoodbtools_preview';
 
 import { setupBrowserFs, ZooDbGithubRepoPreviewComponent } from '@phfaist/zoodbtools_gitpreview';
@@ -27,6 +28,7 @@ import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
 import { createEcZooDb } from '@errorcorrectionzoo/eczoodb/eczoodb.js';
 import { get_eczoo_full_options } from '@errorcorrectionzoo/eczoodb/fullopts.js';
 import { createEcZooYamlDbDataLoader } from '@errorcorrectionzoo/eczoodb/load_yamldb.js';
+import { zoo_object_permalink } from '@errorcorrectionzoo/eczoodb/permalinks.js';
 
 
 import { renderObject } from './renderObject.js';
@@ -84,11 +86,24 @@ export async function installApp({ elementId })
         // CORS settings
         //
 
-        // fetch our current eczoo data, including refs_data and citations database
+        // fetch our current eczoo data, including the FLM engine's data with
+        // the compiled citations (`zooflm.citations`: [{ key, text }], `key`
+        // as 'arxiv:2101.12345', `text` FLM)
         let eczooData = await (await fetch('/dat/eczoodata.json')).json();
         debug(`Fetched eczooData`, eczooData);
-        
-        let loadedCitationsCache = eczooData?.refs_data?.citations?.citations_database;
+
+        // the form { cite_prefix: { cite_key: flm_text } } that
+        // CitationSourceApiPlaceholder looks up
+        let loadedCitationsCache = {};
+        for (const { key, text } of eczooData?.zooflm?.citations ?? []) {
+            const colonPos = key.indexOf(':');
+            if (colonPos === -1) {
+                continue;
+            }
+            const citePrefix = key.slice(0, colonPos);
+            loadedCitationsCache[citePrefix] ??= {};
+            loadedCitationsCache[citePrefix][key.slice(colonPos + 1)] = text;
+        }
         // const fnameCitationsInfoCache = path.join(serverData.citationsinfo_cache_dir_default,
         //                                           'cache_compiled_citations.json');
         // try {
@@ -147,25 +162,31 @@ export async function installApp({ elementId })
                             }),
                         },
 
-                        resources: {
-                            read_file_data: true,
-                        },
-
                         cache_dir: '_zoodb_live_preview_dummy_cache_shouldnt_be_created',
                         cache_dir_create: false,
 
                         skip_save_cache: true,
                     },
+                    resources: {
+                        // the images' contents, for their data: URLs
+                        // (previewGraphicsDataUrl)
+                        read_file_content: true,
+                    },
                     allow_unresolved_references: true,
                     allow_unresolved_citations: true,
                 },
                 zoo_permalinks: {
+                    // The objects at their address in the preview, whose
+                    // links the preview component follows; an object without
+                    // a page on the site (a space) has none here either, so
+                    // that a reference to it is unresolved as on the site.
                     object: (objectType, objectId) => (
-                        `invalid:zooObjectLink/${objectType}/${objectId}`
+                        (zoo_object_permalink(objectType, objectId) == null)
+                            ? null
+                            : previewObjectHref(objectType, objectId)
                     ),
-                    graphics_resource: (graphics_resource) => (
-                        `invalid:graphicsResource/${graphics_resource.src_url}`
-                    ),
+                    // the images as data: URLs holding their contents
+                    graphics_resource: previewGraphicsDataUrl,
                 },
             }
         );
@@ -185,15 +206,6 @@ export async function installApp({ elementId })
 
         // for quick access & debugging in the browser's console
         window.zoodb = zoodb;
-
-        installZooFlmEnvironmentLinksAndGraphicsHandlers(
-            zoodb.zoo_flm_environment,
-            {
-                getGraphicsFileContents: (fname, { graphics_resource, }) => {
-                    return graphics_resource.source_info.file_content;
-                }
-            }
-        );
 
         return zoodb;
     };

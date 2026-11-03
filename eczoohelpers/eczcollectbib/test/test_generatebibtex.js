@@ -7,7 +7,7 @@ import * as assert from 'assert';
 
 import { _testing } from '../generatebibtex.js';
 
-const { bibtexTextEscape, cheapTextLatexEscape } = _testing;
+const { bibtexTextEscape, cheapTextLatexEscape, withLatexSpeller } = _testing;
 
 describe('generatebibtex', function () {
     describe('bibtexTextEscape', function () {
@@ -59,6 +59,25 @@ describe('generatebibtex', function () {
         it('should escape special chars', function () {
 
             assert.strictEqual(cheapTextLatexEscape('$%^weird_escapes'), '\\$\\%{\\textasciicircum}weird\\_escapes');
+
+        } );
+
+        it('should spell other characters through the FLM engine', async function () {
+
+            const latex = await withLatexSpeller(
+                () => cheapTextLatexEscape('Schrödinger – Ø, α ≤ β, \\(\\mathbb{F}_q\\) “x” 中')
+            );
+            assert.strictEqual(
+                latex,
+                'Schr\\"odinger {\\textendash} {\\O}, \\ensuremath{\\alpha} \\ensuremath{\\leq} '
+                + '\\ensuremath{\\beta}, $\\mathbb{F}_q$ {\\textquotedblleft}x{\\textquotedblright} ?'
+            );
+
+        } );
+
+        it('should refuse other characters outside generateBibtex()', function () {
+
+            assert.throws( () => cheapTextLatexEscape('Schrödinger'), /No LaTeX speller/ );
 
         } );
     } );

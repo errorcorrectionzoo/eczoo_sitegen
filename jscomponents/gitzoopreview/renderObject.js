@@ -9,9 +9,7 @@ import { render_person } from '@errorcorrectionzoo/eczoodb/render_person.js';
 import { render_kingdom } from '@errorcorrectionzoo/eczoodb/render_kingdom.js';
 import { render_domain } from '@errorcorrectionzoo/eczoodb/render_domain.js';
 
-import { docrefs_placeholder_ref_resolver } from '@errorcorrectionzoo/eczoodb/render_utils.js';
-
-import * as zooflm from '@phfaist/zoodb/zooflm';
+import { format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
 
 import { sqzhtml } from '@phfaist/zoodb/util/sqzhtml';
 
@@ -31,82 +29,61 @@ in code lists as well as a short description for web
 search results.
 `.trim();
 
-function make_recommendation_ref_resolver(recHtmlList)
+// The kinds of labels of the zoo's objects and of its glossary's terms (the
+// part of a label before its colon): a reference to one of them is meaningful
+// in the first paragraph on its own, unlike a reference to a figure or an
+// equation of the code's page.
+const external_ref_types = new Set([
+    'code', 'domain', 'kingdom', 'codelist', 'user', 'space', 'topic', 'defterm',
+]);
+
+
+
+async function getCodeRecommendationsHtml({ zoodb, object })
 {
-    return {
-        get_ref(ref_type, ref_label, resource_info) {
-            let docref_placeholder =
-                docrefs_placeholder_ref_resolver.get_ref(ref_type, ref_label, resource_info);
-            if (docref_placeholder == null) {
-                // all ok, external reference to e.g. another code
-                return null;
+    let recommendationsHtml = [];
+
+    //
+    // Recommend that the description renders cleanly with no internal references
+    // to other parts of the code page.
+    //
+
+    const zoo_flm_engine = zoodb.zoo_flm_engine;
+    let firstParagraphDescription = null;
+
+    try {
+
+        // The first paragraph alone, cut as the site's code pages cut it for
+        // their meta description (site/src/c/c.11ty.js).
+        firstParagraphDescription = zoo_flm_engine.truncate(object.description, {
+            first_paragraph: true,
+            chars: object.description.source.length + 1,
+        }).fragment;
+
+        // The references that the paragraph makes to labels that it does not
+        // define itself and that belong to the code's page.
+        const { trees } = zoo_flm_engine.scan([ firstParagraphDescription ]);
+        for (const { label, resolved } of trees[0].refs) {
+            const colonPos = label.indexOf(':');
+            const ref_type = (colonPos === -1) ? '' : label.slice(0, colonPos);
+            if (resolved || external_ref_types.has(ref_type)) {
+                // all ok, a reference to e.g. another code
+                continue;
             }
             // internal doc reference, e.g. a figure.
-            let theref = `${html_escape(ref_type)}:${html_escape(ref_label)}`;
-            recHtmlList.push(sqzhtml`
+            recommendationsHtml.push(sqzhtml`
 <p>${firstParaDescrExplain}</p>
 <p>It is recommended to avoid placing references to internal document
 elements (e.g., figures or equations) in this paragraph,
 to ensure that the first paragraph is meaningful
 when read on its own.</p>
-<pre>Found reference to: ‘<span class="highlight">${theref}</span>’.</pre>
+<pre>Found reference to: ‘<span class="highlight">${html_escape(label)}</span>’.</pre>
 `);
-            // return a placeholder.
-            return  new zooflm.RefInstance( zooflm.$$kw({
-                ref_type, ref_label,
-                formatted_ref_flm_text: `[${ref_type}]`,
-                target_href: null,
-                counter_value: null,
-                counter_formatter_id: null
-            }) );
         }
-    };
-}
 
-
-
-async function getCodeRecommendationsHtml({ zoodb, objectType_, objectId_, object,
-                                            additional_setup_render_context })
-{
-    let recommendationsHtml = [];
-
-    // 
-    // Recommend that the description renders cleanly with no internal references
-    // to other parts of the code page.
-    //
-
-    try {
-
-        let firstParagraphDescription = object.description.get_first_paragraph();
-
-        const render_doc_fn = (render_context) => {
-            if (additional_setup_render_context) {
-                additional_setup_render_context(render_context);
-            }
-            const R = zooflm.make_render_shorthands({ render_context });
-            const { ne, rdr, ref } = R;
-
-            return rdr(firstParagraphDescription);
-        };
-
-        let text_fragment_renderer = zooflm.ZooTextFragmentRenderer();
-
-        /*let result =*/
-        zooflm.make_and_render_document({
-            zoo_flm_environment: zoodb.zoo_flm_environment,
-            render_doc_fn,
-            doc_metadata: {},
-            render_endnotes: false,
-            fragment_renderer: text_fragment_renderer,
-            feature_render_options: {
-                refs: {
-                    add_external_ref_resolvers: [
-                        make_recommendation_ref_resolver(recommendationsHtml)
-                    ],
-                },
-            },
-        });
-
+        // An error of the paragraph on its own throws here (the 'abort'
+        // policy), as it stops the site's build.
+        zoo_flm_engine.render_text([ firstParagraphDescription ], { error_policy: 'abort' });
 
     } catch (err) {
         recommendationsHtml.push(sqzhtml`
@@ -114,9 +91,13 @@ async function getCodeRecommendationsHtml({ zoodb, objectType_, objectId_, objec
 <p>This paragraph fails to compile when considered on its own (error message
 below).  Please double-check this paragraph and ensure that it is meaningful
 when considered on its own.</p>
-<pre>${err}</pre>
+<pre>${html_escape(String(err))}</pre>
 `
         );
+    } finally {
+        if (firstParagraphDescription != null) {
+            zoo_flm_engine.release(firstParagraphDescription);
+        }
     }
 
     try {
@@ -145,6 +126,34 @@ sorted chronologically, most recent first.</p>
 }
 
 
+//
+// The diagnostics of the object's FLM content: those of the zoo's processing
+// and those of the page's render, each once.  The preview's zoo has the
+// 'continue' error policy, so the page shows the recovery markup of an error
+// and this list says what the error is.  The list is the one that
+// simpleRenderObjectWithFlm() of @phfaist/zoodbtools_preview writes, with its
+// classes (styled by the preview component).
+//
+function diagnosticsHtml(object, renderDiagnostics)
+{
+    const seen = new Set();
+    let items = '';
+    for (const d of [ ...(object?._zoodb?.flm_diagnostics ?? []), ...renderDiagnostics ]) {
+        const s = format_diagnostic(d);
+        if (seen.has(s)) {
+            continue;
+        }
+        seen.add(s);
+        items += `<li class="zoodb-preview-diagnostic-${html_escape(d.severity)}">`
+            + `${html_escape(s)}</li>`;
+    }
+    if (items === '') {
+        return '';
+    }
+    return `<section class="zoodb-preview-diagnostics"><ul>${items}</ul></section>`;
+}
+
+
 
 //
 // ----------------------------------------------------------------------------
@@ -158,32 +167,33 @@ export async function renderObject({ zoodb, objectType, objectId, object,
 {
     includeRecommendations ??= true;
 
-    let additional_setup_render_context = (render_context) => {
-        render_context.registerRenderPreviewCleanupCallback =
-            registerRenderPreviewCleanupCallback;
+    const zoo_flm_engine = zoodb.zoo_flm_engine;
+
+    const render_meta_changelog_options = {
+        details_open: true
     };
 
     let htmlContent = null;
+    // the diagnostics of the page's render (its errors too: the preview's zoo
+    // has the 'continue' error policy)
+    let renderDiagnostics = [];
 
     if (objectType === 'code') {
         const code = zoodb.objects.code[objectId];
-        const codeHtmlContent = render_code_page(
+        const codePageResult = render_code_page(
             code,
             {
-                zoo_flm_environment: zoodb.zoo_flm_environment,
-                additional_setup_render_context,
-                render_meta_changelog_options: {
-                    details_open: true
-                },
+                zoo_flm_engine,
+                render_meta_changelog_options,
                 eczoodb: zoodb,
                 notable_codes,
             }
         );
+        renderDiagnostics = codePageResult.diagnostics;
 
         let recommendationsHtml =
               includeRecommendations
-              ? await getCodeRecommendationsHtml({ zoodb, objectType, objectId, object,
-                                                   additional_setup_render_context })
+              ? await getCodeRecommendationsHtml({ zoodb, object })
               : [] ;
 
         if (recommendationsHtml.length > 0) {
@@ -211,22 +221,22 @@ the entry should be kept in this way!]</p>
         htmlContent = sqzhtml`
 ${recommendationsJoinedHtml}
 <article class="ecc-code-page">
-${codeHtmlContent}
+${codePageResult.html}
 </article>
 `;
     } else if (objectType === 'codelist') {
 
         const codelist = zoodb.objects.codelist[objectId];
-        htmlContent = render_codelist_page(
+        const codelistPageResult = render_codelist_page(
             codelist,
             {
                 eczoodb: zoodb,
-                additional_setup_render_context,
-                render_meta_changelog_options: {
-                    details_open: true
-                }
+                zoo_flm_engine,
+                render_meta_changelog_options,
             }
         );
+        renderDiagnostics = codelistPageResult.diagnostics;
+        htmlContent = codelistPageResult.html;
 
     } else if (objectType === 'user') {
 
@@ -240,54 +250,51 @@ ${codeHtmlContent}
     } else if (objectType === 'kingdom') {
 
         const kingdom = zoodb.objects.kingdom[objectId];
-        const kingdomHtmlRendered = render_kingdom(
+        const kingdomResult = render_kingdom(
             kingdom,
             {
                 eczoodb: zoodb,
-                zoo_flm_environment: zoodb.zoo_flm_environment,
-                additional_setup_render_context,
-                render_meta_changelog_options: {
-                    details_open: true
-                }
+                zoo_flm_engine,
+                render_meta_changelog_options,
             }
         );
+        renderDiagnostics = kingdomResult.diagnostics;
         htmlContent = sqzhtml`
             <article>
-                ${kingdomHtmlRendered}
+                ${kingdomResult.html}
             </article>
         `;
 
     } else if (objectType === 'domain') {
 
         const domain = zoodb.objects.domain[objectId];
-        const domainHtmlRendered = render_domain(
+        const domainResult = render_domain(
             domain,
             {
                 eczoodb: zoodb,
-                zoo_flm_environment: zoodb.zoo_flm_environment,
-                additional_setup_render_context,
-                render_meta_changelog_options: {
-                    details_open: true
-                }
+                zoo_flm_engine,
+                render_meta_changelog_options,
             }
         );
+        renderDiagnostics = domainResult.diagnostics;
         htmlContent = sqzhtml`
             <article>
-                ${domainHtmlRendered}
+                ${domainResult.html}
             </article>
         `;
 
     } else {
 
+        // lists the diagnostics itself
         let result = await simpleRenderObjectWithFlm(
             { zoodb, objectType, objectId, object,
               registerRenderPreviewCleanupCallback }
         );
-        htmlContent = result.htmlContent;
+        return { htmlContent: result.htmlContent };
 
     }
 
+    htmlContent = diagnosticsHtml(object, renderDiagnostics) + htmlContent;
+
     return { htmlContent };
 }
-
-

@@ -28,6 +28,16 @@ const __dirname = import.meta.dirname;
 import { load_or_reload_eczoodb } from './sitelib/build_eczoo.js';
 import { prepareEczooBibReferences } from './sitelib/prepare_eczoo_bibreferences.js';
 
+// The search index generator (src/dat/searchindex.11ty.js imports it again)
+// is loaded with the configuration, before any build: lunr, which it loads
+// through @phfaist/zoodbtools_search, sets `QueryParseError.prototype = new
+// Error` when it is first loaded, and that Error keeps the call sites of its
+// stack trace, with the objects they were called on, as long as the process
+// runs.  Loaded by the first build that renders the search index, it kept
+// that build's TemplateMap, and with it the content of every page (about
+// 270 MB in watch mode).
+import '@errorcorrectionzoo/jscomponents/search/generate_index.js';
+
 
 Error.stackTraceLimit = 999;
 
