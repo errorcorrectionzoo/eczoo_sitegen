@@ -44,10 +44,12 @@ h2 {
     margin-top: 2*$parskip-half-length;
     margin-bottom: 2*$parskip-half-length;
 }
-p:first-child, ul:first-child, ol:first-child, pre:first-child {
+// (A paragraph of FLM content is a `<p>` or, where it holds a list or other
+// blocks, a `<div>`: both have the class `flm-pres-par`.)
+p:first-child, .flm-pres-par:first-child, ul:first-child, ol:first-child, pre:first-child {
     margin-top: 0px !important;
 }
-p:last-child, ul:last-child, ol:last-child, pre:last-child {
+p:last-child, .flm-pres-par:last-child, ul:last-child, ol:last-child, pre:last-child {
     margin-bottom: 0px !important;
 }
 
