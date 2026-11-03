@@ -68,10 +68,14 @@
 :root {
     // paragraphs and blocks: the site's paragraph skip
     --flm-block-spacing: #{2*$parskip-half-length};
-    // a displayed formula: a paragraph's space where it begins or ends the
-    // text around it (see below)
-    --flm-math-display-space-above: #{2*$parskip-half-length};
-    --flm-math-display-space-below: #{2*$parskip-half-length};
+    // a displayed formula: no space of its own.  The engine keeps a displayed
+    // formula inside its paragraph, as the former site did (`.display-math`),
+    // so the text runs on above and below it, spaced by MathJax's own
+    // container margins, which stay inside the engine's display box (it
+    // scrolls sideways); a formula that ends its paragraph is followed by the
+    // paragraph's margin.
+    --flm-math-display-space-above: 0px;
+    --flm-math-display-space-below: 0px;
     // the caption line under a float: the text's size, a little apart
     --flm-floats-caption-size: 1em;
     --flm-floats-caption-spacing: 0.75em;
@@ -83,32 +87,6 @@
     --flm-cells-red: rgba(255,120,120,0.30);  /*rgb(255,200,200);*/
     // the background of code (inline and as a block): translucent as well
     --flm-verbatim-background: rgba(127,127,127,0.25);
-}
-
-
-//
-// displayed formulas: the engine ends the paragraph before a displayed
-// formula and starts another one after it, where the former site kept the
-// formula inside its paragraph.  So no margin separates a formula from the
-// paragraph or the formula next to it: the text runs on above and below the
-// formula, spaced by MathJax's own container margins, which stay inside the
-// engine's display box (it scrolls sideways).  Where a formula begins or ends
-// the text, it has a paragraph's margins (the custom properties above), and
-// none at the edge of what holds it, as `p` in fonts-basic-appearance.scss.
-// (The HTML does not show a paragraph break next to a formula, which then gets
-// the space of the text running on.)
-//
-.flm-pres-par:has(+ .flm-pres-math--passthrough[data-flm-display="display"]),
-.flm-pres-math--passthrough[data-flm-display="display"]:has(+ .flm-pres-par,
-                                                            + .flm-pres-math--passthrough[data-flm-display="display"]),
-.flm-pres-math--passthrough[data-flm-display="display"]:last-child {
-    margin-bottom: 0px;
-}
-.flm-pres-math--passthrough[data-flm-display="display"]:first-child,
-.flm-pres-par + .flm-pres-math--passthrough[data-flm-display="display"],
-.flm-pres-math--passthrough[data-flm-display="display"] + .flm-pres-par,
-.flm-pres-math--passthrough[data-flm-display="display"] + .flm-pres-math--passthrough[data-flm-display="display"] {
-    margin-top: 0px;
 }
 
 
