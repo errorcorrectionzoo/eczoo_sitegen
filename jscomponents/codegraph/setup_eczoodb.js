@@ -65,13 +65,8 @@ function warn_diagnostics(what, { diagnostics })
 
 /**
  * Creates the EC zoo from its data dump, for the code graph.
- *
- * `load_wasm` (optional) is how the FLM engine loads its WebAssembly module;
- * by default the browser fetches it (Parcel serves the file beside the
- * bundle).  Under Node, pass the Node loader (`load_zoodb_flm_wasm_node` of
- * `@phfaist/zoodb/zooflm/wasm-node`).
  */
-export async function load_eczoodb_from_data(eczoodbData, { load_wasm } = {})
+export async function load_eczoodb_from_data(eczoodbData)
 {
     if (eczoodbData?.zooflm == null) {
         throw new Error(
@@ -96,7 +91,6 @@ export async function load_eczoodb_from_data(eczoodbData, { load_wasm } = {})
         flm_options: {
             // A reference that resolves to nothing is a Warning, not an Error.
             allow_unresolved_references: true,
-            ...( (load_wasm != null) ? { load_wasm } : {} ),
         },
 
         use_searchable_text_processor: false,

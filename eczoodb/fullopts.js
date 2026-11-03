@@ -6,11 +6,6 @@ import { use_flm_engine } from '@phfaist/zoodb/std/use_flm_engine';
 import { use_flm_processor } from '@phfaist/zoodb/std/use_flm_processor';
 import { use_searchable_text_processor } from '@phfaist/zoodb/std/use_searchable_text_processor';
 
-// Loads the WebAssembly module of the FLM engine under Node.  (In a browser,
-// the module is fetched instead, so this option is set here, with the other
-// options that are not browser-compatible, and not in eczoodb.js.)
-import { load_zoodb_flm_wasm_node } from '@phfaist/zoodb/zooflm/wasm-node';
-
 import { EczStatsDbProcessor } from './stats.js';
 import { EczPopulateCodeListsDbProcessor } from './compile_codelist.js';
 
@@ -61,7 +56,6 @@ export function get_eczoo_full_options({
         },
 
         flm_options: {
-            load_wasm: load_zoodb_flm_wasm_node,
             citations: {
                 csl_style: csl_style_data,
                 cache_dir: citationsinfo_cache_dir,

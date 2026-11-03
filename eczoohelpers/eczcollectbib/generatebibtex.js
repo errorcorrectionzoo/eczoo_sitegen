@@ -5,7 +5,6 @@ import fs from 'fs';
 import path from 'path';
 
 import { ZooFlmEngine, format_diagnostic } from '@phfaist/zoodb/zooflm/engine';
-import { load_zoodb_flm_wasm_node } from '@phfaist/zoodb/zooflm/wasm-node';
 
 import CSL from 'citeproc';
 
@@ -46,7 +45,6 @@ class LatexSpeller
     static async create()
     {
         const engine = await ZooFlmEngine.create({
-            load_wasm: load_zoodb_flm_wasm_node,
             core: { settings: { 'latex-recomposed': { unicode: 'replace' } } },
             error_policy: 'continue',
         });
