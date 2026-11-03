@@ -1,10 +1,13 @@
 //
 // NOT PORTED to zoodb 0.3 (gap G5 of the zoodb 0.3.0 port, brief 13 of zoodb's
-// dev-docs/initial-design/): the preview app runs the zoo's full FLM
-// processing in the browser through @phfaist/zoodbtools_preview and
-// ../jscomponents/gitzoopreview/renderObject.js, which are still written for
-// the FLM layer of zoodb 0.2, gone in 0.3; Parcel cannot bundle the app until
-// zoodbtools is ported.
+// dev-docs/initial-design/): @phfaist/zoodbtools_preview 0.2 and the renderer
+// that this app shares with /gitpreview
+// (../jscomponents/gitzoopreview/renderObject.js) are on 0.3, but
+// previewApp.jsx still sets the zoo up for 0.2: it calls
+// installZooFlmEnvironmentLinksAndGraphicsHandlers(), which throws since
+// zoodbtools 0.2, and gives the objects and images `invalid:` addresses,
+// which the FLM engine's HTML output refuses.  The setup of
+// ../jscomponents/gitzoopreview/appSetup.jsx is the one for 0.3.
 //
 import process from 'node:process';
 import fs from 'fs';

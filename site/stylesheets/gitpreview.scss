@@ -12,6 +12,15 @@ $preview-contents-v-margin: 25px;
         box-sizing: border-box;
 
 
+        // the FLM diagnostics of the object (renderObject.js; the list's own
+        // style comes with @phfaist/zoodbtools_preview)
+        > section.zoodb-preview-diagnostics {
+            margin: 0px auto;
+            min-width: 200px;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
         div.ecz-preview-recommendation-list {
             //grid-column-start: 1;
             margin: 0px auto;

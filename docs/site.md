@@ -60,9 +60,7 @@ Pagination-driven pages (one output per zoo object, via `eczoodb.objects.*`):
 Single pages: `index.11ty.js` (home), `lists.11ty.js`, `concepts.11ty.js`
 (glossary of FLM-defined terms), `team.11ty.js`, `references.11ty.js`
 (all citations), `sitemap.xml.11ty.js`, and HTML pages `about.html`,
-`search.html`, `code_graph.html`, `edit_code.html`, `gitpreview.html` (not built
-for now: its app is still on the FLM layer of zoodb 0.2, see `eleventy.config.js`),
-`404.html`.
+`search.html`, `code_graph.html`, `edit_code.html`, `gitpreview.html`, `404.html`.
 
 Data exports under `src/dat/`: `eczoodata.11ty.js` (full DB dump JSON, used
 client-side by codegraph/editors), `searchindex.11ty.js` (lunr index, built by

@@ -2269,8 +2269,8 @@ __metadata:
   linkType: hard
 
 "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_gitpreview":
-  version: 0.1.0
-  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=93022a9ce833dff5bcd02be45c5e64ee3421294c"
+  version: 0.2.0
+  resolution: "@phfaist/zoodbtools_gitpreview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_gitpreview&commit=f8ecd2193b25923309b125ed47af77ecf74f6544"
   dependencies:
     browserfs: ^1.4.3
     debug: ^4.3.4
@@ -2281,15 +2281,15 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
   peerDependencies:
-    "@phfaist/zoodb": "*"
-    "@phfaist/zoodbtools_preview": "*"
-  checksum: 9cef525d37334e6727d292032f531b8aa65ba016b6a3c50acd33318dabeb2f92688069fb5529f22c6fc7d9f1f24427b2c4e71ebef4948a7130987cfc3985167f
+    "@phfaist/zoodb": ">=0.3.0"
+    "@phfaist/zoodbtools_preview": ">=0.2.0"
+  checksum: 59f96c3a8d3d558da28392992ebeabff4121210cc6f5038e66fbb0455fee61b8058e5ac4382077873a4dd6c4c5ff329d925f732329868e71ec7be87bf97d1899
   languageName: node
   linkType: hard
 
 "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=@phfaist/zoodbtools_preview":
-  version: 0.1.0
-  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=93022a9ce833dff5bcd02be45c5e64ee3421294c"
+  version: 0.2.0
+  resolution: "@phfaist/zoodbtools_preview@https://github.com/phfaist/zoodbtools.git#workspace=%40phfaist%2Fzoodbtools_preview&commit=f8ecd2193b25923309b125ed47af77ecf74f6544"
   dependencies:
     debug: ^4.3.4
     escape-html: ^1.0.3
@@ -2298,8 +2298,8 @@ __metadata:
     react-dom: ^18.2.0
     react-select: ^5.7.4
   peerDependencies:
-    "@phfaist/zoodb": "*"
-  checksum: 2b8cfe75ee4bcacfc57d6bbc22c3b9bfc0a793eb7cbb04519bb0a255a4b43eb486e3ec5f0618324e538ef1def3ba4862588375f064089b32e20369e0ef3bdb60
+    "@phfaist/zoodb": ">=0.3.0"
+  checksum: 30980faf11243763584d6f63332d27b00c5456c8e36505a2beeabc61fc0c84f6d2d663f4bd3ea26a67f199b3687c69b2a40b0bceacced42c51c15ff81f59e328
   languageName: node
   linkType: hard
 
