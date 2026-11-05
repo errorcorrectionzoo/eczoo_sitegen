@@ -12,26 +12,41 @@ import { ZooDbDataLoaderHandler } from '@phfaist/zoodb';
 let cached_eczoodb = null;
 
 
+function format_flm_diagnostics(diagnostics)
+{
+    let slist = [];
+    for (const d of diagnostics) {
+        let {message, origin, line, col} = d;
+        try {
+            line = origin.start_line + line - 1;
+            col = origin.start_col-1 + col-1;
+        } catch (_) { }
+        slist.push(`${message}
+
+@: ${origin.source_path}
+   line ${line} col ${col}  [${origin.object_type}:${origin.object_id} → .${origin.field}]
+`);
+    }
+    if (slist.length > 0) {
+        return `
+🚨🚨🚨 FLM ERROR(S) 🚨🚨🚨
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+${slist.join('\n\n++++++++++++++++++++++++++++++++++++++++++++++++++\n\n')}
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+🚨🚨🚨 🚨🚨🚨 🚨🚨🚨
+`;
+    }
+    return '<??ZooFlmError WITH NO DIAGNOSTICS??>';
+}
+
 function get_error_string(err)
 {
-    let errstr = null;
-    try {
-        if (err && err.__class__ != null) {
-            if (err.args) {
-                errstr = `${err.__class__.__name__}: ${err.args}`;
-            } else {
-                errstr = `${err.__class__.__name__} (no information)`;
-            }
-        } else {
-            errstr = ''+err;
-        }
-    } catch (tostrerr) {
-        console.debug(
-            `[Additionally, we got an error while preparing the error string] - `, tostrerr
-        );
-        errstr = Object.toString(err);
+    if (err && err.constructor && err.constructor.name === 'ZooFlmError') {
+        return format_flm_diagnostics(err.diagnostics);
     }
-    return errstr;
+    return ''+err; // convert to string so we can show something to the user
 }
 
 
@@ -59,7 +74,7 @@ export async function load_or_reload_eczoodb(eczoo_config)
             await cached_eczoodb.install_zoo_loader_handler(loader_handler);
 
         } catch (err) {
-            console.error(`ERROR INITIALIZING ZOO: ${get_error_string(err)}`);
+            console.error(`ERROR INITIALIZING ZOO:\n${get_error_string(err)}`);
             console.error(err);
             throw err;
         }
@@ -70,7 +85,7 @@ export async function load_or_reload_eczoodb(eczoo_config)
         await cached_eczoodb.load();
 
     } catch (err) {
-        console.error(`ERROR LOADING ZOO [site/site_data/eczoodb.js]: ${get_error_string(err)}`);
+        console.error(`ERROR LOADING ZOO [raised by site/site_data/eczoodb.js]:\n${get_error_string(err)}`);
         console.error(err);
         throw err;
     }
