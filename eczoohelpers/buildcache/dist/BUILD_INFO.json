@@ -1,0 +1,9 @@
+{
+    "cachette": "0.1.0",
+    "wasm_bindgen": "0.2.130",
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+    "wasm_pack": "wasm-pack 0.15.0",
+    "paths_remapped": true,
+    "wasm_size_bytes": 414386,
+    "build_date": "2026-11-24T13:26:21.554Z"
+}
