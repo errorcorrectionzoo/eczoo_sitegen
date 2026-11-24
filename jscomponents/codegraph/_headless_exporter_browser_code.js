@@ -448,8 +448,6 @@ window.prepareCodeGraph = _prepareCodeGraph;
 window.compilePreparedCodeGraph = _compilePreparedCodeGraph;
 window.releasePreparedCodeGraph = _releasePreparedCodeGraph;
 
-window.localStorage.debug = '*';
-
 console.log('Loaded (msg via console.log())');
 debug(`Loaded (msg via debug()).`);
 console.debug('Loaded (msg via console.debug())');

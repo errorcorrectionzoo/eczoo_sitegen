@@ -13,6 +13,7 @@ import loMerge from 'lodash/merge.js';
 import puppeteer from 'puppeteer';
 import sirv from 'sirv';
 import http from 'http';
+import process from 'node:process';
 import { performance } from 'node:perf_hooks';
 
 //import { getCyStyleJson } from './style.js';
@@ -135,6 +136,23 @@ export class CodeGraphSvgExporter
                 arg.dispose().catch( () => {} );
             }
         });
+
+        // The debug() messages of the page's code are off, unless the
+        // environment variable ECZOO_HEADLESS_PAGE_DEBUG gives the debug
+        // namespaces to enable in the page (e.g. '*').  The page's debug module
+        // reads them from localStorage when it loads.
+        const pageDebugNamespaces = process.env.ECZOO_HEADLESS_PAGE_DEBUG || null;
+        await this.page.evaluateOnNewDocument( (namespaces) => {
+            try {
+                if (namespaces) {
+                    window.localStorage.setItem('debug', namespaces);
+                } else {
+                    window.localStorage.removeItem('debug');
+                }
+            } catch {
+                // a document without access to localStorage (e.g. about:blank)
+            }
+        }, pageDebugNamespaces );
 
         await this.page.goto(`http://${hostname}:${port}${browser_code_page_path}`);
 
@@ -302,7 +320,7 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
         await this._withPage( async (page) => {
             await page.evaluate(jsCode);
 
-            debug(`loaded data, it's: `, await page.evaluate('window.eczoodbData'));
+            debug(`loaded data (${jsCode.length} characters of JavaScript)`);
         } );
     }
 
