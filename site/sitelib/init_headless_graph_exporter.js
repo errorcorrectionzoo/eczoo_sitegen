@@ -97,7 +97,10 @@ export function maintain_graph_svg_cache(manager)
     try {
         outcome = manager.maintain();
     } catch (error) {
-        console.warn(`graph SVG cache: the maintenance of the cache failed:`, error);
+        console.warn(
+            `graph SVG cache: the maintenance of the cache failed: ${error?.message ?? error}`
+        );
+        debug(`Graph SVG cache maintenance error: `, error);
         return;
     }
     debug(`Graph SVG cache maintenance: `, outcome);
@@ -171,6 +174,7 @@ export async function init_headless_graph_exporter({ cacheManager = null, cacheM
 // them per build
 const _cacheReportState = {
     count: 0,
+    errorCount: 0,
     printedThisBuild: 0,
 };
 
@@ -181,6 +185,9 @@ function _onCacheReport(report)
         return;
     }
     _cacheReportState.count += 1;
+    if (report.severity === 'error') {
+        _cacheReportState.errorCount += 1;
+    }
     if (_cacheReportState.printedThisBuild < max_printed_cache_reports_per_build) {
         console.warn(`graph SVG cache: ${report.severity} (${report.kind}): ${report.message}`);
     } else if (_cacheReportState.printedThisBuild === max_printed_cache_reports_per_build) {
@@ -464,6 +471,7 @@ class CachingCodeGraphSvgExporter
                 compileMs: Math.round(compileMs),
                 createdAt: new Date().toISOString(),
             };
+            const errorCountBefore = _cacheReportState.errorCount;
             const stored = this._cacheCall( (cache) => {
                 cache.put(key, record, {
                     blobs: { [graph_svg_cache_blob_name]: svgBytes },
@@ -471,8 +479,12 @@ class CachingCodeGraphSvgExporter
                 });
                 return true;
             } );
-            if (stored) {
+            if (stored && _cacheReportState.errorCount === errorCountBefore) {
                 this.stats.stored += 1;
+            } else if (stored) {
+                // the failure was reported (put() does not throw for failures
+                // of the file system)
+                this._disableCache(`storing a graph in the cache in ‘${this.cacheDir}’ failed`);
             }
             debug(`Graph SVG cache: rendered the ${_describeGraph(options)} in `
                   + `${Math.round(compileMs)} ms, key ${key}`);
