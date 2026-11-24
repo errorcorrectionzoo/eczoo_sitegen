@@ -21,9 +21,10 @@ Eleventy 3 build that turns the eczoodb object graph into static HTML in
 | `ECZOO_DEVELOPMENT_MODE=1` | skip SVG graph exports, dev shortcuts |
 | `ECZOO_RUN_11TY_PARCEL=0` | skip Parcel bundling entirely (fastest) |
 | `ECZOO_RUN_11TY_PARCEL_LAZY=1` | lazy Parcel builds |
-| `ECZOO_CITATIONS_CACHE_DIR` | override citations cache location |
+| `ECZOO_CITATIONS_CACHE_DIR` | override citations cache location (relative to the repo root, or absolute) |
 | `ECZOO_GRAPH_SVG_CACHE_DIR` | override graph SVG cache location (relative to the repo root, or absolute; default `_eczoo_graph_svg_cache`, `_TEST_eczoo_graph_svg_cache` with test data) |
 | `ECZOO_GRAPH_SVG_CACHE` | graph SVG cache mode: `1` (default) use it, `0` neither read nor write it, `refresh` render and store every graph, `verify` render every graph and compare with the cache; other values fail the build |
+| `ECZOO_HEADLESS_PAGE_DEBUG` | `debug` namespaces to enable inside the headless graph exporter's page (e.g. `*`); default none. Its messages come out as `\|Puppeteer console\|` lines |
 | `ECZOO_FLM_CONTINUE_WITH_ERRORS=1` | FLM errors do not stop the build (inspection builds only) |
 
 `ECZOO_FLM_CONTINUE_WITH_ERRORS=1` sets the zoo's `continue_with_errors`

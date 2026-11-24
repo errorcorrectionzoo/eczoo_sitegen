@@ -17,7 +17,7 @@ and the data repo cloned as a sibling: `../eczoo_data`.
 | Quick zoo-load sanity check | `yarn node eczoodb/scripts/try_load_zoo.js --data-dir ../eczoo_data` |
 
 Debugging tips:
-- Builds use the `debug` package; the site build scripts already set `DEBUG=...`. For your own scripts: `DEBUG='eczoodb,zoodb*' yarn node ...`.
+- Builds use the `debug` package; the site build scripts already set `DEBUG=...`. For your own scripts: `DEBUG='eczoodb,zoodb*' yarn node ...`. `DEBUG` does not reach the headless graph exporter's page: set `ECZOO_HEADLESS_PAGE_DEBUG='*'` (or narrower namespaces) to see its `debug()` messages.
 - For fast iteration on site templates: `ECZOO_USE_TEST_DATA=1` + `ECZOO_RUN_11TY_PARCEL=0` (or use `build-test-simple` / `build-simple-noparcel`).
 - The full build is memory-hungry (`--max-old-space-size=8192` already set in scripts).
 
@@ -61,7 +61,7 @@ graph SVG cache.
 
 - The build is committed in `dist/` (glue `buildcache.js`, `buildcache_bg.wasm`, `BUILD_INFO.json`), so no Rust toolchain is needed to use it.
 - Rebuild only when `src/`, `Cargo.toml` or `Cargo.lock` change (e.g. a new cachette: `cargo update -p cachette`): needs `rustup target add wasm32-unknown-unknown` and `wasm-pack`; then `yarn build` there (`tools/build.mjs`: wasm-pack build, machine paths remapped and checked, output copied to `dist/`; cargo output stays in the ignored `target/`). Commit `dist/` with `Cargo.lock`.
-- Tests: `cd eczoohelpers/buildcache && yarn test` (mocha).
+- Tests: `cd eczoohelpers/buildcache && yarn test` (mocha). The GitHub CI (`.github/workflows/eczoodb-ci-test.yml`) runs them after the eczoodb tests.
 
 ## `helpers/` — Parcel plugins
 
