@@ -10,7 +10,7 @@ only contains the generator code.
 - `docs/eczoodb.md` — backend: `EcZooDb` class, schemas, render functions, loading pattern, tests
 - `docs/site.md` — Eleventy build, page sources, templates, SCSS, env vars, build scripts
 - `docs/jscomponents.md` — browser components and how `site/jsc_profiles/` integrates them
-- `docs/workflows.md` — commands, CLI scripts, preview tool, citations cache, Parcel helpers
+- `docs/workflows.md` — commands, CLI scripts, preview tool, citations cache, graph SVG cache, `buildcache` package, Parcel helpers
 - `flm_howto.md` (repo root) — FLM markup language used for all zoo content
 
 ## Pipeline in one line
@@ -33,6 +33,10 @@ cd eczoodb && yarn test                 # mocha backend tests
 Fast iteration env vars: `ECZOO_USE_TEST_DATA=1` (small fixture zoo),
 `ECZOO_DEVELOPMENT_MODE=1` (skip SVG graph exports),
 `ECZOO_RUN_11TY_PARCEL=0` (skip JS bundling).
+Builds with SVG exports cache the code-graph SVGs in `_eczoo_graph_svg_cache/`
+(gitignored): `ECZOO_GRAPH_SVG_CACHE=0|refresh|verify` (default `1`: use it),
+`ECZOO_GRAPH_SVG_CACHE_DIR` (another folder, relative to the repo root); see
+`docs/workflows.md`.
 
 ## Conventions & gotchas
 
@@ -41,6 +45,7 @@ Fast iteration env vars: `ECZOO_USE_TEST_DATA=1` (small fixture zoo),
 - Files ending in `~` are editor backups — ignore, never edit.
 - Ignore legacy folders: `pyeczoo/`, `site/old_edit_code_app_pkg/`, `site/_site.bkp/`, `jscomponents/editcode/` and `editcodelegacy/`; `pdfexport/` is semi-maintained.
 - `_zoodb_citations_cache/cache_downloaded_info.json` is modified by normal builds; that git churn is expected.
+- `eczoohelpers/buildcache/dist/` is committed WebAssembly build output (the Rust crate cachette), so no Rust toolchain is needed otherwise. Rebuild it (`yarn build` in `eczoohelpers/buildcache/`, needs Rust + wasm-pack) only when its Rust code (`src/`, `Cargo.toml`, `Cargo.lock`) or the cachette version changes; commit `dist/` with `Cargo.lock`.
 - Content fields are FLM markup (LaTeX-like), not plain HTML/Markdown.
 - To load the zoo in an ad-hoc script, use `scripts/_helpers/helperEcZooLoader.js` (`loadEcZoo()`).
 - `jscomponents/paywall20250401/` and `aizoo20260401/` are date-gated April Fools jokes — leave alone.

@@ -595,6 +595,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@errorcorrectionzoo/buildcache@>=0.0.1, @errorcorrectionzoo/buildcache@workspace:eczoohelpers/buildcache":
+  version: 0.0.0-use.local
+  resolution: "@errorcorrectionzoo/buildcache@workspace:eczoohelpers/buildcache"
+  dependencies:
+    mocha: ^11.0.1
+  languageName: unknown
+  linkType: soft
+
 "@errorcorrectionzoo/eczoodb@>=0.0.1, @errorcorrectionzoo/eczoodb@workspace:eczoodb":
   version: 0.0.0-use.local
   resolution: "@errorcorrectionzoo/eczoodb@workspace:eczoodb"
@@ -734,6 +742,7 @@ __metadata:
     "@citation-js/core": ^0.7.14
     "@citation-js/plugin-bibtex": ^0.7.16
     "@citation-js/plugin-csl": ^0.7.14
+    "@errorcorrectionzoo/buildcache": ">=0.0.1"
     "@errorcorrectionzoo/eczoodb": ">=0.0.1"
     "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1"
     "@errorcorrectionzoo/jscomponents": ">=0.0.1"

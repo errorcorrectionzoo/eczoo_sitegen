@@ -53,16 +53,34 @@ export default async function (eleventyConfig)
         const run_11ty_parcel = ((env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0);
         const run_11ty_parcel_lazy = ((env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0);
         const development_mode = ((env.ECZOO_DEVELOPMENT_MODE ?? 0) != 0);
+        // The citations cache (relative to the repository root, or absolute)
         const citations_cache_dir = (
-            process.env.ECZOO_CITATIONS_CACHE_DIR
+            env.ECZOO_CITATIONS_CACHE_DIR
             ?? (use_test_data ? '_TEST_zoodb_citations_cache' : '_zoodb_citations_cache')
         );
+        // The cache of the code graph SVGs (relative to the repository root)
+        const graph_svg_cache_dir = (
+            env.ECZOO_GRAPH_SVG_CACHE_DIR
+            ?? (use_test_data ? '_TEST_eczoo_graph_svg_cache' : '_eczoo_graph_svg_cache')
+        );
+        // '1': use the cache, '0': neither read nor write it, 'refresh': render
+        // every graph and store it, 'verify': render every graph and compare it
+        // with the cached SVG
+        const graph_svg_cache_mode = String(env.ECZOO_GRAPH_SVG_CACHE ?? '').trim() || '1';
+        if ( ! ['1', '0', 'refresh', 'verify'].includes(graph_svg_cache_mode) ) {
+            throw new Error(
+                `Invalid value of ECZOO_GRAPH_SVG_CACHE: ‘${graph_svg_cache_mode}’ (expected `
+                + `1, 0, refresh or verify)`
+            );
+        }
         return {
             run_11ty_parcel,
             run_11ty_parcel_lazy,
             use_test_data,
             development_mode,
             citations_cache_dir,
+            graph_svg_cache_dir,
+            graph_svg_cache_mode,
         };
     })(process.env);
 
@@ -73,10 +91,15 @@ export default async function (eleventyConfig)
             : path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
         site_base_url_host_name: 'https://errorcorrectionzoo.org/',
-        citationsinfo_cache_dir: path.join(
+        citationsinfo_cache_dir: path.resolve(
             __dirname,
             '..',
             eczoo_run_options.citations_cache_dir,
+        ),
+        graph_svg_cache_root_dir: path.resolve(
+            __dirname,
+            '..',
+            eczoo_run_options.graph_svg_cache_dir,
         ),
     };
 
@@ -92,6 +115,11 @@ export default async function (eleventyConfig)
     eleventyConfig.addWatchTarget( eczoo_config.data_dir );
 
     let _eczoo_code_graph_svg_exporter_instance = null;
+
+    // The manager of the code graph SVG cache: opened once per process, by the
+    // first build that renders the graphs (undefined: not opened yet; null: no
+    // cache).
+    let _graph_svg_cache_manager = undefined;
 
     // Build the EC zoo and include it in the 11ty structure as global data.
     // The callback will be executed again on subsequent builds in dev mode.
@@ -114,9 +142,27 @@ export default async function (eleventyConfig)
         //
         //
         if ( eczoo_config.generate_code_graph_svg_exports ) {
-            const { init_headless_graph_exporter } =
+            const { init_headless_graph_exporter, open_graph_svg_cache_manager } =
                 await import('./sitelib/init_headless_graph_exporter.js');
-            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter();
+            if (_eczoo_code_graph_svg_exporter_instance != null) {
+                // the previous build did not finish (it failed): shut its
+                // exporter down and close its cache
+                await _eczoo_code_graph_svg_exporter_instance.done();
+                _eczoo_code_graph_svg_exporter_instance = null;
+            }
+            if (_graph_svg_cache_manager === undefined) {
+                _graph_svg_cache_manager = (
+                    (eczoo_run_options.graph_svg_cache_mode === '0')
+                    ? null
+                    : open_graph_svg_cache_manager({
+                        rootDir: eczoo_config.graph_svg_cache_root_dir,
+                    })
+                );
+            }
+            _eczoo_code_graph_svg_exporter_instance = await init_headless_graph_exporter({
+                cacheManager: _graph_svg_cache_manager,
+                cacheMode: eczoo_run_options.graph_svg_cache_mode,
+            });
         }
 
         // save the exporter (whether or not it is null) directly as an attribute of the eczoodb
@@ -144,10 +190,22 @@ export default async function (eleventyConfig)
         return eczoodb;
     });
     if ( eczoo_config.generate_code_graph_svg_exports ) {
-        eleventyConfig.on('eleventy.after', async () => {
+        eleventyConfig.on('eleventy.after', async ({ runMode }) => {
             if (_eczoo_code_graph_svg_exporter_instance != null) {
+                // (also closes the graph SVG cache, which records the uses of
+                // its values)
                 await _eczoo_code_graph_svg_exporter_instance.done();
+                console.log(_eczoo_code_graph_svg_exporter_instance.summaryLine());
                 _eczoo_code_graph_svg_exporter_instance = null;
+            }
+            if (_graph_svg_cache_manager != null) {
+                const { maintain_graph_svg_cache, close_graph_svg_cache_manager } =
+                    await import('./sitelib/init_headless_graph_exporter.js');
+                maintain_graph_svg_cache(_graph_svg_cache_manager);
+                if (runMode !== 'watch' && runMode !== 'serve') {
+                    close_graph_svg_cache_manager(_graph_svg_cache_manager);
+                    _graph_svg_cache_manager = undefined;
+                }
             }
         });
     }

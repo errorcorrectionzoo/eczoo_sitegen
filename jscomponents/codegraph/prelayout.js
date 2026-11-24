@@ -12,12 +12,12 @@ const defaultPrelayoutOptions = {
 
     layoutParentEdgeSelector: '.layoutParent',
 
-    // if ignoreParentEdgeDirection is false, then all connected nodes of a 
+    // if ignoreParentEdgeDirection is true, then all connected nodes of a
     // root node (through parental edges) are considered as children for
     // layout purposes.  Parental relationship direction is anyways ignored
     // for non-root nodes, those edges being viewed as those of an undirected
     // tree graph.
-    ignoreParentRootEdgeDirection: false,
+    ignoreParentEdgeDirection: false,
 
     // for automatic positioning of root nodes without an explicit position
     origin: {

@@ -31,6 +31,7 @@ Client-side interactivity (code graph, search, popups, MathJax, ...) comes from
 | `jscomponents/` | Browser JS components (codegraph, search, mathjax, ...) | [jscomponents.md](jscomponents.md) |
 | `helpers/` | Parcel plugins (bundle namer, og:image URL transformer) | [workflows.md](workflows.md) |
 | `eczoohelpers/eczcollectbib/` | Bibliography collection (`EczBibReferencesCollector`) | [workflows.md](workflows.md) |
+| `eczoohelpers/buildcache/` | Build caches: WebAssembly binding of the Rust crate cachette (build committed in `dist/`); the site build keeps the code-graph SVGs with it in `_eczoo_graph_svg_cache/` (gitignored) | [workflows.md](workflows.md) |
 | `scripts/` | CLI utility scripts (stats, ancestors, bib queries, graph gen, LLM inputs) | [workflows.md](workflows.md) |
 | `previewtool/` | Live preview server (port 8087) for editing eczoo_data YAML | [workflows.md](workflows.md) |
 | `_zoodb_citations_cache/` | Cached citation metadata downloaded from arXiv/DOI APIs | [workflows.md](workflows.md) |
@@ -54,9 +55,9 @@ Client-side interactivity (code graph, search, popups, MathJax, ...) comes from
 
 ## Workspaces (root package.json)
 
-`_zoodb_citations_cache`, `eczoodb`, `eczoohelpers/eczcollectbib`, `jscomponents`,
-`site`, `scripts`, `previewtool`, `helpers/parcel-namer-own-folder-hashes`,
-`helpers/parcel-transformer-ogimage-phf`.
+`_zoodb_citations_cache`, `eczoodb`, `eczoohelpers/eczcollectbib`,
+`eczoohelpers/buildcache`, `jscomponents`, `site`, `scripts`, `previewtool`,
+`helpers/parcel-namer-own-folder-hashes`, `helpers/parcel-transformer-ogimage-phf`.
 
 Internal packages are named `@errorcorrectionzoo/eczoodb`, `@errorcorrectionzoo/jscomponents`, etc.
 

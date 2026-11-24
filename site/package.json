@@ -19,6 +19,7 @@
     "@citation-js/core": "^0.7.14",
     "@citation-js/plugin-bibtex": "^0.7.16",
     "@citation-js/plugin-csl": "^0.7.14",
+    "@errorcorrectionzoo/buildcache": ">=0.0.1",
     "@errorcorrectionzoo/eczoodb": ">=0.0.1",
     "@errorcorrectionzoo/eczoohelpers_eczcollectbib": ">=0.0.1",
     "@errorcorrectionzoo/jscomponents": ">=0.0.1",

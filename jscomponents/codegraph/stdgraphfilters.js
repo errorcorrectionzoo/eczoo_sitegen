@@ -50,7 +50,7 @@ export class EczCodeGraphFilterDomainColors extends EczCodeGraphFilter
     removeFilter({ eles })
     {
         eles.removeClass('useDomainColors');
-        eles.removeData('_domainColorId');
+        eles.removeData('_domainColorIndex');
     }
 }
 
@@ -136,7 +136,7 @@ export class EczCodeGraphFilterHighlightImportantNodes extends EczCodeGraphFilte
     removeFilter({ eles })
     {
         eles.removeClass([
-            'importantNode', 'enableHighlightPrimaryParents',
+            'importantNode', 'notImportantNode', 'enableHighlightPrimaryParents',
             'highlightRootConnectingEdge', 'highlightRootIncomingEdge',
             'highlightRootOutgoingEdge',
         ]);

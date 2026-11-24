@@ -3,7 +3,7 @@
 # For more information see:
 # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: 'Node.js Test CI (eczoodb)'
+name: 'Node.js Test CI'
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  eczoodb-ci-test:
+  ci-test:
 
     runs-on: ubuntu-latest
 
@@ -55,3 +55,8 @@ jobs:
       - name: 'eczoodb: Yarn test'
         run: 'yarn test'
         working-directory: ./eczoodb/
+
+      # The wasm build of buildcache is committed (dist/): no Rust toolchain needed.
+      - name: 'buildcache: Yarn test'
+        run: 'yarn test'
+        working-directory: ./eczoohelpers/buildcache/
