@@ -24,6 +24,10 @@ previewtool/dist
 previewtool/_zoodb_citations_cache
 _TEST_zoodb_citations_cache
 
+# the cache of the code graph SVGs (eczoohelpers/buildcache)
+_eczoo_graph_svg_cache
+_TEST_eczoo_graph_svg_cache
+
 
 output-eczoo-stats-codes-*
 
