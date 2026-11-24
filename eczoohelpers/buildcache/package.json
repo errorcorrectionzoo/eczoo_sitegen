@@ -1,0 +1,19 @@
+{
+    "name": "@errorcorrectionzoo/buildcache",
+    "version": "0.0.1",
+    "packageManager": "yarn@3.3.0",
+    "private": true,
+    "type": "module",
+    "description": "Build caches of the zoo builder: a small WebAssembly binding of the Rust library cachette (Node.js only)",
+    "main": "index.js",
+    "exports": {
+        ".": "./index.js"
+    },
+    "devDependencies": {
+        "mocha": "^11.0.1"
+    },
+    "scripts": {
+        "build": "node tools/build.mjs",
+        "test": "mocha"
+    }
+}
