@@ -7,6 +7,7 @@
     "_zoodb_citations_cache",
     "eczoodb",
     "eczoohelpers/eczcollectbib",
+    "eczoohelpers/buildcache",
     "jscomponents",
     "site",
     "scripts",
