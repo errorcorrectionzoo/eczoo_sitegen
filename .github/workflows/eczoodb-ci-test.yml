@@ -55,3 +55,8 @@ jobs:
       - name: 'eczoodb: Yarn test'
         run: 'yarn test'
         working-directory: ./eczoodb/
+
+      # The wasm build of buildcache is committed (dist/): no Rust toolchain needed.
+      - name: 'buildcache: Yarn test'
+        run: 'yarn test'
+        working-directory: ./eczoohelpers/buildcache/
