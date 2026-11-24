@@ -7,11 +7,11 @@ Eleventy 3 build that turns the eczoodb object graph into static HTML in
 ## `eleventy.config.js` (the heart of the build)
 
 - Input `src/`, output `_site/`, includes `templates/`, layouts `templates/layout/`, global data dir `site_data/`. Template formats: html, md, njk, 11ty.js (most pages are `.11ty.js`).
-- Global data `eczoodb` (~line 88): loads the zoo via `sitelib/build_eczoo.js` → `load_or_reload_eczoodb()`; cached & reloaded on watch changes (5s throttle). Also runs `prepareEczooBibReferences()` (`sitelib/prepare_eczoo_bibreferences.js`).
-- Global data `eczoo_config` (~line 76): base URL, data dir, citations cache dir, SVG export toggle.
-- Headless code-graph SVG exporter (Puppeteer Chrome) initialized for production builds (~line 109; `sitelib/init_headless_graph_exporter.js`); skipped in dev mode (placeholder SVGs via `sitelib/generatePlaceholderSvg.js`).
-- Parcel plugin config (~lines 165–221): bundles `jsc_profiles/*.js` entry points and stylesheets into `/vv/` with hashed names; Terser (not SWC) for JS; middleware rewrites extensionless URLs to `.html`.
-- Custom filter `getEczooAbsoluteUrl` (~line 157).
+- Global data `eczoodb` (~line 125): loads the zoo via `sitelib/build_eczoo.js` → `load_or_reload_eczoodb()`; cached & reloaded on watch changes (5s throttle). Also runs `prepareEczooBibReferences()` (`sitelib/prepare_eczoo_bibreferences.js`).
+- Global data `eczoo_config` (~line 86): base URL, data dir, citations cache dir, graph SVG cache dir, SVG export toggle.
+- Headless code-graph SVG exporter (Puppeteer Chrome) initialized for production builds (~line 143; `sitelib/init_headless_graph_exporter.js`), with the graph SVG cache (see below); skipped in dev mode (placeholder SVGs via `sitelib/generatePlaceholderSvg.js`). The `eleventy.after` hook (~line 192) shuts it down, prints the cache's summary line and runs the cache maintenance.
+- Parcel plugin config (~lines 232–288): bundles `jsc_profiles/*.js` entry points and stylesheets into `/vv/` with hashed names; Terser (not SWC) for JS; middleware rewrites extensionless URLs to `.html`.
+- Custom filter `getEczooAbsoluteUrl` (~line 224).
 
 ### Environment variables
 
@@ -22,6 +22,8 @@ Eleventy 3 build that turns the eczoodb object graph into static HTML in
 | `ECZOO_RUN_11TY_PARCEL=0` | skip Parcel bundling entirely (fastest) |
 | `ECZOO_RUN_11TY_PARCEL_LAZY=1` | lazy Parcel builds |
 | `ECZOO_CITATIONS_CACHE_DIR` | override citations cache location |
+| `ECZOO_GRAPH_SVG_CACHE_DIR` | override graph SVG cache location (relative to the repo root, or absolute; default `_eczoo_graph_svg_cache`, `_TEST_eczoo_graph_svg_cache` with test data) |
+| `ECZOO_GRAPH_SVG_CACHE` | graph SVG cache mode: `1` (default) use it, `0` neither read nor write it, `refresh` render and store every graph, `verify` render every graph and compare with the cache; other values fail the build |
 | `ECZOO_FLM_CONTINUE_WITH_ERRORS=1` | FLM errors do not stop the build (inspection builds only) |
 
 `ECZOO_FLM_CONTINUE_WITH_ERRORS=1` sets the zoo's `continue_with_errors`
@@ -72,6 +74,32 @@ The FLM engine's stylesheet: `src/dynamic_style/flm.css.11ty.js`
 Directory defaults: `src/src.11tydata.js` — layout `base_page`, git
 last-modified dates, tag `sitePage` (used by sitemap).
 
+## Code-graph SVGs and their cache
+
+The graph pages (`domaingraph`, `kingdomgraph`, `listgraph`; 108 graphs for the
+full zoo) call `eczoodb.site_custom_headless_graph_exporter_instance.compileLoadedEczCodeGraph(options)`.
+In production builds that object is the `CachingCodeGraphSvgExporter` of
+`sitelib/init_headless_graph_exporter.js`, a wrapper of the exporter
+`CodeGraphSvgExporter` ([jscomponents.md](jscomponents.md)). For each graph it:
+
+1. calls `prepareLoadedEczCodeGraph(options)`: the page builds the graph with its selection and filters, without layout (cheap), and returns its `keyData` (visible subgraph, layout inputs, options, browser);
+2. computes the key: SHA-256 of the canonical JSON (keys sorted) of `{ keyVersion, code, keyData }`; `code` fingerprints the exporter bundle (`jscomponents/codegraph/_headless_exporter_browser_code_dist/` without `*.map`), `headlessGraphExporter.js` and the puppeteer version;
+3. hit: `releasePreparedEczCodeGraph()` and the cached SVG; miss: `compilePreparedEczCodeGraph()` (layout + SVG export), then stores the SVG (blob `graph.svg`, a small JSON record, render time as cost).
+
+The cache is a cachette values cache (`@errorcorrectionzoo/buildcache`): name
+`eczoo.codegraph.svg`, version 1, files engine, values idle for 60 days
+removed, size limit 1 GiB. `eleventy.config.js` opens the cache manager once
+per process (watch rebuilds reuse it); each build opens its values cache, and
+`eleventy.after` closes it (`done()`, which records the uses of the values
+read), prints a summary line (`graph SVG cache [mode 1]: 108 graphs: 108 hits,
+0 misses, ...`), runs the maintenance and, in `build` mode, closes the manager.
+
+- Cache failures (unwritable folder, failed write, ...) only warn; the graphs are then rendered without the cache.
+- A key data mismatch (the graph changed between prepare and layout) fails the build: update `_computeGraphKeyData()` in `jscomponents/codegraph/_headless_exporter_browser_code.js`.
+- Raise `GRAPH_SVG_CACHE_KEY_VERSION` (sitelib module) when the key's meaning changes in a way the code fingerprint cannot see.
+- Full zoo without Parcel: ~200 s cold (~150 s in graphs), ~72 s warm (~23 s in graphs, the prepare steps).
+- Modes, location, pruning, CI: [workflows.md](workflows.md).
+
 ## Layout & assets
 
 - `templates/layout/base_page.11ty.js` (~lines 86–238) — master HTML shell: meta tags, favicon, fonts, nav links, stylesheet links (the FLM engine's `/dynamic_style/flm.css`, then `main.scss`), the FLM engine's scripts (`html_scripts()`: the MathJax 4 configuration and loader), footer; injects the page's JS profile via `<script type="module" src="~/site/jsc_profiles/${jscomponents_profile}.js">` (~line 219). Pages control this via the `page_layout_info` object (`jscomponents_profile`, `wide_layout`, `header_navigation_links`, extra head content).
@@ -80,7 +108,7 @@ last-modified dates, tag `sitePage` (used by sitemap).
 - `tinyjavascript/` — small standalone scripts injected directly: `darkmode.js`, `copyboxedcontent.js`, `expandnavlinks.js`.
 - `static/` (icons → `/icons/*`), `static_copy/` (robots.txt → site root); copied by `parcel-reporter-static-files-copy`.
 - `site_data/` — global data: `home_page_data.js` (popular codes list), `notable_codes_hierarchy.js` (~123 code IDs highlighted in hierarchy trees).
-- `sitelib/` — build helpers: `build_eczoo.js` (`load_or_reload_eczoodb`, ~line 38), `prepare_eczoo_bibreferences.js`, `init_headless_graph_exporter.js`, `generatePlaceholderSvg.js`.
+- `sitelib/` — build helpers: `build_eczoo.js` (`load_or_reload_eczoodb`, ~line 38), `prepare_eczoo_bibreferences.js`, `init_headless_graph_exporter.js` (starts the exporter, wrapped by the graph SVG cache: `init_headless_graph_exporter()`, `open_graph_svg_cache_manager()`, `maintain_graph_svg_cache()`, `close_graph_svg_cache_manager()`), `generatePlaceholderSvg.js`.
 - `.parcelrc` — custom transformers (sass, raw, og:image), optimizers (`parcel-optimizer-nohtmlsuffix`, terser), namer (`@errorcorrectionzoo/parcel-namer-own-folder-hashes` → `/vv/` hashed names), resolver (`@phfaist/parcel-resolver-root`, `~` prefix → repo root, `/` → `site/_site`).
 
 ## Output structure (`_site/`)

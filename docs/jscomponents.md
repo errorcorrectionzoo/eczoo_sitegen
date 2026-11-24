@@ -24,7 +24,7 @@ window.addEventListener('load', async function() {
 
 | Folder | What it does | Entry |
 |---|---|---|
-| `codegraph/` | Interactive code-hierarchy graph (Cytoscape + cose-bilkent/fcose layouts). Classes `EczCodeGraph`, `EczCodeGraphViewController` in `index.js`; React UI in `ui.jsx`. The zoo comes from the data dump `/dat/eczoodata.json` (`setup_eczoodb.js`): the FLM engine of the zoo's own configuration installs the dump's FLM data (`zooflm`: index, citations, images, snippets) and renders the information pane (`CodeGraphInformationPane.jsx`) in an output context of its own, whose links to codes, domains and kingdoms are `#jsCallbackRef:TYPE/ID` callbacks; the graph's labels are the names' text snippets. The engine's WebAssembly module (about 5 MB) is a file beside the bundles, which the browser fetches. Also `_headless_exporter_browser_code.js`: headless (Puppeteer) build used server-side to export SVG graphs during the site build (`yarn build` in jscomponents compiles it to `codegraph/_headless_exporter_browser_code_dist/`, the `.wasm` file included). | `setup.js` |
+| `codegraph/` | Interactive code-hierarchy graph (Cytoscape + cose-bilkent/fcose layouts). Classes `EczCodeGraph`, `EczCodeGraphViewController` in `index.js`; React UI in `ui.jsx`. The zoo comes from the data dump `/dat/eczoodata.json` (`setup_eczoodb.js`): the FLM engine of the zoo's own configuration installs the dump's FLM data (`zooflm`: index, citations, images, snippets) and renders the information pane (`CodeGraphInformationPane.jsx`) in an output context of its own, whose links to codes, domains and kingdoms are `#jsCallbackRef:TYPE/ID` callbacks; the graph's labels are the names' text snippets. The engine's WebAssembly module (about 5 MB) is a file beside the bundles, which the browser fetches. Also `_headless_exporter_browser_code.js`: headless (Puppeteer) build used server-side to export SVG graphs during the site build (`yarn build` in jscomponents compiles it to `codegraph/_headless_exporter_browser_code_dist/`, the `.wasm` file included; see below). | `setup.js` |
 | `search/` | Lunr-based full-text search widget (`@phfaist/zoodbtools_search`); index config in `configuresearchindex.js`; build-time index generator `generate_index.js` (used by `site/src/dat/searchindex.11ty.js`); loads `/dat/searchindex.json`. | `setup.js` |
 | `mathjax/` | Waits for MathJax 4, which the page layout configures and loads with the FLM engine's scripts (`html_scripts()`). | `setup.js` exports async `load()` |
 | `popuptippy/` | Tippy.js popups for code info buttons (`.info-popup-button-zone`). | `setup.js` |
@@ -37,6 +37,23 @@ window.addEventListener('load', async function() {
 | `paywall20250401/` | April Fools 2025 fake paywall (date-gated to April 1). | `setup.js` |
 | `aizoo20260401/` | April Fools 2026 "AI Zoo" banner (date-gated to April 1). | `setup.js` |
 | `dev/`, `dev-dist/` | Dev scaffolding for codegraph (`dev/codegraph/codegraphdev.html`, Parcel target `dev-codegraph`). Not ported to zoodb 0.3: its `eczoodata.json` is a zoodb 0.2 dump, which the code graph refuses (no `zooflm`), its page carries no MathJax configuration, and its `try_mk_*.js` scripts import modules that do not exist. | — |
+
+## Headless graph exporter
+
+`codegraph/headlessGraphExporter.js`, class `CodeGraphSvgExporter` (Node side,
+Puppeteer), used by the site build (`site/sitelib/init_headless_graph_exporter.js`,
+through the graph SVG cache, see [site.md](site.md)) and `scripts/genCodeGraph/`.
+It runs the bundle of `_headless_exporter_browser_code.js` (committed in
+`_headless_exporter_browser_code_dist/`) in a headless Chrome page.
+
+- `setup()`; `done()` shuts Chrome down (also after `autoCloseMs` idle, never while a prepared graph is outstanding).
+- `loadEcZooDbData(data)` sets `window.eczoodbData`. The page loads the zoo from it once, at the first graph (a memoized promise shared by all graphs and concurrent calls), and again only after new data is set; a failed load is retried.
+- `prepareLoadedEczCodeGraph(options) → { handle, keyData }`: builds the graph in the page with its selection and filters, without layout. `keyData` (JSON, keys sorted) is the visible subgraph (nodes, edges with their data and classes, in graph order), the layout inputs, the options and the browser environment (exact Chrome version, device pixel ratio, label font metrics); with the code, it determines the SVG.
+- `compilePreparedEczCodeGraph(handle) → svgData`: layout + SVG export, then frees the graph. Throws if the graph changed between prepare and layout (key data mismatch): `_computeGraphKeyData()` in `_headless_exporter_browser_code.js` must then learn what the graph code now reads.
+- `releasePreparedEczCodeGraph(handle)` frees a graph that is not compiled. Each handle must be compiled or released exactly once.
+- `compileLoadedEczCodeGraph(options) → svgData` = prepare + compile (a key data mismatch only warns). Options: `{ graphGlobalOptions, displayOptions, updateLayoutOptions, cyStyleOptions, svgOptions, fitWidth, importSourceSansFonts }`.
+- Page functions: `window.prepareCodeGraph`, `window.compilePreparedCodeGraph`, `window.releasePreparedCodeGraph`.
+- The SVG output is deterministic. After editing the browser code, rebuild the bundle (`yarn build` in jscomponents) and commit it; the new bundle changes every graph's cache key.
 
 ## Build notes
 
