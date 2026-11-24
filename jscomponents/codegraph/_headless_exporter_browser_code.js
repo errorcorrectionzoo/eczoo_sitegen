@@ -305,11 +305,11 @@ async function _prepareCodeGraph(options)
         graphGlobalOptions,
     });
 
-    await eczCodeGraph.initialize();
-
     let prepared = { options, eczCodeGraph, eczCodeGraphViewController: null, domNode: null };
 
     try {
+        await eczCodeGraph.initialize();
+
         let eczCodeGraphViewController =
             new EczCodeGraphViewController(eczCodeGraph, displayOptions);
 
@@ -337,7 +337,10 @@ async function _prepareCodeGraph(options)
 
 //
 // Mounts a prepared graph in the DOM, sets its display options, lays it out,
-// fits it and exports it to SVG; then destroys it.  Returns `{ svgData }`.
+// fits it and exports it to SVG; then destroys it.  Returns `{ svgData,
+// keyDataMismatch }`, where `keyDataMismatch` is true if the graph changed
+// between its preparation and its layout (its key data then does not describe
+// it; the Node side reports it).
 //
 async function _compilePreparedCodeGraph(handle)
 {
@@ -381,7 +384,10 @@ async function _compilePreparedCodeGraph(handle)
         debug(`set display options!`);
 
         // The key data must describe the graph that is laid out.
-        if (JSON.stringify(_computeGraphKeyData(prepared)) !== prepared.graphKeyDataJson) {
+        const keyDataMismatch = (
+            JSON.stringify(_computeGraphKeyData(prepared)) !== prepared.graphKeyDataJson
+        );
+        if (keyDataMismatch) {
             console.warn(
                 `Code graph SVG export: the graph changed between its preparation and its `
                 + `layout; its key data does not describe it (graph handle ${handle}).`
@@ -414,7 +420,7 @@ async function _compilePreparedCodeGraph(handle)
             svgOptions
         ));
 
-        return { svgData };
+        return { svgData, keyDataMismatch };
 
     } finally {
         _destroyPreparedGraph(prepared);

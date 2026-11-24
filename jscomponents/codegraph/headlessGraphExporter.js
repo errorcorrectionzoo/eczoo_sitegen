@@ -126,7 +126,15 @@ export class CodeGraphSvgExporter
         });
         this.page = await this.browser.newPage();
 
-        this.page.on('console', (msg) => console.log('|Puppeteer console|',  msg.text()));
+        this.page.on('console', (msg) => {
+            console.log('|Puppeteer console|',  msg.text());
+            // Puppeteer creates a handle for each argument of the console call,
+            // which keeps the logged object alive in the page (for instance a
+            // whole code graph, logged by debug()) until it is disposed.
+            for (const arg of msg.args()) {
+                arg.dispose().catch( () => {} );
+            }
+        });
 
         await this.page.goto(`http://${hostname}:${port}${browser_code_page_path}`);
 
@@ -183,6 +191,10 @@ export class CodeGraphSvgExporter
             this.browser = null;
         }
 
+        // a page call that was in progress may have started the timer again
+        // before the page was closed
+        this._cancelAutoCloseTimer();
+
         debug(`Internal headless puppeteer browser instance completely shut down.`);
     }
 
@@ -196,8 +208,13 @@ export class CodeGraphSvgExporter
     }
     _fireAutoCloseTimer() {
         this._cancelAutoCloseTimer();
-        if (this.numActivePageCalls > 0) {
-            // restarted when the last call in progress finishes
+        if (this.page == null) {
+            // not set up, or already shut down
+            return;
+        }
+        if (this.numActivePageCalls > 0 || this.preparedGraphs.size > 0) {
+            // restarted when the last call in progress finishes and no prepared
+            // graph is waiting to be compiled or released
             return;
         }
         if (this.options.autoCloseMs && this.options.autoCloseMs > 0) {
@@ -214,13 +231,11 @@ export class CodeGraphSvgExporter
 
     // Runs fn(page), a call to the page; the auto-close timer is stopped while
     // any such call is in progress (calls may run concurrently) and started
-    // again when the last one finishes.
+    // again when the last one finishes, unless prepared graphs are waiting to
+    // be compiled or released.
     async _withPage(fn) {
         if (this.page == null) {
-            throw new Error(
-                `CodeGraphSvgExporter: no browser page, the exporter is not set up or it was `
-                + `shut down (done(), or the auto-close timer)`
-            );
+            throw this._noPageError();
         }
         this.numActivePageCalls += 1;
         this._cancelAutoCloseTimer();
@@ -230,6 +245,12 @@ export class CodeGraphSvgExporter
             this.numActivePageCalls -= 1;
             this._fireAutoCloseTimer();
         }
+    }
+    _noPageError() {
+        return new Error(
+            `CodeGraphSvgExporter: no browser page, the exporter is not set up or it was `
+            + `shut down (done(), or the auto-close timer)`
+        );
     }
 
     // ------------
@@ -311,14 +332,16 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
             fitWidth, importSourceSansFonts,
         };
 
-        const { handle, keyData } = await this._withPage(
-            (page) => page.evaluate(
+        const { handle, keyData } = await this._withPage( async (page) => {
+            const result = await page.evaluate(
                 (prepareOptions) => window.prepareCodeGraph(prepareOptions),
                 prepareOptions
-            )
-        );
-
-        this.preparedGraphs.set(handle, { fitWidth, importSourceSansFonts });
+            );
+            // (registered before the page call ends, so that the auto-close
+            // timer is not started while this graph waits)
+            this.preparedGraphs.set(result.handle, { fitWidth, importSourceSansFonts });
+            return result;
+        } );
 
         debug(`prepareLoadedEczCodeGraph() - prepared graph ${handle}`);
 
@@ -328,10 +351,34 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
     /**
      * Lays out a prepared graph and exports it to SVG.  Returns the SVG data.
      * The prepared graph is released.
+     *
+     * Throws if the graph changed between its preparation and its layout: its
+     * key data then does not describe its SVG (the graph code changed in a way
+     * that `_computeGraphKeyData()` in `_headless_exporter_browser_code.js`
+     * does not know about, and which that function must be updated for).
      */
     async compilePreparedEczCodeGraph(handle)
     {
         debug(`compilePreparedEczCodeGraph(${handle})`);
+
+        const { svgData, keyDataMismatch } = await this._compilePreparedGraph(handle);
+        if (keyDataMismatch) {
+            throw new Error(
+                `CodeGraphSvgExporter: the code graph (handle ${JSON.stringify(handle)}) changed `
+                + `between its preparation and its layout, so its key data does not describe `
+                + `its SVG.  Please update _computeGraphKeyData() in `
+                + `_headless_exporter_browser_code.js.`
+            );
+        }
+        return svgData;
+    }
+
+    // Returns { svgData, keyDataMismatch }
+    async _compilePreparedGraph(handle)
+    {
+        if (this.page == null) {
+            throw this._noPageError();
+        }
 
         const preparedGraph = this.preparedGraphs.get(handle);
         if (preparedGraph == null) {
@@ -344,7 +391,7 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
 
         const { fitWidth, importSourceSansFonts } = preparedGraph;
 
-        let { svgData } = await this._withPage(
+        let { svgData, keyDataMismatch } = await this._withPage(
             (page) => page.evaluate(
                 (handle) => window.compilePreparedCodeGraph(handle),
                 handle
@@ -353,7 +400,7 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
         debug(`compilePreparedEczCodeGraph() - evaluated compilation code and got SVG data!`);
 
         svgData = this._fixSvg(svgData, { fitWidth, importSourceSansFonts, });
-        return svgData;
+        return { svgData, keyDataMismatch: !! keyDataMismatch };
     }
 
     /**
@@ -384,6 +431,16 @@ window.eczoodbData = ${JSON.stringify(eczoodbData)};
 
         const { handle } = await this.prepareLoadedEczCodeGraph(options);
 
-        return await this.compilePreparedEczCodeGraph(handle);
+        const { svgData, keyDataMismatch } = await this._compilePreparedGraph(handle);
+        if (keyDataMismatch) {
+            // the key data is not used here, the SVG is fine; but this would
+            // break the cache of the graph SVGs
+            console.warn(
+                `CodeGraphSvgExporter: the code graph changed between its preparation and its `
+                + `layout, so its key data does not describe its SVG.  Please update `
+                + `_computeGraphKeyData() in _headless_exporter_browser_code.js.`
+            );
+        }
+        return svgData;
     }
 }
