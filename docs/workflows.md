@@ -61,7 +61,7 @@ graph SVG cache.
 
 - The build is committed in `dist/` (glue `buildcache.js`, `buildcache_bg.wasm`, `BUILD_INFO.json`), so no Rust toolchain is needed to use it.
 - Rebuild only when `src/`, `Cargo.toml` or `Cargo.lock` change (e.g. a new cachette: `cargo update -p cachette`): needs `rustup target add wasm32-unknown-unknown` and `wasm-pack`; then `yarn build` there (`tools/build.mjs`: wasm-pack build, machine paths remapped and checked, output copied to `dist/`; cargo output stays in the ignored `target/`). Commit `dist/` with `Cargo.lock`.
-- Tests: `cd eczoohelpers/buildcache && yarn test` (mocha). The GitHub CI (`.github/workflows/eczoodb-ci-test.yml`) runs them after the eczoodb tests.
+- Tests: `cd eczoohelpers/buildcache && yarn test` (mocha). The GitHub CI (`.github/workflows/ci-test.yml`) runs them after the eczoodb tests.
 
 ## `helpers/` — Parcel plugins
 
