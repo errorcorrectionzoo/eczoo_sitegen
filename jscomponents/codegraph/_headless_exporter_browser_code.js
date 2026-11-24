@@ -358,8 +358,8 @@ async function _compilePreparedCodeGraph(handle)
         const domNode = window.document.createElement('div');
         prepared.domNode = domNode;
         window.document.body.appendChild(domNode);
-        domNode.style.width = 800;
-        domNode.style.height = 600;
+        domNode.style.width = '800px';
+        domNode.style.height = '600px';
 
         await eczCodeGraph.mountInDom(
             domNode,
