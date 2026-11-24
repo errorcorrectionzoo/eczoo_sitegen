@@ -53,8 +53,9 @@ export default async function (eleventyConfig)
         const run_11ty_parcel = ((env.ECZOO_RUN_11TY_PARCEL ?? 1) != 0);
         const run_11ty_parcel_lazy = ((env.ECZOO_RUN_11TY_PARCEL_LAZY ?? 0) != 0);
         const development_mode = ((env.ECZOO_DEVELOPMENT_MODE ?? 0) != 0);
+        // The citations cache (relative to the repository root, or absolute)
         const citations_cache_dir = (
-            process.env.ECZOO_CITATIONS_CACHE_DIR
+            env.ECZOO_CITATIONS_CACHE_DIR
             ?? (use_test_data ? '_TEST_zoodb_citations_cache' : '_zoodb_citations_cache')
         );
         // The cache of the code graph SVGs (relative to the repository root)
@@ -90,7 +91,7 @@ export default async function (eleventyConfig)
             : path.resolve(__dirname, '..', '..', 'eczoo_data'),
         run_options: eczoo_run_options,
         site_base_url_host_name: 'https://errorcorrectionzoo.org/',
-        citationsinfo_cache_dir: path.join(
+        citationsinfo_cache_dir: path.resolve(
             __dirname,
             '..',
             eczoo_run_options.citations_cache_dir,
