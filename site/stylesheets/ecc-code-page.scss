@@ -311,6 +311,12 @@ a.code-show-github {
 .dark a.code-show-github {
     background-image: url('~/site/static/icons/github-logo-dark.svg');
 }
+a.code-show-reporterror {
+    background-image: url('~/site/static/icons/reporterror-icon.svg');
+}
+.dark a.code-show-reporterror {
+    background-image: url('~/site/static/icons/reporterror-icon-dark.svg');
+}
 a.code-self-edit {
     background-image: url('~/site/static/icons/edit-icon.svg');
 }

@@ -247,6 +247,36 @@ const data = async () => {
 };
 
 
+
+
+function getReportErrorUrl(code)
+{
+    const codeId = code.code_id;
+    const codeName = code.name.source;
+
+    const url = new URL(
+        'https://github.com/errorcorrectionzoo/eczoo_data/issues/new'
+    );
+
+    url.searchParams.set('title', `In ${codeId} (${codeName}): [Insert short title/keywords here: typo? missing ref? factual error? ...?]`);
+
+    url.searchParams.set('body', 
+`**Code ID:** ${codeId} @ ${code._zoodb.source_file_path}
+
+**Description of the error and/or suggested fixes:**
+
+[Provide a succinct description of what you spotted might be wrong or incomplete on the code page for ${codeName}.]
+
+[Provide relevant references, if applicable. You may given them simply in the format arXiv:ARXIVID or doi:DOI ]
+
+[Edit the fields in square brackets, removing the square bracketed instructions once you are done.]`
+    );
+
+    return url.href;
+}
+
+
+
 const render = async (data) => {
 
     const code = data.code;
@@ -298,6 +328,7 @@ const render = async (data) => {
     //           code_id: code.code_id,
     //           code_yml_filename: code._zoodb.source_file_path}))}`
     // );
+    const code_report_error_url = getReportErrorUrl(code);
     const code_bibtex = `@incollection{eczoo_${code.code_id},
   title={${ code.name.source }},
   booktitle={The Error Correction Zoo},
@@ -337,10 +368,14 @@ const render = async (data) => {
        data-popup-button-label="edit"
        data-popup-button-class-list="code-self-edit">
     <h3>Your contribution is welcome!</h3>
+    <p><a class="code-link-with-icon code-show-reporterror"
+          target="_blank"
+          title="Report an error or suggest a change (creates an issue on github.com)"
+          href="${ code_report_error_url }">report an error or suggest a change</a></p>
     <p><a class="code-link-with-icon code-show-github"
           target="_blank"
           title="Edit code information directly on github.com"
-          href="${ code_edit_github_url }">on github.com (edit &amp; pull request)</a></p>
+          href="${ code_edit_github_url }">edit &amp; pull request on github.com</a></p>
     <p>— see <a title="edit source instructions" target="_blank"
                 href="https://github.com/errorcorrectionzoo/eczoo_data/blob/main/README.md">instructions</a></p>
     <!--<p><a class="code-link-with-icon code-self-edit"
